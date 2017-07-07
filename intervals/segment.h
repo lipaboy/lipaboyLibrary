@@ -1,9 +1,11 @@
 #ifndef SEGMENT_H
 #define SEGMENT_H
 
-#include "interval.h"
+#include <cmath>
 
-#include <QDebug>
+//#include "interval.h"
+
+//#include <QDebug>
 
 namespace IntervalFuncs {
 
@@ -41,7 +43,7 @@ template <>
 class Segment<double>
 {
 public:
-    Segment<double>(double left1, double right1, double precision = 1e-6) : leftBorder(left1), rightBorder(right1),
+    Segment(double left1, double right1, double precision = 1e-6) : leftBorder(left1), rightBorder(right1),
         epsilon(std::abs(precision)) {}
 
     bool in(double element) const { return ((element > leftBorder - epsilon)
