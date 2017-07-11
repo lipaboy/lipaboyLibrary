@@ -10,10 +10,13 @@
 
 namespace IntervalFuncs {
 
+	//TODO: such interface already exists (Set)
+
 template <class T>
 class IPlenty {
 public:
 	virtual bool in(const T& element) const = 0;
+	virtual bool out(const T& element) const = 0;
 };
 
 template <class T>
