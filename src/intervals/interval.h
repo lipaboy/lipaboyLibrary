@@ -4,20 +4,12 @@
 //TODO: may be can create such class that would get parameters like lambda
 //where you can give such labmda: [] (int x, int y) { return x < y; } and would inherit from that class
 
-//TODO: shake maths package with this one
 
-//#include "segment.h"
+#include "iplenty.h"
 
 namespace IntervalFuncs {
 
 	//TODO: such interface already exists (Set)
-
-template <class T>
-class IPlenty {
-public:
-	virtual bool in(const T& element) const = 0;
-	virtual bool out(const T& element) const = 0;
-};
 
 template <class T>
 class Interval : public IPlenty<T>
