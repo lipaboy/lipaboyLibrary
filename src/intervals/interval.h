@@ -12,23 +12,20 @@
 
 namespace IntervalFuncs {
 
-	template <class T, 
-		typename LeftComparison,
-		typename RightComparison
-		/*std::function<bool(const T& lhs, const T& element)> leftComparison, 
-		std::function<bool(const T& element, const T& rhs)> rightComparison*/
-	>
+	//use * to function
+	/*std::function<bool(const T& lhs, const T& element)> leftComparison,
+	std::function<bool(const T& element, const T& rhs)> rightComparison*/
+
+	template <class T, typename LeftComparison, typename RightComparison>
 	class Interval : public IPlenty<T>
 	{
 	public:
 		Interval(const T& left1, const T& right1)
 			: leftBorder(left1), rightBorder(right1) {}
-		bool in(const T& element) const { 
-			return LeftComparison()(leftBorder, element) && RightComparison()(element, rightBorder);
-		}
+		bool in(const T& element) const { return leftComp(leftBorder, element) && rightComp(element, rightBorder); }
 		bool out(const T& element) const { return !in(element); }
-		/*bool outLeft(const T& element) const { return (element <= leftBorder); }
-		bool outRight(const T& element) const { return (element >= rightBorder); }*/
+		bool outLeft(const T& element) const { return !leftComp(leftBorder, element); }
+		bool outRight(const T& element) const { return !rightComp(element, rightBorder); }
 
 		virtual bool contains(const T& element) const { return in(element); }
 
@@ -38,6 +35,8 @@ namespace IntervalFuncs {
 	protected:
 		T leftBorder;
 		T rightBorder;
+		LeftComparison leftComp;
+		RightComparison rightComp;
 	};
 
 	//TODO: const double epsilon = 1e-5;	//move into Double
