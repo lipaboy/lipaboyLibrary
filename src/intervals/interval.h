@@ -35,7 +35,7 @@ namespace LipaboyMaths {
 	class Interval : public IPlenty<T>
 	{
 	public:
-		Interval(const T& left1, const T& right1)
+		Interval(const T& left1 = T(), const T& right1 = T())
 			: leftBorder(left1), rightBorder(right1) {}
 		bool in(const T& element) const { return leftComp(leftBorder, element) && rightComp(element, rightBorder); }
 		bool out(const T& element) const { return !in(element); }
@@ -46,6 +46,8 @@ namespace LipaboyMaths {
 
 		const T& left() const { return leftBorder; }
 		const T& right() const {return rightBorder; }
+		T& rLeft() { return leftBorder; }
+		T& rRight() { return rightBorder; }
 
 	protected:
 		T leftBorder;
@@ -59,6 +61,18 @@ namespace LipaboyMaths {
 
 	template <class T>
 	using CloseInterval = Interval<T, std::less_equal<>, std::less_equal<> >;
+
+	template <class T>
+	class Ray;
+	
+	template <class T, class LeftComparison>
+	class PositiveRay : Interval<T, LeftComparison, std::less<> > {
+	public:
+		//Ray(const T& leftBorder) : Interval(leftBorder, static_cast<T>(0)
+
+	private:
+		//Interval<T, LeftComparison, std::less<> > rayInterval;
+	};
 
 
 	//use * to function

@@ -12,7 +12,7 @@ namespace LipaboyMaths {
 	class AccuracyNumber : public EitherComparable<T>, public Comparable {
 	public:
 		explicit
-		AccuracyNumber(T _number = static_cast<T>(0), T _precision = static_cast<T>(0))
+		AccuracyNumber(T _number = T(), T _precision = T())
 			: number(_number), epsilon(_precision) {}
 
 		virtual bool operator<(const T& val) const { return (number < val - epsilon); }
