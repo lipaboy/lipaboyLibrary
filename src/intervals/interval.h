@@ -7,6 +7,28 @@
 
 namespace IntervalFuncs {
 
+	//TODO: write comparison with Infinity (throw exception but what for?)
+
+	
+
+	template <class T>
+	class Infinity : public EitherComparable<T> {};
+
+	template <class T>
+	class PlusInfinity : public Infinity<T> {
+	public:
+		virtual bool operator< (const T& number) const { return false; }
+		virtual bool operator<= (const T& number) const { return false; }
+		virtual bool operator== (const T& number) const { return false; }
+	};
+
+	template <class T>
+	class MinusInfinity : public Infinity<T> {
+	public:
+		virtual bool operator< (const T& number) const { return true; }
+		virtual bool operator<= (const T& number) const { return true; }
+		virtual bool operator== (const T& number) const { return true; }
+	};
 	
 	//TODO: Add debug function to output result ( if contains then "c in [a, b]" or "c out [a, b]" )
 
@@ -46,3 +68,4 @@ namespace IntervalFuncs {
 }
 
 #endif // INTERVAL_H
+
