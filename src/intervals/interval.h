@@ -5,11 +5,9 @@
 
 #include <functional>
 
-namespace IntervalFuncs {
+namespace LipaboyMaths {
 
 	//TODO: write comparison with Infinity (throw exception but what for?)
-
-	
 
 	template <class T>
 	class Infinity : public EitherComparable<T> {};

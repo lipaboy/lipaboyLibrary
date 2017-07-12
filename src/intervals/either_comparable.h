@@ -2,7 +2,7 @@
 #define EITHER_COMPARABLE_H
 
 //Lipa std
-namespace IntervalFuncs {
+namespace LipaboyMaths {
 
 	//EitherComparable with other object types
 	template <class T>

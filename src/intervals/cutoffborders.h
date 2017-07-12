@@ -1,7 +1,7 @@
 #ifndef CUT_OFF_BORDERS_H
 #define CUT_OFF_BORDERS_H
 
-namespace IntervalFuncs {
+namespace LipaboyMaths {
 
 	//TODO: move to another package (but what's package??)
 

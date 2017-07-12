@@ -4,7 +4,7 @@
 #include "../maths/point2d.h"
 #include "segment.h"
 
-namespace IntervalFuncs {
+namespace LipaboyMaths {
 
 //TODO: extend to template
 class RectSegment

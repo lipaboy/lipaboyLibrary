@@ -6,7 +6,7 @@
 //
 //using namespace LipaboyMaths;
 
-namespace IntervalFuncs {
+namespace LipaboyMaths {
 
 class CubeSegment
 {

@@ -1,38 +1,41 @@
 #ifndef ACCURACY_NUMBER_H
 #define ACCURACY_NUMBER_H
 
-//TODO: think about name, may be PreciselyNumber or UnpreciselyNumber (but ConstUnpreciselyNumber ??)
+namespace LipaboyMaths {
 
-template <class T>
-class AccuracyNumber {
-public:
-	AccuracyNumber(T _number = static_cast<T>(0), T _precision = static_cast<T>(0)) 
-		: number(_number), epsilon(_precision) {}
+	//TODO: think about name, may be PreciselyNumber or UnpreciselyNumber (but ConstUnpreciselyNumber ??)
 
-	bool operator<(const T& val) const { return (number < val - epsilon); }
-	bool operator>(const T& val) const { return (number > val + epsilon); }
-	bool operator<=(const T& val) const { return !((*this) > val); }
-	bool operator>=(const T& val) const { return !((*this) < val); }
-	bool operator==(const T& val) const { return ((*this) >= val) && ((*this) <= val); }
-	bool operator!=(const T& val) const { return !((*this) == val); }
+	template <class T>
+	class AccuracyNumber {
+	public:
+		AccuracyNumber(T _number = static_cast<T>(0), T _precision = static_cast<T>(0))
+			: number(_number), epsilon(_precision) {}
 
-	bool operator<(const AccuracyNumber& obj) const { return number < obj.number; }
-	bool operator>(const AccuracyNumber& obj) const { return number > obj.number; }
-	bool operator<=(const AccuracyNumber& obj) const { return !((*this) > obj); }
-	bool operator>=(const AccuracyNumber& obj) const { return !((*this) < obj); }
-	bool operator==(const AccuracyNumber& obj) const { return ((*this) >= obj) && ((*this) <= obj); }
-	bool operator!=(const AccuracyNumber& obj) const { return !((*this) == obj); }
+		bool operator<(const T& val) const { return (number < val - epsilon); }
+		bool operator>(const T& val) const { return (number > val + epsilon); }
+		bool operator<=(const T& val) const { return !((*this) > val); }
+		bool operator>=(const T& val) const { return !((*this) < val); }
+		bool operator==(const T& val) const { return ((*this) >= val) && ((*this) <= val); }
+		bool operator!=(const T& val) const { return !((*this) == val); }
 
-	operator T() { return number; }
-	//const AccuracyNumber&
+		bool operator<(const AccuracyNumber& obj) const { return number < obj.number; }
+		bool operator>(const AccuracyNumber& obj) const { return number > obj.number; }
+		bool operator<=(const AccuracyNumber& obj) const { return !((*this) > obj); }
+		bool operator>=(const AccuracyNumber& obj) const { return !((*this) < obj); }
+		bool operator==(const AccuracyNumber& obj) const { return ((*this) >= obj) && ((*this) <= obj); }
+		bool operator!=(const AccuracyNumber& obj) const { return !((*this) == obj); }
 
-private:
-	T number;
-	T epsilon;		//our precision
-};
+		operator T() { return number; }
+		//const AccuracyNumber&
 
-typedef AccuracyNumber<double> AccuracyDouble;
+	private:
+		T number;
+		T epsilon;		//our precision
+	};
 
+	typedef AccuracyNumber<double> AccuracyDouble;
+
+}
 
 /*------------Too a lot of code production (but more faster)------------*/
 
