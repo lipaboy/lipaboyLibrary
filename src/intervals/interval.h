@@ -39,43 +39,13 @@ namespace IntervalFuncs {
 		RightComparison rightComp;
 	};
 
-	//TODO: const double epsilon = 1e-5;	//move into Double
+	template <class T>
+	using OpenInterval = Interval<T, std::less<>, std::less<> >;
 
-//----------------Cutting off the borders--------------------//
+	template <class T>
+	using CloseInterval = Interval<T, std::less_equal<>, std::less_equal<> >;
 
-//TODO: move to another package
 
-	template <typename T>
-	inline const T& cutOffBorder(const T& value, const T& rightBorder, const T& leftBorder) {
-		return ((value < leftBorder) ? leftBorder : ((value > rightBorder) ? rightBorder : value));
-	}
-
-	template <typename T>
-	inline const T& cutOffRightBorder(const T& value, const T& rightBorder) {
-		return ((value > rightBorder) ? rightBorder : value);
-	}
-
-	template <typename T>
-	inline const T& cutOffLeftBorder(const T& value, const T& leftBorder) {
-		return ((value < leftBorder) ? leftBorder : value);
-	}
-
-//I don't see any necessary to specialize cutOffBorder for double
-
-//template <>
-//inline const double& cutOffBorder(const double& value, const double& rightBorder, const double& leftBorder) {
-//	return ((value < leftBorder - epsilon) ? leftBorder : ((value > rightBorder + epsilon) ? rightBorder : value));
-//}
-//
-//template <>
-//inline const double& cutOffRightBorder(const double& value, const double& rightBorder) {
-//	return ((value > rightBorder) ? rightBorder : value);
-//}
-//
-//template <>
-//inline const double& cutOffLeftBorder(const double& value, const double& leftBorder) {
-//	return ((value < leftBorder) ? leftBorder : value);
-//}
 
 }
 
