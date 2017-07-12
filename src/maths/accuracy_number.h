@@ -33,7 +33,8 @@ private:
 
 typedef AccuracyNumber<double> AccuracyDouble;
 
-/*------------Too a lot of code production------------*/
+
+/*------------Too a lot of code production (but more faster)------------*/
 
 template <typename T, typename PrecisionType, PrecisionType fraction, PrecisionType dozenExponent>
 class ConstAccuracyNumber {
