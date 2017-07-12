@@ -12,11 +12,6 @@
 
 namespace IntervalFuncs {
 
-	enum BorderType { 
-		Closed,		//"[a,.." or "..,a]"
-		Opened		//"(a,.." or "..,a)"
-	};
-
 	template <class T, 
 		typename LeftComparison,
 		typename RightComparison
@@ -25,8 +20,6 @@ namespace IntervalFuncs {
 	>
 	class Interval : public IPlenty<T>
 	{
-	public:
-		
 	public:
 		Interval(const T& left1, const T& right1)
 			: leftBorder(left1), rightBorder(right1) {}
