@@ -15,7 +15,7 @@ namespace IntervalFuncs {
 	class Infinity : public EitherComparable<T> {};
 
 	template <class T>
-	class PlusInfinity : public Infinity<T> {
+	class PositiveInfinity : public Infinity<T> {
 	public:
 		virtual bool operator< (const T& number) const { return false; }
 		virtual bool operator<= (const T& number) const { return false; }
@@ -23,7 +23,7 @@ namespace IntervalFuncs {
 	};
 
 	template <class T>
-	class MinusInfinity : public Infinity<T> {
+	class NegativeInfinity : public Infinity<T> {
 	public:
 		virtual bool operator< (const T& number) const { return true; }
 		virtual bool operator<= (const T& number) const { return true; }
