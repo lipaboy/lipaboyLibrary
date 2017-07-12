@@ -1,20 +1,14 @@
 #ifndef INTERVAL_H
 #define INTERVAL_H
 
-//TODO: may be can create such class that would get parameters like lambda
-//where you can give such labmda: [] (int x, int y) { return x < y; } and would inherit from that class
-
-//TODO: add Args&&
-
 #include "iplenty.h"
 
 #include <functional>
 
 namespace IntervalFuncs {
 
-	//use * to function
-	/*std::function<bool(const T& lhs, const T& element)> leftComparison,
-	std::function<bool(const T& element, const T& rhs)> rightComparison*/
+	
+	//TODO: Add debug function to output result ( if contains then "c in [a, b]" or "c out [a, b]" )
 
 	template <class T, typename LeftComparison, typename RightComparison>
 	class Interval : public IPlenty<T>
@@ -46,7 +40,9 @@ namespace IntervalFuncs {
 	using CloseInterval = Interval<T, std::less_equal<>, std::less_equal<> >;
 
 
-
+	//use * to function
+	/*std::function<bool(const T& lhs, const T& element)> leftComparison,
+	std::function<bool(const T& element, const T& rhs)> rightComparison*/
 }
 
 #endif // INTERVAL_H
