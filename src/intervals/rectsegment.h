@@ -1,7 +1,7 @@
 #ifndef RECTSEGMENT_H
 #define RECTSEGMENT_H
 
-//#include "src/maths/point2d.h"
+#include "../maths/point2d.h"
 #include "segment.h"
 
 namespace IntervalFuncs {
@@ -11,8 +11,8 @@ class RectSegment
 {
 public:
     RectSegment(Segment<double> X, Segment<double> Y) : x(X), y(Y) {}
-    //bool in(Point2D vec) const { return (x.in(vec.x()) && y.in(vec.y())); }
-    //bool out(Point2D vec) const { return !in(vec); }
+    bool in(LipaboyMaths::Point2D vec) const { return (x.in(vec.x()) && y.in(vec.y())); }
+    bool out(LipaboyMaths::Point2D vec) const { return !in(vec); }
 
     Segment<double> xSegment() const { return x; }
     Segment<double> ySegment() const { return y; }
