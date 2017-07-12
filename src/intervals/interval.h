@@ -2,6 +2,7 @@
 #define INTERVAL_H
 
 #include "iplenty.h"
+#include "either_comparable.h"
 
 #include <functional>
 
