@@ -2,9 +2,9 @@
 #define CUBESEGMENT_H
 
 #include "segment.h"
-//#include "src/maths/vector3d.h"
+#include "../maths/vector3d.h"
 //
-//using namespace IsolinesApp;
+//using namespace LipaboyMaths;
 
 namespace IntervalFuncs {
 
@@ -12,8 +12,8 @@ class CubeSegment
 {
 public:
     CubeSegment(Segment<double> X, Segment<double> Y, Segment<double> Z) : x(X), y(Y), z(Z) {}
-    //bool in(Vector3D vec) const { return (x.in(vec.x()) && y.in(vec.y()) && z.in(vec.z())); }
-    //bool out(Vector3D vec) const { return !in(vec); }
+    bool in(LipaboyMaths::Vector3D vec) const { return (x.in(vec.x()) && y.in(vec.y()) && z.in(vec.z())); }
+    bool out(LipaboyMaths::Vector3D vec) const { return !in(vec); }
 
     Segment<double> xSegment() const { return x; }
     Segment<double> ySegment() const { return y; }

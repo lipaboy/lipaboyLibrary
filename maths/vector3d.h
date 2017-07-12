@@ -3,7 +3,13 @@
 
 #include "point2d.h"
 
-namespace  IsolinesApp {
+#ifdef QT_H
+#include <QPoint>
+#endif
+#include <stdint.h>
+#include <algorithm>
+
+namespace LipaboyMaths {
 
 static const double epsilon = 1e-5;
 
@@ -13,7 +19,9 @@ public:
     Vector3D() : X(0.0), Y(0.0), Z(0.0) {}
     Vector3D(double x1, double y1, double z1) : X(x1), Y(y1), Z(z1) {}
     Vector3D(Point2D point, double z1) : X(point.x()), Y(point.y()), Z(z1) {}
+#ifdef QT_H
     Vector3D(QPoint point) : X(point.x()), Y(point.y()), Z(0.0) {}
+#endif
 
     double x() const { return X; }
     double y() const { return Y; }

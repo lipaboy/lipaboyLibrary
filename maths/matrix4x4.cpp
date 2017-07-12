@@ -1,26 +1,21 @@
 #include "matrix4x4.h"
 
-namespace IsolinesApp {
+namespace LipaboyMaths {
 
-//Matrix4x4::Matrix4x4(const QVector<qreal>& matr)
+//Matrix4x4::Matrix4x4(float matr[16])
 //{
-//    matrix = matr;
+//    for (int i = 0; i < 4; i++) {
+//       for (int j = 0; j < 4; j++) {
+//           set(i, j, matr[i * 4 + j]);
+//       }
+//    }
 //}
 
-Matrix4x4::Matrix4x4(float matr[16])
+Matrix4x4::Matrix4x4(double matr[16])
 {
     for (int i = 0; i < 4; i++) {
        for (int j = 0; j < 4; j++) {
-           set(i, j, matr[i * 4 + j]);
-       }
-    }
-}
-
-Matrix4x4::Matrix4x4(qreal matr[])
-{
-    for (int i = 0; i < 4; i++) {
-       for (int j = 0; j < 4; j++) {
-           set(i, j, (qreal)matr[i * 4 + j]);
+           set(i, j, (double)matr[i * 4 + j]);
        }
     }
 }
@@ -94,7 +89,7 @@ VectorColumn4D Matrix4x4::operator*(const VectorColumn4D &vect) const
     VectorColumn4D newVec(0, 0, 0, 0);
 
     for (int i = 0; i < 4; i++) {
-        //qreal temp = vect[i];
+        //double temp = vect[i];
         for (int j = 0; j < 4; j++) {
             newVec[i] += get(i, j) * vect[j];
         }
@@ -103,7 +98,7 @@ VectorColumn4D Matrix4x4::operator*(const VectorColumn4D &vect) const
     return newVec;
 }
 
-const Matrix4x4& Matrix4x4::operator*=(const qreal coef)
+const Matrix4x4& Matrix4x4::operator*=(const double coef)
 {
      for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
@@ -127,7 +122,7 @@ void Matrix4x4::transpose()
 
 Matrix4x4 Matrix4x4::getDualMatrix(Vector3D vect)
 {
-    qreal arr[] = {0, -vect.z(), vect.y(), 0,
+    double arr[] = {0, -vect.z(), vect.y(), 0,
                    vect.z(), 0, -vect.x(), 0,
                    -vect.y(), vect.x(), 0, 0,
                    0, 0, 0, 0};
@@ -145,7 +140,7 @@ Matrix4x4 Matrix4x4::getDiagonal(Vector4D vect)
 
 Matrix4x4 Matrix4x4::getEye()
 {
-    qreal arr[] = {1, 0, 0, 0,
+    double arr[] = {1, 0, 0, 0,
                  0, 1, 0, 0,
                  0, 0, 1, 0,
                  0, 0, 0, 1};
@@ -154,7 +149,7 @@ Matrix4x4 Matrix4x4::getEye()
 
 Matrix4x4 Matrix4x4::getEye3D()
 {
-    qreal arr[] = {1, 0, 0, 0,
+    double arr[] = {1, 0, 0, 0,
                  0, 1, 0, 0,
                  0, 0, 1, 0,
                  0, 0, 0, 0};
@@ -166,7 +161,7 @@ Matrix4x4 operator*(const VectorColumn4D &v1, const VectorRow4D &v2)
     Matrix4x4 matrix;
 
     for (int i = 0; i < 4; i++) {
-        qreal temp = v1[i];
+        double temp = v1[i];
         for (int j = 0; j < 4; j++) {
             matrix.set(i, j, temp * v2[j]);
         }

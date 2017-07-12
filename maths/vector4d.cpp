@@ -1,29 +1,29 @@
 #include "vector4d.h"
 
-namespace IsolinesApp {
+namespace LipaboyMaths {
 
-Vector4D::Vector4D(qreal vect[4])
+Vector4D::Vector4D(double vect1[4])
 {
-    vector[0] = vect[0];
-    vector[1] = vect[1];
-    vector[2] = vect[2];
-    vector[3] = vect[3];
+    vect[0] = vect1[0];
+    vect[1] = vect1[1];
+    vect[2] = vect1[2];
+    vect[3] = vect1[3];
 }
 
-Vector4D::Vector4D(qreal v1, qreal v2, qreal v3, qreal v4)
+Vector4D::Vector4D(double v1, double v2, double v3, double v4)
 {
-    vector[0] = v1;
-    vector[1] = v2;
-    vector[2] = v3;
-    vector[3] = v4;
+    vect[0] = v1;
+    vect[1] = v2;
+    vect[2] = v3;
+    vect[3] = v4;
 }
 
-Vector4D Vector4D::operator*(const qreal coef) const
+Vector4D Vector4D::operator*(const double coef) const
 {
     Vector4D newVec({0.0, 0.0, 0.0, 0.0});
 
     for (int i = 0; i < 4; i++) {
-        newVec.vector[i] = this -> vector[i] * coef;
+        newVec.vect[i] = this -> vect[i] * coef;
     }
 
     return newVec;
@@ -34,14 +34,14 @@ Vector4D Vector4D::operator*(const qreal coef) const
 //    Vector4D newVec({0.0, 0.0, 0.0, 0.0});
 
 //    for (int i = 0; i < 4; i++)
-//        newVec[i] = this -> vector[i] * obj.vector[i];
+//        newVec[i] = this -> vect[i] * obj.vect[i];
 
 //    return newVec;
 //}
 
-qreal operator*(const VectorRow4D &v1, const VectorColumn4D &v2)
+double operator*(const VectorRow4D &v1, const VectorColumn4D &v2)
 {
-    qreal res = 0.0;
+    double res = 0.0;
     for (int i = 0; i < 4; i++) {
         res += v1[i] * v2[i];
     }
