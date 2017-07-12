@@ -8,49 +8,65 @@
 
 #include "iplenty.h"
 
+#include <functional>
+
 namespace IntervalFuncs {
 
+	enum BorderType { 
+		Closed,		//"[a,.." or "..,a]"
+		Opened		//"(a,.." or "..,a)"
+	};
 
-template <class T>
-class Interval : public IPlenty<T>
-{
-public:
-    Interval(const T& left1, const T& right1) : leftBorder(left1), rightBorder(right1) {}
-    bool in(const T& element) const { return (element > leftBorder) && (element < rightBorder); }
-    bool out(const T& element) const { return !in(element); }
-    bool outLeft(const T& element) const { return (element <= leftBorder); }
-    bool outRight(const T& element) const { return (element >= rightBorder); }
+	template <class T, 
+		typename LeftComparison,
+		typename RightComparison
+		/*std::function<bool(const T& lhs, const T& element)> leftComparison, 
+		std::function<bool(const T& element, const T& rhs)> rightComparison*/
+	>
+	class Interval : public IPlenty<T>
+	{
+	public:
+		
+	public:
+		Interval(const T& left1, const T& right1)
+			: leftBorder(left1), rightBorder(right1) {}
+		bool in(const T& element) const { 
+			return LeftComparison()(leftBorder, element) && RightComparison()(element, rightBorder);
+		}
+		bool out(const T& element) const { return !in(element); }
+		/*bool outLeft(const T& element) const { return (element <= leftBorder); }
+		bool outRight(const T& element) const { return (element >= rightBorder); }*/
 
-	virtual bool contains(const T& element) const { return in(element); }
+		virtual bool contains(const T& element) const { return in(element); }
 
-	const T& left() const { return leftBorder; }
-	const T& right() const {return rightBorder; }
+		const T& left() const { return leftBorder; }
+		const T& right() const {return rightBorder; }
 
-protected:
-    T leftBorder;
-    T rightBorder;
-};
+	protected:
+		T leftBorder;
+		T rightBorder;
+	};
 
-const double epsilon = 1e-5;
+	//TODO: const double epsilon = 1e-5;	//move into Double
 
 //----------------Cutting off the borders--------------------//
 
 //TODO: move to another package
 
-template <typename T>
-inline const T& cutOffBorder(const T& value, const T& rightBorder, const T& leftBorder) {
-	return ((value < leftBorder) ? leftBorder : ((value > rightBorder) ? rightBorder : value));
-}
+	template <typename T>
+	inline const T& cutOffBorder(const T& value, const T& rightBorder, const T& leftBorder) {
+		return ((value < leftBorder) ? leftBorder : ((value > rightBorder) ? rightBorder : value));
+	}
 
-template <typename T>
-inline const T& cutOffRightBorder(const T& value, const T& rightBorder) {
-	return ((value > rightBorder) ? rightBorder : value);
-}
+	template <typename T>
+	inline const T& cutOffRightBorder(const T& value, const T& rightBorder) {
+		return ((value > rightBorder) ? rightBorder : value);
+	}
 
-template <typename T>
-inline const T& cutOffLeftBorder(const T& value, const T& leftBorder) {
-	return ((value < leftBorder) ? leftBorder : value);
-}
+	template <typename T>
+	inline const T& cutOffLeftBorder(const T& value, const T& leftBorder) {
+		return ((value < leftBorder) ? leftBorder : value);
+	}
 
 //I don't see any necessary to specialize cutOffBorder for double
 
