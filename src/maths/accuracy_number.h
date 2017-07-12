@@ -1,29 +1,29 @@
 #ifndef ACCURACY_NUMBER_H
 #define ACCURACY_NUMBER_H
 
+#include "../common/comparable.h"
+#include "../common/either_comparable.h"
+
 namespace LipaboyMaths {
 
 	//TODO: think about name, may be PreciselyNumber or UnpreciselyNumber (but ConstUnpreciselyNumber ??)
 
 	template <class T>
-	class AccuracyNumber {
+	class AccuracyNumber : public EitherComparable<T>, public Comparable {
 	public:
+		explicit
 		AccuracyNumber(T _number = static_cast<T>(0), T _precision = static_cast<T>(0))
 			: number(_number), epsilon(_precision) {}
 
-		bool operator<(const T& val) const { return (number < val - epsilon); }
-		bool operator>(const T& val) const { return (number > val + epsilon); }
-		bool operator<=(const T& val) const { return !((*this) > val); }
-		bool operator>=(const T& val) const { return !((*this) < val); }
-		bool operator==(const T& val) const { return ((*this) >= val) && ((*this) <= val); }
-		bool operator!=(const T& val) const { return !((*this) == val); }
+		virtual bool operator<(const T& val) const { return (number < val - epsilon); }
+		virtual bool operator<=(const T& val) const { return (number <= val + epsilon); }
+		virtual bool operator==(const T& val) const { 
+			return (number >= val - epsilon) && (number <= val + epsilon); 
+		}
 
-		bool operator<(const AccuracyNumber& obj) const { return number < obj.number; }
-		bool operator>(const AccuracyNumber& obj) const { return number > obj.number; }
-		bool operator<=(const AccuracyNumber& obj) const { return !((*this) > obj); }
-		bool operator>=(const AccuracyNumber& obj) const { return !((*this) < obj); }
-		bool operator==(const AccuracyNumber& obj) const { return ((*this) >= obj) && ((*this) <= obj); }
-		bool operator!=(const AccuracyNumber& obj) const { return !((*this) == obj); }
+		virtual bool operator<(const Comparable& obj) const { return (*this) < dynamic_cast<const AccuracyNumber&>(obj).number; }
+		virtual bool operator<=(const Comparable& obj) const { return (*this) <= dynamic_cast<const AccuracyNumber&>(obj).number;}
+		virtual bool operator==(const Comparable& obj) const { return ((*this) == dynamic_cast<const AccuracyNumber&>(obj).number); }
 
 		operator T() { return number; }
 		//const AccuracyNumber&
@@ -42,6 +42,7 @@ namespace LipaboyMaths {
 template <typename T, typename PrecisionType, PrecisionType fraction, PrecisionType dozenExponent>
 class ConstAccuracyNumber {
 public:
+	explicit
 	ConstAccuracyNumber(T _number = static_cast<T>(0)) : number(_number) {}
 
 	bool operator<(const T& val) const { return (number < val - precision); }

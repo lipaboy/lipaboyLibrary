@@ -4,12 +4,16 @@
 //Lipa std
 namespace LipaboyMaths {
 
+	//TODO: swap (*this) and other by places (more beautifully)
+
 	//EitherComparable with other object types
 	template <class T>
 	class EitherComparable {
 	public:
 		virtual bool operator< (const T& other) const = 0;
-		virtual bool operator<= (const T& other) const = 0;
+		virtual bool operator<= (const T& other) const {
+			return ((*this) < other) || ((*this) == other);
+		}
 		virtual bool operator== (const T& other) const = 0;
 
 		bool operator> (const T& other) const { return !((*this) <= other); }
