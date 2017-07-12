@@ -35,14 +35,17 @@ namespace LipaboyMaths {
 	class Interval : public IPlenty<T>
 	{
 	public:
-		Interval(const T& left1 = T(), const T& right1 = T())
-			: leftBorder(left1), rightBorder(right1) {}
-		bool in(const T& element) const { return leftComp(leftBorder, element) && rightComp(element, rightBorder); }
+		Interval(const T& _leftBorder = T(), const T& _rightBorder = T())
+			: leftBorder(_leftBorder), rightBorder(_rightBorder) {}
+		bool in(const T& element) const { return contains(element); }
 		bool out(const T& element) const { return !in(element); }
-		bool outLeft(const T& element) const { return !leftComp(leftBorder, element); }
-		bool outRight(const T& element) const { return !rightComp(element, rightBorder); }
+		//TODO: think about advantages of these methods. If you include them then will override these ones into PositiveRay
+		//bool outLeft(const T& element) const { return !isLeftCompare(element); }
+		//bool outRight(const T& element) const { return !isLeftCompare(element); }
 
-		virtual bool contains(const T& element) const { return in(element); }
+		virtual bool contains(const T& element) const {
+			return isLeftCompare(element) && isRightCompare(element);
+		}
 
 		const T& left() const { return leftBorder; }
 		const T& right() const {return rightBorder; }
@@ -50,6 +53,9 @@ namespace LipaboyMaths {
 		T& rRight() { return rightBorder; }
 
 	protected:
+		bool isLeftCompare(const T& element) const { return leftComp(leftBorder, element); }
+		bool isRightCompare(const T& element) const { return rightComp(element, rightBorder); }
+	private:
 		T leftBorder;
 		T rightBorder;
 		LeftComparison leftComp;
@@ -66,12 +72,11 @@ namespace LipaboyMaths {
 	class Ray;
 	
 	template <class T, class LeftComparison>
-	class PositiveRay : Interval<T, LeftComparison, std::less<> > {
+	class PositiveRay : public Interval<T, LeftComparison, std::less<> > {
 	public:
-		//Ray(const T& leftBorder) : Interval(leftBorder, static_cast<T>(0)
-
-	private:
-		//Interval<T, LeftComparison, std::less<> > rayInterval;
+		PositiveRay(const T& _leftBorder = T()) : Interval(_leftBorder) {}
+		virtual bool contains(const T& element) const { return isLeftCompare(element); }
+		//TODO: how I can return Infinity from method right()???
 	};
 
 
