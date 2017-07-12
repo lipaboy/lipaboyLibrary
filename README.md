@@ -7,3 +7,4 @@ some useful functions for work (C++)
     + (for my realization) that everything is undestandly and laconically
     + realize the common interface IPlenty
 
+3) Read about Args&& (because you need something like that: "Interval<int>.inAnd(a, b, c, d)" instead of "Interval<int>.in(a) && Interval<int>.in(b) && Interval<int>.in(c) && Interval<int>.in(d)" )
