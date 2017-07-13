@@ -10,3 +10,7 @@ some useful functions for work (C++)
 3) Read about Args&& (because you need something like that: "Interval<int>.inAnd(a, b, c, d)" instead of "Interval<int>.in(a) && Interval<int>.in(b) && Interval<int>.in(c) && Interval<int>.in(d)" )
 
 4)  Add new two parameters to Interval (RightComparison and LeftComparison). They intuitevly clear and undestandly but not obviously. May be need some instructions or help for it.
+
+5) Perfomance 
+
+6) Testing
