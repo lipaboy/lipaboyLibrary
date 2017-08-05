@@ -1,6 +1,6 @@
 #include "rotateoperator.h"
 
-namespace LipaboyMaths {
+namespace LipaboyLib {
 
 RotateOperator::RotateOperator(Vector3D asixRotation1, double angle1) :
     asixRotation(asixRotation1),

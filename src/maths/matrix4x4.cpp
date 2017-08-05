@@ -1,6 +1,6 @@
 #include "matrix4x4.h"
 
-namespace LipaboyMaths {
+namespace LipaboyLib {
 
 //Matrix4x4::Matrix4x4(float matr[16])
 //{

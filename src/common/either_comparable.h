@@ -2,7 +2,7 @@
 #define EITHER_COMPARABLE_H
 
 //Lipa std
-namespace LipaboyMaths {
+namespace LipaboyLib {
 
 	//TODO: swap (*this) and other by places (more beautifully)
 

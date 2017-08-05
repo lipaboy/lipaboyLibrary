@@ -6,7 +6,7 @@
 
 #include <functional>
 
-namespace LipaboyMaths {
+namespace LipaboyLib {
 
 	//TODO: write comparison with Infinity (throw exception but what for?)
 

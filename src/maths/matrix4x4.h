@@ -3,9 +3,9 @@
 
 #include "vector4d.h"
 
-namespace LipaboyMaths {
+namespace LipaboyLib {
 
-//TODO: rename namespace to LipaboyMaths namespace
+//TODO: rename namespace to LipaboyLib namespace
 
 class Matrix4x4
 {

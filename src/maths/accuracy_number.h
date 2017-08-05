@@ -4,7 +4,7 @@
 #include "../common/comparable.h"
 #include "../common/either_comparable.h"
 
-namespace LipaboyMaths {
+namespace LipaboyLib {
 
 	//TODO: think about name, may be PreciselyNumber or UnpreciselyNumber (but ConstUnpreciselyNumber ??)
 

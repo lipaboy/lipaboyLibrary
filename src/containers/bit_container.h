@@ -1,0 +1,6 @@
+#ifndef BIT_CONTAINER_H
+#define BIT_CONTAINER_H
+
+
+
+#endif	//BIT_CONTAINER_H
