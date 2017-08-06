@@ -42,40 +42,38 @@ namespace LipaboyLib {
 		BitContainer(std::initializer_list<BitType> initList);
 
 		BitType get(IndexType index) const { 
-			return container[index / bitsPerElem] & (static_cast<T>(1) << (index % bitsPerElem));
+			return container[index / (sizeof(T) * 8)] & (static_cast<T>(1) << (index % (sizeof(T) * 8)));
 		}
 		//TODO: I feel so upset that I need to write methods such as vector's
-		void pushBack(BitType newElem) { ((++_size) % bitsPerElem == 1) 
+		void pushBack(BitType newElem) { ((++_size) % (sizeof(T) * 8) == 1) 
 			? container.push_back(static_cast<T>(newElem)) : set(_size - 1, newElem); }
 		void set(IndexType index, BitType bit) {
-			setBit(container[index / bitsPerElem], index % bitsPerElem, bit);
+			setBit(container[index / (sizeof(T) * 8)], index % (sizeof(T) * 8), bit);
 		}
 
 		IndexType size() const { return _size; }
 
 	private:
-		//void setBitOne(IndexType index) { container[index / bitsPerElem] |= (static_cast<T>(1) << (index % bitsPerElem)); }
+		//void setBitOne(IndexType index) { container[index / (sizeof(T) * 8)] |= (static_cast<T>(1) << (index % (sizeof(T) * 8))); }
 	private:
 		std::vector<T> container;
 		IndexType _size;
-		//TODO: replate bitsPerElem on sizeof(T) * 8
-		static const uint32_t bitsPerElem = sizeof(T) * 8;	//count bytes * count bits in one byte
 	};
 
 	template<typename T, typename IndexType>
 	inline BitContainer<T, IndexType>::BitContainer(std::initializer_list<BitType> initList)
-		: container(1 + (initList.size() - 1) / bitsPerElem), _size(initList.size())
+		: container(1 + (initList.size() - 1) / (sizeof(T) * 8)), _size(initList.size())
 	{
 		IndexType i = 0;
 		IndexType currInd = -1;
 		for (std::initializer_list<BitType>::iterator it = initList.begin(); it != initList.end(); 
 				it++, i++) 
 		{	
-			if (i % bitsPerElem == 0)	//for uint32_t it is 32
+			if (i % (sizeof(T) * 8) == 0)	//for uint32_t it is 32
 				currInd++;
 
 			if (*it == true)
-				setBitOne(container[currInd], i % bitsPerElem);
+				setBitOne(container[currInd], i % (sizeof(T) * 8));
 		}
 	}
 
