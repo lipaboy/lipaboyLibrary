@@ -11,7 +11,7 @@ class RotateOperator
 public:
     RotateOperator(Vector3D asixRotation1, double angle1);
 
-    Vector3D rotate(Vector3D vect) const { return (rotateMat * VectorColumn4D(vect, 0)).toVector3D(); }
+    Vector3D rotate(Vector3D container) const { return (rotateMat * VectorColumn4D(container, 0)).toVector3D(); }
     const Matrix4x4& getMatrix() const { return rotateMat; }
 
 private:

@@ -12,7 +12,7 @@ namespace LipaboyLib {
 class Vector4D
 {
 protected:
-    std::vector<double> vect = std::vector<double>(4);
+    std::vector<double> container = std::vector<double>(4);
 
 public:
     Vector4D() {}
@@ -21,14 +21,14 @@ public:
     Vector4D(Point2D point, double v3, double v4) : Vector4D(point.x(), point.y(), v3, v4) {}
     Vector4D(Vector3D vec, double v4) : Vector4D(vec.x(), vec.y(), vec.z(), v4) {}
 
-    double& operator[] (uint32_t index) { return vect[index]; }
-    double operator[] (uint32_t index) const { return vect[index]; }
-    double get(uint32_t index) const { return vect[index]; }
-    Vector3D toVector3D() const { return Vector3D(vect[0], vect[1], vect[2]); }
+    double& operator[] (uint32_t index) { return container[index]; }
+    double operator[] (uint32_t index) const { return container[index]; }
+    double get(uint32_t index) const { return container[index]; }
+    Vector3D toVector3D() const { return Vector3D(container[0], container[1], container[2]); }
 
     Vector4D operator* (const double coef) const;
     //divide on W coordinate (not casting to unitary length)
-    const Vector4D& normalize() { (*this) = (*this) * (1.0 / vect[3]); return *this; }
+    const Vector4D& normalize() { (*this) = (*this) * (1.0 / container[3]); return *this; }
     double sumElements() const { return get(0) + get(1) + get(2) + get(3); }
 
     //Vector4D operator* (const Vector4D& obj) const;
@@ -49,7 +49,7 @@ class VectorColumn4D : public Vector4D
 {
 public:
     VectorColumn4D() : Vector4D() {}
-    VectorColumn4D(double vect[4]) : Vector4D(vect) {}
+    VectorColumn4D(double container[4]) : Vector4D(container) {}
     VectorColumn4D(const Vector4D& obj) : Vector4D(obj) {}
     VectorColumn4D(double v1, double v2, double v3, double v4) : Vector4D(v1, v2, v3, v4) {}
     VectorColumn4D(Vector3D vec, double v4) : Vector4D(vec, v4) {}
