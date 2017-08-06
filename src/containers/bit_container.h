@@ -46,7 +46,10 @@ namespace LipaboyLib {
 		}
 		//TODO: I feel so upset that I need to write methods such as vector's
 		void pushBack(BitType newElem) { ((++_size) % bitsPerElem == 1) 
-			? container.push_back(static_cast<T>(newElem)) : setBit(container[(_size - 1) / bitsPerElem], (_size - 1) % bitsPerElem, newElem); }
+			? container.push_back(static_cast<T>(newElem)) : set(_size - 1, newElem); }
+		void set(IndexType index, BitType bit) {
+			setBit(container[index / bitsPerElem], index % bitsPerElem, bit);
+		}
 
 		IndexType size() const { return _size; }
 
@@ -55,6 +58,7 @@ namespace LipaboyLib {
 	private:
 		std::vector<T> container;
 		IndexType _size;
+		//TODO: replate bitsPerElem on sizeof(T) * 8
 		static const uint32_t bitsPerElem = sizeof(T) * 8;	//count bytes * count bits in one byte
 	};
 
