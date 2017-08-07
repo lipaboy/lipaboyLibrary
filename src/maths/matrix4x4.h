@@ -3,9 +3,9 @@
 
 #include "vector4d.h"
 
-namespace LipaboyMaths {
+namespace LipaboyLib {
 
-//TODO: rename namespace to LipaboyMaths namespace
+//TODO: rename namespace to LipaboyLib namespace
 
 class Matrix4x4
 {
@@ -23,11 +23,11 @@ public:
     Matrix4x4(const VectorRow4D& v1, const VectorRow4D& v2, const VectorRow4D& v3,
               const VectorRow4D& v4);
 
-    VectorColumn4D operator* (const VectorColumn4D& vect) const;
-    Matrix4x4 operator* (const Matrix4x4& vect) const;
-    const Matrix4x4& operator*= (const Matrix4x4& vect) { return ((*this) = (*this) * vect); }
-    Matrix4x4 operator- (const Matrix4x4& vect) const;
-    Matrix4x4 operator+ (const Matrix4x4& vect) const;
+    VectorColumn4D operator* (const VectorColumn4D& container) const;
+    Matrix4x4 operator* (const Matrix4x4& container) const;
+    const Matrix4x4& operator*= (const Matrix4x4& container) { return ((*this) = (*this) * container); }
+    Matrix4x4 operator- (const Matrix4x4& container) const;
+    Matrix4x4 operator+ (const Matrix4x4& container) const;
     const Matrix4x4& operator*= (const double coef);
     Matrix4x4 operator* (const double coef) { return (Matrix4x4(*this) *= coef); }
 
@@ -39,8 +39,8 @@ public:
 
     static Matrix4x4 getEye();
     static Matrix4x4 getEye3D();
-    static Matrix4x4 getDualMatrix(Vector3D vect);
-    static Matrix4x4 getDiagonal(Vector4D vect);
+    static Matrix4x4 getDualMatrix(Vector3D container);
+    static Matrix4x4 getDiagonal(Vector4D container);
 };
 
 Matrix4x4 operator* (const VectorColumn4D& v1, const VectorRow4D& v2);

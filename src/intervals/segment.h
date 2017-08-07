@@ -7,7 +7,7 @@
 
 //#include <QDebug>
 
-namespace IntervalFuncs {
+namespace LipaboyLib {
 
 //TODO: you can add some functionality like :
 // push in "stack" the results of comparation, for example:

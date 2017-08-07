@@ -1,74 +1,89 @@
 #ifndef INTERVAL_H
 #define INTERVAL_H
 
-//TODO: may be can create such class that would get parameters like lambda
-//where you can give such labmda: [] (int x, int y) { return x < y; } and would inherit from that class
-
-//TODO: add Args&&
-
 #include "iplenty.h"
+#include "../common_interfaces/either_comparable.h"
 
-namespace IntervalFuncs {
+#include <functional>
+
+namespace LipaboyLib {
+
+	//TODO: write comparison with Infinity (Infinity == Infinity)
+
+	template <class T>
+	class Infinity : public EitherComparable<T> {};
+
+	template <class T>
+	class PositiveInfinity : public Infinity<T> {
+	public:
+		bool operator< (const T& number) const { return false; }
+		bool operator<= (const T& number) const { return false; }
+		bool operator== (const T& number) const { return false; }
+	};
+
+	template <class T>
+	class NegativeInfinity : public Infinity<T> {
+	public:
+		bool operator< (const T& number) const { return true; }
+		bool operator<= (const T& number) const { return true; }
+		bool operator== (const T& number) const { return true; }
+	};
+	
+	//TODO: Add debug function to output result ( if contains then "c in [a, b]" or "c out [a, b]" )
+
+	template <class T, typename LeftComparison, typename RightComparison>
+	class Interval : public IPlenty<T>
+	{
+	public:
+		Interval(const T& _leftBorder = T(), const T& _rightBorder = T())
+			: leftBorder(_leftBorder), rightBorder(_rightBorder) {}
+		bool in(const T& element) const { return contains(element); }
+		bool out(const T& element) const { return !in(element); }
+		//TODO: think about advantages of these methods. If you include them then will override these ones into PositiveRay
+		//bool outLeft(const T& element) const { return !isLeftCompare(element); }
+		//bool outRight(const T& element) const { return !isLeftCompare(element); }
+
+		bool contains(const T& element) const {
+			return isLeftCompare(element) && isRightCompare(element);
+		}
+
+		const T& left() const { return leftBorder; }
+		const T& right() const {return rightBorder; }
+		T& rLeft() { return leftBorder; }
+		T& rRight() { return rightBorder; }
+
+	protected:
+		bool isLeftCompare(const T& element) const { return leftComp(leftBorder, element); }
+		bool isRightCompare(const T& element) const { return rightComp(element, rightBorder); }
+	private:
+		T leftBorder;
+		T rightBorder;
+		LeftComparison leftComp;
+		RightComparison rightComp;
+	};
+
+	template <class T>
+	using OpenInterval = Interval<T, std::less<>, std::less<> >;
+
+	template <class T>
+	using CloseInterval = Interval<T, std::less_equal<>, std::less_equal<> >;
+
+	//template <class T>
+	//class Ray;
+	//
+	//template <class T, class LeftComparison>
+	//class PositiveRay : public Interval<T, LeftComparison, std::less<> > {
+	//public:
+	//	PositiveRay(const T& _leftBorder = T()) : Interval(_leftBorder) {}
+	//	virtual bool contains(const T& element) const { return isLeftCompare(element); }
+	//	//TODO: how I can return Infinity from method right()???
+	//};
 
 
-template <class T>
-class Interval : public IPlenty<T>
-{
-public:
-    Interval(const T& left1, const T& right1) : leftBorder(left1), rightBorder(right1) {}
-    bool in(const T& element) const { return (element > leftBorder) && (element < rightBorder); }
-    bool out(const T& element) const { return !in(element); }
-    bool outLeft(const T& element) const { return (element <= leftBorder); }
-    bool outRight(const T& element) const { return (element >= rightBorder); }
-
-	virtual bool contains(const T& element) const { return in(element); }
-
-	const T& left() const { return leftBorder; }
-	const T& right() const {return rightBorder; }
-
-protected:
-    T leftBorder;
-    T rightBorder;
-};
-
-const double epsilon = 1e-5;
-
-//----------------Cutting off the borders--------------------//
-
-//TODO: move to another package
-
-template <typename T>
-inline const T& cutOffBorder(const T& value, const T& rightBorder, const T& leftBorder) {
-	return ((value < leftBorder) ? leftBorder : ((value > rightBorder) ? rightBorder : value));
-}
-
-template <typename T>
-inline const T& cutOffRightBorder(const T& value, const T& rightBorder) {
-	return ((value > rightBorder) ? rightBorder : value);
-}
-
-template <typename T>
-inline const T& cutOffLeftBorder(const T& value, const T& leftBorder) {
-	return ((value < leftBorder) ? leftBorder : value);
-}
-
-//I don't see any necessary to specialize cutOffBorder for double
-
-//template <>
-//inline const double& cutOffBorder(const double& value, const double& rightBorder, const double& leftBorder) {
-//	return ((value < leftBorder - epsilon) ? leftBorder : ((value > rightBorder + epsilon) ? rightBorder : value));
-//}
-//
-//template <>
-//inline const double& cutOffRightBorder(const double& value, const double& rightBorder) {
-//	return ((value > rightBorder) ? rightBorder : value);
-//}
-//
-//template <>
-//inline const double& cutOffLeftBorder(const double& value, const double& leftBorder) {
-//	return ((value < leftBorder) ? leftBorder : value);
-//}
-
+	//use * to function
+	/*std::function<bool(const T& lhs, const T& element)> leftComparison,
+	std::function<bool(const T& element, const T& rhs)> rightComparison*/
 }
 
 #endif // INTERVAL_H
+

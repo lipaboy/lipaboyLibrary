@@ -1,21 +1,21 @@
 #include "vector4d.h"
 
-namespace LipaboyMaths {
+namespace LipaboyLib {
 
 Vector4D::Vector4D(double vect1[4])
 {
-    vect[0] = vect1[0];
-    vect[1] = vect1[1];
-    vect[2] = vect1[2];
-    vect[3] = vect1[3];
+    container[0] = vect1[0];
+    container[1] = vect1[1];
+    container[2] = vect1[2];
+    container[3] = vect1[3];
 }
 
 Vector4D::Vector4D(double v1, double v2, double v3, double v4)
 {
-    vect[0] = v1;
-    vect[1] = v2;
-    vect[2] = v3;
-    vect[3] = v4;
+    container[0] = v1;
+    container[1] = v2;
+    container[2] = v3;
+    container[3] = v4;
 }
 
 Vector4D Vector4D::operator*(const double coef) const
@@ -23,7 +23,7 @@ Vector4D Vector4D::operator*(const double coef) const
     Vector4D newVec({0.0, 0.0, 0.0, 0.0});
 
     for (int i = 0; i < 4; i++) {
-        newVec.vect[i] = this -> vect[i] * coef;
+        newVec.container[i] = this -> container[i] * coef;
     }
 
     return newVec;
@@ -34,7 +34,7 @@ Vector4D Vector4D::operator*(const double coef) const
 //    Vector4D newVec({0.0, 0.0, 0.0, 0.0});
 
 //    for (int i = 0; i < 4; i++)
-//        newVec[i] = this -> vect[i] * obj.vect[i];
+//        newVec[i] = this -> container[i] * obj.container[i];
 
 //    return newVec;
 //}

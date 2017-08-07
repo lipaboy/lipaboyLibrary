@@ -3,7 +3,7 @@
 
 #include "point2d.h"
 
-namespace LipaboyMaths {
+namespace LipaboyLib {
 
 	class Line2D
 	{

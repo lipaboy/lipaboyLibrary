@@ -1,6 +1,6 @@
 #include "matrix4x4.h"
 
-namespace LipaboyMaths {
+namespace LipaboyLib {
 
 //Matrix4x4::Matrix4x4(float matr[16])
 //{
@@ -84,14 +84,14 @@ Matrix4x4 Matrix4x4::operator*(const Matrix4x4 &obj) const
     return res;
 }
 
-VectorColumn4D Matrix4x4::operator*(const VectorColumn4D &vect) const
+VectorColumn4D Matrix4x4::operator*(const VectorColumn4D &container) const
 {
     VectorColumn4D newVec(0, 0, 0, 0);
 
     for (int i = 0; i < 4; i++) {
-        //double temp = vect[i];
+        //double temp = container[i];
         for (int j = 0; j < 4; j++) {
-            newVec[i] += get(i, j) * vect[j];
+            newVec[i] += get(i, j) * container[j];
         }
     }
 
@@ -120,20 +120,20 @@ void Matrix4x4::transpose()
     }
 }
 
-Matrix4x4 Matrix4x4::getDualMatrix(Vector3D vect)
+Matrix4x4 Matrix4x4::getDualMatrix(Vector3D container)
 {
-    double arr[] = {0, -vect.z(), vect.y(), 0,
-                   vect.z(), 0, -vect.x(), 0,
-                   -vect.y(), vect.x(), 0, 0,
+    double arr[] = {0, -container.z(), container.y(), 0,
+                   container.z(), 0, -container.x(), 0,
+                   -container.y(), container.x(), 0, 0,
                    0, 0, 0, 0};
     return Matrix4x4(arr);
 }
 
-Matrix4x4 Matrix4x4::getDiagonal(Vector4D vect)
+Matrix4x4 Matrix4x4::getDiagonal(Vector4D container)
 {
     Matrix4x4 matr;
     for (int i = 0; i < 4; i++) {
-        matr.set(i, i, vect.get(i));
+        matr.set(i, i, container.get(i));
     }
     return matr;
 }
