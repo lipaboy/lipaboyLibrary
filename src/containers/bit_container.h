@@ -7,6 +7,8 @@
 
 #include <boost\range\any_range.hpp>
 
+//Unfortunately, I invented the bicycle: std::bitset<size_t N>
+
 namespace LipaboyLib {
 
 	typedef boost::any_range<
