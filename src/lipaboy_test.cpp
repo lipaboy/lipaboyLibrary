@@ -89,7 +89,7 @@ namespace LipaboyLib {
 
 		/*--------------AccuracyNumber----------------*/
 
-		/*PositiveRay<int, std::less<> > ray(5);
+		PositiveRay<int, std::less<> > ray(5);
 		if (ray.contains(INT_MAX))
 		std::cout << "ray (5, +inf) contains int_max" << std::endl;
 		AccuracyDouble d1(5.0, 1.0);
@@ -98,15 +98,15 @@ namespace LipaboyLib {
 		if (d1 >= 6.0)
 		std::cout << "5 >= 6 with eps = 1" << std::endl;
 		if (d1 >= AccuracyDouble(5.5, 1.0))
-		std::cout << "5 >= 5.5 with eps = 1" << std::endl;*/
+		std::cout << "5 >= 5.5 with eps = 1" << std::endl;
 
 
-		/*--------------ConstAccuracyNumber----------------*/
+		/*--------------AccuracyFixedNumber----------------*/
 		using std::cout;
 		using std::endl;
-		ConstAccuracyNumber<double, 1, -1> cd1(5.0);
-		if (cd1 == 5.09)
-			cout << "5.0 == 5.09 with 0.1 precision" << endl;
+		AccuracyFixedNumber<double, 1, -1> cd1(5.0);
+		if (5.09 >= cd1)
+			cout << "5.0 <= 5.09 with 0.1 precision" << endl;
 		if (cd1 != 4.89)
 			cout << "5.0 != 4.89 with 0.1 precision" << endl;
 

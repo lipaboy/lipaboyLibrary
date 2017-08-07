@@ -3,6 +3,7 @@
 
 #include "intervals/interval.h"
 #include "maths/accuracy_number.h"
+#include "maths/accuracy_fixed_number.h"
 #include "containers/bit_container.h"
 
 namespace LipaboyLib {

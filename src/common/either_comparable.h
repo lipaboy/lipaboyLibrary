@@ -4,6 +4,9 @@
 //Lipa std
 namespace LipaboyLib {
 
+
+	/*------------Too a lot of code production (but more flexible)------------*/
+
 	//TODO: swap (*this) and other by places (more beautifully)
 
 	//EitherComparable with other object types
