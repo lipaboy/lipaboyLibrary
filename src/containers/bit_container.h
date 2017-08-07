@@ -33,6 +33,9 @@ namespace LipaboyLib {
 				) ^ number
 			) | (1 << position)
 		); 
+		//this realization works better on ~10ms with size 2e6
+		/*number = (bit == 1) ? (number | (1u << position))
+			: (number & ~(1u << position));*/
 	}
 
 	template <typename T = uint32_t, typename IndexType = uint32_t>

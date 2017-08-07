@@ -1,6 +1,7 @@
 #ifndef IPLENTY_H
 #define IPLENTY_H
 
+//TODO: rename to Containable
 template <class T>
 class IPlenty {
 public:

@@ -8,6 +8,8 @@ namespace LipaboyLib {
 
 	//TODO: think about name, may be PreciselyNumber or UnpreciselyNumber (but ConstUnpreciselyNumber ??)
 
+	//TODO: write Summerizable and so on (like Algebra)
+
 	template <class T>
 	class AccuracyNumber : public EitherComparable<T>, public Comparable {
 	public:
@@ -37,16 +39,22 @@ namespace LipaboyLib {
 
 }
 
+template <typename T>
+inline constexpr T powDozen(int power) {
+	return (power < 0) ? ((power > -1) ? static_cast<T>(1) : static_cast<T>(0.1) * powDozen<T>(power + 1))
+		: ((power < 1) ? static_cast<T>(1) : static_cast<T>(10) * powDozen<T>(power - 1));
+}
+
 /*------------Too a lot of code production (but more faster)------------*/
 
-template <typename T, typename PrecisionType, PrecisionType fraction, PrecisionType dozenExponent>
+template <typename T, int fraction, int dozenPower>
 class ConstAccuracyNumber {
 public:
 	explicit
 	ConstAccuracyNumber(T _number = static_cast<T>(0)) : number(_number) {}
 
-	bool operator<(const T& val) const { return (number < val - precision); }
-	bool operator>(const T& val) const { return (number > val + precision); }
+	bool operator<(const T& val) const { return (number < val - fraction * powDozen<T>(dozenPower)); }
+	bool operator>(const T& val) const { return (number > val + fraction * powDozen<T>(dozenPower)); }
 	bool operator<=(const T& val) const { return !((*this) > val); }
 	bool operator>=(const T& val) const { return !((*this) < val); }
 	bool operator==(const T& val) const { return ((*this) >= val) && ((*this) <= val); }
@@ -66,8 +74,7 @@ public:
 
 private:
 	T number;
-	//constexpr const T precision = fraction * std::pow(10, dozenExponent);
-	 const T precision = 1e5;
+	//const T precision = fraction * powDozen<T>(dozenPower);
 };
 
 //template <double _precision>

@@ -15,75 +15,76 @@ namespace LipaboyLib {
 		//TODO: Want I want to do: compare perfomance of vector<int>[i] and bitcon[i] (or maybe do it later?)
 
 		//constexpr int d = sizeof(int) * 8;	//It proves that sizeof(int) - compile-time function
-		BitContainer<> bitcon;
-		std::vector<uint32_t> vect;
+		//BitContainer<> bitcon;
+		//std::vector<uint32_t> vect;
 
-		//ullint testSize;
-#define testSize static_cast<size_t>(2e5)
-		clock_t start,
-			end;
+//		//ullint testSize;
+//#define testSize static_cast<size_t>(2e6)
+//		clock_t start,
+//			end;
 		//uint32_t arr[testSize] = { 0 };
-		std::array<uint32_t, testSize> arr = { 0 };
+		//std::array<uint32_t, testSize> arr = { 0 };
 
 		//Test 1 : push
 		//testSize = 2e6;
 
-		start = clock();
-		for (int i = 0; i < testSize; i++)
-			vect.push_back(rand() % 2);
-		end = clock();
-		std::cout << "vect time push: " << end - start << std::endl;
+		//start = clock();
+		//for (int i = 0; i < testSize; i++)
+		//	vect.push_back(rand() % 2);
+		//end = clock();
+		//std::cout << "vect time push: " << end - start << std::endl;
 
-		start = clock();
-		for (int i = 0; i < testSize; i++)
-			bitcon.pushBack(rand() % 2);
-		end = clock();
-		std::cout << "bitcon time push: " << end - start << std::endl;
+		//start = clock();
+		//for (int i = 0; i < testSize; i++)
+		//	bitcon.pushBack(rand() % 2);
+		//end = clock();
+		//std::cout << "bitcon time push: " << end - start << std::endl;
 
 		//Test 2 : read
-		int sum;
+		//int sum;
 
-		start = clock();
-		sum = 0;
-		for (uint32_t i = 0; i < bitcon.size(); i++)
-			sum += bitcon.get(i);
-		end = clock();
-		std::cout << "bitcon time read: " << end - start << std::endl;
+		//start = clock();
+		//sum = 0;
+		//for (uint32_t i = 0; i < bitcon.size(); i++)
+		//	sum += bitcon.get(i);
+		//end = clock();
+		//std::cout << "bitcon time read: " << end - start << std::endl;
 
-		start = clock();
-		sum = 0;
-		for (uint32_t i = 0; i < vect.size(); i++) 
-			sum += vect[i];
-		end = clock();
-		std::cout << "vect time read: " << end - start << std::endl;
+		//start = clock();
+		//sum = 0;
+		//for (uint32_t i = 0; i < vect.size(); i++) 
+		//	sum += vect[i];
+		//end = clock();
+		//std::cout << "vect time read: " << end - start << std::endl;
 
-		start = clock();
-		sum = 0;
-		for (uint32_t i = 0; i < vect.size(); i++) 
-			sum += arr[i];
-		end = clock();
-		std::cout << "arr time read: " << end - start << std::endl;
+		//start = clock();
+		//sum = 0;
+		//for (uint32_t i = 0; i < vect.size(); i++) 
+		//	sum += arr[i];
+		//end = clock();
+		//std::cout << "arr time read: " << end - start << std::endl;
 
 		//Test 3 : write
 
-		start = clock();
+		/*start = clock();
 		for (uint32_t i = 0; i < bitcon.size(); i++)
 			bitcon.set(i, rand() % 2);
 		end = clock();
-		std::cout << "bitcon time write: " << end - start << std::endl;
+		std::cout << "bitcon time write: " << end - start << std::endl;*/
 
-		start = clock();
-		for (uint32_t i = 0; i < vect.size(); i++)
-			vect[i] = rand() % 2;
-		end = clock();
-		std::cout << "vect time write: " << end - start << std::endl;
+		//start = clock();
+		//for (uint32_t i = 0; i < vect.size(); i++)
+		//	vect[i] = rand() % 2;
+		//end = clock();
+		//std::cout << "vect time write: " << end - start << std::endl;
 
-		start = clock();
-		for (uint32_t i = 0; i < vect.size(); i++)
-			arr[i] = rand() % 2;
-		end = clock();
-		std::cout << "arr time write: " << end - start << std::endl;
-		
+		//start = clock();
+		//for (uint32_t i = 0; i < vect.size(); i++)
+		//	arr[i] = rand() % 2;
+		//end = clock();
+		//std::cout << "arr time write: " << end - start << std::endl;
+		//
+		//
 
 
 		/*--------------AccuracyNumber----------------*/
@@ -101,9 +102,16 @@ namespace LipaboyLib {
 
 
 		/*--------------ConstAccuracyNumber----------------*/
-		/*ConstAccuracyNumber<double, int, 1, -2> cd1(5.0);
-		constexpr double dPow = std::exp(5.0);*/
+		using std::cout;
+		using std::endl;
+		ConstAccuracyNumber<double, 1, -1> cd1(5.0);
+		if (cd1 == 5.09)
+			cout << "5.0 == 5.09 with 0.1 precision" << endl;
+		if (cd1 != 4.89)
+			cout << "5.0 != 4.89 with 0.1 precision" << endl;
 
+		constexpr int p = powDozen<int>(5);
+		cout << p << endl;
 
 		/*--------------Intervals----------------*/
 
