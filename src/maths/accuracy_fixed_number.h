@@ -1,8 +1,8 @@
 #ifndef ACCURACY_FIXED_NUMBER_H
 #define ACCURACY_FIXED_NUMBER_H
 
-#include "../common/comparable.h"
-#include "../common/either_comparable.h"
+#include "../common_interfaces/comparable.h"
+#include "../common_interfaces/either_comparable.h"
 
 namespace LipaboyLib {
 
