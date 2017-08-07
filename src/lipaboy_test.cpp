@@ -89,9 +89,9 @@ namespace LipaboyLib {
 
 		/*--------------AccuracyNumber----------------*/
 
-		PositiveRay<int, std::less<> > ray(5);
+	/*	PositiveRay<int, std::less<> > ray(5);
 		if (ray.contains(INT_MAX))
-		std::cout << "ray (5, +inf) contains int_max" << std::endl;
+		std::cout << "ray (5, +inf) contains int_max" << std::endl;*/
 		AccuracyDouble d1(5.0, 1.0);
 		if (d1 < 6.1)
 		std::cout << "5 < 6.1 with eps = 1" << std::endl;

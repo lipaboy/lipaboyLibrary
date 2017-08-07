@@ -8,7 +8,7 @@
 
 namespace LipaboyLib {
 
-	//TODO: write comparison with Infinity (throw exception but what for?)
+	//TODO: write comparison with Infinity (Infinity == Infinity)
 
 	template <class T>
 	class Infinity : public EitherComparable<T> {};
@@ -16,17 +16,17 @@ namespace LipaboyLib {
 	template <class T>
 	class PositiveInfinity : public Infinity<T> {
 	public:
-		virtual bool operator< (const T& number) const { return false; }
-		virtual bool operator<= (const T& number) const { return false; }
-		virtual bool operator== (const T& number) const { return false; }
+		bool operator< (const T& number) const { return false; }
+		bool operator<= (const T& number) const { return false; }
+		bool operator== (const T& number) const { return false; }
 	};
 
 	template <class T>
 	class NegativeInfinity : public Infinity<T> {
 	public:
-		virtual bool operator< (const T& number) const { return true; }
-		virtual bool operator<= (const T& number) const { return true; }
-		virtual bool operator== (const T& number) const { return true; }
+		bool operator< (const T& number) const { return true; }
+		bool operator<= (const T& number) const { return true; }
+		bool operator== (const T& number) const { return true; }
 	};
 	
 	//TODO: Add debug function to output result ( if contains then "c in [a, b]" or "c out [a, b]" )
@@ -43,7 +43,7 @@ namespace LipaboyLib {
 		//bool outLeft(const T& element) const { return !isLeftCompare(element); }
 		//bool outRight(const T& element) const { return !isLeftCompare(element); }
 
-		virtual bool contains(const T& element) const {
+		bool contains(const T& element) const {
 			return isLeftCompare(element) && isRightCompare(element);
 		}
 
@@ -68,16 +68,16 @@ namespace LipaboyLib {
 	template <class T>
 	using CloseInterval = Interval<T, std::less_equal<>, std::less_equal<> >;
 
-	template <class T>
-	class Ray;
-	
-	template <class T, class LeftComparison>
-	class PositiveRay : public Interval<T, LeftComparison, std::less<> > {
-	public:
-		PositiveRay(const T& _leftBorder = T()) : Interval(_leftBorder) {}
-		virtual bool contains(const T& element) const { return isLeftCompare(element); }
-		//TODO: how I can return Infinity from method right()???
-	};
+	//template <class T>
+	//class Ray;
+	//
+	//template <class T, class LeftComparison>
+	//class PositiveRay : public Interval<T, LeftComparison, std::less<> > {
+	//public:
+	//	PositiveRay(const T& _leftBorder = T()) : Interval(_leftBorder) {}
+	//	virtual bool contains(const T& element) const { return isLeftCompare(element); }
+	//	//TODO: how I can return Infinity from method right()???
+	//};
 
 
 	//use * to function
