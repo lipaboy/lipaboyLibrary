@@ -3,7 +3,7 @@
 
 //TODO: rename to Containable
 template <class T>
-class IPlenty {
+class Containable {
 public:
 	virtual bool contains(const T& element) const = 0;
 
