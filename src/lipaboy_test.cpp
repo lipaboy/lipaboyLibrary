@@ -84,11 +84,10 @@ namespace LipaboyLib {
 		BitContainer<> bitcon;
 		std::vector<uint32_t> vect;
 
-				ullint testSize;
-		#define testSize static_cast<size_t>(2e6)
-				clock_t start,
-					end;
-		uint32_t arr[testSize] = { 0 };
+		#define testSize static_cast<size_t>(2e3)
+		clock_t start,
+			end;
+		//uint32_t arr[testSize] = { 0 };
 		std::array<uint32_t, testSize> arr = { 0 };
 
 		//Test 1 : push
