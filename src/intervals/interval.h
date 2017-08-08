@@ -1,7 +1,7 @@
 #ifndef INTERVAL_H
 #define INTERVAL_H
 
-#include "iplenty.h"
+#include "containable.h"
 #include "../common_interfaces/either_comparable.h"
 
 #include <functional>
@@ -32,7 +32,7 @@ namespace LipaboyLib {
 	//TODO: Add debug function to output result ( if contains then "c in [a, b]" or "c out [a, b]" )
 
 	template <class T, typename LeftComparison, typename RightComparison>
-	class Interval : public IPlenty<T>
+	class Interval : public Containable<T>
 	{
 	public:
 		Interval(const T& _leftBorder = T(), const T& _rightBorder = T())

@@ -63,10 +63,7 @@ protected:
     double epsilon;
 };
 
-template <typename T>
-T cutOffBorder(T value, const Segment<T>& border) {
-    return ((border.outLeft(value)) ? border.left() : ((border.outRight(value)) ? border.right() : value));
-}
+
 
 }
 

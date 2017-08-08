@@ -68,7 +68,7 @@ namespace LipaboyLib {
 		if (interval.containsAny(0, 1, 5))
 		std::cout << "0, 1 or 5 lay into interval" << std::endl;*/
 
-		/*IPlenty<int> *plenty = new Interval<int>(-1, 4);
+		/*Containable<int> *plenty = new Interval<int>(-1, 4);
 		if (plenty -> in(cutOffBorder(-4, 4, 0))) {
 		cout << "3 in (0, 4)" << endl;
 		}
