@@ -30,6 +30,7 @@ namespace LipaboyLib {
 	};
 	
 	//TODO: Add debug function to output result ( if contains then "c in [a, b]" or "c out [a, b]" )
+	//TODO: add output to ostream
 
 	template <class T, typename LeftComparison, typename RightComparison>
 	class Interval : public Containable<T>

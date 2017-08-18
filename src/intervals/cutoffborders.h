@@ -1,7 +1,7 @@
 #ifndef CUT_OFF_BORDERS_H
 #define CUT_OFF_BORDERS_H
 
-#include <segment.h>
+//#include <interval.h>
 
 namespace LipaboyLib {
 
@@ -20,10 +20,10 @@ namespace LipaboyLib {
 		return ((value < leftBorder) ? leftBorder : value);
 	}
 
-	template <typename T>
-	T cutOffBorder(T value, const Segment<T>& border) {
+	/*template <typename T>
+	T cutOffBorder(T value, const CloseInterval<T>& border) {
 		return ((border.outLeft(value)) ? border.left() : ((border.outRight(value)) ? border.right() : value));
-	}
+	}*/
 
 }
 
