@@ -53,6 +53,11 @@ namespace LipaboyLib {
 		T& rLeft() { return leftBorder; }
 		T& rRight() { return rightBorder; }
 
+		bool operator==(const Interval& other) {
+			return (leftBorder == other.leftBorder)
+				&& (rightBorder == other.rightBorder);
+		}
+
 	protected:
 		bool isLeftCompare(const T& element) const { return leftComp(leftBorder, element); }
 		bool isRightCompare(const T& element) const { return rightComp(element, rightBorder); }
@@ -64,10 +69,10 @@ namespace LipaboyLib {
 	};
 
 	template <class T>
-	using OpenInterval = Interval<T, std::less<>, std::less<> >;
+	using OpenInterval = Interval<T, std::less<T>, std::less<T> >;
 
 	template <class T>
-	using CloseInterval = Interval<T, std::less_equal<>, std::less_equal<> >;
+	using CloseInterval = Interval<T, std::less_equal<T>, std::less_equal<T> >;
 
 	//template <class T>
 	//class Ray;
