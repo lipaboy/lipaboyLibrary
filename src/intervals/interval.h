@@ -53,7 +53,7 @@ namespace LipaboyLib {
 		T& rLeft() { return leftBorder; }
 		T& rRight() { return rightBorder; }
 
-		bool operator==(const Interval& other) {
+		bool operator==(const Interval& other) const {
 			return (leftBorder == other.leftBorder)
 				&& (rightBorder == other.rightBorder);
 		}
