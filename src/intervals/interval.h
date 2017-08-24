@@ -58,6 +58,8 @@ namespace LipaboyLib {
 				&& (rightBorder == other.rightBorder);
 		}
 
+		//You can't write method length() because your class Interval will become less general
+
 	protected:
 		bool isLeftCompare(const T& element) const { return leftComp(leftBorder, element); }
 		bool isRightCompare(const T& element) const { return rightComp(element, rightBorder); }
