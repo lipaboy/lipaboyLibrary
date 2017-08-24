@@ -1,7 +1,7 @@
 #ifndef INTERVAL_H
 #define INTERVAL_H
 
-#include "containable.h"
+#include "../common_interfaces/containable.h"
 #include "../common_interfaces/either_comparable.h"
 
 #include <functional>
