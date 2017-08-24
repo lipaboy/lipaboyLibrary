@@ -59,6 +59,7 @@ namespace LipaboyLib {
 		}
 
 		//You can't write method length() because your class Interval will become less general
+		//Solution: but you can inherit from Interval class NumericInterval where add this method (and maybe Infinity)
 
 	protected:
 		bool isLeftCompare(const T& element) const { return leftComp(leftBorder, element); }
