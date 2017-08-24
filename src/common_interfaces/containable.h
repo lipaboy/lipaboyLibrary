@@ -14,6 +14,8 @@ public:
 	bool containsAny(T element) { return contains(element); }
 	template <class... Args>
 	bool containsAny(T element, Args... args) { return contains(element) || containsAny(args...); }
+	
+	//TODO: add containsNone because it isn't denying containsAll
 };
 
 #endif //IPLENTY_H
