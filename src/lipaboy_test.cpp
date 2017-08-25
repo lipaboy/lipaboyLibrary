@@ -14,31 +14,44 @@ namespace LipaboyLib {
 	void bitContainerTests();
 
 	int lipaboyMain() {
+		using std::cout;
+		using std::endl;
+
 		/*--------------AccuracyNumber----------------*/
 
 	/*	PositiveRay<int, std::less<> > ray(5);
 		if (ray.contains(INT_MAX))
 		std::cout << "ray (5, +inf) contains int_max" << std::endl;*/
-		AccuracyDouble d1(5.0, 1.0);
-		if (d1 < 6.1)
-		std::cout << "5 < 6.1 with eps = 1" << std::endl;
-		if (d1 >= 6.0)
-		std::cout << "5 >= 6 with eps = 1" << std::endl;
-		if (d1 >= AccuracyDouble(5.5, 1.0))
-		std::cout << "5 >= 5.5 with eps = 1" << std::endl;
+
+		double a = 1.0;
+		AccuracyDouble b(5.0, 1.0);
+		cout << b + a << endl;
+		b.set(b + a);
+//		b = 5.0;
+		//b.operator=()
+		Elemable<double> elem(5.0);
+		elem = 2.0 + 4.0;
+		cout << (double)b << endl;
+
+		//AccuracyDouble d1(5.0, 1.0);
+		//if (d1 < 6.1)
+		//std::cout << "5 < 6.1 with eps = 1" << std::endl;
+		//if (d1 >= 6.0)
+		//std::cout << "5 >= 6 with eps = 1" << std::endl;
+		//if (d1 >= AccuracyDouble(5.5, 1.0))
+		//std::cout << "5 >= 5.5 with eps = 1" << std::endl;
 
 
 		/*--------------AccuracyFixedNumber----------------*/
-		using std::cout;
-		using std::endl;
-		AccuracyFixedNumber<double, 1, -1> cd1(5.0);
-		if (5.09 >= cd1)
-			cout << "5.0 <= 5.09 with 0.1 precision" << endl;
-		if (cd1 != 4.89)
-			cout << "5.0 != 4.89 with 0.1 precision" << endl;
+		
+		//AccuracyFixedNumber<double, 1, -1> cd1(5.0);
+		//if (5.09 >= cd1)
+		//	cout << "5.0 <= 5.09 with 0.1 precision" << endl;
+		//if (cd1 != 4.89)
+		//	cout << "5.0 != 4.89 with 0.1 precision" << endl;
 
-		constexpr int p = powDozen<int>(5);
-		cout << p << endl;
+		//constexpr int p = powDozen<int>(5);
+		//cout << p << endl;
 
 		/*--------------Intervals----------------*/
 
