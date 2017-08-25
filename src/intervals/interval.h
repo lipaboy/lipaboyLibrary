@@ -41,8 +41,8 @@ namespace LipaboyLib {
 		bool in(const T& element) const { return contains(element); }
 		bool out(const T& element) const { return !in(element); }
 		//TODO: think about advantages of these methods. If you include them then will override these ones into PositiveRay
-		//bool outLeft(const T& element) const { return !isLeftCompare(element); }
-		//bool outRight(const T& element) const { return !isLeftCompare(element); }
+		bool outLeft(const T& element) const { return !isLeftCompare(element); }
+		bool outRight(const T& element) const { return !isLeftCompare(element); }
 
 		bool contains(const T& element) const {
 			return isLeftCompare(element) && isRightCompare(element);
