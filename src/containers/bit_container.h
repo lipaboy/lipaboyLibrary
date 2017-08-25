@@ -5,7 +5,9 @@
 #include <algorithm>
 #include <initializer_list>
 
+//#include <boo>
 #include <boost\range\any_range.hpp>
+//#include<boo>
 
 //Unfortunately, I invented the bicycle: std::bitset<size_t N>
 

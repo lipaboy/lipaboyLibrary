@@ -57,6 +57,7 @@ namespace LipaboyLib {
 			return (leftBorder == other.leftBorder)
 				&& (rightBorder == other.rightBorder);
 		}
+		bool operator!=(const Interval& other) const { return !((*this) == other); }
 
 		//You can't write method length() because your class Interval will become less general
 		//Solution: but you can inherit from Interval class NumericInterval where add this method (and maybe Infinity)
