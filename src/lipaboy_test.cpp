@@ -27,7 +27,7 @@ namespace LipaboyLib {
 		AccuracyDouble b(5.0, 1.0);
 		cout << b + a << endl;
 		b.set(b + a);
-//		b = 5.0;
+		b = 5.0;
 		//b.operator=()
 		Elemable<double> elem(5.0);
 		elem = 2.0 + 4.0;

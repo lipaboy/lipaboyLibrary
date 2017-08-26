@@ -4,6 +4,8 @@
 #include "../common_interfaces/comparable.h"
 #include "../common_interfaces/either_comparable.h"
 
+#include <ostream>
+
 namespace LipaboyLib {
 	
 	//TODO: think about name, may be PreciselyNumber or UnpreciselyNumber (but ConstUnpreciselyNumber ??)
@@ -15,7 +17,7 @@ namespace LipaboyLib {
 	public:
 		Elemable(const T& val) : elem(val) {}
 
-		const Elemable& operator=(const T& val) noexcept { elem = val; return *this; }
+		Elemable const & operator=(T const & val) noexcept { set(val); return *this; }
 
 		void set(const T& val) { elem = val; }
 		const T& get() const { return elem; }
@@ -36,7 +38,7 @@ namespace LipaboyLib {
 	template <class T>
 	class EitherSummable : public Elemable<T> {
 	public:
-		EitherSummable(const T& val) : Elemable(val) {}
+		EitherSummable(const T& val) : Elemable(val) { }
 		T operator+(const EitherSummable& other) const { return get() + other.get(); }
 	};
 	template <class T>
@@ -69,14 +71,18 @@ namespace LipaboyLib {
 		bool operator<=(const Comparable& obj) const { return (*this) <= dynamic_cast<const AccuracyNumber&>(obj).get();}
 		bool operator==(const Comparable& obj) const { return ((*this) == dynamic_cast<const AccuracyNumber&>(obj).get()); }
 
+		AccuracyNumber const & operator= (T const & val) { Elemable<T>::operator=(val); return *this; }
+
 		operator T() { return get(); }
-		//const AccuracyNumber&
+
+		friend ostream& operator<< (ostream& o, AccuracyNumber const & number);
 
 	private:
-		//TODO: you can make number public for summarizing
-		//T number;
 		T epsilon;		//our precision
 	};
+
+	template <class T>
+	inline ostream& operator<< (ostream& o, AccuracyNumber<T> const & number) {	return o << number.get(); }
 
 	typedef AccuracyNumber<double> AccuracyDouble;
 
