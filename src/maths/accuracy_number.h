@@ -15,41 +15,29 @@ namespace LipaboyLib {
 	template <class T>
 	class Elemable {
 	public:
-		Elemable(const T& val) : elem(val) {}
-
+		Elemable(const T& val) noexcept : elem(val) {}
 		Elemable const & operator=(T const & val) noexcept { set(val); return *this; }
-
-		void set(const T& val) { elem = val; }
-		const T& get() const { return elem; }
+		void set(const T& val) noexcept { elem = val; }		//I can't mark method as noexcept because I don't sure that operator= won't throw exception
+		const T& get() const noexcept { return elem; }
 	private:
 		T elem;
 	};
 
-	////It is extension of Elemable
-	//template <class T>
-	//struct EitherAssignable : public Elemable<T> {
-	//	EitherAssignable(const T& val) : Elemable(val) {}
-	//	const T& operator=(const T& val) {
-	//		set(val);
-	//		return get();
-	//	}
-	//};
-
 	template <class T>
 	class EitherSummable : public Elemable<T> {
 	public:
-		EitherSummable(const T& val) : Elemable(val) { }
-		T operator+(const EitherSummable& other) const { return get() + other.get(); }
+		EitherSummable(const T& val) noexcept : Elemable(val) { }
+		T operator+(const EitherSummable& other) const noexcept { return get() + other.get(); }
 	};
 	template <class T>
-	T operator+(const EitherSummable<T>& obj, const T& val) { return obj.get() + val; }
+	T operator+(const EitherSummable<T>& obj, const T& val) noexcept { return obj.get() + val; }
 	template <class T>
-	T operator+(const T& val, const EitherSummable<T>& obj) { return val + obj.get(); }
+	T operator+(const T& val, const EitherSummable<T>& obj) noexcept { return val + obj.get(); }
 
 	template <class T>
 	class Algebra : public EitherSummable<T> {
 	public:
-		Algebra(const T& val) : EitherSummable(val) {}
+		Algebra(const T& val) noexcept : EitherSummable(val) {}
 	};
 	
 
@@ -58,31 +46,31 @@ namespace LipaboyLib {
 					public Algebra<T> {
 	public:
 		explicit
-		AccuracyNumber(const T& _number = T(), const T& _precision = T())
+		AccuracyNumber(const T& _number = T(), const T& _precision = T()) noexcept
 			: Algebra(_number), epsilon(_precision) {}
 
-		bool operator<(const T& val) const { return (get() < val - epsilon); }
-		bool operator<=(const T& val) const { return (get() <= val + epsilon); }
-		bool operator==(const T& val) const { 
+		bool operator<(const T& val) const noexcept { return (get() < val - epsilon); }
+		bool operator<=(const T& val) const noexcept { return (get() <= val + epsilon); }
+		bool operator==(const T& val) const noexcept { 
 			return (get() >= val - epsilon) && (get() <= val + epsilon);
 		}
 
-		bool operator<(const Comparable& obj) const { return (*this) < dynamic_cast<const AccuracyNumber&>(obj).get(); }
-		bool operator<=(const Comparable& obj) const { return (*this) <= dynamic_cast<const AccuracyNumber&>(obj).get();}
-		bool operator==(const Comparable& obj) const { return ((*this) == dynamic_cast<const AccuracyNumber&>(obj).get()); }
+		bool operator<(const Comparable& obj) const noexcept { return (*this) < dynamic_cast<const AccuracyNumber&>(obj).get(); }
+		bool operator<=(const Comparable& obj) const noexcept { return (*this) <= dynamic_cast<const AccuracyNumber&>(obj).get();}
+		bool operator==(const Comparable& obj) const noexcept { return ((*this) == dynamic_cast<const AccuracyNumber&>(obj).get()); }
 
-		AccuracyNumber const & operator= (T const & val) { Elemable<T>::operator=(val); return *this; }
+		AccuracyNumber const & operator= (T const & val) noexcept { Elemable<T>::operator=(val); return *this; }
 
-		operator T() { return get(); }
+		operator T() noexcept { return get(); }
 
-		friend ostream& operator<< (ostream& o, AccuracyNumber const & number);
+		friend std::ostream& operator<< (std::ostream& o, AccuracyNumber const & number);
 
 	private:
 		T epsilon;		//our precision
 	};
 
 	template <class T>
-	inline ostream& operator<< (ostream& o, AccuracyNumber<T> const & number) {	return o << number.get(); }
+	inline std::ostream& operator<< (std::ostream& o, AccuracyNumber<T> const & number) { return o << number.get(); }
 
 	typedef AccuracyNumber<double> AccuracyDouble;
 
