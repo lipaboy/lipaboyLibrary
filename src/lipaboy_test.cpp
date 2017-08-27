@@ -30,6 +30,9 @@ namespace LipaboyLib {
 		b = 5.0;
 		//b.operator=()
 		cout << (double)b << endl;
+		cout << b - a << endl;
+		cout << b - 2.0 * a << endl;
+		cout << b / (a * 2.0) << endl;
 
 		//AccuracyDouble d1(5.0, 1.0);
 		//if (d1 < 6.1)

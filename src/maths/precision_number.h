@@ -9,7 +9,6 @@
 
 namespace LipaboyLib {
 
-
 	//TODO: add set epsilon
 
 	template <class T>
@@ -26,9 +25,12 @@ namespace LipaboyLib {
 			return (getNumber() >= val - epsilon) && (getNumber() <= val + epsilon);
 		}
 
-		bool operator<(const Comparable& obj) const noexcept { return (*this) < dynamic_cast<const PrecisionNumber&>(obj).getNumber(); }
-		bool operator<=(const Comparable& obj) const noexcept { return (*this) <= dynamic_cast<const PrecisionNumber&>(obj).getNumber();}
-		bool operator==(const Comparable& obj) const noexcept { return ((*this) == dynamic_cast<const PrecisionNumber&>(obj).getNumber()); }
+		bool operator<(const Comparable& obj) const noexcept { 
+			return (*this) < dynamic_cast<const PrecisionNumber&>(obj).getNumber(); }
+		bool operator<=(const Comparable& obj) const noexcept { 
+			return (*this) <= dynamic_cast<const PrecisionNumber&>(obj).getNumber();}
+		bool operator==(const Comparable& obj) const noexcept { 
+			return ((*this) == dynamic_cast<const PrecisionNumber&>(obj).getNumber()); }
 
 		void setNumber(T const & val) noexcept { number = val; }
 		T const & getNumber() const noexcept { return number; }
