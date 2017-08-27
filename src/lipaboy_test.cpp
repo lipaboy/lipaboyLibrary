@@ -45,7 +45,7 @@ namespace LipaboyLib {
 
 		/*--------------AccuracyFixedNumber----------------*/
 		
-		FixedPrecisionNumber<double, 1, -1> cd1(5.0);
+		FixedPrecisionNumber<double, int, 1, -1> cd1(5.0);
 		if (5.09 >= cd1)
 			cout << "5.0 <= 5.09 with 0.1 precision" << endl;
 		if (cd1 != 4.89)

@@ -6,34 +6,42 @@
 
 namespace LipaboyLib {
 
-	template <typename T>
-	inline constexpr T powDozen(int power) {
-		return (power < 0) ? ((power > -1) ? static_cast<T>(1) : static_cast<T>(0.1) * powDozen<T>(power + 1))
-			: ((power < 1) ? static_cast<T>(1) : static_cast<T>(10) * powDozen<T>(power - 1));
+	template <typename T, typename IntegerType = int>
+	inline constexpr T powDozen(IntegerType power) {
+		return (power < static_cast<IntegerType>(0)) ? 
+				((power > static_cast<IntegerType>(-1)) ? static_cast<T>(1) :
+					static_cast<T>(0.1) * powDozen<T>(power + static_cast<IntegerType>(1)))
+			: ((power < static_cast<IntegerType>(1)) ? static_cast<T>(1) : static_cast<T>(10)
+				* powDozen<T>(power - static_cast<IntegerType>(1)));
 	}
 
-	template <typename T, int fraction, int dozenPower>
+	template <typename T, typename IntegerPrecisionType, 
+		IntegerPrecisionType fraction, IntegerPrecisionType dozenPower>
 	class FixedPrecisionNumber : public Comparable, public EitherComparable<T> {
 	public:
 		explicit
 			FixedPrecisionNumber(T _number = T()) : number(_number) {}
 
-		bool operator<(const T& val) const { return (number < val - fraction * powDozen<T>(dozenPower)); }
-		bool operator<=(const T& val) const { return (number <= val + fraction * powDozen<T>(dozenPower)); }
+		bool operator<(const T& val) const { return (number < val 
+			- fraction * powDozen<T, IntegerPrecisionType>(dozenPower)); }
+		bool operator<=(const T& val) const { return (number <= val 
+			+ fraction * powDozen<T, IntegerPrecisionType>(dozenPower)); }
 		bool operator==(const T& val) const {
-			return (number >= val - fraction * powDozen<T>(dozenPower))
-				&& (number <= val + fraction * powDozen<T>(dozenPower));
+			return (number >= val - fraction * powDozen<T, IntegerPrecisionType>(dozenPower))
+				&& (number <= val + fraction * powDozen<T, IntegerPrecisionType>(dozenPower));
 		}
 
-		bool operator<(const Comparable& obj) const { return (*this) < dynamic_cast<const FixedPrecisionNumber&>(obj).number; }
-		bool operator<=(const Comparable& obj) const { return (*this) <= dynamic_cast<const FixedPrecisionNumber&>(obj).number; }
-		bool operator==(const Comparable& obj) const { return ((*this) == dynamic_cast<const FixedPrecisionNumber&>(obj).number); }
+		bool operator<(const Comparable& obj) const { 
+			return (*this) < dynamic_cast<const FixedPrecisionNumber&>(obj).number; }
+		bool operator<=(const Comparable& obj) const { 
+			return (*this) <= dynamic_cast<const FixedPrecisionNumber&>(obj).number; }
+		bool operator==(const Comparable& obj) const { 
+			return ((*this) == dynamic_cast<const FixedPrecisionNumber&>(obj).number); }
 
 		operator T() { return number; }
 
 	private:
 		T number;
-		//const T precision = fraction * powDozen<T>(dozenPower);
 	};
 
 }
