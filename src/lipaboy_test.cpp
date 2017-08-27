@@ -33,6 +33,7 @@ namespace LipaboyLib {
 		cout << b - a << endl;
 		cout << b - 2.0 * a << endl;
 		cout << b / (a * 2.0) << endl;
+		cout << b << endl;
 
 		//AccuracyDouble d1(5.0, 1.0);
 		//if (d1 < 6.1)
@@ -50,6 +51,12 @@ namespace LipaboyLib {
 			cout << "5.0 <= 5.09 with 0.1 precision" << endl;
 		if (cd1 != 4.89)
 			cout << "5.0 != 4.89 with 0.1 precision" << endl;
+
+		cd1 = 5.2 + cd1;
+		cout << cd1 << endl;
+		//DOESN'T WORK
+		//Algebra<double> * g = &cd1;
+		//cout << g->getNumber() << endl;
 
 		constexpr int p = powDozen<int>(5);
 		cout << p << endl;

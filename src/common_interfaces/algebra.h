@@ -1,10 +1,22 @@
 #ifndef ALGEBRA_H
 #define ALGEBRA_H
 
+#include <ostream>
+
 namespace LipaboyLib {
 
 	template <class T>
-	class NumberGettable { public: virtual T const& getNumber() const noexcept = 0; };
+	class NumberGettable { 
+	public: 
+		virtual T const& getNumber() const noexcept = 0; 
+	};
+	//TODO: READ ABOUT THE TENSION BETWEEN OOP AND GENERIC PROGRAMMING
+	//I don't know why it doesn't work
+	/*template <class T>
+	inline std::ostream& operator<< (std::ostream& o, NumberGettable<T> const & number) {
+		return (o << number.getNumber());
+	}*/
+
 	template <class T>
 	class NumberSettable { public: virtual void setNumber(const T& val) noexcept = 0; };
 

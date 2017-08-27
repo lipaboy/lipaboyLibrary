@@ -12,8 +12,12 @@ namespace LipaboyLib {
 	//TODO: add set epsilon
 
 	template <class T>
-	class PrecisionNumber : public EitherComparable<T>, public Comparable,
-					public Algebra<T> {
+	class PrecisionNumber : 
+		public EitherComparable<T>, 
+		public Comparable,
+		public Algebra<T>,
+		public NumberSettable<T>
+	{
 	public:
 		explicit
 		PrecisionNumber(const T& _number = T(), const T& _precision = T()) noexcept
@@ -38,15 +42,16 @@ namespace LipaboyLib {
 
 		operator T() noexcept { return getNumber(); }
 
-		friend std::ostream& operator<< (std::ostream& o, PrecisionNumber const & number);
-
+		//friend std::ostream& operator<< (std::ostream& o, PrecisionNumber<T> const & number);
 	private:
 		T epsilon;		//our precision
 		T number;
 	};
 
 	template <class T>
-	inline std::ostream& operator<< (std::ostream& o, PrecisionNumber<T> const & number) { return o << number.getNumber(); }
+	inline std::ostream& operator<< (std::ostream& o, PrecisionNumber<T> const & number) { 
+		return o << number.getNumber(); 
+	}
 
 	typedef PrecisionNumber<double> PrecisionDouble;
 
