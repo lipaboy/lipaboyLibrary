@@ -10,18 +10,17 @@ namespace LipaboyLib {
 	public: 
 		virtual T const& getNumber() const noexcept = 0; 
 	};
-	//TODO: READ ABOUT THE TENSION BETWEEN OOP AND GENERIC PROGRAMMING
-	//I don't know why it doesn't work
-	/*template <class T>
+
+	template <class T>
 	inline std::ostream& operator<< (std::ostream& o, NumberGettable<T> const & number) {
 		return (o << number.getNumber());
-	}*/
+	}
 
 	template <class T>
 	class NumberSettable { public: virtual void setNumber(const T& val) noexcept = 0; };
 
 	template <class T>
-	class NumberSummable : public NumberGettable<T> {
+	class NumberSummable : public virtual NumberGettable<T> {
 	public:
 		//-----Return value has T type (because I can't return EitherSummable var)----
 		T operator+(const NumberSummable& other) const noexcept { return getNumber() + other.getNumber(); }
@@ -32,7 +31,7 @@ namespace LipaboyLib {
 	T operator+(const T& val, const NumberSummable<T>& obj) noexcept { return val + obj.getNumber(); }
 
 	template <class T>
-	class NumberSubtrative : public NumberGettable<T> {
+	class NumberSubtrative : public virtual NumberGettable<T> {
 	public:
 		//-----Return value has T type (because I can't return EitherSummable var)----
 		T operator-(const NumberSubtrative& other) const noexcept { return getNumber() - other.getNumber(); }
@@ -43,7 +42,7 @@ namespace LipaboyLib {
 	T operator-(const T& val, const NumberSubtrative<T>& obj) noexcept { return val - obj.getNumber(); }
 
 	template <class T>
-	class NumberMultiplicative : public NumberGettable<T> {
+	class NumberMultiplicative : public virtual NumberGettable<T> {
 	public:
 		//-----Return value has T type (because I can't return EitherSummable var)----
 		T operator*(const NumberMultiplicative& other) const noexcept { return getNumber() * other.getNumber(); }
@@ -54,7 +53,7 @@ namespace LipaboyLib {
 	T operator*(const T& val, const NumberMultiplicative<T>& obj) noexcept { return val * obj.getNumber(); }
 
 	template <class T>
-	class NumberDivisible : public NumberGettable<T> {
+	class NumberDivisible : public virtual NumberGettable<T> {
 	public:
 		//-----Return value has T type (because I can't return EitherSummable var)----
 		T operator/(const NumberDivisible& other) const noexcept { return getNumber() / other.getNumber(); }

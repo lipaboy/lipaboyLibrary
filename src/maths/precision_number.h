@@ -48,10 +48,10 @@ namespace LipaboyLib {
 		T number;
 	};
 
-	template <class T>
+	/*template <class T>
 	inline std::ostream& operator<< (std::ostream& o, PrecisionNumber<T> const & number) { 
 		return o << number.getNumber(); 
-	}
+	}*/
 
 	typedef PrecisionNumber<double> PrecisionDouble;
 

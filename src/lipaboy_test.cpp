@@ -55,8 +55,8 @@ namespace LipaboyLib {
 		cd1 = 5.2 + cd1;
 		cout << cd1 << endl;
 		//DOESN'T WORK
-		//Algebra<double> * g = &cd1;
-		//cout << g->getNumber() << endl;
+		Algebra<double> & g = cd1;
+		cout << g << endl;
 
 		constexpr int p = powDozen<int>(5);
 		cout << p << endl;
