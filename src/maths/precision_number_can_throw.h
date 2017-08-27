@@ -42,11 +42,11 @@ namespace LipaboyLib {
 
 
 	template <class T>
-	class AccuracyNumberCanThrow : public EitherComparable<T>, public Comparable,
+	class PrecisionNumberCanThrow : public EitherComparable<T>, public Comparable,
 		public AlgebraCanThrow<T> {
 	public:
 		explicit
-			AccuracyNumberCanThrow(const T& _number = T(), const T& _precision = T())
+			PrecisionNumberCanThrow(const T& _number = T(), const T& _precision = T())
 			: AlgebraCanThrow(_number), epsilon(_precision) {}
 
 		bool operator<(const T& val) const { return (get() < val - epsilon); }
@@ -55,24 +55,24 @@ namespace LipaboyLib {
 			return (get() >= val - epsilon) && (get() <= val + epsilon);
 		}
 
-		bool operator<(const Comparable& obj) const { return (*this) < dynamic_cast<const AccuracyNumberCanThrow&>(obj).get(); }
-		bool operator<=(const Comparable& obj) const { return (*this) <= dynamic_cast<const AccuracyNumberCanThrow&>(obj).get(); }
-		bool operator==(const Comparable& obj) const { return ((*this) == dynamic_cast<const AccuracyNumberCanThrow&>(obj).get()); }
+		bool operator<(const Comparable& obj) const { return (*this) < dynamic_cast<const PrecisionNumberCanThrow&>(obj).get(); }
+		bool operator<=(const Comparable& obj) const { return (*this) <= dynamic_cast<const PrecisionNumberCanThrow&>(obj).get(); }
+		bool operator==(const Comparable& obj) const { return ((*this) == dynamic_cast<const PrecisionNumberCanThrow&>(obj).get()); }
 
-		AccuracyNumber const & operator= (T const & val) { ElemableCanThrow<T>::operator=(val); return *this; }
+		PrecisionNumber const & operator= (T const & val) { ElemableCanThrow<T>::operator=(val); return *this; }
 
 		operator T() noexcept { return get(); }
 
-		friend std::ostream& operator<< (std::ostream& o, AccuracyNumberCanThrow const & number);
+		friend std::ostream& operator<< (std::ostream& o, PrecisionNumberCanThrow const & number);
 
 	private:
 		T epsilon;		//our precision
 	};
 
 	template <class T>
-	inline std::ostream& operator<< (std::ostream& o, AccuracyNumberCanThrow<T> const & number) { return o << number.get(); }
+	inline std::ostream& operator<< (std::ostream& o, PrecisionNumberCanThrow<T> const & number) { return o << number.get(); }
 
-	typedef AccuracyNumberCanThrow<double> AccuracyDoubleCanThrow;
+	typedef PrecisionNumberCanThrow<double> AccuracyDoubleCanThrow;
 
 }
 

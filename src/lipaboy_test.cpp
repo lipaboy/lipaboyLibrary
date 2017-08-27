@@ -24,7 +24,7 @@ namespace LipaboyLib {
 		std::cout << "ray (5, +inf) contains int_max" << std::endl;*/
 
 		double a = 1.0;
-		AccuracyDouble b(5.0, 1.0);
+		PrecisionDouble b(5.0, 1.0);
 		cout << b + a << endl;
 		b.set(b + a);
 		b = 5.0;
@@ -44,14 +44,14 @@ namespace LipaboyLib {
 
 		/*--------------AccuracyFixedNumber----------------*/
 		
-		//AccuracyFixedNumber<double, 1, -1> cd1(5.0);
-		//if (5.09 >= cd1)
-		//	cout << "5.0 <= 5.09 with 0.1 precision" << endl;
-		//if (cd1 != 4.89)
-		//	cout << "5.0 != 4.89 with 0.1 precision" << endl;
+		FixedPrecisionNumber<double, 1, -1> cd1(5.0);
+		if (5.09 >= cd1)
+			cout << "5.0 <= 5.09 with 0.1 precision" << endl;
+		if (cd1 != 4.89)
+			cout << "5.0 != 4.89 with 0.1 precision" << endl;
 
-		//constexpr int p = powDozen<int>(5);
-		//cout << p << endl;
+		constexpr int p = powDozen<int>(5);
+		cout << p << endl;
 
 		/*--------------Intervals----------------*/
 
