@@ -23,12 +23,14 @@ namespace LipaboyLib {
 			FixedPrecisionNumber(T _number = T()) : number(_number) {}
 
 		bool operator<(const T& val) const { return (number < val 
-			- fraction * powDozen<T, IntegerPrecisionType>(dozenPower)); }
+			- static_cast<T>(fraction * powDozen<T, IntegerPrecisionType>(dozenPower))); }
 		bool operator<=(const T& val) const { return (number <= val 
-			+ fraction * powDozen<T, IntegerPrecisionType>(dozenPower)); }
+			+ static_cast<T>(fraction * powDozen<T, IntegerPrecisionType>(dozenPower))); }
 		bool operator==(const T& val) const {
-			return (number >= val - fraction * powDozen<T, IntegerPrecisionType>(dozenPower))
-				&& (number <= val + fraction * powDozen<T, IntegerPrecisionType>(dozenPower));
+			return (number >= val 
+					- static_cast<T>(fraction * powDozen<T, IntegerPrecisionType>(dozenPower)))
+				&& (number <= val 
+					+ static_cast<T>(fraction * powDozen<T, IntegerPrecisionType>(dozenPower)));
 		}
 
 		bool operator<(const Comparable& obj) const { 
