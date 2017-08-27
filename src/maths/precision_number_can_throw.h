@@ -8,9 +8,7 @@
 
 namespace LipaboyLib {
 
-	//TODO: think about name, may be PreciselyNumber or UnpreciselyNumber (but ConstUnpreciselyNumber ??)
-
-	//TODO: write Summerizable and so on (like Algebra)
+	//That class distinguishes from PrecisionNumber at lack of noexcept
 
 	template <class T>
 	class ElemableCanThrow {

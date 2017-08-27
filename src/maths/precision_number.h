@@ -18,30 +18,33 @@ namespace LipaboyLib {
 	public:
 		explicit
 		PrecisionNumber(const T& _number = T(), const T& _precision = T()) noexcept
-			: Algebra(_number), epsilon(_precision) {}
+			: number(_number), epsilon(_precision) {}
 
-		bool operator<(const T& val) const noexcept { return (get() < val - epsilon); }
-		bool operator<=(const T& val) const noexcept { return (get() <= val + epsilon); }
+		bool operator<(const T& val) const noexcept { return (getNumber() < val - epsilon); }
+		bool operator<=(const T& val) const noexcept { return (getNumber() <= val + epsilon); }
 		bool operator==(const T& val) const noexcept { 
-			return (get() >= val - epsilon) && (get() <= val + epsilon);
+			return (getNumber() >= val - epsilon) && (getNumber() <= val + epsilon);
 		}
 
-		bool operator<(const Comparable& obj) const noexcept { return (*this) < dynamic_cast<const PrecisionNumber&>(obj).get(); }
-		bool operator<=(const Comparable& obj) const noexcept { return (*this) <= dynamic_cast<const PrecisionNumber&>(obj).get();}
-		bool operator==(const Comparable& obj) const noexcept { return ((*this) == dynamic_cast<const PrecisionNumber&>(obj).get()); }
+		bool operator<(const Comparable& obj) const noexcept { return (*this) < dynamic_cast<const PrecisionNumber&>(obj).getNumber(); }
+		bool operator<=(const Comparable& obj) const noexcept { return (*this) <= dynamic_cast<const PrecisionNumber&>(obj).getNumber();}
+		bool operator==(const Comparable& obj) const noexcept { return ((*this) == dynamic_cast<const PrecisionNumber&>(obj).getNumber()); }
 
-		PrecisionNumber const & operator= (T const & val) noexcept { Elemable<T>::operator=(val); return *this; }
+		void setNumber(T const & val) noexcept { number = val; }
+		T const & getNumber() const noexcept { return number; }
+		PrecisionNumber const & operator= (T const & val) noexcept { setNumber(val); return *this; }
 
-		operator T() noexcept { return get(); }
+		operator T() noexcept { return getNumber(); }
 
 		friend std::ostream& operator<< (std::ostream& o, PrecisionNumber const & number);
 
 	private:
 		T epsilon;		//our precision
+		T number;
 	};
 
 	template <class T>
-	inline std::ostream& operator<< (std::ostream& o, PrecisionNumber<T> const & number) { return o << number.get(); }
+	inline std::ostream& operator<< (std::ostream& o, PrecisionNumber<T> const & number) { return o << number.getNumber(); }
 
 	typedef PrecisionNumber<double> PrecisionDouble;
 
