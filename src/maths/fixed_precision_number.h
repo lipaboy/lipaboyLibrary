@@ -1,5 +1,5 @@
-#ifndef ACCURACY_FIXED_NUMBER_H
-#define ACCURACY_FIXED_NUMBER_H
+#ifndef FIXED_PRECISION_NUMBER_H
+#define FIXED_PRECISION_NUMBER_H
 
 #include "../common_interfaces/comparable.h"
 #include "../common_interfaces/either_comparable.h"
@@ -69,4 +69,4 @@ namespace LipaboyLib {
 
 }
 
-#endif
+#endif //FIXED_PRECISION_NUMBER_H
