@@ -40,6 +40,9 @@ namespace LipaboyLib {
 			: (number & ~(1u << position));*/
 	}
 
+	//Useless: We already have std::vector<bool>. If you want to create smth new 
+	//the add iterator for it (i.e. ForwardIterator).
+
 	template <typename T = uint32_t, typename IndexType = uint32_t>
 	class BitVector {
 	public:
