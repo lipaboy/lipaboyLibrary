@@ -5,9 +5,7 @@
 #include <algorithm>
 #include <initializer_list>
 
-//#include <boo>
 #include <boost\range\any_range.hpp>
-//#include<boo>
 
 //Unfortunately, I invented the bicycle: std::bitset<size_t N>
 
@@ -43,10 +41,10 @@ namespace LipaboyLib {
 	}
 
 	template <typename T = uint32_t, typename IndexType = uint32_t>
-	class BitContainer {
+	class BitVector {
 	public:
-		BitContainer() : container(), _size(0) {}
-		BitContainer(std::initializer_list<BitType> initList);
+		BitVector() : container(), _size(0) {}
+		BitVector(std::initializer_list<BitType> initList);
 
 		BitType get(IndexType index) const { 
 			return container[index / (sizeof(T) * 8)] & (static_cast<T>(1) << (index % (sizeof(T) * 8)));
@@ -68,7 +66,7 @@ namespace LipaboyLib {
 	};
 
 	template<typename T, typename IndexType>
-	inline BitContainer<T, IndexType>::BitContainer(std::initializer_list<BitType> initList)
+	inline BitVector<T, IndexType>::BitVector(std::initializer_list<BitType> initList)
 		: container(1 + (initList.size() - 1) / (sizeof(T) * 8)), _size(initList.size())
 	{
 		IndexType i = 0;
