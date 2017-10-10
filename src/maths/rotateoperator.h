@@ -9,7 +9,7 @@ namespace LipaboyLib {
 class RotateOperator
 {
 public:
-    RotateOperator(Vector3D asixRotation1, double angle1);
+    RotateOperator(Vector3D asixRotation1, double _radianAngle);
 
     Vector3D rotate(Vector3D container) const { return (rotateMat * VectorColumn4D(container, 0)).toVector3D(); }
     const Matrix4x4& getMatrix() const { return rotateMat; }
