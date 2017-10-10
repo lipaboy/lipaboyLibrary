@@ -4,7 +4,7 @@
 #include "intervals/interval.h"
 #include "maths/precision_number.h"
 #include "maths/fixed_precision_number.h"
-#include "containers/bit_container.h"
+#include "containers/bit_vector.h"
 
 namespace LipaboyLib {
 	int lipaboyMain();

@@ -102,7 +102,7 @@ namespace LipaboyLib {
 		//TODO: Want I want to do: compare perfomance of vector<int>[i] and bitcon[i] (or maybe do it later?)
 
 		constexpr int d = sizeof(int) * 8;	//It proves that sizeof(int) - compile-time function
-		BitContainer<> bitcon;
+		BitVector<> bitcon;
 		std::vector<uint32_t> vect;
 
 		#define testSize static_cast<size_t>(2e3)
