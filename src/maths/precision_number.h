@@ -18,32 +18,35 @@ namespace LipaboyLib {
 	class PrecisionNumber : 
 		public EitherComparable<T>, 
 		public Comparable,
-		public Algebra<T>,
+        public Algebra<T, PrecisionNumber<T> >,
 		public NumberSettable<T>
 	{
+    public:
+        using ValueType = T;
 	public:
 		explicit
 		PrecisionNumber(const T& _number = T(), const T& _precision = T()) noexcept
 			: number(_number), epsilon(_precision) {}
 
-		bool operator<(const T& val) const noexcept { return (getNumber() < val - epsilon); }
-		bool operator<=(const T& val) const noexcept { return (getNumber() <= val + epsilon); }
+        bool operator<(const T& val) const noexcept { return (getNumber2() < val - epsilon); }
+        bool operator<=(const T& val) const noexcept { return (getNumber2() <= val + epsilon); }
 		bool operator==(const T& val) const noexcept { 
-			return (getNumber() >= val - epsilon) && (getNumber() <= val + epsilon);
+            return (getNumber2() >= val - epsilon) && (getNumber2() <= val + epsilon);
 		}
 
 		bool operator<(const Comparable& obj) const noexcept { 
-			return (*this) < dynamic_cast<const PrecisionNumber&>(obj).getNumber(); }
+            return (*this) < dynamic_cast<const PrecisionNumber&>(obj).getNumber2(); }
 		bool operator<=(const Comparable& obj) const noexcept { 
-			return (*this) <= dynamic_cast<const PrecisionNumber&>(obj).getNumber();}
+            return (*this) <= dynamic_cast<const PrecisionNumber&>(obj).getNumber2();}
 		bool operator==(const Comparable& obj) const noexcept { 
-			return ((*this) == dynamic_cast<const PrecisionNumber&>(obj).getNumber()); }
+            return ((*this) == dynamic_cast<const PrecisionNumber&>(obj).getNumber2()); }
 
 		void setNumber(T const & val) noexcept { number = val; }
-		T const & getNumber() const noexcept { return number; }
+        T const & getNumber2() const noexcept { return number; }
+        T const & getNumber_() const noexcept { return number; }
 		PrecisionNumber const & operator= (T const & val) noexcept { setNumber(val); return *this; }
 
-		operator T() noexcept { return getNumber(); }
+        operator T() noexcept { return getNumber2(); }
 
 		//friend std::ostream& operator<< (std::ostream& o, PrecisionNumber<T> const & number);
 	private:
