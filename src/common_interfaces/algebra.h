@@ -6,6 +6,7 @@
 namespace LipaboyLib {
 
     // TODO: make this class by static polymorphic
+
 	template <class T>
 	class NumberGettable { 
 	public: 

@@ -98,58 +98,61 @@ TEST(StreamTest, check) {
 
 
 
-        vector<int> olala = { 1, 2, 3, 4, 5, 6, 7, 8 };
-        auto stream2 = createStream(olala.begin(), olala.end());
-        (stream2 | print_to(cout)) << endl;
-        auto stream3 = stream2 | map(kek);
-        auto stream4 = stream2 | filter([] (int a) -> bool { return a % 2 == 0; }) | map(kek)
-                | filter([] (int a) -> bool { return a % 10 == 6; });
+//        vector<int> olala = { 1, 2, 3, 4, 5, 6, 7, 8 };
+//        auto stream2 = createStream(olala.begin(), olala.end());
+//        (stream2 | print_to(cout)) << endl;
+//        auto stream3 = stream2 | map(kek);
+//        auto stream4 = stream2 | filter([] (int a) -> bool { return a % 2 == 0; }) | map(kek)
+//                | filter([] (int a) -> bool { return a % 10 == 6; });
 
-        (stream3 | print_to(cout)) << endl;
-        cout << "Start filter: " << endl;
-        (stream4 | print_to(cout)) << endl;
-        cout << "End filter: " << endl;
+//        (stream3 | print_to(cout)) << endl;
+//        cout << "Start filter: " << endl;
+//        (stream4 | print_to(cout)) << endl;
+//        cout << "End filter: " << endl;
 
-        list<int> list1 = { 8, 10, 13 };
-        auto stream5 = createStream(list1.begin(), list1.end());
-        (stream5  | get(2) | print_to(cout)) << endl;
+//        list<int> list1 = { 8, 10, 13 };
+//        auto stream5 = createStream(list1.begin(), list1.end());
+//        (stream5  | get(2) | print_to(cout)) << endl;
 
-        // Generator
-        auto stream6 = createStream([] () { return rand() % 228; });
+//        // Generator
+//        auto stream6 = createStream([] () { return rand() % 228; });
 
-        auto stream8 = stream6 | map(kek) | get(20) | filter(kekBool);
-        (stream8 | get(20) | print_to(cout)) << endl;
-        ASSERT_NO_THROW(stream6 | map(kek) | filter(kekBool) | get(10) | print_to(cout));
+//        auto stream8 = stream6 | map(kek) | get(20) | filter(kekBool);
+//        (stream8 | get(20) | print_to(cout)) << endl;
+//        ASSERT_NO_THROW(stream6 | map(kek) | filter(kekBool) | get(10) | print_to(cout));
 
-        (stream8 | print_to(cout)) << endl;
-        vector<int> elem = (stream8 | group(5) | nth(2));
-        auto elem2 = (stream8 | group(5) | group(3) | nth(0));
-        cout << typeid(elem).name() << endl;
-        cout << "{ ";
-        std::copy(elem.begin(), elem.end(), std::ostream_iterator<int>(cout, " "));
-        cout << "} ";
-        cout << endl;
-        cout << "{{ ";
-        for (int i = 0; i < 5; i++)
-            cout << elem2[0][i] << ", ";
-        cout << "}} " << endl;
+//        (stream8 | print_to(cout)) << endl;
+//        vector<int> elem = (stream8 | group(5) | nth(2));
+//        auto elem2 = (stream8 | group(5) | group(3) | nth(0));
+//        cout << typeid(elem).name() << endl;
+//        cout << "{ ";
+//        std::copy(elem.begin(), elem.end(), std::ostream_iterator<int>(cout, " "));
+//        cout << "} ";
+//        cout << endl;
+//        cout << "{{ ";
+//        for (int i = 0; i < 5; i++)
+//            cout << elem2[0][i] << ", ";
+//        cout << "}} " << endl;
 
-        vector<string> strs = { string("kek1"), string("kek2") };
-        auto stream7 = createStream(strs.begin(), strs.end());
-        (stream7 | map([] (string s) { return s + "o"; }) | print_to(cout)) << endl;
+//        vector<string> strs = { string("kek1"), string("kek2") };
+//        auto stream7 = createStream(strs.begin(), strs.end());
+//        (stream7 | map([] (string s) { return s + "o"; }) | print_to(cout)) << endl;
 
-        auto stream9 = createStream(1, 2, 3, 4, 5);
-        (stream9 | skip(1) | skip(1) | get(2) | print_to(cout, "-")) << endl;
+//        auto stream9 = createStream(1, 2, 3, 4, 5);
+//        (stream9 | skip(1) | skip(1) | get(2) | print_to(cout, "-")) << endl;
 
-        auto lolVec = stream9 | group(1) | filter([] (const vector<int>& kek) { return kek[0] % 2 == 0; }) | nth(0);
-        cout << lolVec[0] << endl;
+//        auto lolVec = stream9 | group(1) | filter([] (const vector<int>& kek) { return kek[0] % 2 == 0; }) | nth(0);
+//        cout << lolVec[0] << endl;
 
-        vector<int> vecRes = stream9 | map([] (int i) { return i * i * 3; }) | to_vector();
-        cout << vecRes[3] << endl;
+//        vector<int> vecRes = stream9 | map([] (int i) { return i * i * 3; }) | to_vector();
+//        cout << vecRes[3] << endl;
 
-        cout << "Sum = " << (stream9 | reduce([] (int) { return 0; },
-            [] (int a, int b) { return a + b; })) << endl;
-        cout << "Sum = " << (stream9 | sum()) << endl;
+//        cout << "Sum = " << (stream9 | reduce([] (int) { return 0; },
+//            [] (int a, int b) { return a + b; })) << endl;
+//        cout << "Sum = " << (stream9 | sum()) << endl;
+
+        //-------------Noisy Test---------------//
+
 //        vector<Noisy> vecNoisy(5);
 //        auto streamNoisy = createStream(vecNoisy.begin(), vecNoisy.end());
 //        Noisy el = (streamNoisy

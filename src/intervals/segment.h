@@ -9,13 +9,13 @@
 
 namespace LipaboyLib {
 
-//TODO: you can add some functionality like :
+// TODO: you can add some functionality like :
 // push in "stack" the results of comparation, for example:
-//segment.add(x).add(y).getResult() - return bool
-//segment.add(x) - return const Segment& to reuse it
+// segment.add(x).add(y).getResult() - return bool
+// segment.add(x) - return const Segment& to reuse it
 // Likely solution: read about Args&&..
 
-//common methods for Interface Plenty (in(), out())
+// common methods for Interface Plenty (in(), out())
 
 template <class T>
 class Segment
@@ -38,6 +38,8 @@ protected:
     T leftBorder;
     T rightBorder;
 };
+
+// Instead of this specialization you can use accuracy numbers and typedefs
 
 template <>
 class Segment<double>
