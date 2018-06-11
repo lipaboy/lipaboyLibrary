@@ -1,0 +1,226 @@
+#ifndef FUNCTORS_H
+#define FUNCTORS_H
+
+#include <memory>
+#include <vector>
+#include <functional>
+#include <algorithm>
+#include <optional>
+#include <iterator>
+#include <type_traits>
+#include <utility>
+#include <cmath>
+#include <ostream>
+
+#include <typeinfo>
+
+#include <iostream>
+
+
+#define IS_TEST_RUN229
+
+#ifdef IS_TEST_RUN229
+#include <gtest/gtest.h>
+
+namespace stream_tests {
+class StreamTest;
+}
+
+#endif
+
+namespace stream_space {
+
+namespace functors_space {
+
+using std::vector;
+using std::pair;
+using std::ostream;
+using std::string;
+using std::unique_ptr;
+using std::shared_ptr;
+using std::optional;
+
+using namespace std::placeholders;
+
+using std::cout;
+using std::endl;
+
+enum Info {
+    GENERATOR,
+    OUTSIDE_ITERATORS,
+    INITIALIZING_LIST
+};
+struct IsGeneratorProducing {
+    static constexpr Info info = GENERATOR;
+};
+struct IsOutsideIteratorsRefer {
+    static constexpr Info info = OUTSIDE_ITERATORS;
+};
+struct IsInitializingListCreation {
+    static constexpr Info info = INITIALIZING_LIST;
+};
+
+enum FunctorMetaTypeEnum {
+    FILTER,     //v
+    MAP,        //v
+    REDUCE,     //v
+    GET,        //v
+    SKIP,       //v
+    PRINT_TO,   //v
+    GROUP,      //v
+    SUM,
+    TO_VECTOR,  //v
+    NTH         //v
+};
+
+
+//namespace special {
+
+//---------------Special structs--------------//
+
+struct TReturnSameType {
+    template <class Arg>
+    struct RetType {
+        using type = Arg;
+    };
+};
+template <class Functor>
+struct FunctorMetaType {
+    using GetMetaType = Functor;
+};
+// TODO: refactor, change names of meta functor and functor
+template <class Functor>
+struct FunctorHolder : FunctorMetaType<Functor> {
+    FunctorHolder(Functor func) : functor_(func) {}
+    Functor functor() const { return functor_; }
+public:
+    Functor functor_;
+};
+
+//}
+
+//---------------Non-terminated operations-----------//
+
+template <class Predicate>
+struct filter : FunctorHolder<Predicate>, TReturnSameType {
+    filter(Predicate functor)
+        : FunctorHolder<Predicate>(functor) {}
+    static constexpr FunctorMetaTypeEnum metaInfo = FILTER;
+};
+template <class Transform>
+struct map : FunctorHolder<Transform> {
+    map(Transform functor) : FunctorHolder<Transform>(functor) {}
+    static constexpr FunctorMetaTypeEnum metaInfo = MAP;
+
+    template <class Arg>
+    struct RetType {
+        using type = typename std::result_of<Transform(Arg)>::type;
+    };
+    template <class Arg>
+    auto operator()(Arg arg) const
+        -> typename RetType<Arg>::type
+    {
+        return FunctorHolder<Transform>::functor()(arg);
+    }
+};
+struct get : TReturnSameType {
+    using size_type = size_t;
+    get(size_type border) : border_(border) {}
+    static constexpr FunctorMetaTypeEnum metaInfo = GET;
+
+    size_type border() const { return border_; }
+private:
+    size_type border_;
+};
+struct group {
+    using size_type = size_t;
+
+    group(size_type partSize) : partSize_(partSize) {
+        if (partSize == 0)
+            throw std::logic_error("Parameter of GroupType constructor must be positive");
+    }
+    static constexpr FunctorMetaTypeEnum metaInfo = GROUP;
+
+    template <class Arg>
+    struct RetType {
+        using type = vector<Arg>;
+    };
+
+    size_type partSize() const { return partSize_; }
+private:
+    size_type partSize_;
+};
+struct skip : TReturnSameType {
+    using size_type = size_t;
+
+    skip(size_type index) : index_(index) {}
+    static constexpr FunctorMetaTypeEnum metaInfo = SKIP;
+
+    size_type index() const { return index_; }
+private:
+    size_type index_;
+};
+
+//---------------Terminated operations-----------//
+
+template <class Accumulator, class IdentityFn = std::function<void(void)> >
+struct reduce : FunctorHolder<Accumulator>,
+                FunctorHolder<IdentityFn>
+{
+    reduce(IdentityFn&& identity, Accumulator&& accum)
+        : FunctorHolder<Accumulator>(accum),
+          FunctorHolder<IdentityFn>(identity)
+    {}
+    reduce(Accumulator&& accum)
+        : FunctorHolder<Accumulator>(accum),
+          FunctorHolder<IdentityFn>([] (void) -> void {})
+    {}
+    static constexpr FunctorMetaTypeEnum metaInfo = REDUCE;
+
+    template <class TResult, class Arg>
+    decltype(auto) accum(TResult&& result, Arg&& arg) const {
+        return FunctorHolder<Accumulator>::functor()(std::forward<TResult>(result),
+                                                     std::forward<Arg>(arg));
+    }
+    template <class Arg>
+    decltype(auto) identity(Arg arg) const {
+        if constexpr (std::is_same<IdentityFn, std::function<void(void)> >::value)
+            return std::forward<Arg>(arg);
+        else
+            return FunctorHolder<IdentityFn>::functor()(std::forward<Arg>(arg));
+    }
+};
+struct sum {
+    static constexpr FunctorMetaTypeEnum metaInfo = SUM;
+};
+struct print_to {
+public:
+    print_to(std::ostream& o, string delimiter = " ") : ostreamObj_(o), delimiter_(delimiter) {}
+    static constexpr FunctorMetaTypeEnum metaInfo = PRINT_TO;
+
+    std::ostream& ostream() { return ostreamObj_; }
+    string const & delimiter() const { return delimiter_; }
+private:
+    std::ostream& ostreamObj_;
+    string delimiter_;
+};
+struct to_vector {
+    static constexpr FunctorMetaTypeEnum metaInfo = TO_VECTOR;
+};
+struct nth {
+    using size_type = size_t;
+
+    nth(size_type index) : index_(index) {}
+    static constexpr FunctorMetaTypeEnum metaInfo = NTH;
+
+    size_type index() const { return index_; }
+private:
+    size_type index_;
+};
+
+
+}
+
+}
+
+#endif // FUNCTORS_H

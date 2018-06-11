@@ -9,7 +9,10 @@
 
 namespace LipaboyLib {
 
-	//TODO: add set epsilon
+    // PLAN
+    //---------
+    // TODO: add set epsilon
+    // TODO: measure the time of assessing element, of summarizing, algebra interfaces
 
 	template <class T>
 	class PrecisionNumber : 

@@ -7,7 +7,7 @@
 typedef unsigned long long int ullint;
 typedef long long int llint;
 
-#include <windows.h>
+//#include <windows.h>
 
 namespace LipaboyLib {
 
