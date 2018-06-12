@@ -33,26 +33,26 @@ namespace LipaboyLib {
 			FixedPrecisionNumber(T _number = T()) noexcept
 				: number(_number) {}
 
-        bool operator<(const T& val) const noexcept { return (getNumber2() < val
+        bool operator<(const T& val) const noexcept { return (getNumber() < val
 			- static_cast<T>(fraction * powDozen<T, IntegerPrecisionType>(dozenPower))); }
-        bool operator<=(const T& val) const noexcept { return (getNumber2() <= val
+        bool operator<=(const T& val) const noexcept { return (getNumber() <= val
 			+ static_cast<T>(fraction * powDozen<T, IntegerPrecisionType>(dozenPower))); }
 		bool operator==(const T& val) const noexcept {
-            return (getNumber2() >= val
+            return (getNumber() >= val
 					- static_cast<T>(fraction * powDozen<T, IntegerPrecisionType>(dozenPower)))
-                && (getNumber2() <= val
+                && (getNumber() <= val
 					+ static_cast<T>(fraction * powDozen<T, IntegerPrecisionType>(dozenPower)));
 		}
 
 		bool operator<(const Comparable& obj) const noexcept {
-            return (*this) < dynamic_cast<const FixedPrecisionNumber&>(obj).getNumber2(); }
+            return (*this) < dynamic_cast<const FixedPrecisionNumber&>(obj).getNumber(); }
 		bool operator<=(const Comparable& obj) const noexcept {
-            return (*this) <= dynamic_cast<const FixedPrecisionNumber&>(obj).getNumber2(); }
+            return (*this) <= dynamic_cast<const FixedPrecisionNumber&>(obj).getNumber(); }
 		bool operator==(const Comparable& obj) const noexcept {
-            return ((*this) == dynamic_cast<const FixedPrecisionNumber&>(obj).getNumber2()); }
+            return ((*this) == dynamic_cast<const FixedPrecisionNumber&>(obj).getNumber()); }
 
 		void setNumber(T const & val) noexcept { number = val; }
-        T const & getNumber2() const noexcept { return number; }
+        T const & getNumber() const noexcept { return number; }
         T const & getNumber_() const noexcept { return number; }
 		FixedPrecisionNumber const & operator= (T const & val) noexcept { setNumber(val); return *this; }
 
