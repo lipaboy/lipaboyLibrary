@@ -22,13 +22,13 @@ namespace LipaboyLib {
         bool operator<= (const T& other) const {
 			return ((*this) < other) || ((*this) == other);
 		}
-        bool operator== (const T& other) const {
+        bool operator== (const ValueType& other) const {
             return static_cast<DerivedType const *>(this)->operator== (other);
         }
 
 		bool operator> (const T& other) const { return !((*this) <= other); }
 		bool operator>= (const T& other) const { return !((*this) < other); }
-		bool operator!= (const T& other) const { return !((*this) == other); }
+//        bool operator!= (const ValueType& other) const { return !((*this) == other); }
 	};
 
     template <class T, class TDerived>
@@ -41,8 +41,8 @@ namespace LipaboyLib {
     bool operator> (const T& other, const EitherComparable<T, TDerived>& obj) { return (obj < other); }
     template <class T, class TDerived>
     bool operator>= (const T& other, const EitherComparable<T, TDerived>& obj) { return (obj <= other); }
-    template <class T, class TDerived>
-    bool operator!= (const T& other, const EitherComparable<T, TDerived>& obj) { return (obj != other); }
+//    template <class T, class TDerived>
+//    bool operator!= (const T& other, const EitherComparable<T, TDerived>& obj) { return (obj != other); }
 
 }
 

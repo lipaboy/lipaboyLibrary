@@ -21,7 +21,7 @@ namespace LipaboyLib {
 	template <typename T, typename IntegerPrecisionType, 
 		IntegerPrecisionType fraction, IntegerPrecisionType dozenPower>
 	class FixedPrecisionNumber : 
-//		public Comparable,
+        public ComparatorExtender<FixedPrecisionNumber<T, IntegerPrecisionType, fraction, dozenPower> >,
         public EitherComparable<T, FixedPrecisionNumber<T, IntegerPrecisionType, fraction, dozenPower> >,
         public Algebra<T, FixedPrecisionNumber<T, IntegerPrecisionType, fraction, dozenPower> >,
 		public NumberSettable<T>
@@ -37,23 +37,20 @@ namespace LipaboyLib {
 			- static_cast<T>(fraction * powDozen<T, IntegerPrecisionType>(dozenPower))); }
 //        bool operator<=(const T& val) const noexcept { return (getNumber() <= val
 //			+ static_cast<T>(fraction * powDozen<T, IntegerPrecisionType>(dozenPower))); }
-		bool operator==(const T& val) const noexcept {
+        bool operator==(const ValueType& val) const noexcept {
             return (getNumber() >= val
-					- static_cast<T>(fraction * powDozen<T, IntegerPrecisionType>(dozenPower)))
+                    - static_cast<ValueType>(fraction * powDozen<T, IntegerPrecisionType>(dozenPower)))
                 && (getNumber() <= val
-					+ static_cast<T>(fraction * powDozen<T, IntegerPrecisionType>(dozenPower)));
+                    + static_cast<ValueType>(fraction * powDozen<T, IntegerPrecisionType>(dozenPower)));
 		}
 
-//		bool operator<(const Comparable& obj) const noexcept {
-//            return (*this) < dynamic_cast<const FixedPrecisionNumber&>(obj).getNumber(); }
-//		bool operator<=(const Comparable& obj) const noexcept {
-//            return (*this) <= dynamic_cast<const FixedPrecisionNumber&>(obj).getNumber(); }
-//		bool operator==(const Comparable& obj) const noexcept {
-//            return ((*this) == dynamic_cast<const FixedPrecisionNumber&>(obj).getNumber()); }
+        bool operator<(const FixedPrecisionNumber& obj) const noexcept {
+            return (*this) < obj.getNumber(); }
+        bool operator==(const FixedPrecisionNumber& obj) const noexcept {
+            return (*this) == obj.getNumber(); }
 
 		void setNumber(T const & val) noexcept { number = val; }
         T const & getNumber() const noexcept { return number; }
-        T const & getNumber_() const noexcept { return number; }
 		FixedPrecisionNumber const & operator= (T const & val) noexcept { setNumber(val); return *this; }
 
         // better to not using it

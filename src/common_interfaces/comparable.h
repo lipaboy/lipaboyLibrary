@@ -5,17 +5,23 @@
 namespace LipaboyLib {
 
     // Hint: EitherComparable with other object types
-	class Comparable {
+
+    template <class Derived>
+    class ComparatorExtender {
 	public:
-        virtual bool operator< (const Comparable& other) const = 0;
-		virtual bool operator<= (const Comparable& other) const {
+        bool operator< (const ComparatorExtender& other) const {
+            return static_cast<Derived const *>(this)->operator< (*dynamic_cast<Derived const *>(&other));
+        }
+        bool operator<= (const ComparatorExtender& other) const {
 			return ((*this) < other) || ((*this) == other);
 		}
-		virtual bool operator== (const Comparable& other) const = 0;
+        bool operator== (const ComparatorExtender& other) const {
+            return static_cast<Derived const *>(this)->operator== (*dynamic_cast<Derived const *>(&other));
+        }
 
-		bool operator> (const Comparable& other) const { return !((*this) <= other); }
-		bool operator>= (const Comparable& other) const { return !((*this) < other); }
-		bool operator!= (const Comparable& other) const { return !((*this) == other); }
+//        bool operator> (const ComparatorExtender& other) const { return !((*this) <= other); }
+//        bool operator>= (const ComparatorExtender& other) const { return !((*this) < other); }
+        bool operator!= (const ComparatorExtender& other) const { return !((*this) == other); }
 	};
 
 }
