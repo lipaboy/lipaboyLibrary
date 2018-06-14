@@ -2,7 +2,7 @@
 #define IPLENTY_H
 
 template <class T, class TDerived>
-class Containable {
+class ContainAPIExtender {
 public:
     bool contains(const T& element) const {
         return static_cast<TDerived const *>(this)->contains(element);
