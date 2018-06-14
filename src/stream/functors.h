@@ -61,16 +61,16 @@ struct IsInitializingListCreation {
 };
 
 enum FunctorMetaTypeEnum {
-    FILTER,     //v
-    MAP,        //v
-    REDUCE,     //v
-    GET,        //v
-    SKIP,       //v
-    PRINT_TO,   //v
-    GROUP,      //v
+    FILTER,
+    MAP,
+    REDUCE,
+    GET,
+    SKIP,
+    PRINT_TO,
+    GROUP,
     SUM,
-    TO_VECTOR,  //v
-    NTH         //v
+    TO_VECTOR,
+    NTH
 };
 
 

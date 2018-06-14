@@ -113,26 +113,22 @@ public:
     auto operator| (get functor) -> typename ExtendedStreamType<get>::type {
         using ExtendedStream = typename ExtendedStreamType<get>::type;
         ExtendedStream newStream(functor, *this);
-        if constexpr (isNoGetTypeBefore() && isGeneratorProducing()) {
-            newStream.preAction_ = [] (ExtendedStream * obj) {
-                auto border = obj->getFunctor().border();
-                if (obj->range().isInfinite())
-                    obj->range().makeFinite(border);
-                else if (border <= obj->size())
-                    obj->range().setSize(border);
-                obj->preAction_ = [] (ExtendedStream*) {};
-            };
-        }
-        else {
-            newStream.action_ = [] (ExtendedStream * obj) {
-                auto border = obj->getFunctor().border();
-                if (obj->range().isInfinite())
-                    obj->range().makeFinite(border);
-                else if (border <= obj->size())
-                    obj->range().setSize(border);
-                obj->action_ = [] (ExtendedStream*) {};
-            };
-        }
+        typename ExtendedStream::ActionType ExtendedStream::*pAction;
+
+        if constexpr (isNoGetTypeBefore() && isGeneratorProducing())
+            pAction = &ExtendedStream::preAction_;
+        else
+            pAction = &ExtendedStream::action_;
+
+        newStream.*pAction = [] (ExtendedStream * obj) {
+            auto border = obj->getFunctor().border();
+            if (obj->range().isInfinite())
+                obj->range().makeFinite(border);
+            else if (border <= obj->size())
+                obj->range().setSize(border);
+            obj->preAction_ = [] (ExtendedStream*) {};
+        };;
+
         return std::move(newStream);   // copy container (only once)
     }
     auto operator| (group functor) -> typename ExtendedStreamType<group>::type {

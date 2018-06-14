@@ -55,31 +55,30 @@ TEST(Filter, mod3) {
     ASSERT_EQ(res, vector<int>({ 3, 6 }));
 }
 
-//TEST(Get, Finite_N) {
-//    auto res = createStream(1, 2, 5, 6, 1900, 234)
-//            | get(4)
-//            | to_vector();
+TEST(Get, Finite_N) {
+    auto res = createStream(1, 2, 5, 6, 1900, 234)
+            | get(4)
+            | to_vector();
 
-//    ASSERT_THAT(res, ElementsAreArray({ 1, 2, 5, 6 }));
-//}
+    ASSERT_EQ(res, vector<int>({ 1, 2, 5, 6 }));
+}
 
-//TEST(Get, Finite_Overflow) {
-//    auto res = createStream(1, 2, 5, 6, 1900, 234)
-//            | get(100)
-//            | to_vector();
+TEST(Get, Finite_Overflow) {
+    auto res = createStream(1, 2, 5, 6, 1900, 234)
+            | get(100)
+            | to_vector();
 
-//    ASSERT_THAT(res, ElementsAreArray({ 1, 2, 5, 6, 1900, 234 }));
-//}
+    ASSERT_EQ(res, vector<int>({ 1, 2, 5, 6, 1900, 234 }));
+}
 
 TEST(Get, InfiniteStream) {
     int a = 1;
-    cout << "\tStart" << endl;
     auto res = createStream([&a]() { return a++; })
             | filter([] (int b) -> bool { return b % 2 != 0; })
             | filter([] (int b) -> bool { return b % 3 != 0; })
             | get(11)
             | to_vector();
-cout << "\tEnd" << endl;
+
     ASSERT_EQ(res, vector<int>({ 1, 5, 7, 11 }));
 }
 
@@ -94,8 +93,18 @@ TEST(Get, Infinite_Empty) {
 
 TEST(StreamTest, check) {
     try {
-//        auto ss = Stream({1, 2});
-
+        struct A {
+            int a = 0;
+            int b = 2;
+            void foo() {
+                int A::*kekA = &A::a;
+                (*this).*kekA = 2;
+            }
+        } obj;
+        int A::*kekA = &A::a;
+        ASSERT_EQ(obj.*kekA, 0);
+        kekA = &A::b;
+        ASSERT_EQ(obj.*kekA, 2);
 
 
 //        vector<int> olala = { 1, 2, 3, 4, 5, 6, 7, 8 };
