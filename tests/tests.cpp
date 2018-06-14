@@ -6,6 +6,7 @@
 
 #include "common_interfaces/algebra.h"
 #include "maths/fixed_precision_number.h"
+#include "intervals/interval.h"
 
 #include "stream_test.h"
 
@@ -17,6 +18,7 @@ using std::vector;
 using std::string;
 
 using LipaboyLib::FixedPrecisionNumber;
+using LipaboyLib::Interval;
 
 
 TEST(Algebra, check) {
@@ -51,6 +53,13 @@ TEST(EitherComparable, comparison) {
 //    ASSERT_NE(kek1, 2.00002);
     ASSERT_EQ(kek1, 2.00001);
 }
+
+TEST(Interval, contains) {
+    Interval<int, std::less<>, std::less<> > interval(1, 5);
+    ASSERT_TRUE(interval.containsAll(2, 3, 4));
+    ASSERT_TRUE(interval.containsNone(0, 1, 5));
+}
+
 
 }
 

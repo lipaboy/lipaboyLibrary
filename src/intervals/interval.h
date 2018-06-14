@@ -33,7 +33,7 @@ namespace LipaboyLib {
 	//TODO: add output to ostream
 
 	template <class T, typename LeftComparison, typename RightComparison>
-	class Interval : public Containable<T>
+    class Interval : public Containable<T, Interval<T, LeftComparison, RightComparison> >
 	{
 	public:
 		Interval(const T& _leftBorder = T(), const T& _rightBorder = T())
