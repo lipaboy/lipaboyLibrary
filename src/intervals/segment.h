@@ -17,6 +17,8 @@ namespace LipaboyLib {
 
 // common methods for Interface Plenty (in(), out())
 
+// Old-fish
+
 template <class T>
 class Segment
 {

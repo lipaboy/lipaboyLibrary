@@ -7,8 +7,8 @@ find_package(Threads REQUIRED)
 include(ExternalProject)
 ExternalProject_Add(
         gtest
-        GIT_REPOSITORY https://github.com/google/googletest.git
-        GIT_TAG master
+#        GIT_REPOSITORY https://github.com/google/googletest.git
+#        GIT_TAG master
         PREFIX ${CMAKE_CURRENT_BINARY_DIR}/gtest
         INSTALL_COMMAND ""
         CMAKE_ARGS -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
@@ -16,16 +16,6 @@ ExternalProject_Add(
 
 # Get GTest source and binary directories from CMake project
 ExternalProject_Get_Property(gtest source_dir binary_dir)
-
-#message(STATUS "binary_dir=${CMAKE_CURRENT_SOURCE_DIR}")
-##set(dir ${CMAKE_CURRENT_SOURCE_DIR}/../../build*LipaboyLibrary*Debug*)
-#set(dir ~/Projects/build-LipaboyLibrary-Desktop_Qt_5_10_1_GCC_7_64bit-Debug)
-##set(EXECUTABLE_OUTPUT_PATH ${dir} CACHE PATH "Build directory" FORCE)
-##set(LIBRARY_OUTPUT_PATH ${dir} CACHE PATH "Build directory" FORCE)
-#message(STATUS "binary_dir=${dir}")
-#add_subdirectory(${dir}/tests/gtest)
-#enable_testing()
-#include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
 # Create a libgtest target to be used as a dependency by test programs
 add_library(libgtest IMPORTED STATIC GLOBAL)

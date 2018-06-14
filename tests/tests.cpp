@@ -18,58 +18,14 @@ using std::string;
 
 using LipaboyLib::FixedPrecisionNumber;
 
-template <class T, class Derived_>
-struct Base {
-    using Derived = Derived_;
-    T lol() const {
-        return static_cast<Derived_ const *>(this)->lol2();
-    }
-};
 
-template <class T, class Base>
-struct Oper1 {
-    using Derived = typename Base::Derived;
-    T lol3() const {
-        cout << static_cast<Derived const *>(this)->lol() << endl;
-        cout << "lol" << endl;
-        return T(5);
-    }
-};
-
-template <class T, class Base>
-struct Oper2 {
-    using Derived = typename Base::Derived;
-    T lol3() const {
-        static_cast<Derived const *>(this)->lol();
-        cout << "lol 2" << endl;
-        return 5.2;
-    }
-};
-
-template <class T>
-struct DoubleDerived
-        : Base<T, DoubleDerived<T> >,
-          Oper1<T, Base<T, DoubleDerived<T> > >,
-          Oper2<T, Base<T, DoubleDerived<T> > >
-{
-    using Oper1<T, Base<T, DoubleDerived<T> > >::lol3;
-//    using Base<T, DoubleDerived<T> >::lol;
-
-    T lol2() const {
-        return T(228);
-    }
-};
-
-
-TEST(Check, check) {
-    DoubleDerived<int> dd3;
-    dd3.lol3();
-
+TEST(Algebra, check) {
     FixedPrecisionNumber<double, int, 1, -5>
             kek1(2),
             kek2(3);
     FixedPrecisionNumber<double, int, 1, -8>
             kuk(-4);
+
     ASSERT_EQ(kek1 + kek2, 5);
     ASSERT_EQ(kek1 + 4., 6.);
     ASSERT_EQ((kek1 + kek2) / (kek1 - kek2), -5);
@@ -86,9 +42,13 @@ TEST(Check, check) {
     ASSERT_EQ(kek1 / kek2, 2. / 3.);
     ASSERT_EQ(kek1 / 4., 1. / 2.);
     ASSERT_EQ(kek1 / kuk, -1. / 2.);
-    // not work
-//    ASSERT_NE(kek1, 2.00002);
-//    ASSERT_EQ(kek1, 2.000009);
+}
+
+TEST(EitherComparable, comparison) {
+    FixedPrecisionNumber<double, int, 1, -5>
+            kek1(2);
+    ASSERT_NE(kek1, 2.00002);
+    ASSERT_EQ(kek1, 2.00001);
 }
 
 }

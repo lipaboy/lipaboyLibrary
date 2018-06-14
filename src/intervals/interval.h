@@ -10,24 +10,24 @@ namespace LipaboyLib {
 
 	//TODO: write comparison with Infinity (Infinity == Infinity)
 
-	template <class T>
-	class Infinity : public EitherComparable<T> {};
+    template <class T>
+    class Infinity : public EitherComparable<T, Infinity<T> > {};
 
-	template <class T>
-	class PositiveInfinity : public Infinity<T> {
-	public:
-		bool operator< (const T& number) const { return false; }
-		bool operator<= (const T& number) const { return false; }
-		bool operator== (const T& number) const { return false; }
-	};
+    template <class T>
+    class PositiveInfinity : public Infinity<T> {
+    public:
+        bool operator< (const T& number) const { return false; }
+        bool operator<= (const T& number) const { return false; }
+        bool operator== (const T& number) const { return false; }
+    };
 
-	template <class T>
-	class NegativeInfinity : public Infinity<T> {
-	public:
-		bool operator< (const T& number) const { return true; }
-		bool operator<= (const T& number) const { return true; }
-		bool operator== (const T& number) const { return true; }
-	};
+    template <class T>
+    class NegativeInfinity : public Infinity<T> {
+    public:
+        bool operator< (const T& number) const { return true; }
+        bool operator<= (const T& number) const { return true; }
+        bool operator== (const T& number) const { return true; }
+    };
 	
 	//TODO: Add debug function to output result ( if contains then "c in [a, b]" or "c out [a, b]" )
 	//TODO: add output to ostream

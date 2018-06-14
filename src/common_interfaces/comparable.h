@@ -4,10 +4,10 @@
 //Lipa std
 namespace LipaboyLib {
 
-	//EitherComparable with other object types
+    // Hint: EitherComparable with other object types
 	class Comparable {
 	public:
-		virtual bool operator< (const Comparable& other) const = 0;
+        virtual bool operator< (const Comparable& other) const = 0;
 		virtual bool operator<= (const Comparable& other) const {
 			return ((*this) < other) || ((*this) == other);
 		}

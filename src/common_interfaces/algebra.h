@@ -7,26 +7,10 @@
 
 namespace LipaboyLib {
 
-    // TODO: make this class by static polymorphic
-
-//    template <class T, class Derived>
-//	class NumberGettable {
-//	public:
-//        using DerivedType = Derived;
-//        using ValueType = T;
-//    public:
-//        ValueType const& getNumber() const noexcept {
-//            return static_cast<Derived const *>(this)->getNumber2();
-//        }
-//	};
-
-//    template <class T, class Derived>
-//    inline std::ostream& operator<< (std::ostream& o, NumberGettable<T, Derived> const & number) {
-//        return (o << number.getNumber());
-//    }
-
 	template <class T>
 	class NumberSettable { public: virtual void setNumber(const T& val) noexcept = 0; };
+
+    // I think that the result of operation is defined by operation but not you want
 
     template <class T, class TDerived>
     class NumberSummable {
@@ -145,7 +129,6 @@ namespace LipaboyLib {
 
     template <class T, class Derived>
     class Algebra :
-//            public NumberGettable<T, Derived>,
             public NumberSummable<T, Derived>,
             public NumberSubtrative<T, Derived>,
             public NumberMultiplicative<T, Derived>,

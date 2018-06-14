@@ -10,32 +10,39 @@ namespace LipaboyLib {
 	//TODO: swap (*this) and other by places (more beautifully)
 
 	//EitherComparable with other object types
-	template <class T>
+    template <class T, class TDerived>
 	class EitherComparable {
+    public:
+        using DerivedType = TDerived;
+        using ValueType = T;
 	public:
-		virtual bool operator< (const T& other) const = 0;
-		virtual bool operator<= (const T& other) const {
+        bool operator< (const T& other) const {
+            return static_cast<DerivedType const *>(this)->operator< (other);
+        }
+        bool operator<= (const T& other) const {
 			return ((*this) < other) || ((*this) == other);
 		}
-		virtual bool operator== (const T& other) const = 0;
+        bool operator== (const T& other) const {
+            return static_cast<DerivedType const *>(this)->operator== (other);
+        }
 
 		bool operator> (const T& other) const { return !((*this) <= other); }
 		bool operator>= (const T& other) const { return !((*this) < other); }
 		bool operator!= (const T& other) const { return !((*this) == other); }
 	};
 
-	template <class T>
-	bool operator< (const T& other, const EitherComparable<T>& obj) { return (obj > other); }
-	template <class T>
-	bool operator<= (const T& other, const EitherComparable<T>& obj) { return (obj >= other); }
-	template <class T>
-	bool operator== (const T& other, const EitherComparable<T>& obj) { return (obj == other); }
-	template <class T>
-	bool operator> (const T& other, const EitherComparable<T>& obj) { return (obj < other); }
-	template <class T>
-	bool operator>= (const T& other, const EitherComparable<T>& obj) { return (obj <= other); }
-	template <class T>
-	bool operator!= (const T& other, const EitherComparable<T>& obj) { return (obj != other); }
+    template <class T, class TDerived>
+    bool operator< (const T& other, const EitherComparable<T, TDerived>& obj) { return (obj > other); }
+    template <class T, class TDerived>
+    bool operator<= (const T& other, const EitherComparable<T, TDerived>& obj) { return (obj >= other); }
+    template <class T, class TDerived>
+    bool operator== (const T& other, const EitherComparable<T, TDerived>& obj) { return (obj == other); }
+    template <class T, class TDerived>
+    bool operator> (const T& other, const EitherComparable<T, TDerived>& obj) { return (obj < other); }
+    template <class T, class TDerived>
+    bool operator>= (const T& other, const EitherComparable<T, TDerived>& obj) { return (obj <= other); }
+    template <class T, class TDerived>
+    bool operator!= (const T& other, const EitherComparable<T, TDerived>& obj) { return (obj != other); }
 
 }
 
