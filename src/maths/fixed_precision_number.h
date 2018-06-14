@@ -56,7 +56,8 @@ namespace LipaboyLib {
         T const & getNumber_() const noexcept { return number; }
 		FixedPrecisionNumber const & operator= (T const & val) noexcept { setNumber(val); return *this; }
 
-		operator T() noexcept { return number; }
+        // better to not using it
+//        operator T() noexcept { return number; }
 
 		//friend std::ostream& operator<< (std::ostream& o, FixedPrecisionNumber const & number);
 	private:

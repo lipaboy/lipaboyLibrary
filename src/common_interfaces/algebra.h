@@ -3,143 +3,154 @@
 
 #include <ostream>
 
+#include <iostream>
+
 namespace LipaboyLib {
 
     // TODO: make this class by static polymorphic
 
-    template <class T, class Derived>
-	class NumberGettable { 
-	public: 
-        using DerivedType = Derived;
-        using ValueType = T;
-    public:
-        ValueType const& getNumber() const noexcept {
-            return static_cast<Derived const *>(this)->getNumber2();
-        }
-	};
+//    template <class T, class Derived>
+//	class NumberGettable {
+//	public:
+//        using DerivedType = Derived;
+//        using ValueType = T;
+//    public:
+//        ValueType const& getNumber() const noexcept {
+//            return static_cast<Derived const *>(this)->getNumber2();
+//        }
+//	};
 
-    template <class T, class Derived>
-    inline std::ostream& operator<< (std::ostream& o, NumberGettable<T, Derived> const & number) {
-        return (o << number.getNumber());
-    }
+//    template <class T, class Derived>
+//    inline std::ostream& operator<< (std::ostream& o, NumberGettable<T, Derived> const & number) {
+//        return (o << number.getNumber());
+//    }
 
 	template <class T>
 	class NumberSettable { public: virtual void setNumber(const T& val) noexcept = 0; };
 
-    template <class T, class TNumberGettable>
+    template <class T, class TDerived>
     class NumberSummable {
 	public:
-        using DerivedType = typename TNumberGettable::DerivedType;
+        using DerivedType = TDerived;
         using ValueType = T;
-          //  DerivedType;
     public:
-        ValueType getNumber__() const noexcept {
+        ValueType getNumber() const noexcept {
             return static_cast<DerivedType const *>(this)->getNumber();
         }
-
         DerivedType operator+(const NumberSummable& other) const noexcept {
-            return DerivedType(getNumber__() + other.getNumber__());
+            return DerivedType(getNumber() + other.getNumber());
         }
         template <class Other>
         ValueType operator+(const NumberSummable<T, Other>& other) const noexcept {
-            return getNumber__() + other.getNumber__();
+            return getNumber() + other.getNumber();
         }
 	};
-//    template <class T, class TNumberGettable>
-//    typename NumberSummable<T, TNumberGettable>::ValueType
-//    operator+(const NumberSummable<T, TNumberGettable>& obj,
-//              const typename NumberSummable<T, TNumberGettable>::ValueType& val) noexcept {
-//        return obj.getNumber__() + val;
-//    }
-//    template <class T, class TNumberGettable>
-//    typename NumberSummable<T, TNumberGettable>::ValueType
-//    operator+(const typename NumberSummable<T, TNumberGettable>::ValueType& val,
-//              const NumberSummable<T, TNumberGettable>& obj) noexcept { return val + obj.getNumber__(); }
+    template <class T, class TDerived>
+    typename NumberSummable<T, TDerived>::DerivedType
+    operator+(const NumberSummable<T, TDerived>& obj, const T& val) noexcept {
+        return TDerived(obj.getNumber() + val);
+    }
+    template <class T, class TDerived>
+    typename NumberSummable<T, TDerived>::DerivedType
+    operator+(const T& val, const NumberSummable<T, TDerived>& obj) noexcept {
+        return TDerived(val + obj.getNumber());
+    }
 
-    template <class T, class TNumberGettable>
+    template <class T, class TDerived>
     class NumberSubtrative {
 	public:
-        using ValueType = typename TNumberGettable::ValueType;
-        using DerivedType = typename TNumberGettable::DerivedType;
+        using ValueType = T;
+        using DerivedType = TDerived;
     public:
-        ValueType const& getNumber__() const noexcept {
+        ValueType const& getNumber() const noexcept {
             return static_cast<DerivedType const *>(this)->getNumber();
         }
 		//-----Return value has T type (because I can't return EitherSummable var)----
         ValueType operator-(const NumberSubtrative& other) const noexcept {
-            return getNumber__() - other.getNumber__();
+            return getNumber() - other.getNumber();
+        }
+        template <class Other>
+        ValueType operator-(const NumberSubtrative<T, Other>& other) const noexcept {
+            return getNumber() - other.getNumber();
         }
 	};
-    template <class T, class TNumberGettable>
-    typename NumberSubtrative<T, TNumberGettable>::ValueType
-    operator-(const NumberSubtrative<T, TNumberGettable>& obj,
-              const typename NumberSubtrative<T, TNumberGettable>::ValueType & val) noexcept {
-        return obj.getNumber__() - val;
+    template <class T, class TDerived>
+    typename NumberSubtrative<T, TDerived>::ValueType
+    operator-(const NumberSubtrative<T, TDerived>& obj,
+              const typename NumberSubtrative<T, TDerived>::ValueType & val) noexcept {
+        return obj.getNumber() - val;
     }
-    template <class T, class TNumberGettable>
-    typename NumberSubtrative<T, TNumberGettable>::ValueType
-    operator-(const typename NumberSubtrative<T, TNumberGettable>::ValueType & val,
-              const NumberSubtrative<T, TNumberGettable>& obj) noexcept { return val - obj.getNumber__(); }
+    template <class T, class TDerived>
+    typename NumberSubtrative<T, TDerived>::ValueType
+    operator-(const typename NumberSubtrative<T, TDerived>::ValueType & val,
+              const NumberSubtrative<T, TDerived>& obj) noexcept { return val - obj.getNumber(); }
 
-    template <class T, class TNumberGettable>
+    template <class T, class TDerived>
     class NumberMultiplicative {
 	public:
-        using ValueType = typename TNumberGettable::ValueType;
-        using DerivedType = typename TNumberGettable::DerivedType;
+        using ValueType = T;
+        using DerivedType = TDerived;
     public:
-        ValueType const& getNumber__() const noexcept {
+        ValueType const& getNumber() const noexcept {
             return static_cast<DerivedType const *>(this)->getNumber();
         }
 		//-----Return value has T type (because I can't return EitherSummable var)----
         ValueType operator*(const NumberMultiplicative& other) const noexcept {
-            return getNumber__() * other.getNumber__();
+            return getNumber() * other.getNumber();
+        }
+        template <class Other>
+        ValueType operator*(const NumberMultiplicative<T, Other>& other) const noexcept {
+            return getNumber() * other.getNumber();
         }
 	};
-    template <class T, class TNumberGettable>
-    typename NumberMultiplicative<T, TNumberGettable>::ValueType
-    operator*(const NumberMultiplicative<T, TNumberGettable>& obj,
-              const typename NumberMultiplicative<T, TNumberGettable>::ValueType & val) noexcept {
-        return obj.getNumber__() * val;
+    template <class T, class TDerived>
+    typename NumberMultiplicative<T, TDerived>::ValueType
+    operator*(const NumberMultiplicative<T, TDerived>& obj,
+              const typename NumberMultiplicative<T, TDerived>::ValueType & val) noexcept {
+        return obj.getNumber() * val;
     }
-    template <class T, class TNumberGettable>
-    typename NumberMultiplicative<T, TNumberGettable>::ValueType
-    operator*(const typename NumberMultiplicative<T, TNumberGettable>::ValueType & val,
-              const NumberMultiplicative<T, TNumberGettable>& obj) noexcept { return val * obj.getNumber__(); }
+    template <class T, class TDerived>
+    typename NumberMultiplicative<T, TDerived>::ValueType
+    operator*(const typename NumberMultiplicative<T, TDerived>::ValueType & val,
+              const NumberMultiplicative<T, TDerived>& obj) noexcept { return val * obj.getNumber(); }
 
-    template <class T, class TNumberGettable>
+    template <class T, class TDerived>
     class NumberDivisible {
 	public:
-        using ValueType = typename TNumberGettable::ValueType;
-        using DerivedType = typename TNumberGettable::DerivedType;
+        using ValueType = T;
+        using DerivedType = TDerived;
     public:
-        ValueType const& getNumber__() const noexcept {
+        ValueType const& getNumber() const noexcept {
             return static_cast<DerivedType const *>(this)->getNumber();
         }
 		//-----Return value has T type (because I can't return EitherSummable var)----
         ValueType operator/(const NumberDivisible& other) const noexcept {
-            return getNumber__() / other.getNumber__();
+            return getNumber() / other.getNumber();
+        }
+        template <class Other>
+        ValueType operator/(const NumberDivisible<T, Other>& other) const noexcept {
+            return getNumber() / other.getNumber();
         }
 	};
-    template <class T, class TNumberGettable>
-    typename NumberDivisible<T, TNumberGettable>::ValueType
-    operator/ (const NumberDivisible<T, TNumberGettable>& obj,
-               const typename NumberDivisible<T, TNumberGettable>::ValueType& val) noexcept {
-        return obj.getNumber__() / val;
+    template <class T, class TDerived>
+    typename NumberDivisible<T, TDerived>::ValueType
+    operator/ (const NumberDivisible<T, TDerived>& obj,
+               const typename NumberDivisible<T, TDerived>::ValueType& val) noexcept {
+        return obj.getNumber() / val;
     }
-    template <class T, class TNumberGettable>
-    typename NumberDivisible<T, TNumberGettable>::ValueType
-    operator/(const typename NumberDivisible<T, TNumberGettable>::ValueType& val,
-              const NumberDivisible<T, TNumberGettable>& obj) noexcept { return val / obj.getNumber__(); }
+    template <class T, class TDerived>
+    typename NumberDivisible<T, TDerived>::ValueType
+    operator/(const typename NumberDivisible<T, TDerived>::ValueType& val,
+              const NumberDivisible<T, TDerived>& obj) noexcept { return val / obj.getNumber(); }
 
     template <class T, class Derived>
     class Algebra :
-            public NumberGettable<T, Derived>,
-            public NumberSummable<T, NumberGettable<T, Derived>>,
-            public NumberSubtrative<T, NumberGettable<T, Derived>>,
-            public NumberMultiplicative<T, NumberGettable<T, Derived>>,
-            public NumberDivisible<T, NumberGettable<T, Derived>> {
-	public:
-//        using NumberSummable<T, Derived>::getNumber;
+//            public NumberGettable<T, Derived>,
+            public NumberSummable<T, Derived>,
+            public NumberSubtrative<T, Derived>,
+            public NumberMultiplicative<T, Derived>,
+            public NumberDivisible<T, Derived> {
+    public:
 	};
 }
 

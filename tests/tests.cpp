@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 
 #include <iostream>
 #include <vector>
@@ -71,9 +71,22 @@ TEST(Check, check) {
     FixedPrecisionNumber<double, int, 1, -8>
             kuk(-4);
     ASSERT_EQ(kek1 + kek2, 5);
-    ASSERT_EQ(kek1 + 4, 6);
+    ASSERT_EQ(kek1 + 4., 6.);
     ASSERT_EQ((kek1 + kek2) / (kek1 - kek2), -5);
     ASSERT_EQ(kek1 + kuk, -2);
+
+    ASSERT_EQ(kek1 - kek2, -1.);
+    ASSERT_EQ(kek1 - 4., -2.);
+    ASSERT_EQ(kek1 - kuk, 6.);
+
+    ASSERT_EQ(kek1 * kek2, 6.);
+    ASSERT_EQ(kek1 * 4., 8.);
+    ASSERT_EQ(kek1 * kuk, -8.);
+
+    ASSERT_EQ(kek1 / kek2, 2. / 3.);
+    ASSERT_EQ(kek1 / 4., 1. / 2.);
+    ASSERT_EQ(kek1 / kuk, -1. / 2.);
+    // not work
 //    ASSERT_NE(kek1, 2.00002);
 //    ASSERT_EQ(kek1, 2.000009);
 }
