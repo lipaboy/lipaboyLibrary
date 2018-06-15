@@ -206,7 +206,7 @@ protected:
     ValueType getElem(size_type index) const { return getElem<isOwnContainer()>(index); }
     template <bool isOwnContainer_>
     ValueType getElem(size_type index) const {
-        return std::move(this->range().template get<isOwnContainer_>(index));
+        return this->range().template get<isOwnContainer_>(index);
     }
 
     decltype(auto) bindFunctors() const {
@@ -307,7 +307,7 @@ public:
 
 public:
     template <bool isOwnIterator>
-    const_reference get(size_type ind) const {
+    ValueType get(size_type ind) const {
         auto iter = ibegin<isOwnIterator>();
         std::advance(iter, ind);
         return *iter;

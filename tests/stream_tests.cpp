@@ -10,6 +10,8 @@
 #include <memory>
 #include <cstdio>
 
+#include <fstream>
+
 #include <functional>
 #include <tuple>
 
@@ -89,6 +91,35 @@ TEST(Get, Infinite_Empty) {
             | to_vector();
 
     ASSERT_TRUE(res.empty());
+}
+
+TEST(FileStream, read) {
+    std::ofstream outFile;
+    string filename = "temp.stream.lol";
+    outFile.open(filename, std::ios::out | std::ios::trunc);
+    string fileData = "lol kek cheburek";
+    outFile << fileData;
+    outFile.close();
+
+    std::ifstream inFile;
+    inFile.open(filename, std::ios::in | std::ios::binary);
+
+//    std::copy(std::istreambuf_iterator<char>(inFile),
+//              std::istreambuf_iterator<char>(),
+//              std::ostream_iterator<char>(cout));
+    auto begin = std::istreambuf_iterator<char>(inFile);
+    auto end = std::istreambuf_iterator<char>();
+    auto iter = begin;
+    std::advance(iter, 5);
+    cout << *iter << endl;
+    auto fileStream = createStream(begin, end);
+
+
+    cout << (fileStream | nth(5)) << endl;
+    ASSERT_EQ(fileStream.size(), fileData.length());
+
+    inFile.close();
+    std::remove(filename.c_str());
 }
 
 TEST(StreamTest, check) {

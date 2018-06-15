@@ -45,6 +45,12 @@ using namespace std::placeholders;
 using std::cout;
 using std::endl;
 
+// PLAN FOR STREAM:
+//-----------------
+// TODO: realize slider interface (initSlider(), nextElem(), nextElem(), ...)
+// TODO: think about filestream iterators because if you make one 'nth'
+//       then you cannot return back to previous elements (symbols)
+
 enum Info {
     GENERATOR,
     OUTSIDE_ITERATORS,
@@ -195,7 +201,7 @@ struct sum {
 };
 struct print_to {
 public:
-    print_to(std::ostream& o, string delimiter = " ") : ostreamObj_(o), delimiter_(delimiter) {}
+    print_to(std::ostream& o, string delimiter = "") : ostreamObj_(o), delimiter_(delimiter) {}
     static constexpr FunctorMetaTypeEnum metaInfo = PRINT_TO;
 
     std::ostream& ostream() { return ostreamObj_; }
