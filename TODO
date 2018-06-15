@@ -1,0 +1,7 @@
+Global:
+
+1) Create container like ListOfVectors with iterators and so that.
+
+But maybe list< vector<bool> > is enough. Necessary to think this moment.
+
+Year, you only need to write wrapper around it with iterators.
