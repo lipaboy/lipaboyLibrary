@@ -57,7 +57,7 @@ public:
     using size_type = size_t;
     using FunctorType = TFunctor;
     using SuperType = Stream<StorageInfo, Rest...>;
-    using iterator = typename SuperType::iterator;
+    using iterator = typename SuperType::outside_iterator;
     using SuperTypePtr = SuperType *;
     using ConstSuperTypePtr = const SuperType *;
     using ValueType = typename SuperType::ValueType;

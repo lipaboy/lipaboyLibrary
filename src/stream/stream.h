@@ -58,7 +58,7 @@ public:
     using T = typename std::iterator_traits<OutsideIterator>::value_type;
     using ValueType = T;
     using size_type = size_t;
-    using iterator = OutsideIterator;
+    using outside_iterator = OutsideIterator;
     class RangeType;
     using OwnContainerType = typename RangeType::OwnContainerType;
     using OwnContainerTypePtr = typename RangeType::OwnContainerTypePtr;   // TODO: make it unique (it is not easy)
@@ -228,7 +228,7 @@ struct GetRangeIter<true, TRange> {
 };
 template <class TRange>
 struct GetRangeIter<false, TRange> {
-    using TIterator = typename TRange::iterator;
+    using TIterator = typename TRange::OutsideIterator;
     static TIterator begin(const TRange& obj) { return obj.outsideBegin(); }
     static TIterator end(const TRange& obj) { return obj.outsideEnd(); }
 };
@@ -239,7 +239,7 @@ public:
     using ValueType = Stream::ValueType;
     using reference = ValueType&;
     using const_reference = const reference;
-    using iterator = Stream::iterator;
+    using OutsideIterator = typename Stream::outside_iterator;
     using size_type = Stream::size_type;
     using TIndex = size_type;
     using GeneratorTypePtr = typename Stream::GeneratorTypePtr;
@@ -293,8 +293,8 @@ public:
         std::advance(endIter, ownEndIndex_);
         return endIter;
     }
-    iterator outsideBegin() const { return outsideBegin_; }
-    iterator outsideEnd() const { return outsideEnd_; }
+    OutsideIterator outsideBegin() const { return outsideBegin_; }
+    OutsideIterator outsideEnd() const { return outsideEnd_; }
 
     template <bool isOwnIterator>
     typename GetRangeIter<isOwnIterator, RangeType>::TIterator ibegin() const {
@@ -348,6 +348,11 @@ public:
     void doPreliminaryActions() { action_(this); }
     void setAction(std::function<void(RangeType*)> newAction) { action_ = newAction; }
 
+    //-----------------Slider API---------------//
+
+    void initSlider() { sliderIter = outsideBegin(); }
+    ValueType nextElem() { return (*sliderIter++); }
+
 protected:
     void setOwnIndices(TIndex first, TIndex second) {
         ownBeginIndex_ = first;
@@ -360,8 +365,11 @@ protected:
 
 private:
     // Iterators that refer to outside of class container
-    iterator outsideBegin_;
-    iterator outsideEnd_;
+    OutsideIterator outsideBegin_;
+    OutsideIterator outsideEnd_;
+    // Slider
+    OutsideIterator sliderIter;
+
     // Container
     TIndex ownBeginIndex_;
     TIndex ownEndIndex_;

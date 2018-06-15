@@ -93,6 +93,25 @@ TEST(Get, Infinite_Empty) {
     ASSERT_TRUE(res.empty());
 }
 
+TEST(Skip, Infinite) {
+    int a = 0;
+    auto res = createStream([&a]() { return a++; })
+            | get(4)
+            | skip(2)
+            | to_vector();
+
+    ASSERT_EQ(res, vector<int>({ 2, 3 }));
+}
+
+TEST(Skip, Finite) {
+    std::list<int> lol = { 1, 2, 3 };
+    auto res = createStream(lol.begin(), lol.end())
+            | skip(2)
+            | to_vector();
+
+    ASSERT_EQ(res, vector<int>({ 3 }));
+}
+
 TEST(FileStream, read) {
     std::ofstream outFile;
     string filename = "temp.stream.lol";
