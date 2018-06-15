@@ -10,6 +10,8 @@
 
 #include "stream_test.h"
 
+#include "hash_map_test.h"
+
 namespace check_tests {
 
 using std::cout;

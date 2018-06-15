@@ -104,14 +104,12 @@ TEST(FileStream, read) {
     std::ifstream inFile;
     inFile.open(filename, std::ios::in | std::ios::binary);
 
-//    std::copy(std::istreambuf_iterator<char>(inFile),
-//              std::istreambuf_iterator<char>(),
-//              std::ostream_iterator<char>(cout));
     auto begin = std::istreambuf_iterator<char>(inFile);
     auto end = std::istreambuf_iterator<char>();
-    auto iter = begin;
-    std::advance(iter, 5);
-    cout << *iter << endl;
+    // don't work with it
+//    auto iter = begin;
+//    std::advance(iter, 5);
+//    cout << *iter << endl;
     auto fileStream = createStream(begin, end);
 
 
