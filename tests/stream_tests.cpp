@@ -123,7 +123,6 @@ TEST(FileStream, read) {
     auto fileStream = createStream(std::istreambuf_iterator<char>(inFile),
                                    std::istreambuf_iterator<char>());
 
-    //accumulate
     auto res = fileStream
             | map([] (auto ch) { return ch + 1; })
             | map([] (auto ch) { return ch - 1; })

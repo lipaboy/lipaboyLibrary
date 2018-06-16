@@ -30,17 +30,15 @@ using std::pair;
 using std::ostream;
 using std::string;
 
-using namespace std::placeholders;
-
 using std::cout;
 using std::endl;
 
 // PLAN FOR STREAM:
 //-----------------
-// TODO: realize slider interface (initSlider(), nextElem(), nextElem(), ...)
-// TODO: think about filestream iterators because if you make one 'nth'
-//       then you cannot return back to previous elements (symbols)
-//       [single-pass iterators]
+// TODO: remove getting size property from Range API and Stream at all
+//       because Stream is a Stream. Nothing more, nothing less.
+// TODO: remove duplication of code for terminated operators like
+//       it made for operator reduce
 
 enum Info {
     GENERATOR,

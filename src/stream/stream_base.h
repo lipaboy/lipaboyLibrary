@@ -18,8 +18,6 @@ using std::vector;
 using std::pair;
 using std::string;
 
-using namespace std::placeholders;
-
 using std::cout;
 using std::endl;
 
@@ -209,10 +207,6 @@ protected:
     bool hasNext() const { return range().template hasNext<isOwnContainer_>(); }
 
     //-----------------Slider API Ends--------------//
-
-    decltype(auto) bindFunctors() const {
-        return std::bind([] (ValueType const & a) -> ValueType const & { return a; }, _1);
-    }
 
 private:
     RangeType range_;
