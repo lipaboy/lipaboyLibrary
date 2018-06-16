@@ -125,28 +125,9 @@ public:
     //-------------------Terminated operations-----------------//
 
     std::ostream& operator| (print_to&& printer) {
-        doPreliminaryActions();
-        for (initSlider(); hasNext(); )
-            printer.ostream() << nextElem() << printer.delimiter();
-        return printer.ostream();
+        return static_cast<SuperTypePtr>(this)->apply(*this, printer);
     }
-    template <class Accumulator, class IdenityFn>
-    auto operator| (reduce<Accumulator, IdenityFn>&& reduceObj)
-        -> typename reduce<Accumulator, IdenityFn>::
-            template IdentityRetType<ResultValueType>::type
-    {
-        using RetType = typename reduce<Accumulator, IdenityFn>::
-            template IdentityRetType<ResultValueType>::type;
-        doPreliminaryActions();
-        initSlider();
-        if (hasNext()) {
-            auto result = reduceObj.identity(nextElem());
-            for ( ; hasNext(); )
-                result = reduceObj.accum(result, nextElem());
-            return result;
-        }
-        return RetType();
-    }
+
     ResultValueType operator| (sum&&) {
         doPreliminaryActions();
         initSlider();
@@ -316,6 +297,14 @@ protected:
         }
     }
 
+public:
+    template <class Accumulator, class IdenityFn>
+    auto operator| (reduce<Accumulator, IdenityFn> const & reduceObj)
+        -> decltype(auto) //typename reduce<Accumulator, IdenityFn>::
+            //template IdentityRetType<ResultValueType>::type
+    {
+        return static_cast<SuperTypePtr>(this)->apply(*this, reduceObj);
+    }
 };
 
 }

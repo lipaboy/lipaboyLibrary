@@ -131,7 +131,7 @@ TEST(FileStream, read) {
             | map([] (auto ch) { return ch + 1; })
             | map([] (auto ch) { return ch - 1; })
             | reduce([] (auto ch) { return string(1, ch); },
-        [] (string& str, auto ch) { return str + string(1, ch); });
+                     [] (string& str, auto ch) { return str + string(1, ch); });
     ASSERT_EQ(res, fileData);
 
     inFile.close();
@@ -145,6 +145,14 @@ TEST(Group, Infinite) {
             | group(2)
             | nth(1);
     ASSERT_EQ(res, decltype(res)({ 2, 3 }));
+}
+
+TEST(Reduce, Infinite) {
+    int a = 0;
+    auto res = createStream([&a]() { return a++; })
+            | get(4)
+            | reduce([] (int res, int elem) { return res + elem; });
+    ASSERT_EQ(res, 6);
 }
 
 TEST(Sum, Infinite) {

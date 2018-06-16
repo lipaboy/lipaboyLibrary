@@ -161,6 +161,15 @@ private:
     size_type index_;
 };
 
+
+// TODO: put off this instrument to another file
+template<bool B, class T1, class T2>
+struct enable_if_else {};
+template<class T1, class T2>
+struct enable_if_else<true, T1, T2> { typedef T1 type; };
+template<class T1, class T2>
+struct enable_if_else<false, T1, T2> { typedef T2 type; };
+
 //---------------Terminated operations-----------//
 
 template <class Accumulator, class IdentityFn = std::function<void(void)> >
@@ -173,10 +182,14 @@ public:
         using type = typename std::result_of<Accumulator(TResult, Arg)>::type;
     };
     using IdentityFnType = IdentityFn;
-    template <class Arg>
-    struct IdentityRetType {
-        using type = typename std::result_of<IdentityFnType(Arg)>::type;
-    };
+//    template <class Arg>
+//    struct IdentityRetType {
+////        if constexpr (std::is_same<IdentityFn, std::function<void(void)> >::value)
+////            using type = Arg;
+////        else
+////            using type = typename std::result_of<IdentityFnType(Arg)>::type>;
+////        using type = decltype(identity);
+//    };
 public:
     reduce(IdentityFn&& identity, Accumulator&& accum)
         : FunctorHolder<Accumulator>(accum),

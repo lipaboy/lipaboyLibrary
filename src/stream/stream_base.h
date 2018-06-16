@@ -117,30 +117,20 @@ public:
     }
 
     //-----------Terminated operations------------//
-
-    std::ostream& operator| (print_to&& printer) {
-        doPreliminaryActions();
-        for (initSlider(); hasNext(); )
-            printer.ostream() << nextElem() << printer.delimiter();
+protected:
+    template <class Stream_>
+    std::ostream& apply(Stream_ & obj, print_to&& printer) {
+        obj.doPreliminaryActions();
+        for (obj.initSlider(); obj.hasNext(); )
+            printer.ostream() << obj.nextElem() << printer.delimiter();
         return printer.ostream();
     }
-    template <class Accumulator, class IdenityFn>
-    auto operator| (reduce<Accumulator, IdenityFn>&& reduceObj)
-        -> typename reduce<Accumulator, IdenityFn>::
-            template IdentityRetType<ResultValueType>::type
-    {
-        using RetType = typename reduce<Accumulator, IdenityFn>::
-            template IdentityRetType<ResultValueType>::type;
-        doPreliminaryActions();
-        initSlider();
-        if (hasNext()) {
-            auto result = reduceObj.identity(nextElem());
-            for ( ; hasNext(); )
-                result = reduceObj.accum(result, nextElem());
-            return result;
-        }
-        return RetType();
+
+public:
+    std::ostream& operator| (print_to&& printer) {
+        return apply(*this, printer);
     }
+
     ResultValueType operator| (sum&&) {
         doPreliminaryActions();
         initSlider();
@@ -223,6 +213,36 @@ protected:
 
 private:
     RangeType range_;
+
+public:
+    template <class Accumulator, class IdenityFn>
+    auto operator| (reduce<Accumulator, IdenityFn> const & reduceObj)
+        -> decltype(auto)//typename reduce<Accumulator, IdenityFn>::
+            //template IdentityRetType<ResultValueType>::type
+    {
+        return apply(*this, reduceObj);
+    }
+
+private:
+    template <class Stream_, class Accumulator, class IdenityFn>
+    auto apply(Stream_ & obj, reduce<Accumulator, IdenityFn> const & reduceObj)
+        -> decltype(auto)//typename reduce<Accumulator, IdenityFn>::
+            //template IdentityRetType<typename Stream_::ResultValueType>::type
+    {
+//        if constexpr ()
+        using RetType = typename std::remove_reference<decltype(reduceObj.identity(obj.nextElem()))>::type;
+//            typename reduce<Accumulator, IdenityFn>::
+//            template IdentityRetType<typename Stream_::ResultValueType>::type;
+        obj.doPreliminaryActions();
+        obj.initSlider();
+        if (obj.hasNext()) {
+            auto result = reduceObj.identity(obj.nextElem());
+            for (; obj.hasNext(); )
+                result = reduceObj.accum(result, obj.nextElem());
+            return result;
+        }
+        return RetType();
+    }
 };
 
 //-------------------Wrappers-----------------------//
