@@ -170,6 +170,10 @@ public:
         using type = typename std::result_of<Accumulator(TResult, Arg)>::type;
     };
     using IdentityFnType = IdentityFn;
+    template <class Arg>
+    struct IdentityRetType {
+        using type = typename std::result_of<IdentityFnType(Arg)>::type;
+    };
 public:
     reduce(IdentityFn&& identity, Accumulator&& accum)
         : FunctorHolder<Accumulator>(accum),

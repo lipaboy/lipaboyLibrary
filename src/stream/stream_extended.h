@@ -135,7 +135,12 @@ public:
         return printer.ostream();
     }
     template <class Accumulator, class IdenityFn>
-    decltype(auto) operator| (reduce<Accumulator, IdenityFn>&& reduceObj) {
+    auto operator| (reduce<Accumulator, IdenityFn>&& reduceObj)
+        -> typename reduce<Accumulator, IdenityFn>::
+            template IdentityRetType<ResultValueType>::type
+    {
+        using RetType = typename reduce<Accumulator, IdenityFn>::
+            template IdentityRetType<ResultValueType>::type;
         doPreliminaryActions();
         initSlider();
         if (hasNext()) {
@@ -144,9 +149,7 @@ public:
                 result = reduceObj.accum(result, nextElem());
             return result;
         }
-        return typename std::result_of<
-                   typename reduce<Accumulator, IdenityFn>::IdentityFnType(ValueType)
-               >::type();
+        return RetType();
     }
     ResultValueType operator| (sum&&) {
         doPreliminaryActions();
