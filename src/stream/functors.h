@@ -1,16 +1,9 @@
-#ifndef FUNCTORS_H
-#define FUNCTORS_H
+#pragma once
 
-#include <memory>
 #include <vector>
 #include <functional>
 #include <algorithm>
-#include <optional>
 #include <iterator>
-#include <type_traits>
-#include <utility>
-#include <cmath>
-#include <ostream>
 
 #include <typeinfo>
 
@@ -36,9 +29,6 @@ using std::vector;
 using std::pair;
 using std::ostream;
 using std::string;
-using std::unique_ptr;
-using std::shared_ptr;
-using std::optional;
 
 using namespace std::placeholders;
 
@@ -174,6 +164,13 @@ template <class Accumulator, class IdentityFn = std::function<void(void)> >
 struct reduce : FunctorHolder<Accumulator>,
                 FunctorHolder<IdentityFn>
 {
+public:
+    template <class TResult, class Arg>
+    struct AccumRetType {
+        using type = typename std::result_of<Accumulator(TResult, Arg)>::type;
+    };
+    using IdentityFnType = IdentityFn;
+public:
     reduce(IdentityFn&& identity, Accumulator&& accum)
         : FunctorHolder<Accumulator>(accum),
           FunctorHolder<IdentityFn>(identity)
@@ -185,7 +182,7 @@ struct reduce : FunctorHolder<Accumulator>,
     static constexpr FunctorMetaTypeEnum metaInfo = REDUCE;
 
     template <class TResult, class Arg>
-    decltype(auto) accum(TResult&& result, Arg&& arg) const {
+    typename AccumRetType<TResult, Arg>::type accum(TResult&& result, Arg&& arg) const {
         return FunctorHolder<Accumulator>::functor()(std::forward<TResult>(result),
                                                      std::forward<Arg>(arg));
     }
@@ -230,4 +227,3 @@ private:
 
 }
 
-#endif // FUNCTORS_H

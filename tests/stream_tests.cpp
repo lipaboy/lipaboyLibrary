@@ -123,17 +123,16 @@ TEST(FileStream, read) {
     std::ifstream inFile;
     inFile.open(filename, std::ios::in | std::ios::binary);
 
-    auto begin = std::istreambuf_iterator<char>(inFile);
-    auto end = std::istreambuf_iterator<char>();
-    // don't work with it
-    auto iter = begin;
-    std::advance(iter, 5);
-    cout << *iter << *iter << endl;
     auto fileStream = createStream(std::istreambuf_iterator<char>(inFile),
                                    std::istreambuf_iterator<char>());
 
-    (fileStream | print_to(cout)) << endl;
-    ASSERT_EQ(fileStream.size(), fileData.length());
+    //accumulate
+    auto res = fileStream
+            | map([] (auto ch) { return ch + 1; })
+            | map([] (auto ch) { return ch - 1; })
+            | reduce([] (auto ch) { return string(1, ch); },
+        [] (string& str, auto ch) { return str + string(1, ch); });
+    ASSERT_EQ(res, fileData);
 
     inFile.close();
     std::remove(filename.c_str());

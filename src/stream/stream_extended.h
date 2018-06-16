@@ -1,46 +1,23 @@
-#ifndef STREAM_SPECIALIZATION_H
-#define STREAM_SPECIALIZATION_H
+#pragma once
 
 #include "functors.h"
 
-#include <memory>
 #include <vector>
 #include <functional>
 #include <algorithm>
-#include <optional>
 #include <iterator>
 #include <type_traits>
-#include <utility>
-#include <cmath>
-#include <ostream>
 
 #include <typeinfo>
 
 #include <iostream>
 
-
-#define IS_TEST_RUN229
-
-#ifdef IS_TEST_RUN229
-#include <gtest/gtest.h>
-
-namespace stream_tests {
-class StreamTest;
-}
-
-#endif
-
 namespace stream_space {
 
 using std::vector;
 using std::pair;
-using std::ostream;
 using std::string;
-using std::unique_ptr;
-using std::shared_ptr;
-using std::optional;
 
-using namespace std::placeholders;
 using namespace functors_space;
 
 using std::cout;
@@ -158,12 +135,18 @@ public:
         return printer.ostream();
     }
     template <class Accumulator, class IdenityFn>
-    ResultValueType operator| (reduce<Accumulator, IdenityFn>&& reduceObj) {
+    decltype(auto) operator| (reduce<Accumulator, IdenityFn>&& reduceObj) {
         doPreliminaryActions();
-        auto result = reduceObj.identity(getElem(0));
-        for (size_type i = 1; i < size(); i++)
-            result = reduceObj.accum(result, getElem(i));
-        return result;
+        initSlider();
+        if (hasNext()) {
+            auto result = reduceObj.identity(nextElem());
+            for ( ; hasNext(); )
+                result = reduceObj.accum(result, nextElem());
+            return result;
+        }
+        return typename std::result_of<
+                   typename reduce<Accumulator, IdenityFn>::IdentityFnType(ValueType)
+               >::type();
     }
     ResultValueType operator| (sum&&) {
         doPreliminaryActions();
@@ -233,6 +216,21 @@ protected:
         }
     }
 
+public:
+    //-----------------Slider API--------------//
+
+    void initSlider() { initSlider<isOwnContainer()>(); }
+    template <bool isOwnContainer_>
+    void initSlider() { static_cast<SuperTypePtr>(this)->template initSlider<isOwnContainer_>(); }
+    ResultValueType nextElem() { return nextElem<isOwnContainer()>(); }
+    template <bool isOwnContainer_>
+    ResultValueType nextElem() { return static_cast<SuperTypePtr>(this)->template nextElem<isOwnContainer_>(); }
+    bool hasNext() const { return hasNext<isOwnContainer()>(); }
+    template <bool isOwnContainer_>
+    bool hasNext() const { return static_cast<ConstSuperTypePtr>(this)->template hasNext<isOwnContainer_>(); }
+
+    //-----------------Slider API Ends--------------//
+
 private:
 
     // used only for one optimization
@@ -293,5 +291,3 @@ protected:
 };
 
 }
-
-#endif // STREAM_SPECIALIZATION_H

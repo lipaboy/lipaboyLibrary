@@ -7,6 +7,13 @@ set(SOURCE_FILES
     lipaboy_test.cpp
     lipaboy_test.h
 
+    # Stream
+    functors.h
+    stream_extended.h
+    stream_base.h
+    range.h
+    stream.h
+
     # Precision Number
     maths/fixed_precision_number.h
     maths/precision_number_can_throw.h
