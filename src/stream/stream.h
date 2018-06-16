@@ -142,8 +142,11 @@ public:
 
     std::ostream& operator| (print_to&& printer) {
         doPreliminaryActions();
-        for (size_type i = 0; i < size(); i++)
-            printer.ostream() << getElem(i) << printer.delimiter();
+        initSlider<isOwnContainer()>();
+        for ( ; hasNext<isOwnContainer()>(); ) {
+            auto ch = nextElem<isOwnContainer()>();
+            printer.ostream() << ch << printer.delimiter();
+        }
         return printer.ostream();
     }
     template <class Accumulator, class IdenityFn>
@@ -209,6 +212,15 @@ protected:
         return this->range().template get<isOwnContainer_>(index);
     }
 
+    //-----------------Slider API--------------//
+
+    template <bool isOwnContainer_>
+    void initSlider() { range().template initSlider<isOwnContainer_>(); }
+    template <bool isOwnContainer_>
+    ValueType nextElem() { return range().template nextElem<isOwnContainer_>(); }
+    template <bool isOwnContainer_>
+    bool hasNext() { return range().template hasNext<isOwnContainer_>(); }
+
     decltype(auto) bindFunctors() const {
         return std::bind([] (ValueType const & a) -> ValueType const & { return a; }, _1);
     }
@@ -217,8 +229,10 @@ private:
     RangeType range_;
 };
 
+
 //--------------------RangeType-----------------------//
 
+// TODO: move RangeType at own file
 
 template <class TRange>
 struct GetRangeIter<true, TRange> {
@@ -256,7 +270,12 @@ public:
     }
     template <class OuterIterator>
     RangeType(OuterIterator begin, OuterIterator end)
-        : outsideBegin_(begin), outsideEnd_(end), pGenerator_(nullptr), size_(std::distance(begin, end)) {}
+        : outsideBegin_(begin), outsideEnd_(end), pGenerator_(nullptr)
+    {
+        if constexpr (std::is_same<typename std::iterator_traits<OuterIterator>::iterator_category,
+                std::input_iterator_tag>::value == false)
+            size_ = std::distance(begin, end);
+    }
     RangeType(GeneratorTypePtr generator)
         : outsideBegin_(), outsideEnd_(), pGenerator_(generator), size_(0),
           action_([] (RangeType*) {})
@@ -275,8 +294,6 @@ public:
           pContainer_(std::move(obj.pContainer_)),
           pGenerator_(std::move(obj.pGenerator_)), size_(obj.size_), action_(std::move(obj.action_))
     {}
-
-
 
 public:
     OwnContainerTypePtr makeContainer() { return std::make_unique<OwnContainerType>(); }
@@ -316,7 +333,6 @@ public:
     void setSize(size_type newSize) {
         size_ = newSize;
         if (pContainer_ != nullptr) {
-            //pContainer_->resize(size());
             setOwnIndices(ownBeginIndex_, ownBeginIndex_ + size());
         }
         else {
@@ -350,8 +366,32 @@ public:
 
     //-----------------Slider API---------------//
 
-    void initSlider() { sliderIter = outsideBegin(); }
-    ValueType nextElem() { return (*sliderIter++); }
+    template <bool isOwnIterator>
+    void initSlider() {
+        if constexpr (isOwnIterator)
+            ownIterSlider = ownBegin();
+        else
+            outsideIterSlider = outsideBegin();
+    }
+    template <bool isOwnIterator>
+    ValueType nextElem() {
+        if constexpr (isOwnIterator)
+            return *(ownIterSlider++);
+        else {
+            ValueType value = *(outsideIterSlider);
+            // Note: you can't optimize it because for istreambuf_iterator
+            //       post-increment operator has unspecified by standard
+            ++outsideIterSlider;
+            return std::move(value);
+        }
+    }
+    template <bool isOwnIterator>
+    bool hasNext() {
+        if constexpr (isOwnIterator)
+            return (ownIterSlider != ownEnd());
+        else
+            return (outsideIterSlider != outsideEnd());
+    }
 
 protected:
     void setOwnIndices(TIndex first, TIndex second) {
@@ -367,13 +407,16 @@ private:
     // Iterators that refer to outside of class container
     OutsideIterator outsideBegin_;
     OutsideIterator outsideEnd_;
+
     // Slider
-    OutsideIterator sliderIter;
+    OutsideIterator outsideIterSlider;
+    OwnIterator ownIterSlider;
 
     // Container
     TIndex ownBeginIndex_;
     TIndex ownEndIndex_;
     OwnContainerTypePtr pContainer_ = nullptr;
+
     // Generator
     GeneratorTypePtr pGenerator_;
     size_type size_;     // think about skip(count) before get(border)

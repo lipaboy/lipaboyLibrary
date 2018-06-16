@@ -50,6 +50,7 @@ using std::endl;
 // TODO: realize slider interface (initSlider(), nextElem(), nextElem(), ...)
 // TODO: think about filestream iterators because if you make one 'nth'
 //       then you cannot return back to previous elements (symbols)
+//       [single-pass iterators]
 
 enum Info {
     GENERATOR,
