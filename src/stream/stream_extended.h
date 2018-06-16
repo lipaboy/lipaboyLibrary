@@ -124,14 +124,10 @@ public:
 
     //-------------------Terminated operations-----------------//
 
-    ResultValueType operator| (nth&& nthObj) {
-        doPreliminaryActions();
-        return getElem(nthObj.index());
-    }
     std::ostream& operator| (print_to&& printer) {
         doPreliminaryActions();
-        for (size_type i = 0; i < size(); i++)
-            printer.ostream() << getElem(i) << printer.delimiter();
+        for (initSlider(); hasNext(); )
+            printer.ostream() << nextElem() << printer.delimiter();
         return printer.ostream();
     }
     template <class Accumulator, class IdenityFn>
@@ -153,10 +149,21 @@ public:
     }
     ResultValueType operator| (sum&&) {
         doPreliminaryActions();
-        auto result = getElem(0);
-        for (size_type i = 1; i < size(); i++)
-            result += getElem(i);
-        return result;
+        initSlider();
+        if (hasNext()) {
+            auto result = nextElem();
+            for (; hasNext();)
+                result += nextElem();
+            return result;
+        }
+        return ResultValueType();
+    }
+    ResultValueType operator| (nth&& nthObj) {
+        doPreliminaryActions();
+        initSlider();
+        for (size_type i = 0; i < nthObj.index() && hasNext(); i++)
+            nextElem();
+        return nextElem();
     }
     vector<ResultValueType> operator| (to_vector&&)
     {
@@ -227,7 +234,25 @@ public:
     void initSlider() { static_cast<SuperTypePtr>(this)->template initSlider<isOwnContainer_>(); }
     ResultValueType nextElem() { return nextElem<isOwnContainer()>(); }
     template <bool isOwnContainer_>
-    ResultValueType nextElem() { return static_cast<SuperTypePtr>(this)->template nextElem<isOwnContainer_>(); }
+    ResultValueType nextElem() {
+        // Template Parameter Explaination:
+        // must be so (isOwnContainer_ instead of isOwnContainer())
+        // because client who call this
+        // method and derived from that class may have the another value of isOwnContainer()
+        if constexpr (TFunctor::metaInfo == MAP)
+            return functor_(static_cast<SuperTypePtr>(this)->template nextElem<isOwnContainer_>());
+        else if constexpr (TFunctor::metaInfo != GROUP)
+            return static_cast<SuperTypePtr>(this)->template nextElem<isOwnContainer_>();
+        else {  // Hint: if (is Group)
+            auto partSize = functor_.partSize();
+            ResultValueType part;
+            size_type i = 0;
+            for (; i < partSize && hasNext(); i++)
+                part.push_back(static_cast<SuperTypePtr>(this)->template nextElem<isOwnContainer_>());
+
+            return std::move(part);
+        }
+    }
     bool hasNext() const { return hasNext<isOwnContainer()>(); }
     template <bool isOwnContainer_>
     bool hasNext() const { return static_cast<ConstSuperTypePtr>(this)->template hasNext<isOwnContainer_>(); }

@@ -143,14 +143,21 @@ public:
     }
     ResultValueType operator| (sum&&) {
         doPreliminaryActions();
-        auto result = getElem(0);
-        for (size_type i = 1; i < size(); i++)
-            result += getElem(i);
-        return result;
+        initSlider();
+        if (hasNext()) {
+            auto result = nextElem();
+            for (; hasNext();)
+                result += nextElem();
+            return result;
+        }
+        return ResultValueType();
     }
     ResultValueType operator| (nth&& nthObj) {
         doPreliminaryActions();
-        return getElem(nthObj.index());
+        initSlider();
+        for (size_type i = 0; i < nthObj.index() - 1 && hasNext(); i++)
+            nextElem();
+        return nextElem();
     }
     vector<ValueType> operator| (to_vector&&) {
         doPreliminaryActions();
@@ -201,9 +208,9 @@ protected:
     void initSlider() { initSlider<isOwnContainer()>(); }
     template <bool isOwnContainer_>
     void initSlider() { range().template initSlider<isOwnContainer_>(); }
-    ValueType nextElem() { return nextElem<isOwnContainer()>(); }
+    ResultValueType nextElem() { return nextElem<isOwnContainer()>(); }
     template <bool isOwnContainer_>
-    ValueType nextElem() { return range().template nextElem<isOwnContainer_>(); }
+    ResultValueType nextElem() { return range().template nextElem<isOwnContainer_>(); }
     bool hasNext() const { return hasNext<isOwnContainer()>(); }
     template <bool isOwnContainer_>
     bool hasNext() const { return range().template hasNext<isOwnContainer_>(); }

@@ -138,6 +138,23 @@ TEST(FileStream, read) {
     std::remove(filename.c_str());
 }
 
+TEST(Group, Infinite) {
+    int a = 0;
+    auto res = createStream([&a]() { return a++; })
+            | get(4)
+            | group(2)
+            | nth(1);
+    ASSERT_EQ(res, decltype(res)({ 2, 3 }));
+}
+
+TEST(Sum, Infinite) {
+    int a = 0;
+    auto res = createStream([&a]() { return a++; })
+            | get(4)
+            | sum();
+    ASSERT_EQ(res, 6);
+}
+
 TEST(StreamTest, check) {
     try {
         struct A {

@@ -106,13 +106,16 @@ struct filter : FunctorHolder<Predicate>, TReturnSameType {
 };
 template <class Transform>
 struct map : FunctorHolder<Transform> {
-    map(Transform functor) : FunctorHolder<Transform>(functor) {}
-    static constexpr FunctorMetaTypeEnum metaInfo = MAP;
-
+public:
     template <class Arg>
     struct RetType {
         using type = typename std::result_of<Transform(Arg)>::type;
     };
+
+public:
+    map(Transform functor) : FunctorHolder<Transform>(functor) {}
+    static constexpr FunctorMetaTypeEnum metaInfo = MAP;
+
     template <class Arg>
     auto operator()(Arg arg) const
         -> typename RetType<Arg>::type
