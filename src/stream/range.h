@@ -161,28 +161,36 @@ public:
     template <bool isOwnIterator>
     void initSlider() {
         if constexpr (isOwnIterator)
-            ownIterSlider = ownBegin();
+            ownIterSlider_ = ownBegin();
         else
-            outsideIterSlider = outsideBegin();
+            outsideIterSlider_ = outsideBegin();
     }
     template <bool isOwnIterator>
     ValueType nextElem() {
         if constexpr (isOwnIterator)
-            return *(ownIterSlider++);
+            return *(ownIterSlider_++);
         else {
-            ValueType value = *(outsideIterSlider);
+            ValueType value = *(outsideIterSlider_);
             // Note: you can't optimize it because for istreambuf_iterator
             //       post-increment operator has unspecified by standard
-            ++outsideIterSlider;
+            ++outsideIterSlider_;
             return std::move(value);
+        }
+    }
+    template <bool isOwnIterator>
+    ValueType currentElem() const {
+        if constexpr (isOwnIterator)
+            return *ownIterSlider_;
+        else {
+            return *outsideIterSlider_;
         }
     }
     template <bool isOwnIterator>
     bool hasNext() const {
         if constexpr (isOwnIterator)
-            return (ownIterSlider != ownEnd());
+            return (ownIterSlider_ != ownEnd());
         else
-            return (outsideIterSlider != outsideEnd());
+            return (outsideIterSlider_ != outsideEnd());
     }
 
 protected:
@@ -201,8 +209,8 @@ private:
     OutsideIterator outsideEnd_;
 
     // Slider
-    OutsideIterator outsideIterSlider;
-    OwnIterator ownIterSlider;
+    OutsideIterator outsideIterSlider_;
+    OwnIterator ownIterSlider_;
 
     // Container
     TIndex ownBeginIndex_;

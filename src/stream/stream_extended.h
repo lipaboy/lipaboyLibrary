@@ -26,7 +26,7 @@ using std::endl;
 template <bool isOwnContainer, class TRange>
 struct GetRangeIter {};
 
-//-----------------Stream class----------------------//
+//-----------------Stream Extended class----------------------//
 
 template <class TFunctor, class StorageInfo, class... Rest>
 class Stream : public Stream<StorageInfo, Rest...> {
@@ -127,7 +127,6 @@ public:
     std::ostream& operator| (print_to&& printer) {
         return static_cast<SuperTypePtr>(this)->apply(*this, printer);
     }
-
     ResultValueType operator| (sum&&) {
         doPreliminaryActions();
         initSlider();
@@ -153,8 +152,8 @@ public:
         if (range().isInfinite())
             throw std::logic_error("Infinite stream");
         ToVectorType toVector;
-        for (size_type i = 0; i < size(); i++)
-            toVector.push_back(getElem(i));
+        for (initSlider(); hasNext(); )
+            toVector.push_back(nextElem());
         return std::move(toVector);
     }
 
@@ -171,40 +170,6 @@ protected:
     }
     static constexpr bool isGeneratorProducing() {
         return SuperType::isGeneratorProducing();
-    }
-protected:
-    ResultValueType getElem(size_type index) const { return getElem<isOwnContainer()>(index); }
-    template <bool isOwnContainer_>
-    ResultValueType getElem(size_type index) const {
-        if constexpr (TFunctor::metaInfo == GROUP) {
-            if constexpr (static_cast<ConstSuperTypePtr>(this)->isNoGroupBefore()) {
-                auto partSize = functor_.partSize();
-                // must be so (isOwnContainer_ instead of isOwnContainer()) because client who call that
-                // method and derived from that class may have another value of isOwnContainer!
-                auto iter = range().template ibegin<isOwnContainer_>();
-                std::advance(iter, partSize * index);
-                ResultValueType part;
-                auto bindedFunctors = bindFunctors();
-                auto endIter = range().template iend<isOwnContainer_>();
-                for (size_type i = 0; i < partSize && iter != endIter; i++)
-                    part.push_back(bindedFunctors(*(iter++)));
-                return std::move(part);
-            }
-            else {
-                auto partSize = functor_.partSize();
-                ResultValueType part;
-                for (size_type i = partSize * index; i < partSize * (index + 1) && i < size(); i++) {
-                    part.push_back(static_cast<ConstSuperTypePtr>(this)->template getElem<isOwnContainer_>(i));
-                }
-                return std::move(part);
-            }
-        }
-        else if constexpr (TFunctor::metaInfo == MAP) {
-            return std::move(functor_(static_cast<ConstSuperTypePtr>(this)->template getElem<isOwnContainer_>(index)));
-        }
-        else {   // magic recursive expanding list of template methods
-            return std::move(static_cast<ConstSuperTypePtr>(this)->template getElem<isOwnContainer_>(index));
-        }
     }
 
 public:
@@ -234,21 +199,18 @@ public:
             return std::move(part);
         }
     }
+    ValueType currentAtom() const {
+        return static_cast<ConstSuperTypePtr>(this)->template currentAtom<isOwnContainer()>();
+    }
+    template <bool isOwnContainer_>
+    ValueType currentAtom() const {
+        return static_cast<ConstSuperTypePtr>(this)->template currentAtom<isOwnContainer_>();
+    }
     bool hasNext() const { return hasNext<isOwnContainer()>(); }
     template <bool isOwnContainer_>
     bool hasNext() const { return static_cast<ConstSuperTypePtr>(this)->template hasNext<isOwnContainer_>(); }
 
     //-----------------Slider API Ends--------------//
-
-private:
-
-    // used only for one optimization
-    decltype(auto) bindFunctors() const {
-        if constexpr (TFunctor::metaInfo == MAP)
-            return std::bind(this->functor_, static_cast<ConstSuperTypePtr>(this)->bindFunctors());
-        else
-            return static_cast<ConstSuperTypePtr>(this)->bindFunctors();
-    }
 
 protected:
     // For calling all the actions into stream (must be called into terminated operations)
@@ -285,12 +247,15 @@ protected:
             // what is need (preliminary actions) have already executed because filter_ is preliminary action
             // doPreliminaryActions(); // infinitive recursive
             OwnContainerTypePtr pNewContainer = range().makeContainer();
-            for (size_type i = 0; i < size(); i++)
+            SuperTypePtr superThis = static_cast<SuperTypePtr>(this);
+            superThis->initSlider();
+            for (; superThis->hasNext(); )
             {
-                auto elem = this->template getElem<SuperType::isOwnContainer()>(i);
+                ValueType atom = superThis->currentAtom();
+                auto elem = superThis->nextElem();
                 // TODO: move the element (only if copy from your own container)
                 if (functor(std::move(elem)) == true) {
-                    pNewContainer->push_back(range().template get<SuperType::isOwnContainer()>(i));
+                    pNewContainer->push_back(atom);
                 }
             }
             range().setContainer(std::move(pNewContainer));

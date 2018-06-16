@@ -24,7 +24,7 @@ using std::cout;
 using std::endl;
 
 
-//--------------------------Stream specialization class----------------------//
+//--------------------------Stream Base (specialization class)----------------------//
 
 namespace {
 template <class T> using OwnContainerTypeWithoutValueType = vector<T>;
@@ -119,7 +119,7 @@ public:
     //-----------Terminated operations------------//
 protected:
     template <class Stream_>
-    std::ostream& apply(Stream_ & obj, print_to&& printer) {
+    std::ostream& apply(Stream_ & obj, print_to printer) {
         obj.doPreliminaryActions();
         for (obj.initSlider(); obj.hasNext(); )
             printer.ostream() << obj.nextElem() << printer.delimiter();
@@ -127,7 +127,7 @@ protected:
     }
 
 public:
-    std::ostream& operator| (print_to&& printer) {
+    std::ostream& operator| (print_to printer) {
         return apply(*this, printer);
     }
 
@@ -201,6 +201,9 @@ protected:
     ResultValueType nextElem() { return nextElem<isOwnContainer()>(); }
     template <bool isOwnContainer_>
     ResultValueType nextElem() { return range().template nextElem<isOwnContainer_>(); }
+    ValueType currentAtom() const { return currentAtom<isOwnContainer()>(); }
+    template <bool isOwnContainer_>
+    ValueType currentAtom() const { return range().template currentElem<isOwnContainer_>(); }
     bool hasNext() const { return hasNext<isOwnContainer()>(); }
     template <bool isOwnContainer_>
     bool hasNext() const { return range().template hasNext<isOwnContainer_>(); }
@@ -226,13 +229,9 @@ public:
 private:
     template <class Stream_, class Accumulator, class IdenityFn>
     auto apply(Stream_ & obj, reduce<Accumulator, IdenityFn> const & reduceObj)
-        -> decltype(auto)//typename reduce<Accumulator, IdenityFn>::
-            //template IdentityRetType<typename Stream_::ResultValueType>::type
+        -> decltype(auto)
     {
-//        if constexpr ()
         using RetType = typename std::remove_reference<decltype(reduceObj.identity(obj.nextElem()))>::type;
-//            typename reduce<Accumulator, IdenityFn>::
-//            template IdentityRetType<typename Stream_::ResultValueType>::type;
         obj.doPreliminaryActions();
         obj.initSlider();
         if (obj.hasNext()) {
