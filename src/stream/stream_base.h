@@ -77,12 +77,12 @@ public:
             obj->filter_(obj->getFunctor().functor());
             obj->action_ = [] (ExtendedStream*) {};
         };
-        return std::move(newStream);   // copy container (only once)
+        return std::move(newStream);
     }
     template <class Transform>
     auto operator| (map<Transform> functor) -> typename ExtendedStreamType<map<Transform> >::type {
         typename ExtendedStreamType<map<Transform> >::type newStream(functor, *this);
-        return std::move(newStream);   // copy container (only once)
+        return std::move(newStream);
     }
     auto operator| (get functor) -> typename ExtendedStreamType<get>::type {
         using ExtendedStream = typename ExtendedStreamType<get>::type;
@@ -98,7 +98,7 @@ public:
                     obj->range().setSize(border);
                 obj->preAction_ = [] (ExtendedStream*) {};
             };
-        return std::move(newStream);   // copy container (only once)
+        return std::move(newStream);
     }
     auto operator| (group functor) -> typename ExtendedStreamType<group>::type {
         typename ExtendedStreamType<group>::type newStream(functor, *this);
@@ -111,7 +111,12 @@ public:
             obj->range().template moveBeginIter<ExtendedStream::isOwnContainer()>(obj->functor_.index());
             obj->action_ = [] (ExtendedStream*) {};
         };
-        return std::move(newStream);   // copy container (only once)
+        return std::move(newStream);
+    }
+
+    auto operator| (ungroupByBit functor) -> typename ExtendedStreamType<ungroupByBit>::type {
+        typename ExtendedStreamType<ungroupByBit>::type newStream(functor, *this);
+        return std::move(newStream);
     }
 
     //-----------Terminated operations------------//

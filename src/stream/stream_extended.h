@@ -78,14 +78,14 @@ public:
             obj->filter_(obj->getFunctor().functor());
             obj->action_ = [] (ExtendedStream*) {};
         };
-        return std::move(obj);   // copy container (only once)
+        return std::move(obj);
     }
     template <class Functor>
     auto operator| (map<Functor> functor)
         -> typename ExtendedStreamType<map<Functor> >::type
     {
         typename ExtendedStreamType<map<Functor> >::type obj(functor, *this);
-        return std::move(obj);   // copy container (only once)
+        return std::move(obj);
     }
     auto operator| (get functor) -> typename ExtendedStreamType<get>::type {
         using ExtendedStream = typename ExtendedStreamType<get>::type;
@@ -106,11 +106,11 @@ public:
             obj->preAction_ = [] (ExtendedStream*) {};
         };;
 
-        return std::move(newStream);   // copy container (only once)
+        return std::move(newStream);
     }
     auto operator| (group functor) -> typename ExtendedStreamType<group>::type {
         typename ExtendedStreamType<group>::type obj(functor, *this);
-        return std::move(obj);   // copy container (only once)
+        return std::move(obj);
     }
     auto operator| (skip&& skipObj) -> typename ExtendedStreamType<skip>::type {
         using ExtendedStream = typename ExtendedStreamType<skip>::type;
@@ -119,7 +119,11 @@ public:
             obj->range().template moveBeginIter<ExtendedStream::isOwnContainer()>(obj->functor_.index());
             obj->action_ = [] (ExtendedStream*) {};
         };
-        return std::move(newStream);   // copy container (only once)
+        return std::move(newStream);
+    }
+    auto operator| (ungroupByBit functor) -> typename ExtendedStreamType<ungroupByBit>::type {
+        typename ExtendedStreamType<ungroupByBit>::type obj(functor, *this);
+        return std::move(obj);
     }
 
     //-------------------Terminated operations-----------------//
@@ -161,6 +165,8 @@ public:
 protected:
     static constexpr bool isOwnContainer() {
         return (TFunctor::metaInfo == FILTER
+            // Problem of TODO(1)
+            // because it connected with single-passing property of FileInputstream
 //                || TFunctor::metaInfo != GET
                 || SuperType::isOwnContainer());
     }

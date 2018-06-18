@@ -35,10 +35,14 @@ using std::endl;
 
 // PLAN FOR STREAM:
 //-----------------
-// TODO: remove getting size property from Range API and Stream at all
+// TODO (1): remove the getting of size property from Range API and Stream at all
 //       because Stream is a Stream. Nothing more, nothing less.
 // TODO: remove duplication of code for terminated operators like
 //       it made for operator reduce
+// TODO: add group/ungroup operations for bits (0, 1)
+// TODO: think about condition of InfiniteStream when cause throwing an logic exception.
+//       Maybe put it into doPreliminaryOperations()
+//       And think about initSlider -> maybe move it into that one too?
 
 enum Info {
     GENERATOR,
@@ -65,7 +69,8 @@ enum FunctorMetaTypeEnum {
     GROUP,
     SUM,
     TO_VECTOR,
-    NTH
+    NTH,
+    UNGROUP_BY_BIT
 };
 
 
@@ -102,6 +107,7 @@ struct filter : FunctorHolder<Predicate>, TReturnSameType {
         : FunctorHolder<Predicate>(functor) {}
     static constexpr FunctorMetaTypeEnum metaInfo = FILTER;
 };
+
 template <class Transform>
 struct map : FunctorHolder<Transform> {
 public:
@@ -121,6 +127,7 @@ public:
         return FunctorHolder<Transform>::functor()(arg);
     }
 };
+
 struct get : TReturnSameType {
     using size_type = size_t;
     get(size_type border) : border_(border) {}
@@ -130,6 +137,7 @@ struct get : TReturnSameType {
 private:
     size_type border_;
 };
+
 struct group {
     using size_type = size_t;
 
@@ -148,6 +156,7 @@ struct group {
 private:
     size_type partSize_;
 };
+
 struct skip : TReturnSameType {
     using size_type = size_t;
 
@@ -159,6 +168,24 @@ private:
     size_type index_;
 };
 
+struct ungroupByBit {
+    using size_type = size_t;
+
+    static constexpr FunctorMetaTypeEnum metaInfo = UNGROUP_BY_BIT;
+
+    template <class Arg>
+    struct RetType {
+        using type = bool;
+    };
+};
+
+
+
+
+//---------------------------------------------------------------------------------------------------//
+//-----------------------------------Terminated operations-------------------------------------------//
+//---------------------------------------------------------------------------------------------------//
+
 
 // TODO: put off this instrument to another file
 template<bool B, class T1, class T2>
@@ -168,7 +195,6 @@ struct enable_if_else<true, T1, T2> { typedef T1 type; };
 template<class T1, class T2>
 struct enable_if_else<false, T1, T2> { typedef T2 type; };
 
-//---------------Terminated operations-----------//
 
 template <class Accumulator, class IdentityFn = std::function<void(void)> >
 struct reduce : FunctorHolder<Accumulator>,
