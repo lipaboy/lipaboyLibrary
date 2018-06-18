@@ -112,7 +112,8 @@ TEST(Skip, Infinite) {
 TEST(Skip, Finite) {
     std::list<int> lol = { 1, 2, 3 };
     auto res = createStream(lol.begin(), lol.end())
-            | skip(2)
+            | skip(1)
+            | skip(1)
             | to_vector();
 
     ASSERT_EQ(res, vector<int>({ 3 }));
@@ -171,19 +172,15 @@ TEST(Sum, Infinite) {
 }
 
 TEST(UngroupByBit, init_list) {
-    cout << endl << endl;
-    cout << endl << endl;
-
-    // need method currentElem!!
-    vector<char> olala = { 'a', 'b', 'c' };
-    createStream(olala.begin(), olala.end())
+    vector<char> olala = { 1, 2 };
+    auto vecVec = createStream(olala.begin(), olala.end())
             | ungroupByBit()
-            | print_to(cout, " ");
+            | group(8)
+            | to_vector();
 
-cout << endl << endl;
-cout << endl << endl;
-
-//    ASSERT_EQ(kek, decltype(kek)({ 16, 36 }));
+    ASSERT_EQ(vecVec, decltype(vecVec)({ vector<bool>({1,0,0,0,0,0,0,0}),
+                                         vector<bool>({0,1,0,0,0,0,0,0})})
+              );
 }
 
 int kek (int a) { return a * a; }

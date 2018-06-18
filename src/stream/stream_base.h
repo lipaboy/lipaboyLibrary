@@ -128,9 +128,9 @@ protected:
         return printer.ostream();
     }
     template <class Stream_>
-    vector<ResultValueType> apply(Stream_ & obj, to_vector&&)
+    vector<typename Stream_::ResultValueType> apply(Stream_ & obj, to_vector&&)
     {
-        using ToVectorType = vector<ResultValueType>;
+        using ToVectorType = vector<typename Stream_::ResultValueType>;
         ToVectorType toVector;
         for (obj.initSlider(); obj.hasNext(); )
             toVector.push_back(obj.nextElem());
@@ -190,7 +190,6 @@ protected:
     // (because all the variadic templates are friends
     // from current Stream to first specialization) (it is not a real inheritance)
 
-    void doPreliminaryActions() { range().doPreliminaryActions(); }
     void throwOnInfiniteStream() const {
         if (range().isInfinite())
             throw std::logic_error("Infinite stream");
@@ -211,10 +210,23 @@ protected:
         throwOnInfiniteStream();
         range().template initSlider<isOwnContainer_>();
     }
+private:
+    void doPreliminaryActions() { range().doPreliminaryActions(); }
 
+protected:
     ResultValueType nextElem() { return nextElem<isOwnContainer()>(); }
     template <bool isOwnContainer_>
     ResultValueType nextElem() { return range().template nextElem<isOwnContainer_>(); }
+
+    // Why can't we realize this interface:
+    // 1) problem with group operations: somebody must storage the result
+    //    of getting current element. Okey, we have tempValue.
+    //    But who will initialize it? nextElem()? initSlider()?
+    //    Or maybe add condition on first getting current element?
+    //    But condition is bad because conveyor breaks down on it.
+//    ValueType currentElem() { return currentElem<isOwnContainer()>(); }
+//    template <bool isOwnContainer_>
+//    ValueType currentElem() { return range().template currentElem<isOwnContainer_>(); }
 
     ValueType currentAtom() const { return currentAtom<isOwnContainer()>(); }
     template <bool isOwnContainer_>
@@ -244,7 +256,6 @@ private:
         -> decltype(auto)
     {
         using RetType = typename std::remove_reference<decltype(reduceObj.identity(obj.nextElem()))>::type;
-        obj.doPreliminaryActions();
         obj.initSlider();
         if (obj.hasNext()) {
             auto result = reduceObj.identity(obj.nextElem());

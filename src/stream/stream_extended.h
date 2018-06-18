@@ -128,7 +128,7 @@ public:
     //-------------------Terminated operations-----------------//
 
     std::ostream& operator| (print_to&& printer) {
-        return static_cast<SuperTypePtr>(this)->apply(*this, std::move(printer));
+        return apply(*this, std::move(printer));
     }
     ResultValueType operator| (sum&&) {
         initSlider();
@@ -147,11 +147,17 @@ public:
         return nextElem();
     }
     vector<ResultValueType> operator| (to_vector&& toVectorObj) {
-        return static_cast<SuperTypePtr>(this)->apply(*this, std::move(toVectorObj));
+        return apply(*this, std::move(toVectorObj));
     }
 
-    void throwOnInfiniteStream() const {
-        static_cast<ConstSuperTypePtr>(this)->throwOnInfiniteStream();
+protected:
+    template <class Stream_>
+    std::ostream& apply(Stream_ & obj, print_to&& printer) {
+        return static_cast<SuperTypePtr>(this)->apply(obj, std::move(printer));
+    }
+    template <class Stream_>
+    vector<typename Stream_::ResultValueType> apply(Stream_ & obj, to_vector&& toVectorObj) {
+        return static_cast<SuperTypePtr>(this)->apply(obj, std::move(toVectorObj));
     }
 
             //-----------------Tools-------------------//
@@ -173,7 +179,11 @@ protected:
         return SuperType::isGeneratorProducing();
     }
 
-public:
+protected:
+    void throwOnInfiniteStream() const {
+        static_cast<ConstSuperTypePtr>(this)->throwOnInfiniteStream();
+    }
+
     //-----------------Slider API--------------//
 
     // For calling all the actions into stream (must be called into terminated operations
@@ -187,12 +197,15 @@ public:
         if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT)
             indexIter = 0;
     }
+private:
+    // nobody instead of initSlider can call it
     void doPreliminaryActions() {
         preAction_(this);
         static_cast<SuperTypePtr>(this)->doPreliminaryActions();
         action_(this);
     }
 
+protected:
     ResultValueType nextElem() { return nextElem<isOwnContainer()>(); }
     template <bool isOwnContainer_>
     ResultValueType nextElem() {
@@ -215,17 +228,16 @@ public:
         else if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT) {
             const size_type bitsCountOfType = 8 * sizeof(ValueType);
             if (indexIter % bitsCountOfType == 0)
-                temp = static_cast<SuperTypePtr>(this)->template nextElem<isOwnContainer_>();
+                tempValue = static_cast<SuperTypePtr>(this)->template nextElem<isOwnContainer_>();
+            bool res = (tempValue & (1 << indexIter)) >> indexIter;
             indexIter = (indexIter + 1) % bitsCountOfType;
-            return (temp & (1 << indexIter)) >> indexIter;
+            return res;
         }
         else
             return static_cast<SuperTypePtr>(this)->template nextElem<isOwnContainer_>();
     }
 
-    ValueType currentAtom() const {
-        return static_cast<ConstSuperTypePtr>(this)->template currentAtom<isOwnContainer()>();
-    }
+    ValueType currentAtom() const { return currentAtom<isOwnContainer()>(); }
     template <bool isOwnContainer_>
     ValueType currentAtom() const {
         return static_cast<ConstSuperTypePtr>(this)->template currentAtom<isOwnContainer_>();
@@ -233,7 +245,13 @@ public:
 
     bool hasNext() const { return hasNext<isOwnContainer()>(); }
     template <bool isOwnContainer_>
-    bool hasNext() const { return static_cast<ConstSuperTypePtr>(this)->template hasNext<isOwnContainer_>(); }
+    bool hasNext() const {
+        if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT)
+            return (indexIter != 0)
+                || static_cast<ConstSuperTypePtr>(this)->template hasNext<isOwnContainer_>();
+        else
+            return static_cast<ConstSuperTypePtr>(this)->template hasNext<isOwnContainer_>();
+    }
 
     //-----------------Slider API Ends--------------//
 
@@ -258,18 +276,18 @@ public:
 protected:
     TFunctor functor_;
     // TODO: add getter/setter
+    // TODO: get rid of preAction_: replace it on constexpr condition in doPreliminaryActions()
     ActionType action_ = [] (Stream*) {};
     ActionType preAction_ = [] (Stream*) {};
-    // only for ungroupByBit operation
+    // TODO: think about allocating the memory under these vars instead of storaging on stack
+    // only for ungroupByBit and group operations
     size_type indexIter;
-    typename SuperType::ResultValueType temp;
+    typename SuperType::ResultValueType tempValue;
 
 protected:
     template <class TFilterFunctor>
     void filter_(TFilterFunctor functor) {
         if constexpr (TFunctor::metaInfo == FILTER) {
-            // what is need (preliminary actions) have already executed because filter_ is preliminary action
-            // doPreliminaryActions(); // infinitive recursive
             OwnContainerTypePtr pNewContainer = range().makeContainer();
             SuperTypePtr superThis = static_cast<SuperTypePtr>(this);
             superThis->initSlider();
@@ -287,12 +305,18 @@ protected:
     }
 
 public:
+    template <class Stream_, class Accumulator, class IdenityFn>
+    auto apply(Stream_ & obj, reduce<Accumulator, IdenityFn> const & reduceObj)
+        -> decltype(auto)
+    {
+        return static_cast<SuperTypePtr>(this)->apply(obj, reduceObj);
+    }
     template <class Accumulator, class IdenityFn>
     auto operator| (reduce<Accumulator, IdenityFn> const & reduceObj)
         -> decltype(auto) //typename reduce<Accumulator, IdenityFn>::
             //template IdentityRetType<ResultValueType>::type
     {
-        return static_cast<SuperTypePtr>(this)->apply(*this, reduceObj);
+        return apply(*this, reduceObj);
     }
 };
 
