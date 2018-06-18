@@ -46,12 +46,12 @@ include_directories(
 set(TEST_SOURCE
     tests.cpp
 
-    stream_tests.cpp
-    stream_test.h
+    stream/stream_tests.cpp
+    stream/stream_test.h
 
-    forward_list_tests.cpp
-    hash_map_test.h
-    hash_map_tests.cpp
+    hash_map/forward_list_tests.cpp
+    hash_map/hash_map_test.h
+    hash_map/hash_map_tests.cpp
     )
 add_executable(${MODULE_NAME}_test ${TEST_SOURCE})
 

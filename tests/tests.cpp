@@ -8,9 +8,9 @@
 #include "maths/fixed_precision_number.h"
 #include "intervals/interval.h"
 
-#include "stream_test.h"
+#include "stream/stream_test.h"
 
-#include "hash_map_test.h"
+#include "hash_map/hash_map_test.h"
 
 namespace check_tests {
 
