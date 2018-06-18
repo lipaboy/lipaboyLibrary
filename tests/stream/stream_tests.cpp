@@ -81,6 +81,15 @@ TEST(Get, InfiniteStream) {
     ASSERT_EQ(res, vector<int>({ 1, 5, 7, 11 }));
 }
 
+TEST(Exception, Infinite) {
+    int a = 1;
+    auto stream = createStream([&a]() { return a++; });
+    ASSERT_ANY_THROW(stream | to_vector());
+    ASSERT_ANY_THROW(stream
+                     | map([] (int a) { return 2 * a; })
+                     | to_vector());
+}
+
 TEST(Get, Infinite_Empty) {
     int a = 0;
     auto res = createStream([&a]() { return a++; })
@@ -120,6 +129,8 @@ TEST(FileStream, read) {
     std::ifstream inFile;
     inFile.open(filename, std::ios::in | std::ios::binary);
 
+//    auto begin = std::istreambuf_iterator<char>(inFile);
+//    cout << *(begin + 1) << *begin << endl;
     auto fileStream = createStream(std::istreambuf_iterator<char>(inFile),
                                    std::istreambuf_iterator<char>());
 
@@ -157,6 +168,22 @@ TEST(Sum, Infinite) {
             | get(4)
             | sum();
     ASSERT_EQ(res, 6);
+}
+
+TEST(UngroupByBit, init_list) {
+    cout << endl << endl;
+    cout << endl << endl;
+
+    // need method currentElem!!
+    vector<char> olala = { 'a', 'b', 'c' };
+    createStream(olala.begin(), olala.end())
+            | ungroupByBit()
+            | print_to(cout, " ");
+
+cout << endl << endl;
+cout << endl << endl;
+
+//    ASSERT_EQ(kek, decltype(kek)({ 16, 36 }));
 }
 
 int kek (int a) { return a * a; }

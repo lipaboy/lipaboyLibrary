@@ -6,6 +6,7 @@
 #include <iterator>
 
 #include <typeinfo>
+#include <ostream>
 
 #include <iostream>
 

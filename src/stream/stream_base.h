@@ -72,8 +72,7 @@ public:
         ExtendedStream newStream(functor, *this);
         // you can't constraint the lambda only for this because the object will be changed after moving
         newStream.action_ = [] (ExtendedStream* obj) {
-            if (obj->range().isInfinite())
-                throw std::logic_error("Infinite stream");
+            obj->throwOnInfiniteStream();
             obj->filter_(obj->getFunctor().functor());
             obj->action_ = [] (ExtendedStream*) {};
         };
@@ -122,20 +121,28 @@ public:
     //-----------Terminated operations------------//
 protected:
     template <class Stream_>
-    std::ostream& apply(Stream_ & obj, print_to printer) {
+    std::ostream& apply(Stream_ & obj, print_to&& printer) {
         obj.doPreliminaryActions();
         for (obj.initSlider(); obj.hasNext(); )
             printer.ostream() << obj.nextElem() << printer.delimiter();
         return printer.ostream();
     }
+    template <class Stream_>
+    vector<ResultValueType> apply(Stream_ & obj, to_vector&&)
+    {
+        using ToVectorType = vector<ResultValueType>;
+        ToVectorType toVector;
+        for (obj.initSlider(); obj.hasNext(); )
+            toVector.push_back(obj.nextElem());
+        return std::move(toVector);
+    }
 
 public:
-    std::ostream& operator| (print_to printer) {
-        return apply(*this, printer);
+    std::ostream& operator| (print_to&& printer) {
+        return apply(*this, std::move(printer));
     }
 
     ResultValueType operator| (sum&&) {
-        doPreliminaryActions();
         initSlider();
         if (hasNext()) {
             auto result = nextElem();
@@ -146,18 +153,13 @@ public:
         return ResultValueType();
     }
     ResultValueType operator| (nth&& nthObj) {
-        doPreliminaryActions();
         initSlider();
         for (size_type i = 0; i < nthObj.index() - 1 && hasNext(); i++)
             nextElem();
         return nextElem();
     }
-    vector<ValueType> operator| (to_vector&&) {
-        doPreliminaryActions();
-        if (range().isInfinite())
-            throw std::logic_error("Infinite stream");
-        return vector<ValueType>(range().template ibegin<isOwnContainer()>(),
-                                 range().template iend<isOwnContainer()>());;
+    vector<ValueType> operator| (to_vector&& toVectorObj) {
+        return apply(*this, std::move(toVectorObj));
     }
 
     //------------------Additional methods---------------//
@@ -189,6 +191,10 @@ protected:
     // from current Stream to first specialization) (it is not a real inheritance)
 
     void doPreliminaryActions() { range().doPreliminaryActions(); }
+    void throwOnInfiniteStream() const {
+        if (range().isInfinite())
+            throw std::logic_error("Infinite stream");
+    }
 protected:
     ValueType getElem(size_type index) const { return getElem<isOwnContainer()>(index); }
     template <bool isOwnContainer_>
@@ -200,13 +206,20 @@ protected:
 
     void initSlider() { initSlider<isOwnContainer()>(); }
     template <bool isOwnContainer_>
-    void initSlider() { range().template initSlider<isOwnContainer_>(); }
+    void initSlider() {
+        doPreliminaryActions();
+        throwOnInfiniteStream();
+        range().template initSlider<isOwnContainer_>();
+    }
+
     ResultValueType nextElem() { return nextElem<isOwnContainer()>(); }
     template <bool isOwnContainer_>
     ResultValueType nextElem() { return range().template nextElem<isOwnContainer_>(); }
+
     ValueType currentAtom() const { return currentAtom<isOwnContainer()>(); }
     template <bool isOwnContainer_>
     ValueType currentAtom() const { return range().template currentElem<isOwnContainer_>(); }
+
     bool hasNext() const { return hasNext<isOwnContainer()>(); }
     template <bool isOwnContainer_>
     bool hasNext() const { return range().template hasNext<isOwnContainer_>(); }
