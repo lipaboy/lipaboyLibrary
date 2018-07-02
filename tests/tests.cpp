@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+#include "gmock/gmock.h"
 
 #include <iostream>
 #include <vector>
@@ -10,7 +11,10 @@
 
 #include "stream/stream_test.h"
 
-#include "hash_map/hash_map_test.h"
+TEST(Dummy, foobar)
+{
+	EXPECT_EQ(1, 1);
+}
 
 namespace check_tests {
 
@@ -63,10 +67,16 @@ TEST(Interval, contains) {
 }
 
 
+using ::testing::Return;
+using ::testing::_;
 }
+
+
 
 int main(int argc, char *argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+	auto res = RUN_ALL_TESTS();
+	system("pause");
+    return res;
 }

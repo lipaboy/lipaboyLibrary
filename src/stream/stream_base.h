@@ -94,7 +94,7 @@ public:
                 if (obj->range().isInfinite())
                     obj->range().makeFinite(border);
                 else if (border <= obj->size())
-                    obj->range().setSize(border);
+                    obj->range().template setSize<obj->isOwnContainer()>(border);
                 obj->preAction_ = [] (ExtendedStream*) {};
             };
         return std::move(newStream);

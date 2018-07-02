@@ -1,7 +1,7 @@
 #ifndef HASH_MAP_TEST_H
 #define HASH_MAP_TEST_H
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 #include "stream/stream.h"
 #include <forward_list>
 
