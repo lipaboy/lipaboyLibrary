@@ -6,6 +6,10 @@
 
 #include <iostream>
 
+//#ifdef WIN32
+//#define _ENFORCE_MATCHING_ALLOCATORS 1
+//#endif
+
 namespace hash_map_space {
 
 using std::cout;
@@ -18,7 +22,9 @@ class ForwardListStoragedSize {
 public:
     typedef size_t size_type;
     typedef T ValueType;
-    typedef forward_list<ValueType, TAllocator> ForwardListType;
+    using ForwardListType = forward_list<ValueType
+	//	, TAllocator
+	>;
     typedef typename ForwardListType::iterator iterator;
     typedef typename ForwardListType::const_iterator const_iterator;
     typedef typename ForwardListType::reference reference;

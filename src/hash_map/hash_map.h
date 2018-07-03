@@ -16,9 +16,9 @@
 #include <iostream>
 
 
-#define IS_TEST_RUN229
+#define IS_GTEST_HASH_MAP_RUN
 
-#ifdef IS_TEST_RUN229
+#ifdef IS_GTEST_HASH_MAP_RUN
 #include <gtest/gtest.h>
 
 namespace hash_map_tests {
@@ -39,6 +39,7 @@ using std::endl;
 // PLAN TODO
 // TODO: tests
 // TODO: performance measure mine and unordered_map
+// TODO: test with non-default allocator
 
 enum IteratorType {
     ITERATOR,
@@ -52,7 +53,7 @@ template <class Key,
           class TAllocator = std::allocator<T> // Can allocate objects of type T
           >
 class HashMap {
-#ifdef IS_TEST_RUN229
+#ifdef IS_GTEST_HASH_MAP_RUN
     friend hash_map_tests::HashMapTest;
 #endif
 
@@ -63,11 +64,14 @@ public:
     typedef std::pair<const key_type, MappedType> value_type;    // it is our Node
     typedef ForwardListStoragedSize<value_type, TAllocator> ListType;
     typedef typename ListType::reference ValueTypeReference;
-    typedef std::vector<ListType, TAllocator> ContainerType;
+    using ContainerType = std::vector<ListType
+		//, TAllocator	// is it normal?? 
+	> ;
     typedef size_t size_type;
-    typedef float ThresholdType;
+    using ThresholdType = float;
 
-    typedef typename TAllocator::template rebind<value_type>::other ValueTypeAllocator;
+	using ValueTypeAllocator = typename //TAllocator::template rebind<value_type>::other ;
+		std::allocator_traits<TAllocator>::template rebind_alloc<value_type>;
     typedef ValueTypeAllocator node_allocator_type;
 
     class node_type;
@@ -78,23 +82,23 @@ public:
     typedef IteratorCommon<CONST_ITERATOR> const_iterator;
 
 public:
-    HashMap() : size_(0), container(1) {}
+    HashMap() : size_(0), container_(1) {}
 
-    explicit HashMap(const node_allocator_type& alloc) : size_(0), container(1, alloc) {}
+    explicit HashMap(const node_allocator_type& alloc) : size_(0), container_(1, alloc) {}
 
     HashMap(std::initializer_list<value_type> il, const TAllocator& alloc = TAllocator())
-        : size_(0), container(1, alloc)
+        : size_(0), container_(1, alloc)
     {
         for (auto & elem : il) {
             insert(std::move(elem.first), std::move(elem.second));
         }
     }
 
-    HashMap(const HashMap& other) : size_(other.size_), container(other.container),
+    HashMap(const HashMap& other) : size_(other.size_), container_(other.container_),
         maxLoadFactor_(other.maxLoadFactor_) {}
     HashMap(HashMap<Key, T, TAllocator>&& other) { this->swap(other); }
 
-    virtual ~HashMap() { container.clear(); }
+    virtual ~HashMap() { container_.clear(); }
 
     const HashMap& operator=(HashMap right) {
         this->swap(right);
@@ -103,7 +107,7 @@ public:
 
     void swap(HashMap& other) noexcept {
         std::swap(size_, other.size_);
-        std::swap(container, other.container);
+        std::swap(container_, other.container_);
         std::swap(maxLoadFactor_, other.maxLoadFactor_);
     }
 
@@ -115,7 +119,7 @@ public:
         key_type keyTemp = key;
         if (iter == this->end()) {
             auto index = calculateIndexByKey(key);
-            container[index].emplace_front(std::forward<E>(key), std::forward<P>(mappedValue));
+            container_[index].emplace_front(std::forward<E>(key), std::forward<P>(mappedValue));
             setSize(1 + size());
             rehash();
         }
@@ -169,14 +173,14 @@ public:
 
     //--------------------Bucket Interface-------------------------//
 
-    size_type bucket_count() const noexcept { return container.size() - 1u; }    // minus end-empty element
+    size_type bucket_count() const noexcept { return container_.size() - 1u; }    // minus end-empty element
     size_type bucket(const key_type& key) const noexcept { return calculateIndexByKey(key); }
-    size_type max_bucket_count() const noexcept { return container.max_size(); }
+    size_type max_bucket_count() const noexcept { return container_.max_size(); }
     iterator begin(size_type bucket) {
-        auto & beg = container.begin(); return iterator((beg + bucket)->begin(), (beg + bucket), &container);
+        auto & beg = container_.begin(); return iterator((beg + bucket)->begin(), (beg + bucket), &container_);
     }
     iterator end(size_type bucket) {
-        auto & beg = container.begin(); return iterator((beg + bucket)->end(), (beg + bucket), &container);
+        auto & beg = container_.begin(); return iterator((beg + bucket)->end(), (beg + bucket), &container_);
     }
 
     void clear();
@@ -184,20 +188,21 @@ public:
     //-----------------------Iterators--------------------------//
 
     iterator begin() {
-        auto it = container.begin();
+        auto it = container_.begin();
         return iterator(it->begin(), it);
     }
     iterator end() {
-        auto it = container.begin();
+        auto it = container_.begin();
+		// Info: (bucket_count() == container_.size() - 1)
         std::advance(it, bucket_count());   //last element is end-empty one
         return iterator(it->end(), it);
     }
     const_iterator cbegin() const {
-        auto cit = container.cbegin();
+        auto cit = container_.cbegin();
         return const_iterator(cit->cbegin(), cit);
     }
     const_iterator cend() const {
-        auto cit = container.cbegin();
+        auto cit = container_.cbegin();
         std::advance(cit, bucket_count());
         return const_iterator(cit->cend(), cit);
     }
@@ -205,7 +210,7 @@ public:
     //-------------------Load factor interface----------------//
 
     ThresholdType load_factor() const {
-        return size() / (static_cast<size_type>(!static_cast<bool>(bucket_count())) + bucket_count());
+        return size() / (ThresholdType(1) * (static_cast<size_type>(!static_cast<bool>(bucket_count())) + bucket_count()));
     }
     ThresholdType max_load_factor() const { return maxLoadFactor_; }
     void max_load_factor(ThresholdType newMaxLoadFactor) { maxLoadFactor_ = newMaxLoadFactor; }
@@ -213,13 +218,14 @@ public:
 
 private:
     // if you add sm members then you need to add it to swap method
-    size_type size_;            // != container.size() !!!
-    ContainerType container;
+    size_type size_;            // equals the count of elements in the HashMap (size_ != container.size())
+    ContainerType container_;
     ThresholdType maxLoadFactor_ = 3.14f;
 
 private:
+	// TODO: refactor to setElementCount
     void setSize(size_type newSize) { size_ = newSize; }
-    void resizeBucketCount(size_type newBucketCount) { container.resize(1u + newBucketCount); }
+    void resizeBucketCount(size_type newBucketCount) { container_.resize(1u + newBucketCount); }
     size_type calculateIndexByKey(key_type const & key) { return Hash{}(key) % bucket_count(); }
     size_type calculateIndexByKey(key_type const & key, size_type bucketCount) { return Hash{}(key) % bucketCount; }
 
@@ -244,7 +250,7 @@ void HashMap<Key, T, Hash, KeyEqual, TAllocator>::
     regroupHashMap(HashMap::size_type oldSize, HashMap::size_type newSize)
 {
     for (size_type i = 0; i < oldSize; i++) {
-        auto & list = container[i];
+        auto & list = container_[i];
         for (auto prevIt = list.before_begin(), it = list.begin(); it != list.end(); ) {
             auto newIndex = calculateIndexByKey(it->first, newSize);
             if (newIndex == i) {
@@ -252,7 +258,7 @@ void HashMap<Key, T, Hash, KeyEqual, TAllocator>::
                 ++it;
             }
             else {
-                container[newIndex].push_front(std::move(*it));
+                container_[newIndex].push_front(std::move(*it));
                 it = list.erase_after(prevIt);
             }
         }
@@ -287,7 +293,7 @@ template <class Key,
           class KeyEqual,
           class TAllocator>
 void HashMap<Key, T, Hash, KeyEqual, TAllocator>::clear() {
-    for (auto & list : container) {
+    for (auto & list : container_) {
         list.clear();
     }
     rehash();
@@ -314,7 +320,7 @@ typename HashMap<Key, T, Hash, KeyEqual, TAllocator>::iterator
 HashMap<Key, T, Hash, KeyEqual, TAllocator>::find(const key_type& key) {
     if (!empty()) {
         size_type index = calculateIndexByKey(key);
-        auto containerIter = container.begin();
+        auto containerIter = container_.begin();
         std::advance(containerIter, index);
 
         auto nodeIter = std::find_if(containerIter->begin(), containerIter->end(),
@@ -363,15 +369,12 @@ public:
 
     typedef HashMap::ListType ListType;
 
-    typedef typename enable_if_else<iterType == ITERATOR,
-                HashMap::value_type, const HashMap::value_type>::type
-        NodeType;
-    typedef typename enable_if_else<iterType == ITERATOR,
-                typename HashMap::ListType::iterator, typename HashMap::ListType::const_iterator>::type
-        ListIterator;
-    typedef typename enable_if_else<iterType == ITERATOR,
-                typename HashMap::ContainerType::iterator, typename HashMap::ContainerType::const_iterator>::type
-        ContainerIterator;
+    using NodeType = typename enable_if_else<iterType == ITERATOR,
+                HashMap::value_type, const HashMap::value_type>::type;
+	using ListIterator = typename enable_if_else<iterType == ITERATOR,
+                typename HashMap::ListType::iterator, typename HashMap::ListType::const_iterator>::type;
+	using ContainerIterator = typename enable_if_else<iterType == ITERATOR,
+                typename HashMap::ContainerType::iterator, typename HashMap::ContainerType::const_iterator>::type;
 public:
     IteratorCommon() = delete;
 protected:
@@ -383,7 +386,8 @@ public:
     virtual ~IteratorCommon() {}
 
     bool operator!= (IteratorCommon const & other) {
-        return (listIter_ != other.listIter_) || (containerIter_ != other.containerIter_);
+        return (containerIter_ != other.containerIter_) // the order of comparations must be such that
+			|| (listIter_ != other.listIter_);
     }
     bool operator== (IteratorCommon const & other) { return !((*this) != other); }
 
@@ -418,7 +422,7 @@ protected:
     ListIterator listIter_;
     ContainerIterator containerIter_;
 
-#ifdef IS_TEST_RUN229
+#ifdef IS_GTEST_HASH_MAP_RUN
     friend hash_map_tests::HashMapTest;
 #endif
 };
