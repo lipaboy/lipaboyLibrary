@@ -37,6 +37,7 @@ using std::cout;
 using std::endl;
 
 // PLAN TODO
+// INFO: Wrong HashMap with Allocator logic
 // TODO: tests
 // TODO: performance measure mine and unordered_map
 // TODO: test with non-default allocator
