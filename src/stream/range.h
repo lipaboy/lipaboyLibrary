@@ -52,9 +52,14 @@ public:
 	using GeneratorTypePtr = //typename Stream::GeneneratorTypePtr;
 		std::function<ValueType(void)>;
     using OwnContainerType = OwnContainerTypeWithoutValueType<ValueType>;
+<<<<<<< HEAD
+    using OwnContainerTypePtr = std::unique_ptr<OwnContainerType>;
+    using OwnIterator = typename Stream::OwnIterator;
+=======
     using OwnContainerTypePtr = unique_ptr<OwnContainerType>;
 	using OwnIterator = //typename Stream::OwnIterator;
 		typename OwnContainerType::iterator;
+>>>>>>> 5a50ba0b9a4108cee04931ceb49b8ae95eadd346
 
 public:
     RangeType(std::initializer_list<T> init)
@@ -156,6 +161,20 @@ public:
                 obj->setAction([] (RangeType*) {});  // Why we can use private property in lambda?
             });
         }
+    }
+    void copyToOwnContainer(size_type size) {
+        auto pNewContainer = makeContainer();
+        if (pContainer_ == nullptr) {
+            auto iter = outsideBegin();
+            for (size_type i = 0; i < size; i++)
+                pNewContainer.push_back(*(iter++));
+        }
+        else {
+            auto iter = ownBegin();
+            for (size_type i = 0; i < size; i++)
+                pNewContainer.push_back(std::move(*(iter++)));
+        }
+        pContainer_ = std::move(pNewContainer);
     }
 
     void doPreliminaryActions() { action_(this); }
