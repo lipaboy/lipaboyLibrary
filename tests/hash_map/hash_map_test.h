@@ -44,7 +44,7 @@ protected:
 
     HashMapType::size_type& getRefSize() { return hashMap->size_; }
     // the same as bucket_count
-    HashMapType::size_type containerSize() const { return hashMap->container.size(); }
+    HashMapType::size_type containerSize() const { return hashMap->container_.size(); }
     bool isBucketIncrease() const { return hashMap->isBucketIncrease(); }
     bool isBucketDecrease() const { return hashMap->isBucketDecrease(); }
 

@@ -66,9 +66,28 @@ TEST(Interval, contains) {
     ASSERT_TRUE(interval.containsNone(0, 1, 5));
 }
 
+// Test for trying to undestand how work with different types (for example vector<T, Alloc1> and vector<T, Alloc2>)
+template <class T>
+class A {
+public:
+	A(int e) : elem(e) {}
+	int elem;
 
-using ::testing::Return;
-using ::testing::_;
+	template<class U>
+	A<T> const & operator= (A<U> const & second) {
+		elem = second.elem;
+		return *this;
+	}
+};
+
+TEST(Check, check) {
+	A<int> first(1);
+	A<float> second(2);
+
+	first = second;
+	ASSERT_EQ(first.elem, 2);
+}
+
 }
 
 

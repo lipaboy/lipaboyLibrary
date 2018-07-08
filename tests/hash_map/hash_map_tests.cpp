@@ -27,9 +27,22 @@ using std::unique_ptr;
 
 //---------------------------------Tests-------------------------------//
 
-//---------Constructors---------//
+//---------Allocators---------//
+
+TEST(HashMapAllocs, default_alloc) {
+	using HashMapType = HashMap<int, int>;
+	HashMapType kek(typename HashMapType::ValueTypeAllocator());
+	//ASSERT_TRUE(std::is_same<typename HashMapType::ValueTypeAllocator, std::allocator<std::pair<int, int> > >::value == true);
+}
 
 TEST_F(HashMapTest, default_constructor) {
+	ASSERT_EQ(getRefSize(), 0u);
+	ASSERT_EQ(containerSize(), 1u);
+}
+
+//---------Unique_ptr checking---------//
+
+TEST(HashMapUniquePtr, check) {
     HashMap<int, unique_ptr<int> > kek;
     unique_ptr<int> p(new int(6));
     kek.insert(5, std::move(p));
@@ -37,8 +50,6 @@ TEST_F(HashMapTest, default_constructor) {
     auto iter = (kek.find(5));
     std::unique_ptr<int>& pp = iter->second;
     ASSERT_EQ(*pp, 6);
-    ASSERT_EQ(getRefSize(), 0u);
-    ASSERT_EQ(containerSize(), 1u);
 }
 
 //-----------Iterator------------//
