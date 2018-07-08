@@ -50,7 +50,7 @@ public:
     using TIndex = size_type;
     using GeneratorTypePtr = typename Stream::GeneratorTypePtr;
     using OwnContainerType = OwnContainerTypeWithoutValueType<ValueType>;
-    using OwnContainerTypePtr = unique_ptr<OwnContainerType>;
+    using OwnContainerTypePtr = std::unique_ptr<OwnContainerType>;
     using OwnIterator = typename Stream::OwnIterator;
 
 public:
@@ -151,6 +151,20 @@ public:
                 obj->setAction([] (RangeType*) {});  // Why we can use private property in lambda?
             });
         }
+    }
+    void copyToOwnContainer(size_type size) {
+        auto pNewContainer = makeContainer();
+        if (pContainer_ == nullptr) {
+            auto iter = outsideBegin();
+            for (size_type i = 0; i < size; i++)
+                pNewContainer.push_back(*(iter++));
+        }
+        else {
+            auto iter = ownBegin();
+            for (size_type i = 0; i < size; i++)
+                pNewContainer.push_back(std::move(*(iter++)));
+        }
+        pContainer_ = std::move(pNewContainer);
     }
 
     void doPreliminaryActions() { action_(this); }
