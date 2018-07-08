@@ -71,7 +71,7 @@ enum FunctorMetaTypeEnum {
     GET,
     SKIP,
     PRINT_TO,
-    GROUP,
+    GROUP_BY_VECTOR,
     SUM,
     TO_VECTOR,
     NTH,
@@ -143,14 +143,14 @@ private:
     size_type border_;
 };
 
-struct group {
+struct group_by_vector {
     using size_type = size_t;
 
-    group(size_type partSize) : partSize_(partSize) {
+    group_by_vector(size_type partSize) : partSize_(partSize) {
         if (partSize == 0)
             throw std::logic_error("Parameter of GroupType constructor must be positive");
     }
-    static constexpr FunctorMetaTypeEnum metaInfo = GROUP;
+    static constexpr FunctorMetaTypeEnum metaInfo = GROUP_BY_VECTOR;
 
     template <class Arg>
     struct RetType {

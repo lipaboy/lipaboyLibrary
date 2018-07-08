@@ -162,7 +162,7 @@ TEST(Group, Infinite) {
     int a = 0;
     auto res = createStream([&a]() { return a++; })
             | get(4)
-            | group(2)
+            | group_by_vector(2)
             | nth(1);
     ASSERT_EQ(res, decltype(res)({ 2, 3 }));
 }
@@ -187,7 +187,7 @@ TEST(UngroupByBit, init_list) {
     vector<char> olala = { 1, 2 };
     auto vecVec = createStream(olala.begin(), olala.end())
             | ungroupByBit()
-            | group(8)
+            | group_by_vector(8)
             | to_vector();
 
     ASSERT_EQ(vecVec, decltype(vecVec)({ vector<bool>({1,0,0,0,0,0,0,0}),

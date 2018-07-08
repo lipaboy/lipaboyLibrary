@@ -99,8 +99,8 @@ public:
             };
         return std::move(newStream);
     }
-    auto operator| (group functor) -> typename ExtendedStreamType<group>::type {
-        typename ExtendedStreamType<group>::type newStream(functor, *this);
+    auto operator| (group_by_vector functor) -> typename ExtendedStreamType<group_by_vector>::type {
+        typename ExtendedStreamType<group_by_vector>::type newStream(functor, *this);
         return std::move(newStream);   // copy container (only once)
     }
     auto operator| (skip&& skipObj) -> typename ExtendedStreamType<skip>::type {

@@ -107,8 +107,8 @@ public:
 
         return std::move(newStream);
     }
-    auto operator| (group functor) -> typename ExtendedStreamType<group>::type {
-        typename ExtendedStreamType<group>::type obj(functor, *this);
+    auto operator| (group_by_vector functor) -> typename ExtendedStreamType<group_by_vector>::type {
+        typename ExtendedStreamType<group_by_vector>::type obj(functor, *this);
         return std::move(obj);
     }
     auto operator| (skip&& skipObj) -> typename ExtendedStreamType<skip>::type {
@@ -171,7 +171,7 @@ protected:
         return (TFunctor::metaInfo != GET && SuperType::isNoGetTypeBefore());
     }
     static constexpr bool isNoGroupBefore() {
-        return (TFunctor::metaInfo != GROUP && SuperType::isNoGroupBefore());
+        return (TFunctor::metaInfo != GROUP_BY_VECTOR && SuperType::isNoGroupBefore());
     }
     static constexpr bool isGeneratorProducing() {
         return SuperType::isGeneratorProducing();
@@ -214,7 +214,7 @@ protected:
 
         if constexpr (TFunctor::metaInfo == MAP)
             return functor_(static_cast<SuperTypePtr>(this)->template nextElem<isOwnContainer_>());
-        else if constexpr (TFunctor::metaInfo == GROUP) {
+        else if constexpr (TFunctor::metaInfo == GROUP_BY_VECTOR) {
             auto partSize = functor_.partSize();
             ResultValueType part;
             size_type i = 0;
