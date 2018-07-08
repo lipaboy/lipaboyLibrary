@@ -36,8 +36,6 @@ using std::endl;
 
 // PLAN FOR STREAM:
 //-----------------
-// TODO (1): remove the getting of size property from Range API and Stream at all
-//       because Stream is a Stream. Nothing more, nothing less.
 // TODO: remove duplication of code for terminated operators like
 //       it made for operator reduce
 // TODO: add group/ungroup operations for bits (0, 1)

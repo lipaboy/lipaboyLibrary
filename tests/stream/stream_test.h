@@ -12,7 +12,9 @@ using std::endl;
 using std::vector;
 using std::string;
 using std::unique_ptr;
+
 using stream_space::Stream;
+using stream_space::IsOutsideIteratorsRefer;
 
 class Noisy {
 public:
@@ -29,20 +31,24 @@ public:
     }
 };
 
-//class StreamTest : public ::testing::Test  {
-//public:
-//   // typedef Stream<int, boost::random_access_traversal_tag> StreamInt;
-//    //typedef unique_ptr<StreamInt> StreamIntPtr;
+class OutsideItersStreamTest : public ::testing::Test  {
+public:
+    using Container = vector<int>;
+    using StreamInt = Stream<IsOutsideIteratorsRefer, typename Container::iterator>;
+    using StreamIntPtr = unique_ptr<StreamInt>;
 
-//protected:
-//    void SetUp() {
-//       // pStream = std::unique_ptr<StreamInt>(new StreamInt({}));
-//    }
-//    void TearDown() {}
+protected:
+    void SetUp() {
+        pOutsideContainer = std::unique_ptr<Container>(new Container({ 1, 2, 3, 4, 5 }));
+        pStream = std::unique_ptr<StreamInt>(stream_space::makeStream(pOutsideContainer->begin(),
+                                                                      pOutsideContainer->end()));
+    }
+    void TearDown() {}
 
-//protected:
-//   // StreamIntPtr pStream;
-//};
+protected:
+    StreamIntPtr pStream;
+    unique_ptr<Container> pOutsideContainer;
+};
 
 }
 

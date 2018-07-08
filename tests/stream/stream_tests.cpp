@@ -103,6 +103,24 @@ TEST(Get, Infinite_Empty) {
     ASSERT_TRUE(res.empty());
 }
 
+//----------------Get operator testing-------------------//
+
+TEST_F(OutsideItersStreamTest, Get_Empty) {
+    auto res = (*pStream)
+            | get(0)
+            | to_vector();
+
+    ASSERT_TRUE(res.empty());
+}
+
+TEST_F(OutsideItersStreamTest, Get_Not_Empty) {
+    auto res = (*pStream)
+            | get(pOutsideContainer->size())
+            | to_vector();
+
+    ASSERT_EQ(res, *pOutsideContainer);
+}
+
 TEST(Skip, Infinite) {
     int a = 0;
     auto res = createStream([&a]() { return a++; })
@@ -134,8 +152,6 @@ TEST(FileStream, read) {
     std::ifstream inFile;
     inFile.open(filename, std::ios::in | std::ios::binary);
 
-//    auto begin = std::istreambuf_iterator<char>(inFile);
-//    cout << *(begin + 1) << *begin << endl;
     auto fileStream = createStream(std::istreambuf_iterator<char>(inFile),
                                    std::istreambuf_iterator<char>());
 
