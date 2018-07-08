@@ -1,6 +1,6 @@
 #pragma once
 
-#include "stream.h"
+#include "stream_base.h"
 
 #include <memory>
 #include <vector>
@@ -42,16 +42,24 @@ struct GetRangeIter<false, TRange> {
 template <class StorageInfo, class TIterator>
 class Stream<StorageInfo, TIterator>::RangeType {
 public:
-    using ValueType = Stream::ValueType;
+    using ValueType = typename Stream::ValueType;
     using reference = ValueType&;
     using const_reference = const reference;
     using OutsideIterator = typename Stream::outside_iterator;
-    using size_type = Stream::size_type;
+    using size_type = typename Stream::size_type;
     using TIndex = size_type;
-    using GeneratorTypePtr = typename Stream::GeneratorTypePtr;
+	// TODO: remove this crutch (Visual Studio)
+	using GeneratorTypePtr = //typename Stream::GeneneratorTypePtr;
+		std::function<ValueType(void)>;
     using OwnContainerType = OwnContainerTypeWithoutValueType<ValueType>;
+<<<<<<< HEAD
     using OwnContainerTypePtr = std::unique_ptr<OwnContainerType>;
     using OwnIterator = typename Stream::OwnIterator;
+=======
+    using OwnContainerTypePtr = unique_ptr<OwnContainerType>;
+	using OwnIterator = //typename Stream::OwnIterator;
+		typename OwnContainerType::iterator;
+>>>>>>> 5a50ba0b9a4108cee04931ceb49b8ae95eadd346
 
 public:
     RangeType(std::initializer_list<T> init)
@@ -122,11 +130,13 @@ public:
         return *iter;
     }
 
+	// Sets size_ at new value and moves end-iter
+	template <bool isOwnIterator_>
     void setSize(size_type newSize) {
         size_ = newSize;
-        if (pContainer_ != nullptr) {
+		// move end-iter
+        if constexpr (isOwnIterator_) 
             setOwnIndices(ownBeginIndex_, ownBeginIndex_ + size());
-        }
         else {
             outsideEnd_ = outsideBegin();
             std::advance(outsideEnd_, size());
@@ -137,10 +147,10 @@ public:
     void setContainer(OwnContainerTypePtr pNewContainer) {
         pContainer_ = std::move(pNewContainer);
         setOwnIndicesByDefault();
-        setSize(pContainer_->size());
+        setSize<true>(pContainer_->size());
     }
     void makeFinite(size_type size) {
-        setSize(size);
+        setSize<StorageInfo::info == GENERATOR>(size);
         if (isInfinite()) {
             pContainer_ = makeContainer();
             // You can't make it only for this because action_ may be copied at another range object
@@ -241,11 +251,11 @@ public:
     void moveBeginIter(size_type position) {
         if constexpr (isOwnIterator_) {
             setOwnIndices(ownBeginIndex_ + position, ownEndIndex_);
-            setSize(ownEndIndex_ - ownBeginIndex_);
+            setSize<isOwnIterator_>(ownEndIndex_ - ownBeginIndex_);
         }
         else {
             std::advance(outsideBegin_, position);
-            setSize(size() - position);
+            setSize<isOwnIterator_>(size() - position);
         }
     }
 };

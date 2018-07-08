@@ -19,7 +19,11 @@
 
 #include "stream_test.h"
 
+#include <optional>
+
 namespace stream_tests {
+
+using std::optional;
 
 using std::cout;
 using std::endl;

@@ -11,16 +11,16 @@
 #include <iostream>
 
 
-#define IS_TEST_RUN229
-
-#ifdef IS_TEST_RUN229
-#include <gtest/gtest.h>
-
-namespace stream_tests {
-class StreamTest;
-}
-
-#endif
+//#define IS_TEST_RUN229
+//
+//#ifdef IS_TEST_RUN229
+//#include "gtest/gtest.h"
+//
+//namespace stream_tests {
+//class StreamTest;
+//}
+//
+//#endif
 
 namespace stream_space {
 
@@ -44,18 +44,24 @@ using std::endl;
 // TODO: think about condition of InfiniteStream when cause throwing an logic exception.
 //       Maybe put it into doPreliminaryOperations()
 //       And think about initSlider -> maybe move it into that one too?
+//		 And think about preAction_ -> you can remove it. Add constexpr condition into
+//		 doPreliminaryOperations to check if stream isGeneratorProducing and with NoGetTypeBefore
+// TODO: Change get() operation to copy at new container when with OutsideIterators
 
 enum Info {
     GENERATOR,
     OUTSIDE_ITERATORS,
     INITIALIZING_LIST
 };
+// Infinite stream
 struct IsGeneratorProducing {
     static constexpr Info info = GENERATOR;
 };
+// Finite stream
 struct IsOutsideIteratorsRefer {
     static constexpr Info info = OUTSIDE_ITERATORS;
 };
+// Finite stream
 struct IsInitializingListCreation {
     static constexpr Info info = INITIALIZING_LIST;
 };

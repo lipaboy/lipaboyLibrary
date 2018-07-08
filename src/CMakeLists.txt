@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.1)
+cmake_minimum_required(VERSION 2.8.2)
 project(Lipaboy_Library_Source)
 
 set (CMAKE_CXX_STANDARD 17)
