@@ -141,14 +141,7 @@ TEST(Skip, Finite) {
     ASSERT_EQ(res, vector<int>({ 3 }));
 }
 
-TEST(FileStream, read) {
-    std::ofstream outFile;
-    string filename = "temp.stream.lol";
-    outFile.open(filename, std::ios::out | std::ios::trunc);
-    string fileData = "lol kek cheburek";
-    outFile << fileData;
-    outFile.close();
-
+TEST_F(OutsideItersStreamTest, FileStream_read) {
     std::ifstream inFile;
     inFile.open(filename, std::ios::in | std::ios::binary);
 
@@ -163,7 +156,6 @@ TEST(FileStream, read) {
     ASSERT_EQ(res, fileData);
 
     inFile.close();
-    std::remove(filename.c_str());
 }
 
 TEST(Group, Infinite) {
