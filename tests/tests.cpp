@@ -11,11 +11,6 @@
 
 #include "stream/stream_test.h"
 
-TEST(Dummy, foobar)
-{
-	EXPECT_EQ(1, 1);
-}
-
 namespace check_tests {
 
 using std::cout;
@@ -96,6 +91,8 @@ int main(int argc, char *argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);
 	auto res = RUN_ALL_TESTS();
+#ifdef WIN32
 	system("pause");
+#endif
     return res;
 }
