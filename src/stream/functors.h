@@ -35,6 +35,7 @@ using std::endl;
 //		 doPreliminaryOperations to check if stream isGeneratorProducing and with NoGetTypeBefore
 // TODO: Think about allocators (in Range when happen copying and creating own container)
 //       (maybe too partical case?)
+// TODO: write for operator map move-semantics
 
 enum Info {
     GENERATOR,

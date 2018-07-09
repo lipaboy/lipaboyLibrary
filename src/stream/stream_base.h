@@ -93,7 +93,7 @@ public:
                 auto border = obj->getFunctor().border();
                 if (obj->range().isInfinite())
                     obj->range().makeFinite(border);
-                else //if (border <= obj->size())
+                else
                     obj->range().setSize(border);
                 obj->preAction_ = [] (ExtendedStream*) {};
             };

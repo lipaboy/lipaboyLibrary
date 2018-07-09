@@ -252,15 +252,20 @@ TEST(StreamTest, noisy) {
         vector<Noisy> vecNoisy(5);
         auto streamNoisy = createStream(vecNoisy.begin(), vecNoisy.end());
         cout << "\tstart streaming" << endl;
-        (streamNoisy
-                    //| map([] (const Noisy& a) -> Noisy { return a; })
+        auto streamTemp =
+            (streamNoisy
+                | map([] (const Noisy& a) -> Noisy { return a; })
+                | map([] (const Noisy& a) -> Noisy { return a; })
+                | map([] (const Noisy& a) -> Noisy { return a; })
 //                    | get(4)
 //                    | get(4)
 //                    | filter([] (const Noisy& a) { static int i = 0; return (i++ % 2 == 0); })
 //                    | get(4)
-                    | nth(0)
-                );
+//                | nth(0)
+            );
         cout << "\tend streaming" << endl;
+        streamTemp | nth(0);
+        cout << "\tend nth" << endl;
     } catch (std::bad_alloc & exp) {
         cout << exp.what() << endl;
     }
