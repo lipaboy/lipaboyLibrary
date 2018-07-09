@@ -10,18 +10,6 @@
 
 #include <iostream>
 
-
-//#define IS_TEST_RUN229
-//
-//#ifdef IS_TEST_RUN229
-//#include "gtest/gtest.h"
-//
-//namespace stream_tests {
-//class StreamTest;
-//}
-//
-//#endif
-
 namespace stream_space {
 
 namespace functors_space {
@@ -38,13 +26,15 @@ using std::endl;
 //-----------------
 // TODO: remove duplication of code for terminated operators like
 //       it made for operator reduce
+//       This duplication lead to extra testing of code
 // TODO: add group/ungroup operations for bits (0, 1)
 // TODO: think about condition of InfiniteStream when cause throwing an logic exception.
 //       Maybe put it into doPreliminaryOperations()
 //       And think about initSlider -> maybe move it into that one too?
 //		 And think about preAction_ -> you can remove it. Add constexpr condition into
 //		 doPreliminaryOperations to check if stream isGeneratorProducing and with NoGetTypeBefore
-// TODO: Change get() operation to copy at new container when with OutsideIterators
+// TODO: Think about allocators (in Range when happen copying and creating own container)
+//       (maybe too partical case?)
 
 enum Info {
     GENERATOR,
@@ -261,7 +251,7 @@ struct to_vector {
     static constexpr FunctorMetaTypeEnum metaInfo = TO_VECTOR;
 };
 struct nth {
-    using size_type = size_t;
+    using size_type = size_t;   // !DANGER! - because ( for (i = 0; i < index() - 1; i++) {...} )
 
     nth(size_type index) : index_(index) {}
     static constexpr FunctorMetaTypeEnum metaInfo = NTH;

@@ -121,6 +121,43 @@ TEST_F(OutsideItersStreamTest, Get_Not_Empty) {
     ASSERT_EQ(res, *pOutsideContainer);
 }
 
+//----------------NTH operator testing-------------------//
+
+TEST_F(OutsideItersStreamTest, Nth_first_elem) {
+    auto res = (*pStream)
+            | nth(0);
+    auto res2 = (*pStream)
+            | map([] (typename OutsideItersStreamTest::ElemType a) { return a; })
+            | nth(0);
+
+    ASSERT_EQ(res, (*pOutsideContainer)[0]);
+    ASSERT_EQ(res2, (*pOutsideContainer)[0]);
+}
+
+TEST_F(OutsideItersStreamTest, Nth_last_elem) {
+    auto res = (*pStream)
+            | nth(pOutsideContainer->size() - 1);
+    auto res2 = (*pStream)
+            | map([] (typename OutsideItersStreamTest::ElemType a) { return a; })
+            | nth(pOutsideContainer->size() - 1);
+
+    ASSERT_EQ(res, pOutsideContainer->back());
+    ASSERT_EQ(res2, pOutsideContainer->back());
+}
+
+TEST_F(OutsideItersStreamTest, Nth_out_of_range) {
+    ASSERT_NO_THROW((*pStream) | nth(pOutsideContainer->size()));
+    ASSERT_NO_THROW((*pStream) | nth(-1));
+    ASSERT_NO_THROW((*pStream)
+                    | map([] (typename OutsideItersStreamTest::ElemType a) { return a; })
+                    | nth(pOutsideContainer->size()));
+    ASSERT_NO_THROW((*pStream)
+                    | map([] (typename OutsideItersStreamTest::ElemType a) { return a; })
+                    | nth(-1));
+}
+
+//----------------Skip operator testing-------------------//
+
 TEST(Skip, Infinite) {
     int a = 0;
     auto res = createStream([&a]() { return a++; })
@@ -212,16 +249,22 @@ TEST(StreamTest, noisy) {
     try {
         //-------------Noisy Test---------------//
 
-//        vector<Noisy> vecNoisy(5);
-//        auto streamNoisy = createStream(vecNoisy.begin(), vecNoisy.end());
-//        (streamNoisy
-//                    //| map([] (const Noisy& a) -> Noisy { return a; })
-//                    | get(4) | get(4)
+        vector<Noisy> vecNoisy(5);
+        auto streamNoisy = createStream(vecNoisy.begin(), vecNoisy.end());
+        cout << "\tstart streaming" << endl;
+        (streamNoisy
+                    //| map([] (const Noisy& a) -> Noisy { return a; })
+//                    | get(4)
+//                    | get(4)
 //                    | filter([] (const Noisy& a) { static int i = 0; return (i++ % 2 == 0); })
-//                    | get(4) | nth(0));
+//                    | get(4)
+                    | nth(0)
+                );
+        cout << "\tend streaming" << endl;
     } catch (std::bad_alloc & exp) {
         cout << exp.what() << endl;
     }
 }
 
 }
+

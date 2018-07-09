@@ -86,6 +86,11 @@ public:
 
 public:
     OwnContainerTypePtr makeContainer() { return std::make_unique<OwnContainerType>(); }
+    OwnContainerTypePtr makeContainer(size_type size) { return std::make_unique<OwnContainerType>(size); }
+    template <class TIterator_>
+    OwnContainerTypePtr makeContainer(TIterator_ first, TIterator_ end) {
+        return std::make_unique<OwnContainerType>(first, end);
+    }
 
     //------------Iterators API-------------//
 
@@ -119,14 +124,13 @@ public:
         return *iter;
     }
 
-    // Sets size_ at new value and moves end-iter
+    // Moves end-iter (and copies data to own container if Range used outer one)
     void setSize(size_type newSize) {
-        if (pContainer_ == nullptr) {
-            pContainer_ = makeContainer();
-            auto iter = outsideBegin();
-            for (size_type i = 0; i < newSize; i++)
-                pContainer_->push_back(*(iter++));
-            setOwnIndices(0, pContainer_->size());
+        if constexpr (StorageInfo::info == OUTSIDE_ITERATORS) {
+            if (pContainer_ == nullptr) {
+                pContainer_ = makeContainer(outsideBegin(), outsideEnd());
+                setOwnIndices(0, pContainer_->size());
+            }
         }
         // move end-iter
         if (newSize <= ownEndIndex_ - ownBeginIndex_)
@@ -149,20 +153,6 @@ public:
                 obj->setAction([] (RangeType*) {});  // Why we can use private property in lambda?
             });
         }
-    }
-    void copyToOwnContainer(size_type size) {
-        auto pNewContainer = makeContainer();
-        if (pContainer_ == nullptr) {
-            auto iter = outsideBegin();
-            for (size_type i = 0; i < size; i++)
-                pNewContainer.push_back(*(iter++));
-        }
-        else {
-            auto iter = ownBegin();
-            for (size_type i = 0; i < size; i++)
-                pNewContainer.push_back(std::move(*(iter++)));
-        }
-        pContainer_ = std::move(pNewContainer);
     }
 
     void doPreliminaryActions() { action_(this); }

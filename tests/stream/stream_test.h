@@ -34,7 +34,8 @@ public:
 
 class OutsideItersStreamTest : public ::testing::Test  {
 public:
-    using Container = vector<int>;
+    using ElemType = int;
+    using Container = vector<ElemType>;
     using StreamInt = Stream<IsOutsideIteratorsRefer, typename Container::iterator>;
     using StreamIntPtr = unique_ptr<StreamInt>;
 

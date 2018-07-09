@@ -154,7 +154,7 @@ public:
     }
     ResultValueType operator| (nth&& nthObj) {
         initSlider();
-        for (size_type i = 0; i < nthObj.index() - 1 && hasNext(); i++)
+        for (size_type i = 0; i < nthObj.index() && hasNext(); i++)
             nextElem();
         return nextElem();
     }
