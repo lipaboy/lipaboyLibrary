@@ -35,9 +35,9 @@ public:
     using ValueType = T;
     using size_type = size_t;
     using outside_iterator = OutsideIterator;
-    class RangeType;
-    using OwnContainerType = typename RangeType::OwnContainerType;
-    using OwnContainerTypePtr = typename RangeType::OwnContainerTypePtr;   // TODO: make it unique (it is not easy)
+    class Range;
+    using OwnContainerType = typename Range::OwnContainerType;
+    using OwnContainerTypePtr = typename Range::OwnContainerTypePtr;   // TODO: make it unique (it is not easy)
     using OwnIterator = typename OwnContainerType::iterator;
 
     // TODO: make unique_ptr
@@ -167,8 +167,8 @@ public:
 //    size_type size() const { return range_.size(); }
 
 public:
-    RangeType & range() { return range_; }
-    const RangeType & range() const { return range_; }
+    Range & range() { return range_; }
+    const Range & range() const { return range_; }
 protected:
     static constexpr bool isOwnContainer() {
         return StorageInfo::info == INITIALIZING_LIST
@@ -238,8 +238,15 @@ protected:
 
     //-----------------Slider API Ends--------------//
 
+public:
+    bool operator==(Stream const & other) const { return equals<isOwnContainer()>(other); }
+    bool operator!=(Stream const & other) const { return !((*this) == other); }
 private:
-    RangeType range_;
+    template <bool isOwnContainer_>
+    bool equals(Stream const & other) const { return range_.template equals<isOwnContainer_>(other.range_); }
+
+private:
+    Range range_;
 
 public:
     template <class Accumulator, class IdenityFn>

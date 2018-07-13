@@ -42,6 +42,16 @@ using namespace functors_space;
 
 //-------------------------------------//
 
+//----------Constructor-----------//
+
+TEST_F(OutsideItersStreamTest, constructor_by_extending_stream) {
+    auto temp = *pStream | get(pOutsideContainer->size() - 1);
+    auto stream = Stream(temp);
+
+    ASSERT_EQ(temp, stream);
+}
+
+//----------Other-----------//
 
 TEST(Filter, sample) {
     auto res = createStream(1, 2, 3)

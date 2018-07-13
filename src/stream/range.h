@@ -40,7 +40,7 @@ struct GetRangeIter<false, TRange> {
 };
 
 template <class StorageInfo, class TIterator>
-class Stream<StorageInfo, TIterator>::RangeType {
+class Stream<StorageInfo, TIterator>::Range {
 public:
     using ValueType = typename Stream::ValueType;
     using reference = ValueType&;
@@ -56,28 +56,28 @@ public:
     using OwnIterator = typename Stream::OwnIterator;
 
 public:
-    RangeType(std::initializer_list<T> init)
+    Range(std::initializer_list<T> init)
         : pContainer_(new OwnContainerType(init)), pGenerator_(nullptr)
     {
         setOwnIndices(0, pContainer_->size());
     }
     template <class OuterIterator>
-    RangeType(OuterIterator begin, OuterIterator end)
+    Range(OuterIterator begin, OuterIterator end)
         : outsideBegin_(begin), outsideEnd_(end), pGenerator_(nullptr)
     {}
-    RangeType(GeneratorTypePtr generator)
+    Range(GeneratorTypePtr generator)
         : outsideBegin_(), outsideEnd_(), pGenerator_(generator),
-          action_([] (RangeType*) {})
+          action_([] (Range*) {})
     {
         setOwnIndices(0, 0);
     }
-    RangeType(const RangeType& obj)
+    Range(const Range& obj)
         : outsideBegin_(obj.outsideBegin_), outsideEnd_(obj.outsideEnd_),
           ownBeginIndex_(obj.ownBeginIndex_), ownEndIndex_(obj.ownEndIndex_),
           pContainer_(obj.pContainer_ == nullptr ? nullptr : new OwnContainerType(*obj.pContainer_)),
           pGenerator_(obj.pGenerator_), action_(obj.action_)
     {}
-    RangeType(RangeType&& obj)
+    Range(Range&& obj)
         : outsideBegin_(std::move(obj.outsideBegin_)), outsideEnd_(std::move(obj.outsideEnd_)),
           ownBeginIndex_(obj.ownBeginIndex_), ownEndIndex_(obj.ownEndIndex_),
           pContainer_(std::move(obj.pContainer_)),
@@ -108,12 +108,12 @@ public:
     OutsideIterator outsideEnd() const { return outsideEnd_; }
 
     template <bool isOwnIterator>
-    typename GetRangeIter<isOwnIterator, RangeType>::TIterator ibegin() const {
-        return GetRangeIter<isOwnIterator, RangeType>::begin(*this);
+    typename GetRangeIter<isOwnIterator, Range>::TIterator ibegin() const {
+        return GetRangeIter<isOwnIterator, Range>::begin(*this);
     }
     template <bool isOwnIterator>
-    typename GetRangeIter<isOwnIterator, RangeType>::TIterator iend() const {
-        return GetRangeIter<isOwnIterator, RangeType>::end(*this);
+    typename GetRangeIter<isOwnIterator, Range>::TIterator iend() const {
+        return GetRangeIter<isOwnIterator, Range>::end(*this);
     }
 
 public:
@@ -145,18 +145,18 @@ public:
     void makeFinite(size_type size) {
         if (isInfinite()) {
             // You can't make it only for this because action_ may be copied at another range object
-            setAction([size] (RangeType * obj) -> void {
+            setAction([size] (Range * obj) -> void {
                 obj->pContainer_ = obj->makeContainer();
                 for (size_type i = 0; i < size; i++)
                     obj->pContainer_->push_back(obj->pGenerator_());
                 obj->setOwnIndices(0, obj->pContainer_->size());
-                obj->setAction([] (RangeType*) {});  // Why we can use private property in lambda?
+                obj->setAction([] (Range*) {});  // Why we can use private property in lambda?
             });
         }
     }
 
     void doPreliminaryActions() { action_(this); }
-    void setAction(std::function<void(RangeType*)> newAction) { action_ = newAction; }
+    void setAction(std::function<void(Range*)> newAction) { action_ = newAction; }
 
     //-----------------Slider API---------------//
 
@@ -201,6 +201,18 @@ protected:
         ownEndIndex_ = second;
     }
 
+public:
+    template <bool isOwnIterator_>
+    bool equals(Range const & other) const {
+        return (ibegin<isOwnIterator_> == other.ibegin<isOwnIterator_>
+                && iend<isOwnIterator_> == other.iend<isOwnIterator_>
+                && pContainer_ == other.pContainer
+                && pGenerator_ == other.pGenerator_
+                && action_ == other.action_
+                );
+    }
+//    bool operator!=(Range const & other) const { return !((*this) == other); }
+
 private:
     // Iterators that refer to outside of class container
     OutsideIterator outsideBegin_;
@@ -217,7 +229,7 @@ private:
 
     // Generator
     GeneratorTypePtr pGenerator_;
-    std::function<void(RangeType*)> action_ = [] (RangeType*) {};
+    std::function<void(Range*)> action_ = [] (Range*) {};
 
 public:
     template <bool isOwnIterator_>

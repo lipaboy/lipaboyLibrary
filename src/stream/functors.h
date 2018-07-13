@@ -131,6 +131,8 @@ struct get : TReturnSameType {
     static constexpr FunctorMetaTypeEnum metaInfo = GET;
 
     size_type border() const { return border_; }
+
+    //bool operator==()
 private:
     size_type border_;
 };

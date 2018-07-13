@@ -34,11 +34,12 @@ public:
     using size_type = size_t;
     using FunctorType = TFunctor;
     using SuperType = Stream<StorageInfo, Rest...>;
+    using ConstSuperType = const SuperType;
     using iterator = typename SuperType::outside_iterator;
     using SuperTypePtr = SuperType *;
     using ConstSuperTypePtr = const SuperType *;
     using ValueType = typename SuperType::ValueType;
-    using RangeType = typename SuperType::RangeType;
+    using Range = typename SuperType::Range;
     using OwnContainerType = typename SuperType::OwnContainerType;
     using OwnContainerTypePtr = typename SuperType::OwnContainerTypePtr;
     using ActionSignature = void(Stream*);
@@ -269,21 +270,27 @@ protected:
 
 protected:
 
-
     ValueType getContainerElement(size_type index) {
         return applyFunctors(range().template get<isOwnContainer()>(index));
     }
-    RangeType & range() { return static_cast<SuperTypePtr>(this)->range(); }
-    const RangeType & range() const { return static_cast<ConstSuperTypePtr>(this)->range(); }
+    Range & range() { return static_cast<SuperTypePtr>(this)->range(); }
+    const Range & range() const { return static_cast<ConstSuperTypePtr>(this)->range(); }
 
 public:
-//    size_type size() const {
-//        if constexpr (TFunctor::metaInfo == GROUP)
-//            return (static_cast<ConstSuperTypePtr>(this)->size() + functor_.partSize() - 1) / functor_.partSize();
-//        else
-//            return static_cast<ConstSuperTypePtr>(this)->size();
-//    }
     TFunctor const & getFunctor() const { return functor_; }
+
+    bool operator==(Stream const & other) const { return equals<isOwnContainer()>(other); }
+    bool operator!=(Stream const & other) const { return !((*this) == other); }
+private:
+    template <bool isOwnContainer_>
+    bool equals(Stream const & other) const {
+        return (functor_ == other.functor_
+                && action_ == other.action_
+                && preAction_ == other.preAction_
+                && static_cast<ConstSuperTypePtr>(this)->
+                    template equals<isOwnContainer_>(static_cast<ConstSuperType>(other))
+                );
+    }
 
 protected:
     TFunctor functor_;
