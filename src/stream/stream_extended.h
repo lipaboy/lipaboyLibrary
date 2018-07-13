@@ -54,17 +54,31 @@ public:
 
     //----------------------Constructors----------------------//
 protected:
-    Stream(TFunctor const & functor, SuperType const & obj)
-        : SuperType(obj), functor_(functor) {}
+
+    template <class StreamSuperType_, class TFunctor_>
+    Stream (TFunctor_ functor, StreamSuperType_&& obj)
+        : SuperType(std::forward<StreamSuperType_>(obj)), functor_(std::forward<TFunctor_>(functor)) {}
+//    Stream(TFunctor const & functor, SuperType const & obj)
+//        : SuperType(obj), functor_(functor) {}
 public:
     Stream(Stream const & obj)
-        : SuperType(static_cast<SuperType>(obj)), functor_(obj.functor_), action_(obj.action_),
-          preAction_(obj.preAction_) {}
-    Stream(Stream&& obj)
         : SuperType(static_cast<SuperType>(obj)),
+          functor_(obj.functor_),
+          action_(obj.action_),
+          preAction_(obj.preAction_) {}
+    // TODO: test this constructor
+    Stream(Stream&& obj)
+        : SuperType(static_cast<SuperType&&>(std::move(obj))),
           functor_(std::move(obj.functor_)),
           action_(std::move(obj.action_)),
           preAction_(std::move(obj.preAction_)) {}
+
+//    template <class TStream_>
+//    Stream(TStream_&& obj)
+//        : SuperType(static_cast<SuperType>(obj)),
+//          functor_(std::forward<TFunctor>(obj.functor_)),
+//          action_(std::move(obj.action_)),
+//          preAction_(std::move(obj.preAction_)) {}
 
     //----------------------Methods API-----------------------//
 
@@ -316,6 +330,14 @@ public:
     {
         return apply(*this, reduceObj);
     }
+
+    //--------------------------------------------------------------------------------//
+    //-----------------------------------Friends--------------------------------------//
+    //--------------------------------------------------------------------------------//
+
+    template <class TStream, class TMap>
+    friend auto addMap (TStream stream, TMap functor)
+        -> typename TStream::template ExtendedStreamType<std::remove_reference_t<TMap> >::type;
 };
 
 }

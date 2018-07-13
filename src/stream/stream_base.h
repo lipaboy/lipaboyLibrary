@@ -268,5 +268,20 @@ private:
 };
 
 
+//------------------KEK-----------------//
+
+template <class TStream, class TMap>
+auto addMap (TStream stream, TMap functor)
+    -> typename TStream::template ExtendedStreamType<std::remove_reference_t<TMap> >::type
+{
+    typename TStream::template ExtendedStreamType<std::remove_reference_t<TMap> >::type
+            newStream(functor,
+                      //std::forward<TStream>(
+                          stream
+                        //)
+                      );
+    return std::move(newStream);
+}
+
 
 }

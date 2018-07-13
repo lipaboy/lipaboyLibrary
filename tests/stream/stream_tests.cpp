@@ -252,9 +252,21 @@ TEST(StreamTest, noisy) {
         vector<Noisy> vecNoisy(5);
         auto streamNoisy = createStream(vecNoisy.begin(), vecNoisy.end());
         cout << "\tstart streaming" << endl;
+        auto streamTemp2 =
+                (addMap(
+                     addMap(streamNoisy,
+                        map([] (const Noisy& a) -> Noisy { return a; }))
+                     ,map([] (const Noisy& a) -> Noisy { return a; }))
+                 );
+        cout << "\tend streaming" << endl;
+        streamTemp2 | nth(0);
+        cout << "\tend nth" << endl;
+        cout << "\t------------" << endl;
+
+        cout << "\tstart streaming" << endl;
         auto streamTemp =
             (streamNoisy
-                | map([] (const Noisy& a) -> Noisy { return a; })
+//                | map([] (const Noisy& a) -> Noisy { return a; })
                 | map([] (const Noisy& a) -> Noisy { return a; })
                 | map([] (const Noisy& a) -> Noisy { return a; })
 //                    | get(4)
