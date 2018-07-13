@@ -36,6 +36,7 @@ using std::endl;
 // TODO: Think about allocators (in Range when happen copying and creating own container)
 //       (maybe too partical case?)
 // TODO: write for operator map move-semantics
+// TODO: think about single-pass input iterators for stream
 
 enum Info {
     GENERATOR,
