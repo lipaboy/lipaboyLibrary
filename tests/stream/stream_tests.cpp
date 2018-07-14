@@ -60,9 +60,18 @@ TEST_F(OutsideItersStreamTest, move_constructor) {
 }
 
 TEST_F(OutsideItersStreamTest, copy_constructor_by_extending_the_stream) {
-//    auto obj = StreamType::ExtendedStreamType(get(pOutsideContainer->size() - 1), *pStream);
+    auto obj = typename StreamType::template
+            ExtendedStreamType<get>(get(pOutsideContainer->size() - 1), *pStream);
 
-//    ASSERT_TRUE(*pStream == static_cast<StreamType>(obj));
+    ASSERT_TRUE(*pStream == static_cast<StreamType&>(obj));
+}
+
+TEST_F(OutsideItersStreamTest, move_constructor_by_extending_the_stream) {
+    auto temp = Stream(*pStream);
+    auto obj = typename StreamType::template
+            ExtendedStreamType<get>(get(pOutsideContainer->size() - 1), std::move(temp));
+
+    ASSERT_TRUE(*pStream == static_cast<StreamType&>(obj));
 }
 
 
