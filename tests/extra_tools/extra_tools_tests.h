@@ -9,19 +9,38 @@ namespace lipaboy_lib_tests {
 using std::cout;
 using std::endl;
 
-class Noisy {
-public:
-    Noisy() { cout << "Constructed" << endl; }
-    Noisy(Noisy const & ) { cout << "Copy-Constructed" << endl; }
-    Noisy(Noisy && ) { cout << "Move-Constructed" << endl; }
-    ~Noisy() { cout << "Destructed" << endl; }
+struct NoisyCon {
+    NoisyCon() { cout << "Constructed" << endl; }
+    NoisyCon(NoisyCon const &) {}
+    NoisyCon(NoisyCon &&) {}
+};
 
-    const Noisy& operator= (const Noisy&) {
+struct NoisyCopy {
+    NoisyCopy() {}
+    NoisyCopy(NoisyCopy const &) { cout << "Copy-Constructed" << endl; }
+};
+
+struct NoisyMove {
+    NoisyMove() {}
+    NoisyMove(NoisyMove &&) { cout << "Move-Constructed" << endl; }
+};
+
+// NoisyD - Noisy without notifying of destruction
+struct NoisyD : NoisyCon, NoisyCopy, NoisyMove {
+    NoisyD() {}
+    NoisyD(NoisyD const & obj) : NoisyCopy(obj), NoisyCon(obj) {}
+    NoisyD(NoisyD&& obj) : NoisyMove(std::move(obj)), NoisyCon(std::move(obj)) {}
+
+    const NoisyD& operator= (const NoisyD&) {
         return *this;
     }
-    const Noisy& operator= (const Noisy&&) {
+    const NoisyD& operator= (const NoisyD&&) {
         return *this;
     }
+};
+
+struct Noisy : NoisyD {
+    virtual ~Noisy() { cout << "Destructed" << endl; }
 };
 
 }
