@@ -65,7 +65,7 @@ public:
     template <class StreamBase_>
     Stream(StreamBase_&& obj,
            std::enable_if_t<std::is_same_v<Stream, StreamBase_>, int*> p = nullptr) noexcept
-        : range_(obj.range_) {}
+        : range_(RelativeForward<StreamBase_&&, Range>::forward(obj.range_)) {}
     explicit
     Stream(GeneratorTypePtr generator) : range_(generator) {}
 
@@ -282,21 +282,26 @@ private:
 };
 
 
-//------------------KEK-----------------//
+//------------------Move semantics-----------------//
 
+namespace {
+template <class TStream, class TMap>
+using Briefly = typename std::remove_reference_t<TStream>::
+    template ExtendedStreamType<std::remove_reference_t<TMap> >;
+}
 
 // REMINDER: don't forget change friend-declaration into StreamExtended
 template <class TStream, class TMap>
-auto addMap (TStream stream, TMap functor)
-    -> typename TStream::template ExtendedStreamType<std::remove_reference_t<TMap> >
+auto addMap (TStream&& stream, TMap&& functor)
+    -> Briefly<TStream, TMap>
 {
-    typename TStream::template ExtendedStreamType<std::remove_reference_t<TMap> >
-            newStream(functor,
-                      std::forward<TStream>(
-                          stream
-                        )
-                      );
-    return std::move(newStream);
+//    Briefly<TStream, TMap>
+//            newStream(functor,
+//                      std::forward<TStream>(
+//                          stream
+//                        )
+//                      );
+    return Briefly<TStream, TMap>(std::forward<TMap>(functor), std::forward<TStream>(stream));
 }
 
 

@@ -288,19 +288,23 @@ TEST(Filter, init_list) {
     ASSERT_EQ(kek, decltype(kek)({ 16, 36 }));
 }
 
+using lipaboy_lib_tests::NoisyD;
+
 TEST(StreamTest, noisy) {
     try {
         //-------------Noisy Test---------------//
 
-        vector<Noisy> vecNoisy(5);
+        vector<NoisyD> vecNoisy(8);
         auto streamNoisy = createStream(vecNoisy.begin(), vecNoisy.end());
         cout << "\tstart streaming" << endl;
         auto streamTemp2 =
                 (addMap(
+                    addMap(
                      addMap(
                          streamNoisy
-                        , map([] (const Noisy& a) -> Noisy { return a; }))
-                     , map([] (const Noisy& a) -> Noisy { return a; }))
+                        , map([] (const NoisyD& a) -> NoisyD { return a; }))
+                     , map([] (const NoisyD& a) -> NoisyD { return a; }))
+                     , map([] (const NoisyD& a) -> NoisyD { return a; }))
                  );
         cout << "\tend streaming" << endl;
         streamTemp2 | nth(0);
@@ -310,9 +314,9 @@ TEST(StreamTest, noisy) {
         cout << "\tstart streaming" << endl;
         auto streamTemp =
             (streamNoisy
-//                | map([] (const Noisy& a) -> Noisy { return a; })
-                | map([] (const Noisy& a) -> Noisy { return a; })
-                | map([] (const Noisy& a) -> Noisy { return a; })
+                | map([] (const NoisyD& a) -> NoisyD { return a; })
+                | map([] (const NoisyD& a) -> NoisyD { return a; })
+                | map([] (const NoisyD& a) -> NoisyD { return a; })
 //                    | get(4)
 //                    | get(4)
 //                    | filter([] (const Noisy& a) { static int i = 0; return (i++ % 2 == 0); })

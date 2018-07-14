@@ -1,6 +1,7 @@
 #pragma once
 
 #include "functors.h"
+#include "extra_tools/extra_tools.h"
 
 #include <vector>
 #include <functional>
@@ -17,6 +18,8 @@ namespace stream_space {
 using std::vector;
 using std::pair;
 using std::string;
+
+using lipaboy_lib::RelativeForward;
 
 using namespace functors_space;
 
@@ -61,24 +64,24 @@ public:
 //    Stream(TFunctor const & functor, SuperType const & obj)
 //        : SuperType(obj), functor_(functor) {}
 public:
-    Stream(Stream const & obj)
-        : SuperType(static_cast<SuperType>(obj)),
-          functor_(obj.functor_),
-          action_(obj.action_),
-          preAction_(obj.preAction_) {}
-    // TODO: test this constructor
-    Stream(Stream&& obj) noexcept
-        : SuperType(static_cast<SuperType&&>(std::move(obj))),
-          functor_(std::move(obj.functor_)),
-          action_(std::move(obj.action_)),
-          preAction_(std::move(obj.preAction_)) {}
-
-//    template <class TStream_>
-//    Stream(TStream_&& obj)
+//    Stream(Stream const & obj)
 //        : SuperType(static_cast<SuperType>(obj)),
-//          functor_(std::forward<TFunctor>(obj.functor_)),
+//          functor_(obj.functor_),
+//          action_(obj.action_),
+//          preAction_(obj.preAction_) {}
+//    // TODO: test this constructor
+//    Stream(Stream&& obj) noexcept
+//        : SuperType(static_cast<SuperType&&>(std::move(obj))),
+//          functor_(std::move(obj.functor_)),
 //          action_(std::move(obj.action_)),
 //          preAction_(std::move(obj.preAction_)) {}
+
+    template <class TStream_>
+    Stream(TStream_&& obj) noexcept
+        : SuperType(RelativeForward<TStream_&&, SuperType>::forward(obj)),
+          functor_(RelativeForward<TStream_&&, TFunctor>::forward(obj.functor_)),
+          action_(RelativeForward<TStream_&&, ActionType>::forward(obj.action_)),
+          preAction_(RelativeForward<TStream_&&, ActionType>::forward(obj.preAction_)) {}
 
     //----------------------Methods API-----------------------//
 
