@@ -68,7 +68,7 @@ public:
           action_(obj.action_),
           preAction_(obj.preAction_) {}
     // TODO: test this constructor
-    Stream(Stream&& obj)
+    Stream(Stream&& obj) noexcept
         : SuperType(static_cast<SuperType&&>(std::move(obj))),
           functor_(std::move(obj.functor_)),
           action_(std::move(obj.action_)),
@@ -279,16 +279,12 @@ protected:
 public:
     TFunctor const & getFunctor() const { return functor_; }
 
-    bool operator==(Stream const & other) const { return equals<isOwnContainer()>(other); }
-    bool operator!=(Stream const & other) const { return !((*this) == other); }
+    bool operator==(Stream & other) { return equals(other); }
+    bool operator!=(Stream & other) { return !((*this) == other); }
 private:
-    template <bool isOwnContainer_>
-    bool equals(Stream const & other) const {
+    bool equals(Stream & other) {
         return (functor_ == other.functor_
-                && action_ == other.action_
-                && preAction_ == other.preAction_
-                && static_cast<ConstSuperTypePtr>(this)->
-                    template equals<isOwnContainer_>(static_cast<ConstSuperType>(other))
+                && static_cast<SuperTypePtr>(this)->equals(static_cast<SuperType&>(other))
                 );
     }
 

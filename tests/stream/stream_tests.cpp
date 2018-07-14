@@ -44,12 +44,27 @@ using namespace functors_space;
 
 //----------Constructor-----------//
 
-TEST_F(OutsideItersStreamTest, constructor_by_extending_stream) {
+TEST_F(OutsideItersStreamTest, copy_constructor) {
     auto temp = *pStream | get(pOutsideContainer->size() - 1);
-    auto stream = Stream(temp);
+    auto obj = Stream(temp);
 
-    ASSERT_EQ(temp, stream);
+    ASSERT_TRUE(temp == obj);
 }
+
+TEST_F(OutsideItersStreamTest, move_constructor) {
+    auto temp = *pStream | get(pOutsideContainer->size() - 1);
+    auto temp2 = Stream(temp);
+    auto obj = Stream(std::move(temp2));
+
+    ASSERT_TRUE(temp == obj);
+}
+
+TEST_F(OutsideItersStreamTest, copy_constructor_by_extending_the_stream) {
+//    auto obj = StreamType::ExtendedStreamType(get(pOutsideContainer->size() - 1), *pStream);
+
+//    ASSERT_TRUE(*pStream == static_cast<StreamType>(obj));
+}
+
 
 //----------Other-----------//
 

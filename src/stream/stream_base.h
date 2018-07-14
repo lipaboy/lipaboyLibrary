@@ -55,10 +55,13 @@ public:
     //----------------------Constructors----------------------//
 
     template <class OuterIterator>
+    explicit
     Stream(OuterIterator begin, OuterIterator end) : range_(begin, end) {}
+    explicit
     Stream(std::initializer_list<T> init) : range_(init) {}
     Stream(const Stream& obj) : range_(obj.range_) {}
-    Stream(Stream&& obj) : range_(std::move(obj.range_)) {}
+    Stream(Stream&& obj) noexcept : range_(std::move(obj.range_)) {}
+    explicit
     Stream(GeneratorTypePtr generator) : range_(generator) {}
 
     //----------------------Methods API-----------------------//
@@ -239,11 +242,10 @@ protected:
     //-----------------Slider API Ends--------------//
 
 public:
-    bool operator==(Stream const & other) const { return equals<isOwnContainer()>(other); }
-    bool operator!=(Stream const & other) const { return !((*this) == other); }
+    bool operator==(Stream & other) { return equals(other); }
+    bool operator!=(Stream & other) { return !((*this) == other); }
 private:
-    template <bool isOwnContainer_>
-    bool equals(Stream const & other) const { return range_.template equals<isOwnContainer_>(other.range_); }
+    bool equals(Stream & other) { return range_.equals(other.range_); }
 
 private:
     Range range_;

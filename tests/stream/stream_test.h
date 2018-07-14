@@ -36,13 +36,13 @@ class OutsideItersStreamTest : public ::testing::Test  {
 public:
     using ElemType = int;
     using Container = vector<ElemType>;
-    using StreamInt = Stream<IsOutsideIteratorsRefer, typename Container::iterator>;
-    using StreamIntPtr = unique_ptr<StreamInt>;
+    using StreamType = Stream<IsOutsideIteratorsRefer, typename Container::iterator>;
+    using StreamTypePtr = unique_ptr<StreamType>;
 
 protected:
     void SetUp() {
         pOutsideContainer = std::unique_ptr<Container>(new Container({ 1, 2, 3, 4, 5 }));
-        pStream = std::unique_ptr<StreamInt>(stream_space::makeStream(pOutsideContainer->begin(),
+        pStream = std::unique_ptr<StreamType>(stream_space::makeStream(pOutsideContainer->begin(),
                                                                       pOutsideContainer->end()));
         //---------------File Stream Init------------//
 
@@ -58,7 +58,7 @@ protected:
     }
 
 protected:
-    StreamIntPtr pStream;
+    StreamTypePtr pStream;
     unique_ptr<Container> pOutsideContainer;
     string filename;
     string fileData;

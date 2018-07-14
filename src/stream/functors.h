@@ -132,7 +132,8 @@ struct get : TReturnSameType {
 
     size_type border() const { return border_; }
 
-    //bool operator==()
+    bool operator==(get const & other) const { return border_ == other.border_; }
+    bool operator!=(get const & other) const { return !(*this == other); }
 private:
     size_type border_;
 };

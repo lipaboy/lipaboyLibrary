@@ -77,7 +77,7 @@ public:
           pContainer_(obj.pContainer_ == nullptr ? nullptr : new OwnContainerType(*obj.pContainer_)),
           pGenerator_(obj.pGenerator_), action_(obj.action_)
     {}
-    Range(Range&& obj)
+    Range(Range&& obj) noexcept
         : outsideBegin_(std::move(obj.outsideBegin_)), outsideEnd_(std::move(obj.outsideEnd_)),
           ownBeginIndex_(obj.ownBeginIndex_), ownEndIndex_(obj.ownEndIndex_),
           pContainer_(std::move(obj.pContainer_)),
@@ -107,6 +107,7 @@ public:
     OutsideIterator outsideBegin() const { return outsideBegin_; }
     OutsideIterator outsideEnd() const { return outsideEnd_; }
 
+
     template <bool isOwnIterator>
     typename GetRangeIter<isOwnIterator, Range>::TIterator ibegin() const {
         return GetRangeIter<isOwnIterator, Range>::begin(*this);
@@ -127,10 +128,10 @@ public:
     // Moves end-iter (and copies data to own container if Range used outer one)
     void setSize(size_type newSize) {
         if constexpr (StorageInfo::info == OUTSIDE_ITERATORS) {
-            if (pContainer_ == nullptr) {
-                pContainer_ = makeContainer(outsideBegin(), outsideEnd());
-                setOwnIndices(0, pContainer_->size());
-            }
+                if (pContainer_ == nullptr) {
+                    pContainer_ = makeContainer(outsideBegin(), outsideEnd());
+                    setOwnIndices(0, pContainer_->size());
+                }
         }
         // move end-iter
         if (newSize <= ownEndIndex_ - ownBeginIndex_)
@@ -163,36 +164,36 @@ public:
     template <bool isOwnIterator>
     void initSlider() {
         if constexpr (isOwnIterator)
-            ownIterSlider_ = ownBegin();
+                ownIterSlider_ = ownBegin();
         else
-            outsideIterSlider_ = outsideBegin();
+                outsideIterSlider_ = outsideBegin();
     }
     template <bool isOwnIterator>
     ValueType nextElem() {
         if constexpr (isOwnIterator)
-            return *(ownIterSlider_++);
+                return *(ownIterSlider_++);
         else {
-            ValueType value = *(outsideIterSlider_);
-            // Note: you can't optimize it because for istreambuf_iterator
-            //       post-increment operator has unspecified by standard
-            ++outsideIterSlider_;
-            return std::move(value);
+                ValueType value = *(outsideIterSlider_);
+                // Note: you can't optimize it because for istreambuf_iterator
+                //       post-increment operator has unspecified by standard
+                ++outsideIterSlider_;
+                return std::move(value);
         }
     }
     template <bool isOwnIterator>
     ValueType currentElem() const {
         if constexpr (isOwnIterator)
-            return *ownIterSlider_;
+                return *ownIterSlider_;
         else {
-            return *outsideIterSlider_;
+                return *outsideIterSlider_;
         }
     }
     template <bool isOwnIterator>
     bool hasNext() const {
         if constexpr (isOwnIterator)
-            return (ownIterSlider_ != ownEnd());
+                return (ownIterSlider_ != ownEnd());
         else
-            return (outsideIterSlider_ != outsideEnd());
+                return (outsideIterSlider_ != outsideEnd());
     }
 
 protected:
@@ -202,16 +203,22 @@ protected:
     }
 
 public:
-    template <bool isOwnIterator_>
-    bool equals(Range const & other) const {
-        return (ibegin<isOwnIterator_> == other.ibegin<isOwnIterator_>
-                && iend<isOwnIterator_> == other.iend<isOwnIterator_>
-                && pContainer_ == other.pContainer
-                && pGenerator_ == other.pGenerator_
-                && action_ == other.action_
-                );
+
+    bool equals(Range & other) {
+        // INFO: it is the right condition because OwnContainer will be appeared when
+        // terminated operation is applied to stream. Before that stream refers to
+        // outer iterators (if it uses them from the beginning)
+        if constexpr (StorageInfo::info == OUTSIDE_ITERATORS)
+                return (outsideBegin() == other.outsideBegin()
+                        && outsideEnd() == other.outsideEnd()
+                        && pContainer_ == other.pContainer_
+                        );
+        else
+                return (ownBeginIndex_ == other.ownBeginIndex_
+                        && ownEndIndex_ == other.ownEndIndex_
+                        && pContainer_ == other.pContainer_
+                        );
     }
-//    bool operator!=(Range const & other) const { return !((*this) == other); }
 
 private:
     // Iterators that refer to outside of class container
