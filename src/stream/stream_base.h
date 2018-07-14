@@ -44,9 +44,8 @@ public:
     using GeneratorTypePtr = std::function<T(void)>;
 
     template <class Functor>
-    struct ExtendedStreamType {
-        using type = Stream<Functor, StorageInfo, OutsideIterator>;
-    };
+    using ExtendedStreamType = Stream<Functor, StorageInfo, OutsideIterator>;
+
     using ResultValueType = ValueType;
 
     template <typename, typename, typename...> friend class Stream;
@@ -69,9 +68,9 @@ public:
     // TODO: put off this methods into "global" function operators (for move-semantics of *this)
 
     template <class Predicate>
-    auto operator| (filter<Predicate> functor) -> typename ExtendedStreamType<filter<Predicate> >::type
+    auto operator| (filter<Predicate> functor) -> ExtendedStreamType<filter<Predicate> >
     {
-        using ExtendedStream = typename ExtendedStreamType<filter<Predicate> >::type;
+        using ExtendedStream = ExtendedStreamType<filter<Predicate> >;
         ExtendedStream newStream(functor, *this);
         // you can't constraint the lambda only for this because the object will be changed after moving
         newStream.action_ = [] (ExtendedStream* obj) {
@@ -82,12 +81,12 @@ public:
         return std::move(newStream);
     }
     template <class Transform>
-    auto operator| (map<Transform> functor) -> typename ExtendedStreamType<map<Transform> >::type {
-        typename ExtendedStreamType<map<Transform> >::type newStream(functor, *this);
+    auto operator| (map<Transform> functor) -> ExtendedStreamType<map<Transform> > {
+        ExtendedStreamType<map<Transform> > newStream(functor, *this);
         return std::move(newStream);
     }
-    auto operator| (get functor) -> typename ExtendedStreamType<get>::type {
-        using ExtendedStream = typename ExtendedStreamType<get>::type;
+    auto operator| (get functor) -> ExtendedStreamType<get> {
+        using ExtendedStream = ExtendedStreamType<get>;
         ExtendedStream newStream(functor, *this);
         newStream.preAction_ =              // preAction_ -> is important
                                             // (because before generating the elements you must set the size)
@@ -102,12 +101,12 @@ public:
             };
         return std::move(newStream);
     }
-    auto operator| (group_by_vector functor) -> typename ExtendedStreamType<group_by_vector>::type {
-        typename ExtendedStreamType<group_by_vector>::type newStream(functor, *this);
+    auto operator| (group_by_vector functor) -> ExtendedStreamType<group_by_vector> {
+        ExtendedStreamType<group_by_vector> newStream(functor, *this);
         return std::move(newStream);   // copy container (only once)
     }
-    auto operator| (skip&& skipObj) -> typename ExtendedStreamType<skip>::type {
-        using ExtendedStream = typename ExtendedStreamType<skip>::type;
+    auto operator| (skip&& skipObj) -> ExtendedStreamType<skip> {
+        using ExtendedStream = ExtendedStreamType<skip>;
         ExtendedStream newStream(skipObj, *this);
         newStream.action_ = [] (ExtendedStream* obj) {
             obj->range().template moveBeginIter<ExtendedStream::isOwnContainer()>(obj->functor_.index());
@@ -116,8 +115,8 @@ public:
         return std::move(newStream);
     }
 
-    auto operator| (ungroupByBit functor) -> typename ExtendedStreamType<ungroupByBit>::type {
-        typename ExtendedStreamType<ungroupByBit>::type newStream(functor, *this);
+    auto operator| (ungroupByBit functor) -> ExtendedStreamType<ungroupByBit> {
+        ExtendedStreamType<ungroupByBit> newStream(functor, *this);
         return std::move(newStream);
     }
 
@@ -279,11 +278,13 @@ private:
 
 //------------------KEK-----------------//
 
+
+// REMINDER: don't forget change friend-declaration into StreamExtended
 template <class TStream, class TMap>
 auto addMap (TStream stream, TMap functor)
-    -> typename TStream::template ExtendedStreamType<std::remove_reference_t<TMap> >::type
+    -> typename TStream::template ExtendedStreamType<std::remove_reference_t<TMap> >
 {
-    typename TStream::template ExtendedStreamType<std::remove_reference_t<TMap> >::type
+    typename TStream::template ExtendedStreamType<std::remove_reference_t<TMap> >
             newStream(functor,
                       //std::forward<TStream>(
                           stream

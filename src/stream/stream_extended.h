@@ -46,15 +46,14 @@ public:
     using ActionType = std::function<ActionSignature>;
 
     template <class Functor>
-    struct ExtendedStreamType {
-        using type = Stream<Functor, FunctorType, StorageInfo, Rest...>;
-    };
+    using ExtendedStreamType = Stream<Functor, FunctorType, StorageInfo, Rest...>;
+
     using ResultValueType = typename TFunctor::template RetType<typename SuperType::ResultValueType>::type;
 
     template <typename, typename, typename...> friend class Stream;
 
     //----------------------Constructors----------------------//
-protected:
+public:
 
     template <class StreamSuperType_, class TFunctor_>
     Stream (TFunctor_ functor, StreamSuperType_&& obj)
@@ -84,8 +83,8 @@ public:
     //----------------------Methods API-----------------------//
 
     template <class Functor>
-    auto operator| (filter<Functor> functor) -> typename ExtendedStreamType<filter<Functor> >::type {
-        using ExtendedStream = typename ExtendedStreamType<filter<Functor> >::type;
+    auto operator| (filter<Functor> functor) -> ExtendedStreamType<filter<Functor> > {
+        using ExtendedStream = ExtendedStreamType<filter<Functor> >;
         ExtendedStream obj(functor, *this);
         obj.action_ = [] (ExtendedStream* obj) {
             obj->throwOnInfiniteStream();
@@ -96,13 +95,13 @@ public:
     }
     template <class Functor>
     auto operator| (map<Functor> functor)
-        -> typename ExtendedStreamType<map<Functor> >::type
+        -> ExtendedStreamType<map<Functor> >
     {
-        typename ExtendedStreamType<map<Functor> >::type obj(functor, *this);
+        ExtendedStreamType<map<Functor> > obj(functor, *this);
         return std::move(obj);
     }
-    auto operator| (get functor) -> typename ExtendedStreamType<get>::type {
-        using ExtendedStream = typename ExtendedStreamType<get>::type;
+    auto operator| (get functor) -> ExtendedStreamType<get> {
+        using ExtendedStream = ExtendedStreamType<get>;
         ExtendedStream newStream(functor, *this);
         typename ExtendedStream::ActionType ExtendedStream::*pAction;
 
@@ -122,12 +121,12 @@ public:
 
         return std::move(newStream);
     }
-    auto operator| (group_by_vector functor) -> typename ExtendedStreamType<group_by_vector>::type {
-        typename ExtendedStreamType<group_by_vector>::type obj(functor, *this);
+    auto operator| (group_by_vector functor) -> ExtendedStreamType<group_by_vector> {
+        ExtendedStreamType<group_by_vector> obj(functor, *this);
         return std::move(obj);
     }
-    auto operator| (skip&& skipObj) -> typename ExtendedStreamType<skip>::type {
-        using ExtendedStream = typename ExtendedStreamType<skip>::type;
+    auto operator| (skip&& skipObj) -> ExtendedStreamType<skip> {
+        using ExtendedStream = ExtendedStreamType<skip>;
         ExtendedStream newStream(skipObj, *this);
         newStream.action_ = [] (ExtendedStream* obj) {
             obj->range().template moveBeginIter<ExtendedStream::isOwnContainer()>(obj->functor_.index());
@@ -135,8 +134,8 @@ public:
         };
         return std::move(newStream);
     }
-    auto operator| (ungroupByBit functor) -> typename ExtendedStreamType<ungroupByBit>::type {
-        typename ExtendedStreamType<ungroupByBit>::type obj(functor, *this);
+    auto operator| (ungroupByBit functor) -> ExtendedStreamType<ungroupByBit> {
+        ExtendedStreamType<ungroupByBit> obj(functor, *this);
         return std::move(obj);
     }
 
@@ -338,9 +337,6 @@ public:
     //-----------------------------------Friends--------------------------------------//
     //--------------------------------------------------------------------------------//
 
-    template <class TStream, class TMap>
-    friend auto addMap (TStream stream, TMap functor)
-        -> typename TStream::template ExtendedStreamType<std::remove_reference_t<TMap> >::type;
 };
 
 }

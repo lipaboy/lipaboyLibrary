@@ -279,9 +279,10 @@ TEST(StreamTest, noisy) {
         cout << "\tstart streaming" << endl;
         auto streamTemp2 =
                 (addMap(
-                     addMap(streamNoisy,
-                        map([] (const Noisy& a) -> Noisy { return a; }))
-                     ,map([] (const Noisy& a) -> Noisy { return a; }))
+                     addMap(
+                         streamNoisy
+                        , map([] (const Noisy& a) -> Noisy { return a; }))
+                     , map([] (const Noisy& a) -> Noisy { return a; }))
                  );
         cout << "\tend streaming" << endl;
         streamTemp2 | nth(0);
