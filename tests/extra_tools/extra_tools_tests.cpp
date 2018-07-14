@@ -4,19 +4,20 @@
 
 namespace lipaboy_lib_tests {
 
-using lipaboy_lib::relativeForward;
 using lipaboy_lib::RelativeForward;
 
 namespace {
 
+template <class T>
 class A {
+public:
+    using value_type = T;
 public:
     A() {}
 
     template <class A_>
     A(int e, A_&& a)
-        : //n(relativeForward<A_, Noisy>(std::forward<A_>(a), a.n))
-          n(RelativeForward<A_&&, NoisyD>::forward(a.n))
+          : n(RelativeForward<A_&&, T>::forward(a.n))
     {
 //        cout << std::is_lvalue_reference<A_&&>::value << std::is_rvalue_reference<A_&&>::value << endl;
 //        cout << std::is_lvalue_reference<A_>::value << std::is_rvalue_reference<A_>::value << endl;
@@ -30,21 +31,40 @@ public:
 //             << endl;
     }
 
-    NoisyD n;
+    T n;
 };
 
-//template <class A_>
-//bool isLValue(A_&& a) {
-//    std::is_lvalue_reference<decltype(relativeForward<A_, Noisy>)>
-//}
+template <class A_>
+using Briefly = RelativeForward<A_&&, typename std::remove_reference_t<A_>::value_type>;
+
+template <class A_>
+bool isLValue(A_&& a) {
+    return std::is_lvalue_reference<
+            decltype(Briefly<A_&&>::forward(a.n))>::value;
+}
+
+template <class A_>
+bool isRValue(A_&& a) {
+    return std::is_rvalue_reference<
+            decltype(Briefly<A_&&>::forward(a.n))>::value;
+}
 
 }
 
-TEST(RelativeForward, check) {
-    A a;
-    A a2 = A(5, a);
-    A a3 = A(3, std::move(a));
-    A a4 = A(1, A());
+TEST(RelativeForward, noisy_test) {
+//    using type = A<NoisyD>;
+//    type a;
+//    type a2 = type(5, a);
+//    type a3 = type(3, std::move(a));
+//    type a4 = type(1, type());
+}
+
+TEST(RelativeForward, simple_test) {
+    A<int> temp;
+    ASSERT_TRUE(isLValue(temp));
+    ASSERT_FALSE(isLValue(std::move(temp)));
+    ASSERT_TRUE(isRValue(std::move(temp)));
+    ASSERT_FALSE(isRValue(temp));
 }
 
 }

@@ -21,7 +21,7 @@ using std::string;
 
 using std::cout;
 using std::endl;
-using lipaboy_lib::relativeForward;
+using lipaboy_lib::RelativeForward;
 
 
 //--------------------------Stream Base (specialization class)----------------------//
