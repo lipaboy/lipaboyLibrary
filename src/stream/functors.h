@@ -187,15 +187,6 @@ struct ungroupByBit {
 //---------------------------------------------------------------------------------------------------//
 
 
-// TODO: put off this instrument to another file
-template<bool B, class T1, class T2>
-struct enable_if_else {};
-template<class T1, class T2>
-struct enable_if_else<true, T1, T2> { typedef T1 type; };
-template<class T1, class T2>
-struct enable_if_else<false, T1, T2> { typedef T2 type; };
-
-
 template <class Accumulator, class IdentityFn = std::function<void(void)> >
 struct reduce : FunctorHolder<Accumulator>,
                 FunctorHolder<IdentityFn>

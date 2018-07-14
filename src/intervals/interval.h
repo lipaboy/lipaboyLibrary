@@ -6,7 +6,7 @@
 
 #include <functional>
 
-namespace LipaboyLib {
+namespace lipaboy_lib {
 
 	//TODO: write comparison with Infinity (Infinity == Infinity)
 

@@ -42,6 +42,8 @@ using namespace functors_space;
 
 //-------------------------------------//
 
+
+
 //----------Constructor-----------//
 
 TEST_F(OutsideItersStreamTest, copy_constructor) {
@@ -49,6 +51,9 @@ TEST_F(OutsideItersStreamTest, copy_constructor) {
     auto obj = Stream(temp);
 
     ASSERT_TRUE(temp == obj);
+
+    auto obj2 = Stream(*pStream);
+    ASSERT_TRUE(obj2 == *pStream);
 }
 
 TEST_F(OutsideItersStreamTest, move_constructor) {
@@ -57,6 +62,10 @@ TEST_F(OutsideItersStreamTest, move_constructor) {
     auto obj = Stream(std::move(temp2));
 
     ASSERT_TRUE(temp == obj);
+
+    auto temp3 = Stream(*pStream);
+    auto obj2 = Stream(std::move(temp3));
+    ASSERT_TRUE(obj2 == *pStream);
 }
 
 TEST_F(OutsideItersStreamTest, copy_constructor_by_extending_the_stream) {

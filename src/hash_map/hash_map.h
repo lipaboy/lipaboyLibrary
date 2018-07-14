@@ -2,6 +2,7 @@
 #define HASH_MAP_H
 
 #include "forward_list_storaged_size.h"
+#include "extra_tools/extra_tools.h"
 
 #include <memory>
 #include <vector>
@@ -336,13 +337,6 @@ HashMap<Key, T, Hash, KeyEqual, TAllocator>::find(const key_type& key) {
 
 //---------------------Nested Template Classes-------------------//
 
-template<bool B, class T1, class T2>
-struct enable_if_else {};
-template<class T1, class T2>
-struct enable_if_else<true, T1, T2> { typedef T1 type; };
-template<class T1, class T2>
-struct enable_if_else<false, T1, T2> { typedef T2 type; };
-
 template <bool B, class T>
 struct IContainer {};
 template <class T>
@@ -355,6 +349,8 @@ struct IContainer<false, T> {
     static typename T::const_iterator begin(const T & list) { return list.cbegin(); }
     static typename T::const_iterator end(const T & list) { return list.cend(); }
 };
+
+using lipaboy_lib::enable_if_else;
 
 template <class Key,
           class T,

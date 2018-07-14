@@ -9,7 +9,7 @@
 
 //Unfortunately, I invented the bicycle: std::bitset<size_t N>
 
-namespace LipaboyLib {
+namespace lipaboy_lib {
 
 	typedef boost::any_range<
 		int,

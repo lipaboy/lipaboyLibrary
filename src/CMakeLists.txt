@@ -7,6 +7,9 @@ set(SOURCE_FILES
     lipaboy_test.cpp
     lipaboy_test.h
 
+    # Extra tools
+    extra_tools.h
+
     # Stream
     functors.h
     stream_extended.h

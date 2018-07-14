@@ -4,6 +4,8 @@
 #include "gtest/gtest.h"
 #include "stream/stream.h"
 
+#include "extra_tools/extra_tools_tests.h"
+
 #include <fstream>
 
 namespace stream_tests {
@@ -17,20 +19,7 @@ using std::unique_ptr;
 using stream_space::Stream;
 using stream_space::IsOutsideIteratorsRefer;
 
-class Noisy {
-public:
-    Noisy() { cout << "Constructed" << endl; }
-    Noisy(Noisy const & ) { cout << "Copy-Constructed" << endl; }
-    Noisy(Noisy && ) { cout << "Move-Constructed" << endl; }
-    ~Noisy() { cout << "Destructed" << endl; }
-
-    const Noisy& operator= (const Noisy&) {
-        return *this;
-    }
-    const Noisy& operator= (const Noisy&&) {
-        return *this;
-    }
-};
+using lipaboy_lib_tests::Noisy;
 
 class OutsideItersStreamTest : public ::testing::Test  {
 public:

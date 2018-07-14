@@ -1,6 +1,7 @@
 #pragma once
 
 #include "stream_extended.h"
+#include "extra_tools/extra_tools.h"
 
 #include <vector>
 #include <functional>
@@ -20,6 +21,7 @@ using std::string;
 
 using std::cout;
 using std::endl;
+using lipaboy_lib::relativeForward;
 
 
 //--------------------------Stream Base (specialization class)----------------------//
@@ -58,8 +60,12 @@ public:
     Stream(OuterIterator begin, OuterIterator end) : range_(begin, end) {}
     explicit
     Stream(std::initializer_list<T> init) : range_(init) {}
-    Stream(const Stream& obj) : range_(obj.range_) {}
-    Stream(Stream&& obj) noexcept : range_(std::move(obj.range_)) {}
+//    Stream(const Stream& obj) : range_(obj.range_) {}
+//    Stream(Stream&& obj) noexcept : range_(std::move(obj.range_)) {}
+    template <class StreamBase_>
+    Stream(StreamBase_&& obj,
+           std::enable_if_t<std::is_same_v<Stream, StreamBase_>, int*> p = nullptr) noexcept
+        : range_(obj.range_) {}
     explicit
     Stream(GeneratorTypePtr generator) : range_(generator) {}
 
@@ -286,12 +292,14 @@ auto addMap (TStream stream, TMap functor)
 {
     typename TStream::template ExtendedStreamType<std::remove_reference_t<TMap> >
             newStream(functor,
-                      //std::forward<TStream>(
+                      std::forward<TStream>(
                           stream
-                        //)
+                        )
                       );
     return std::move(newStream);
 }
+
+
 
 
 }

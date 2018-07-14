@@ -24,8 +24,6 @@ using std::endl;
 
 //--------------------RangeType-----------------------//
 
-// TODO: move RangeType at own file
-
 template <class TRange>
 struct GetRangeIter<true, TRange> {
     using TIterator = typename TRange::OwnIterator;

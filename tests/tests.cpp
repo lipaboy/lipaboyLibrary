@@ -1,5 +1,4 @@
 #include "gtest/gtest.h"
-#include "gmock/gmock.h"
 
 #include <iostream>
 #include <vector>
@@ -10,16 +9,17 @@
 #include "intervals/interval.h"
 
 #include "stream/stream_test.h"
+#include "extra_tools/extra_tools_tests.h"
 
-namespace check_tests {
+namespace lipaboy_lib_tests {
 
 using std::cout;
 using std::endl;
 using std::vector;
 using std::string;
 
-using LipaboyLib::FixedPrecisionNumber;
-using LipaboyLib::Interval;
+using lipaboy_lib::FixedPrecisionNumber;
+using lipaboy_lib::Interval;
 
 
 TEST(Algebra, check) {
@@ -81,6 +81,35 @@ TEST(Check, check) {
 
 	first = second;
 	ASSERT_EQ(first.elem, 2);
+}
+
+//template <class Derived_>
+//class Base {
+//public:
+
+//};
+
+template <class T>
+class Derived {
+public:
+    Derived() : e_(3) {}
+
+    template <class B_>
+    Derived(int e, B_&& b) : e_(e) {}
+
+    int e_;
+};
+
+template <class T>
+void func(T&& t) {
+    using type = std::remove_reference_t<T>;
+    type newT = type(5, std::forward<T>(t));
+}
+
+TEST(Check, check2) {
+    Derived<int> d;
+    func(d);
+    func(std::move(d));
 }
 
 }

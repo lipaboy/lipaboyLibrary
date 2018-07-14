@@ -1,5 +1,6 @@
 set(MODULE_NAME Lipaboy_Library)
 
+include_directories("${CMAKE_SOURCE_DIR}/tests")
 include_directories("${CMAKE_SOURCE_DIR}/src")
 
 set(TEST_SOURCE
@@ -11,6 +12,9 @@ set(TEST_SOURCE
     hash_map/forward_list_tests.cpp
     hash_map/hash_map_test.h
     hash_map/hash_map_tests.cpp
+
+    extra_tools/extra_tools_tests.cpp
+    extra_tools/extra_tools_tests.h
     )
 
 add_executable(${MODULE_NAME}_tests ${TEST_SOURCE})
