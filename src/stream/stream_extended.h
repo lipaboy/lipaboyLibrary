@@ -59,35 +59,45 @@ public:
 public:
 
     template <class StreamSuperType_, class TFunctor_>
-    Stream (TFunctor_ functor, StreamSuperType_&& obj)
-        : SuperType(std::forward<StreamSuperType_>(obj)), functor_(std::forward<TFunctor_>(functor)) {}
-//    Stream(TFunctor const & functor, SuperType const & obj)
-//        : SuperType(obj), functor_(functor) {}
+    Stream (TFunctor_ functor, StreamSuperType_&& obj) noexcept
+        : SuperType(std::forward<StreamSuperType_>(obj)), functor_(std::forward<TFunctor_>(functor))
+    {
+#ifdef LOL_DEBUG_NOISY
+        if constexpr (std::is_rvalue_reference<StreamSuperType_&&>::value)
+                cout << "   Stream is extended by move-constructor" << endl;
+        else
+                cout << "   Stream is extended by copy-constructor" << endl;
+#endif
+    }
 public:
-//    Stream(Stream const & obj)
-//        : SuperType(static_cast<SuperType>(obj)),
-//          functor_(obj.functor_),
-//          action_(obj.action_),
-//          preAction_(obj.preAction_) {}
-//    // TODO: test this constructor
-//    Stream(Stream&& obj) noexcept
-//        : SuperType(static_cast<SuperType&&>(std::move(obj))),
-//          functor_(std::move(obj.functor_)),
-//          action_(std::move(obj.action_)),
-//          preAction_(std::move(obj.preAction_)) {}
-
-    template <class TStream_>
-    Stream(TStream_&& obj) noexcept
-        : SuperType(RelativeForward<TStream_&&, SuperType>::forward(obj)),
-          functor_(RelativeForward<TStream_&&, TFunctor>::forward(obj.functor_)),
-          action_(RelativeForward<TStream_&&, ActionType>::forward(obj.action_)),
-          preAction_(RelativeForward<TStream_&&, ActionType>::forward(obj.preAction_)) {}
+    Stream (Stream const & obj)
+        : SuperType(static_cast<ConstSuperType&>(obj))
+        ,
+          functor_(obj.functor_),
+          action_(obj.action_),
+          preAction_(obj.preAction_)
+    {
+#ifdef LOL_DEBUG_NOISY
+        cout << "   StreamEx copy-constructed" << endl;
+#endif
+//        functor_ = obj.functor_;
+    }
+    Stream (Stream&& obj) noexcept
+        : SuperType(std::move(obj)),
+          functor_(std::move(obj.functor_)),
+          action_(std::move(obj.action_)),
+          preAction_(std::move(obj.preAction_))
+    {
+#ifdef LOL_DEBUG_NOISY
+        cout << "   StreamEx move-constructed" << endl;
+#endif
+    }
 
     //----------------------Methods API-----------------------//
 
     template <class Functor>
-    auto operator| (filter<Functor> functor) -> ExtendedStreamType<filter<Functor> > {
-        using ExtendedStream = ExtendedStreamType<filter<Functor> >;
+    auto operator| (FilterType<Functor> functor) -> ExtendedStreamType<FilterType<Functor> > {
+        using ExtendedStream = ExtendedStreamType<FilterType<Functor> >;
         ExtendedStream obj(functor, *this);
         obj.action_ = [] (ExtendedStream* obj) {
             obj->throwOnInfiniteStream();
@@ -97,10 +107,10 @@ public:
         return std::move(obj);
     }
     template <class Functor>
-    auto operator| (map<Functor> functor)
-        -> ExtendedStreamType<map<Functor> >
+    auto operator| (MapType<Functor> functor)
+        -> ExtendedStreamType<MapType<Functor> >
     {
-        ExtendedStreamType<map<Functor> > obj(functor, *this);
+        ExtendedStreamType<MapType<Functor> > obj(functor, *this);
         return std::move(obj);
     }
     auto operator| (get functor) -> ExtendedStreamType<get> {

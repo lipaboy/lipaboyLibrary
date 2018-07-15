@@ -74,13 +74,21 @@ public:
           ownBeginIndex_(obj.ownBeginIndex_), ownEndIndex_(obj.ownEndIndex_),
           pContainer_(obj.pContainer_ == nullptr ? nullptr : new OwnContainerType(*obj.pContainer_)),
           pGenerator_(obj.pGenerator_), action_(obj.action_)
-    {}
+    {
+#ifdef LOL_DEBUG_NOISY
+        cout << " Range copy-constructed" << endl;
+#endif
+    }
     Range(Range&& obj) noexcept
         : outsideBegin_(std::move(obj.outsideBegin_)), outsideEnd_(std::move(obj.outsideEnd_)),
           ownBeginIndex_(obj.ownBeginIndex_), ownEndIndex_(obj.ownEndIndex_),
           pContainer_(std::move(obj.pContainer_)),
           pGenerator_(std::move(obj.pGenerator_)), action_(std::move(obj.action_))
-    {}
+    {
+#ifdef LOL_DEBUG_NOISY
+        cout << " Range move-constructed" << endl;
+#endif
+    }
 
 public:
     OwnContainerTypePtr makeContainer() { return std::make_unique<OwnContainerType>(); }

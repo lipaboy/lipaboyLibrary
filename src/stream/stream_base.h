@@ -60,12 +60,18 @@ public:
     Stream(OuterIterator begin, OuterIterator end) : range_(begin, end) {}
     explicit
     Stream(std::initializer_list<T> init) : range_(init) {}
-//    Stream(const Stream& obj) : range_(obj.range_) {}
-//    Stream(Stream&& obj) noexcept : range_(std::move(obj.range_)) {}
-    template <class StreamBase_>
-    Stream(StreamBase_&& obj,
-           std::enable_if_t<std::is_same_v<Stream, StreamBase_>, int*> p = nullptr) noexcept
-        : range_(RelativeForward<StreamBase_&&, Range>::forward(obj.range_)) {}
+    Stream(Stream const & obj) : range_(obj.range_)
+    {
+#ifdef LOL_DEBUG_NOISY
+        cout << "   StreamBase copy-constructed" << endl;
+#endif
+    }
+    Stream(Stream&& obj) noexcept : range_(std::move(obj.range_))
+    {
+#ifdef LOL_DEBUG_NOISY
+        cout << "   StreamBase move-constructed" << endl;
+#endif
+    }
     explicit
     Stream(GeneratorTypePtr generator) : range_(generator) {}
 
@@ -74,9 +80,9 @@ public:
     // TODO: put off this methods into "global" function operators (for move-semantics of *this)
 
     template <class Predicate>
-    auto operator| (filter<Predicate> functor) -> ExtendedStreamType<filter<Predicate> >
+    auto operator| (FilterType<Predicate> functor) -> ExtendedStreamType<FilterType<Predicate> >
     {
-        using ExtendedStream = ExtendedStreamType<filter<Predicate> >;
+        using ExtendedStream = ExtendedStreamType<FilterType<Predicate> >;
         ExtendedStream newStream(functor, *this);
         // you can't constraint the lambda only for this because the object will be changed after moving
         newStream.action_ = [] (ExtendedStream* obj) {
@@ -87,8 +93,8 @@ public:
         return std::move(newStream);
     }
     template <class Transform>
-    auto operator| (map<Transform> functor) -> ExtendedStreamType<map<Transform> > {
-        ExtendedStreamType<map<Transform> > newStream(functor, *this);
+    auto operator| (MapType<Transform> functor) -> ExtendedStreamType<MapType<Transform> > {
+        ExtendedStreamType<MapType<Transform> > newStream(functor, *this);
         return std::move(newStream);
     }
     auto operator| (get functor) -> ExtendedStreamType<get> {
@@ -285,9 +291,11 @@ private:
 //------------------Move semantics-----------------//
 
 namespace {
+
 template <class TStream, class TMap>
 using Briefly = typename std::remove_reference_t<TStream>::
     template ExtendedStreamType<std::remove_reference_t<TMap> >;
+
 }
 
 // REMINDER: don't forget change friend-declaration into StreamExtended
@@ -295,12 +303,9 @@ template <class TStream, class TMap>
 auto addMap (TStream&& stream, TMap&& functor)
     -> Briefly<TStream, TMap>
 {
-//    Briefly<TStream, TMap>
-//            newStream(functor,
-//                      std::forward<TStream>(
-//                          stream
-//                        )
-//                      );
+#ifdef LOL_DEBUG_NOISY
+    cout << "---Add Map---" << endl;
+#endif
     return Briefly<TStream, TMap>(std::forward<TMap>(functor), std::forward<TStream>(stream));
 }
 

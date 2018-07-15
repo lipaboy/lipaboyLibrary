@@ -88,14 +88,17 @@ TEST_F(OutsideItersStreamTest, move_constructor_by_extending_the_stream) {
 
 TEST(Filter, sample) {
     auto res = createStream(1, 2, 3)
-            | filter([](auto x) { return (x == x); })
+            | FilterType(
+                //std::function<bool(int)>(
+                    [] (int x) -> bool { return (x == x); })
+                //)
             | to_vector();
 
     ASSERT_EQ(res, vector<int>({ 1, 2, 3 }));
 }
 TEST(Filter, mod3) {
     auto res = createStream(1, 2, 3, 4, 5, 6)
-            | filter([](auto x) { return x % 3 == 0; })
+            | FilterType([](auto x) { return x % 3 == 0; })
             | to_vector();
 
     ASSERT_EQ(res, vector<int>({ 3, 6 }));
@@ -120,8 +123,8 @@ TEST(Get, Finite_Overflow) {
 TEST(Get, InfiniteStream) {
     int a = 1;
     auto res = createStream([&a]() { return a++; })
-            | filter([] (int b) -> bool { return b % 2 != 0; })
-            | filter([] (int b) -> bool { return b % 3 != 0; })
+            | FilterType([] (int b) -> bool { return b % 2 != 0; })
+            | FilterType([] (int b) -> bool { return b % 3 != 0; })
             | get(11)
             | to_vector();
 
@@ -133,7 +136,7 @@ TEST(Exception, Infinite) {
     auto stream = createStream([&a]() { return a++; });
     ASSERT_ANY_THROW(stream | to_vector());
     ASSERT_ANY_THROW(stream
-                     | map([] (int a) { return 2 * a; })
+                     | MapType([] (int a) { return 2 * a; })
                      | to_vector());
 }
 
@@ -170,7 +173,7 @@ TEST_F(OutsideItersStreamTest, Nth_first_elem) {
     auto res = (*pStream)
             | nth(0);
     auto res2 = (*pStream)
-            | map([] (typename OutsideItersStreamTest::ElemType a) { return a; })
+            | MapType([] (typename OutsideItersStreamTest::ElemType a) { return a; })
             | nth(0);
 
     ASSERT_EQ(res, (*pOutsideContainer)[0]);
@@ -181,7 +184,7 @@ TEST_F(OutsideItersStreamTest, Nth_last_elem) {
     auto res = (*pStream)
             | nth(pOutsideContainer->size() - 1);
     auto res2 = (*pStream)
-            | map([] (typename OutsideItersStreamTest::ElemType a) { return a; })
+            | MapType([] (typename OutsideItersStreamTest::ElemType a) { return a; })
             | nth(pOutsideContainer->size() - 1);
 
     ASSERT_EQ(res, pOutsideContainer->back());
@@ -192,10 +195,10 @@ TEST_F(OutsideItersStreamTest, Nth_out_of_range) {
     ASSERT_NO_THROW((*pStream) | nth(pOutsideContainer->size()));
     ASSERT_NO_THROW((*pStream) | nth(-1));
     ASSERT_NO_THROW((*pStream)
-                    | map([] (typename OutsideItersStreamTest::ElemType a) { return a; })
+                    | MapType([] (typename OutsideItersStreamTest::ElemType a) { return a; })
                     | nth(pOutsideContainer->size()));
     ASSERT_NO_THROW((*pStream)
-                    | map([] (typename OutsideItersStreamTest::ElemType a) { return a; })
+                    | MapType([] (typename OutsideItersStreamTest::ElemType a) { return a; })
                     | nth(-1));
 }
 
@@ -229,8 +232,8 @@ TEST_F(OutsideItersStreamTest, FileStream_read) {
                                    std::istreambuf_iterator<char>());
 
     auto res = fileStream
-            | map([] (auto ch) { return ch + 1; })
-            | map([] (auto ch) { return ch - 1; })
+            | MapType([] (auto ch) { return ch + 1; })
+            | MapType([] (auto ch) { return ch - 1; })
             | reduce([] (auto ch) { return string(1, ch); },
                      [] (string& str, auto ch) { return str + string(1, ch); });
     ASSERT_EQ(res, fileData);
@@ -275,14 +278,16 @@ TEST(UngroupByBit, init_list) {
               );
 }
 
-int kek (int a) { return a * a; }
-bool kekBool (int a) { return a % 2; }
+//int kek (int a) { return a * a; }
+//bool kekBool (int a) { return a % 2; }
 
 TEST(Filter, init_list) {
     vector<int> olala = { 1, 2, 3, 4, 5, 6, 7, 8 };
     auto stream2 = createStream(olala.begin(), olala.end());
-    auto stream4 = stream2 | filter([] (int a) -> bool { return a % 2 == 0; }) | map(kek)
-            | filter([] (int a) -> bool { return a % 10 == 6; });
+    auto stream4 = stream2 | FilterType([] (int a) -> bool { return a % 2 == 0; })
+            //| map(kek)
+            | MapType([] (int a) { return a * a; })
+            | FilterType([] (int a) -> bool { return a % 10 == 6; });
     auto kek = stream4 | to_vector();
 
     ASSERT_EQ(kek, decltype(kek)({ 16, 36 }));
@@ -302,9 +307,9 @@ TEST(StreamTest, noisy) {
                     addMap(
                      addMap(
                          streamNoisy
-                        , map([] (const NoisyD& a) -> NoisyD { return a; }))
-                     , map([] (const NoisyD& a) -> NoisyD { return a; }))
-                     , map([] (const NoisyD& a) -> NoisyD { return a; }))
+                        , MapType([] (const NoisyD& a) -> NoisyD { return a; }))
+                     , MapType([] (const NoisyD& a) -> NoisyD { return a; }))
+                    , MapType([] (const NoisyD& a) -> NoisyD { return a; }))
                  );
         cout << "\tend streaming" << endl;
         streamTemp2 | nth(0);
@@ -314,9 +319,9 @@ TEST(StreamTest, noisy) {
         cout << "\tstart streaming" << endl;
         auto streamTemp =
             (streamNoisy
-                | map([] (const NoisyD& a) -> NoisyD { return a; })
-                | map([] (const NoisyD& a) -> NoisyD { return a; })
-                | map([] (const NoisyD& a) -> NoisyD { return a; })
+                | MapType([] (const NoisyD& a) -> NoisyD { return a; })
+                | MapType([] (const NoisyD& a) -> NoisyD { return a; })
+                | MapType([] (const NoisyD& a) -> NoisyD { return a; })
 //                    | get(4)
 //                    | get(4)
 //                    | filter([] (const Noisy& a) { static int i = 0; return (i++ % 2 == 0); })

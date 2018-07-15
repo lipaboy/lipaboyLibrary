@@ -18,6 +18,7 @@ using std::vector;
 using std::pair;
 using std::ostream;
 using std::string;
+using std::function;
 
 using std::cout;
 using std::endl;
@@ -37,6 +38,9 @@ using std::endl;
 //       (maybe too partical case?)
 // TODO: write for operator map move-semantics
 // TODO: think about single-pass input iterators for stream
+// TODO: move element in nextElem() method when it is copied once
+
+#define LOL_DEBUG_NOISY
 
 enum Info {
     GENERATOR,
@@ -98,15 +102,29 @@ public:
 
 //---------------Non-terminated operations-----------//
 
+
+
 template <class Predicate>
-struct filter : FunctorHolder<Predicate>, TReturnSameType {
-    filter(Predicate functor)
-        : FunctorHolder<Predicate>(functor) {}
+struct FilterType : FunctorHolder<Predicate >, TReturnSameType {
+    //template <class PredicateF_>
+    FilterType(Predicate functor)
+        : FunctorHolder<Predicate >(functor) {}
     static constexpr FunctorMetaTypeEnum metaInfo = FILTER;
+
+//    filter const & operator=(filter const & other) {
+//        function<Predicate>(other.functor()).swap(FunctorHolder<function<Predicate> >::functor_);
+//        return *this;
+//    }
 };
 
+//template <class Predicate>
+//filter<Predicate> createFilter(Predicate functor) {
+//    return filter<Predicate>(functor);
+//}
+////----
+
 template <class Transform>
-struct map : FunctorHolder<Transform> {
+struct MapType : FunctorHolder<Transform> {
 public:
     template <class Arg>
     struct RetType {
@@ -114,7 +132,7 @@ public:
     };
 
 public:
-    map(Transform functor) : FunctorHolder<Transform>(functor) {}
+    MapType(Transform functor) : FunctorHolder<Transform>(functor) {}
     static constexpr FunctorMetaTypeEnum metaInfo = MAP;
 
     template <class Arg>
@@ -123,6 +141,11 @@ public:
     {
         return FunctorHolder<Transform>::functor()(arg);
     }
+
+//    map const & operator=(map const & other) {
+//        Transform(other.functor()).swap(FunctorHolder<Transform>::functor_);
+//        return *this;
+//    }
 };
 
 struct get : TReturnSameType {
