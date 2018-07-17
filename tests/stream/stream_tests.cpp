@@ -86,19 +86,18 @@ TEST_F(OutsideItersStreamTest, move_constructor_by_extending_the_stream) {
 
 //----------Other-----------//
 
+
 TEST(Filter, sample) {
+
     auto res = createStream(1, 2, 3)
-            | FilterType(
-                //std::function<bool(int)>(
-                    [] (int x) -> bool { return (x == x); })
-                //)
+            | FilterType([] (int x) -> bool { return (x == x); })
             | to_vector();
 
     ASSERT_EQ(res, vector<int>({ 1, 2, 3 }));
 }
 TEST(Filter, mod3) {
     auto res = createStream(1, 2, 3, 4, 5, 6)
-            | FilterType([](auto x) { return x % 3 == 0; })
+            | FilterType([](int x) { return x % 3 == 0; })
             | to_vector();
 
     ASSERT_EQ(res, vector<int>({ 3, 6 }));
@@ -232,10 +231,10 @@ TEST_F(OutsideItersStreamTest, FileStream_read) {
                                    std::istreambuf_iterator<char>());
 
     auto res = fileStream
-            | MapType([] (auto ch) { return ch + 1; })
-            | MapType([] (auto ch) { return ch - 1; })
-            | reduce([] (auto ch) { return string(1, ch); },
-                     [] (string& str, auto ch) { return str + string(1, ch); });
+            | MapType([] (char ch) { return ch + 1; })
+            | MapType([] (char ch) { return ch - 1; })
+            | reduce([] (char ch) { return string(1, ch); },
+                     [] (string& str, char ch) { return str + string(1, ch); });
     ASSERT_EQ(res, fileData);
 
     inFile.close();

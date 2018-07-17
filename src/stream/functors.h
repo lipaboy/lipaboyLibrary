@@ -1,5 +1,7 @@
 #pragma once
 
+#include "extra_tools/extra_tools.h"
+
 #include <vector>
 #include <functional>
 #include <algorithm>
@@ -7,6 +9,7 @@
 
 #include <typeinfo>
 #include <ostream>
+#include <type_traits>
 
 #include <iostream>
 
@@ -22,6 +25,11 @@ using std::function;
 
 using std::cout;
 using std::endl;
+
+#define LOL_DEBUG_NOISY
+
+using lipaboy_lib::function_traits;
+using lipaboy_lib::WrapBySTDFunctionType;
 
 // PLAN FOR STREAM:
 //-----------------
@@ -39,8 +47,8 @@ using std::endl;
 // TODO: write for operator map move-semantics
 // TODO: think about single-pass input iterators for stream
 // TODO: move element in nextElem() method when it is copied once
-
-#define LOL_DEBUG_NOISY
+// TODO: think about notify clients that they can't use 'auto' as argument type into lambda to translate it
+//       to Filter or Map operations.
 
 enum Info {
     GENERATOR,
@@ -91,14 +99,14 @@ struct FunctorMetaType {
 };
 // TODO: refactor, change names of meta functor and functor
 template <class Functor>
-struct FunctorHolder : FunctorMetaType<Functor> {
-    FunctorHolder(Functor func) : functor_(func) {}
-    Functor functor() const { return functor_; }
+struct FunctorHolder : FunctorMetaType<WrapBySTDFunctionType<Functor> > {
+    using FunctorType = WrapBySTDFunctionType<Functor>;
+    FunctorHolder(FunctorType func) : functor_(func) {}
+    FunctorType functor() const { return functor_; }
 public:
-    Functor functor_;
+    FunctorType functor_;
 };
 
-//}
 
 //---------------Non-terminated operations-----------//
 
@@ -118,10 +126,14 @@ struct FilterType : FunctorHolder<Predicate >, TReturnSameType {
 };
 
 //template <class Predicate>
-//filter<Predicate> createFilter(Predicate functor) {
-//    return filter<Predicate>(functor);
+//using filter = FilterType<Predicate>;
+
+//template <class Predicate>
+//FilterType<Predicate> filter(Predicate functor) {
+//    return FilterType<Predicate>(functor);
 //}
 ////----
+
 
 template <class Transform>
 struct MapType : FunctorHolder<Transform> {
