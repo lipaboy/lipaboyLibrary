@@ -59,7 +59,7 @@ public:
 public:
 
     template <class StreamSuperType_, class TFunctor_>
-    Stream (TFunctor_ functor, StreamSuperType_&& obj) noexcept
+    Stream (TFunctor_&& functor, StreamSuperType_&& obj) noexcept
         : SuperType(std::forward<StreamSuperType_>(obj)), functor_(std::forward<TFunctor_>(functor))
     {
 #ifdef LOL_DEBUG_NOISY
@@ -80,7 +80,6 @@ public:
 #ifdef LOL_DEBUG_NOISY
         cout << "   StreamEx copy-constructed" << endl;
 #endif
-//        functor_ = obj.functor_;
     }
     Stream (Stream&& obj) noexcept
         : SuperType(std::move(obj)),
@@ -96,8 +95,8 @@ public:
     //----------------------Methods API-----------------------//
 
     template <class Functor>
-    auto operator| (FilterType<Functor> functor) -> ExtendedStreamType<FilterType<Functor> > {
-        using ExtendedStream = ExtendedStreamType<FilterType<Functor> >;
+    auto operator| (filter<Functor> functor) -> ExtendedStreamType<filter<Functor> > {
+        using ExtendedStream = ExtendedStreamType<filter<Functor> >;
         ExtendedStream obj(functor, *this);
         obj.action_ = [] (ExtendedStream* obj) {
             obj->throwOnInfiniteStream();
@@ -107,10 +106,10 @@ public:
         return std::move(obj);
     }
     template <class Functor>
-    auto operator| (MapType<Functor> functor)
-        -> ExtendedStreamType<MapType<Functor> >
+    auto operator| (map<Functor> functor)
+        -> ExtendedStreamType<map<Functor> >
     {
-        ExtendedStreamType<MapType<Functor> > obj(functor, *this);
+        ExtendedStreamType<map<Functor> > obj(functor, *this);
         return std::move(obj);
     }
     auto operator| (get functor) -> ExtendedStreamType<get> {

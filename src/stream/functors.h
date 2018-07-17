@@ -26,7 +26,7 @@ using std::function;
 using std::cout;
 using std::endl;
 
-#define LOL_DEBUG_NOISY
+//#define LOL_DEBUG_NOISY
 
 using lipaboy_lib::function_traits;
 using lipaboy_lib::WrapBySTDFunctionType;
@@ -48,7 +48,7 @@ using lipaboy_lib::WrapBySTDFunctionType;
 // TODO: think about single-pass input iterators for stream
 // TODO: move element in nextElem() method when it is copied once
 // TODO: think about notify clients that they can't use 'auto' as argument type into lambda to translate it
-//       to Filter or Map operations.
+//       to Filter or Map operations (because you wrap all the functors by std::function -> really no uses)
 
 enum Info {
     GENERATOR,
@@ -101,7 +101,8 @@ struct FunctorMetaType {
 template <class Functor>
 struct FunctorHolder : FunctorMetaType<WrapBySTDFunctionType<Functor> > {
     using FunctorType = WrapBySTDFunctionType<Functor>;
-    FunctorHolder(FunctorType func) : functor_(func) {}
+    template <class TFunctor_>
+    FunctorHolder(TFunctor_&& func) : functor_(std::forward<TFunctor_>(func)) {}
     FunctorType functor() const { return functor_; }
 public:
     FunctorType functor_;
@@ -113,30 +114,14 @@ public:
 
 
 template <class Predicate>
-struct FilterType : FunctorHolder<Predicate >, TReturnSameType {
-    //template <class PredicateF_>
-    FilterType(Predicate functor)
-        : FunctorHolder<Predicate >(functor) {}
-    static constexpr FunctorMetaTypeEnum metaInfo = FILTER;
+struct filter : FunctorHolder<Predicate>, TReturnSameType {
+    filter(Predicate functor) : FunctorHolder<Predicate>(functor) {}
 
-//    filter const & operator=(filter const & other) {
-//        function<Predicate>(other.functor()).swap(FunctorHolder<function<Predicate> >::functor_);
-//        return *this;
-//    }
+    static constexpr FunctorMetaTypeEnum metaInfo = FILTER;
 };
 
-//template <class Predicate>
-//using filter = FilterType<Predicate>;
-
-//template <class Predicate>
-//FilterType<Predicate> filter(Predicate functor) {
-//    return FilterType<Predicate>(functor);
-//}
-////----
-
-
 template <class Transform>
-struct MapType : FunctorHolder<Transform> {
+struct map : FunctorHolder<Transform> {
 public:
     template <class Arg>
     struct RetType {
@@ -144,7 +129,7 @@ public:
     };
 
 public:
-    MapType(Transform functor) : FunctorHolder<Transform>(functor) {}
+    map(Transform functor) : FunctorHolder<Transform>(functor) {}
     static constexpr FunctorMetaTypeEnum metaInfo = MAP;
 
     template <class Arg>
@@ -153,11 +138,6 @@ public:
     {
         return FunctorHolder<Transform>::functor()(arg);
     }
-
-//    map const & operator=(map const & other) {
-//        Transform(other.functor()).swap(FunctorHolder<Transform>::functor_);
-//        return *this;
-//    }
 };
 
 struct get : TReturnSameType {

@@ -148,6 +148,10 @@ struct memfun_type<Ret(Class::*)(Args...) const>
 template <typename F>
 struct WrapBySTDFunction {
     using type =
+//                typename std::enable_if<!std::is_function<F>::value,
+//                    typename memfun_type<decltype(&F::operator())>::type
+//    void
+//    >::type;
         typename memfun_type<decltype(&F::operator())>::type;
 //        void;
 };
@@ -158,14 +162,14 @@ struct WrapBySTDFunction< R(Args...) > {
 };
 
 template<typename R, typename ...Args>
+struct WrapBySTDFunction< R(*)(Args...) > {
+    using type = std::function< R(Args...) >;
+};
+
+template<typename R, typename ...Args>
 struct WrapBySTDFunction<std::function<R(Args...)> > {
     using type = std::function<R(Args...)>;
 };
-
-//template<typename Ret, typename Class, typename... Args>
-//struct WrapBySTDFunction<Ret(Class::*)(Args...) const> {
-//    using type = std::function<Ret(Args...)>;
-//};
 
 template <typename T>
 using WrapBySTDFunctionType = typename WrapBySTDFunction<T>::type;

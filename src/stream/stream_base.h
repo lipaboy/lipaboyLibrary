@@ -80,9 +80,9 @@ public:
     // TODO: put off this methods into "global" function operators (for move-semantics of *this)
 
     template <class Predicate>
-    auto operator| (FilterType<Predicate> functor) -> ExtendedStreamType<FilterType<Predicate> >
+    auto operator| (filter<Predicate> functor) -> ExtendedStreamType<filter<Predicate> >
     {
-        using ExtendedStream = ExtendedStreamType<FilterType<Predicate> >;
+        using ExtendedStream = ExtendedStreamType<filter<Predicate> >;
         ExtendedStream newStream(functor, *this);
         // you can't constraint the lambda only for this because the object will be changed after moving
         newStream.action_ = [] (ExtendedStream* obj) {
@@ -93,8 +93,8 @@ public:
         return std::move(newStream);
     }
     template <class Transform>
-    auto operator| (MapType<Transform> functor) -> ExtendedStreamType<MapType<Transform> > {
-        ExtendedStreamType<MapType<Transform> > newStream(functor, *this);
+    auto operator| (map<Transform> functor) -> ExtendedStreamType<map<Transform> > {
+        ExtendedStreamType<map<Transform> > newStream(functor, *this);
         return std::move(newStream);
     }
     auto operator| (get functor) -> ExtendedStreamType<get> {
