@@ -90,7 +90,7 @@ TEST_F(OutsideItersStreamTest, move_constructor_by_extending_the_stream) {
 TEST(Filter, sample) {
 
     auto res = createStream(1, 2, 3)
-            | filter([] (int x) -> bool { return (x == x); })
+            | filter([] (auto x) { return (x == x); })
             | to_vector();
 
     ASSERT_EQ(res, vector<int>({ 1, 2, 3 }));

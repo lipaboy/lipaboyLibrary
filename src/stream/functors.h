@@ -47,8 +47,6 @@ using lipaboy_lib::WrapBySTDFunctionType;
 // TODO: write for operator map move-semantics
 // TODO: think about single-pass input iterators for stream
 // TODO: move element in nextElem() method when it is copied once
-// TODO: think about notify clients that they can't use 'auto' as argument type into lambda to translate it
-//       to Filter or Map operations (because you wrap all the functors by std::function -> really no uses)
 
 enum Info {
     GENERATOR,
@@ -83,8 +81,6 @@ enum FunctorMetaTypeEnum {
 };
 
 
-//namespace special {
-
 //---------------Special structs--------------//
 
 struct TReturnSameType {
@@ -97,15 +93,38 @@ template <class Functor>
 struct FunctorMetaType {
     using GetMetaType = Functor;
 };
+
+template <class Functor>
+struct FunctorHolderDirectly : FunctorMetaType<Functor> {
+    using FunctorType = Functor;
+    FunctorHolderDirectly(FunctorType func) : functor_(func) {}
+
+    FunctorType functor() const { return functor_; }
+private:
+    FunctorType functor_;
+};
+
+// Wrap almost all the functions by std::function (except lambda with auto arguments and etc.)
+template <class Functor>
+struct FunctorHolderWrapper : FunctorMetaType<WrapBySTDFunctionType<Functor> > {
+    using FunctorType = WrapBySTDFunctionType<Functor>;
+    FunctorHolderWrapper(FunctorType func) : functor_(func) {}
+
+    FunctorType functor() const { return functor_; }
+private:
+    FunctorType functor_;
+};
+
 // TODO: refactor, change names of meta functor and functor
 template <class Functor>
-struct FunctorHolder : FunctorMetaType<WrapBySTDFunctionType<Functor> > {
-    using FunctorType = WrapBySTDFunctionType<Functor>;
-    template <class TFunctor_>
-    FunctorHolder(TFunctor_&& func) : functor_(std::forward<TFunctor_>(func)) {}
-    FunctorType functor() const { return functor_; }
-public:
-    FunctorType functor_;
+struct FunctorHolder
+//        : FunctorHolderWrapper<Functor>
+        : FunctorHolderDirectly<Functor>
+{
+    FunctorHolder(Functor func)
+//        : FunctorHolderWrapper<Functor>(func)
+        : FunctorHolderDirectly<Functor>(func)
+    {}
 };
 
 
@@ -116,7 +135,6 @@ public:
 template <class Predicate>
 struct filter : FunctorHolder<Predicate>, TReturnSameType {
     filter(Predicate functor) : FunctorHolder<Predicate>(functor) {}
-
     static constexpr FunctorMetaTypeEnum metaInfo = FILTER;
 };
 
@@ -262,7 +280,7 @@ struct to_vector {
     static constexpr FunctorMetaTypeEnum metaInfo = TO_VECTOR;
 };
 struct nth {
-    using size_type = size_t;   // !DANGER! - because ( for (i = 0; i < index() - 1; i++) {...} )
+    using size_type = size_t;
 
     nth(size_type index) : index_(index) {}
     static constexpr FunctorMetaTypeEnum metaInfo = NTH;
