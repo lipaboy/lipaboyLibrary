@@ -308,12 +308,13 @@ TEST(StreamTest, noisy) {
                     addMap(
                      addMap(
                          streamNoisy
-                        , map([] (const NoisyD& a) -> NoisyD { return a; }))
-                     , map([] (const NoisyD& a) -> NoisyD { return a; }))
-                    , map([] (const NoisyD& a) -> NoisyD { return a; }))
+                        , map([] (NoisyD&& a) -> NoisyD { return std::move(a); }))
+                     , map([] (NoisyD&& a) -> NoisyD { return std::move(a); }))
+                    , map([] (NoisyD&& a) -> NoisyD { return std::move(a); }))
                  );
         cout << "\tend streaming" << endl;
-//        streamTemp2 | nth(0);
+        if (!vecNoisy.empty())
+            streamTemp2 | nth(0);
         cout << "\tend nth" << endl;
         cout << "\t------------" << endl;
 
@@ -330,7 +331,8 @@ TEST(StreamTest, noisy) {
 //                | nth(0)
             );
         cout << "\tend streaming" << endl;
-//        streamTemp | nth(0);
+        if (!vecNoisy.empty())
+            streamTemp | nth(0);
         cout << "\tend nth" << endl;
 
 #endif

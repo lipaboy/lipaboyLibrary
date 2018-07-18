@@ -230,7 +230,7 @@ private:
     }
 
 protected:
-    ResultValueType nextElem() { return nextElem<isOwnContainer()>(); }
+    ResultValueType nextElem() { return std::move(nextElem<isOwnContainer()>()); }
     template <bool isOwnContainer_>
     ResultValueType nextElem() {
         // Template Parameter Explaination:
@@ -239,7 +239,7 @@ protected:
         // method and derived from that class may have the another value of isOwnContainer()
 
         if constexpr (TFunctor::metaInfo == MAP)
-            return functor_(static_cast<SuperTypePtr>(this)->template nextElem<isOwnContainer_>());
+            return std::move(functor_(static_cast<SuperTypePtr>(this)->template nextElem<isOwnContainer_>()));
         else if constexpr (TFunctor::metaInfo == GROUP_BY_VECTOR) {
             auto partSize = functor_.partSize();
             ResultValueType part;
@@ -258,7 +258,7 @@ protected:
             return res;
         }
         else
-            return static_cast<SuperTypePtr>(this)->template nextElem<isOwnContainer_>();
+            return std::move(static_cast<SuperTypePtr>(this)->template nextElem<isOwnContainer_>());
     }
 
     ValueType currentAtom() const { return currentAtom<isOwnContainer()>(); }

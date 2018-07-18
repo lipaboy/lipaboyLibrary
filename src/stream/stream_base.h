@@ -228,9 +228,9 @@ private:
     void doPreliminaryActions() { range().doPreliminaryActions(); }
 
 protected:
-    ResultValueType nextElem() { return nextElem<isOwnContainer()>(); }
+    ResultValueType nextElem() { return std::move(nextElem<isOwnContainer()>()); }
     template <bool isOwnContainer_>
-    ResultValueType nextElem() { return range().template nextElem<isOwnContainer_>(); }
+    ResultValueType nextElem() { return std::move(range().template nextElem<isOwnContainer_>()); }
 
     // Why can't we realize this interface:
     // 1) problem with group operations: somebody must storage the result

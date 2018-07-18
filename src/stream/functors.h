@@ -26,7 +26,7 @@ using std::function;
 using std::cout;
 using std::endl;
 
-//#define LOL_DEBUG_NOISY
+#define LOL_DEBUG_NOISY
 
 using lipaboy_lib::function_traits;
 using lipaboy_lib::WrapBySTDFunctionType;
@@ -46,7 +46,7 @@ using lipaboy_lib::WrapBySTDFunctionType;
 //       (maybe too partical case?)
 // TODO: write for operator map move-semantics
 // TODO: think about single-pass input iterators for stream
-// TODO: move element in nextElem() method when it is copied once
+// TODO: test different lambdas (with const&T in return type, with T& in argument type)
 
 enum Info {
     GENERATOR,
@@ -151,10 +151,10 @@ public:
     static constexpr FunctorMetaTypeEnum metaInfo = MAP;
 
     template <class Arg>
-    auto operator()(Arg arg) const
+    auto operator()(Arg&& arg) const
         -> typename RetType<Arg>::type
     {
-        return FunctorHolder<Transform>::functor()(arg);
+        return FunctorHolder<Transform>::functor()(std::forward<Arg>(arg));
     }
 };
 
