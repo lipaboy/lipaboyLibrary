@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <iterator>
 #include <type_traits>
+#include <memory>
 
 #include <typeinfo>
 
@@ -18,6 +19,7 @@ namespace stream_space {
 using std::vector;
 using std::pair;
 using std::string;
+using std::unique_ptr;
 
 using lipaboy_lib::RelativeForward;
 
@@ -84,6 +86,8 @@ public:
     Stream (TFunctor_&& functor, StreamSuperType_&& obj) noexcept
         : SuperType(std::forward<StreamSuperType_>(obj)), functor_(std::forward<TFunctor_>(functor))
     {
+        if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT)
+                tempOwner_ = std::make_unique<TempValueOwner>();
 #ifdef LOL_DEBUG_NOISY
         if constexpr (std::is_rvalue_reference<StreamSuperType_&&>::value)
                 cout << "   Stream is extended by move-constructor" << endl;
@@ -99,6 +103,8 @@ public:
           action_(obj.action_),
           preAction_(obj.preAction_)
     {
+        if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT)
+                tempOwner_ = std::make_unique<TempValueOwner>();
 #ifdef LOL_DEBUG_NOISY
         cout << "   StreamEx copy-constructed" << endl;
 #endif
@@ -109,6 +115,8 @@ public:
           action_(std::move(obj.action_)),
           preAction_(std::move(obj.preAction_))
     {
+        if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT)
+                tempOwner_ = std::make_unique<TempValueOwner>();
 #ifdef LOL_DEBUG_NOISY
         cout << "   StreamEx move-constructed" << endl;
 #endif
@@ -238,7 +246,7 @@ protected:
         throwOnInfiniteStream();
         superThisPtr()->template initSlider<isOwnContainer_>();
         if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT)
-            indexIter = 0;
+            tempOwner_->indexIter = 0;
     }
 private:
     // nobody instead of initSlider can call it
@@ -270,6 +278,9 @@ protected:
         }
         else if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT) {
             const size_type bitsCountOfType = 8 * sizeof(ValueType);
+            size_type & indexIter = tempOwner_->indexIter;
+            auto & tempValue = tempOwner_->tempValue;
+
             if (indexIter % bitsCountOfType == 0)
                 tempValue = superThisPtr()->template nextElem<isOwnContainer_>();
             bool res = (tempValue & (1 << indexIter)) >> indexIter;
@@ -290,7 +301,7 @@ protected:
     template <bool isOwnContainer_>
     bool hasNext() const {
         if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT)
-            return (indexIter != 0)
+            return (tempOwner_->indexIter != 0)
                 || constSuperThisPtr()->template hasNext<isOwnContainer_>();
         else
             return constSuperThisPtr()->template hasNext<isOwnContainer_>();
@@ -326,8 +337,11 @@ protected:
     ActionType preAction_ = [] (Stream*) {};
     // TODO: think about allocating the memory under these vars instead of storaging on stack
     // only for ungroupByBit and group operations
-    size_type indexIter;
-    typename SuperType::ResultValueType tempValue;
+    struct TempValueOwner {
+        size_type indexIter;
+        typename SuperType::ResultValueType tempValue;
+    };
+    unique_ptr<TempValueOwner> tempOwner_;
 
 protected:
     template <class TFilterFunctor>

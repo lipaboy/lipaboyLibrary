@@ -49,6 +49,7 @@ using lipaboy_lib::WrapBySTDFunctionType;
 // TODO: make Noisy test for reduce operation
 // TODO: make move-semantics for concating operations to stream
 // TODO: think about writing iterators for Stream
+// TODO: test the allocating memory under tempOwner_ in ExtendedStream
 
 enum Info {
     GENERATOR,
