@@ -79,24 +79,19 @@ public:
 
     // TODO: put off this methods into "global" function operators (for move-semantics of *this)
 
-    template <class Predicate>
-    auto operator| (filter<Predicate> functor) -> ExtendedStreamType<filter<Predicate> >
-    {
-        using ExtendedStream = ExtendedStreamType<filter<Predicate> >;
-        ExtendedStream newStream(functor, *this);
-        // you can't constraint the lambda only for this because the object will be changed after moving
-        newStream.action_ = [] (ExtendedStream* obj) {
-            obj->throwOnInfiniteStream();
-            obj->filter_(obj->getFunctor().functor());
-            obj->action_ = [] (ExtendedStream*) {};
-        };
-        return std::move(newStream);
-    }
-    template <class Transform>
-    auto operator| (map<Transform> functor) -> ExtendedStreamType<map<Transform> > {
-        ExtendedStreamType<map<Transform> > newStream(functor, *this);
-        return std::move(newStream);
-    }
+//    template <class Predicate>
+//    auto operator| (filter<Predicate> functor) -> ExtendedStreamType<filter<Predicate> >
+//    {
+//        using ExtendedStream = ExtendedStreamType<filter<Predicate> >;
+//        ExtendedStream newStream(functor, *this);
+//        // you can't constraint the lambda only for this because the object will be changed after moving
+//        newStream.action_ = [] (ExtendedStream* obj) {
+//            obj->throwOnInfiniteStream();
+//            obj->filter_(obj->getFunctor().functor());
+//            obj->action_ = [] (ExtendedStream*) {};
+//        };
+//        return std::move(newStream);
+//    }
     auto operator| (get functor) -> ExtendedStreamType<get> {
         using ExtendedStream = ExtendedStreamType<get>;
         ExtendedStream newStream(functor, *this);
@@ -150,12 +145,32 @@ protected:
             toVector.push_back(obj.nextElem());
         return std::move(toVector);
     }
+    template <class Stream_, class Accumulator, class IdentityFn>
+    auto apply(Stream_ & obj, reduce<Accumulator, IdentityFn> const & reduceObj)
+        -> typename reduce<Accumulator, IdentityFn>::IdentityRetType
+    {
+        using RetType = typename reduce<Accumulator, IdentityFn>::IdentityRetType;
+        obj.initSlider();
+        if (obj.hasNext()) {
+            auto result = reduceObj.identity(obj.nextElem());
+            for (; obj.hasNext(); )
+                result = reduceObj.accum(result, obj.nextElem());
+            return result;
+        }
+        return RetType();
+    }
 
 public:
     std::ostream& operator| (print_to&& printer) {
         return apply(*this, std::move(printer));
     }
 
+    template <class Accumulator, class IdentityFn>
+    auto operator| (reduce<Accumulator, IdentityFn> const & reduceObj)
+        -> typename reduce<Accumulator, IdentityFn>::IdentityRetType
+    {
+        return apply(*this, reduceObj);
+    }
     ResultValueType operator| (sum&&) {
         initSlider();
         if (hasNext()) {
@@ -177,8 +192,6 @@ public:
     }
 
     //------------------Additional methods---------------//
-
-//    size_type size() const { return range_.size(); }
 
 public:
     Range & range() { return range_; }
@@ -260,56 +273,38 @@ private:
 
 private:
     Range range_;
-
-public:
-    template <class Accumulator, class IdenityFn>
-    auto operator| (reduce<Accumulator, IdenityFn> const & reduceObj)
-        -> decltype(auto)//typename reduce<Accumulator, IdenityFn>::
-            //template IdentityRetType<ResultValueType>::type
-    {
-        return apply(*this, reduceObj);
-    }
-
-private:
-    template <class Stream_, class Accumulator, class IdenityFn>
-    auto apply(Stream_ & obj, reduce<Accumulator, IdenityFn> const & reduceObj)
-        -> decltype(auto)
-    {
-        using RetType = typename std::remove_reference<decltype(reduceObj.identity(obj.nextElem()))>::type;
-        obj.initSlider();
-        if (obj.hasNext()) {
-            auto result = reduceObj.identity(obj.nextElem());
-            for (; obj.hasNext(); )
-                result = reduceObj.accum(result, obj.nextElem());
-            return result;
-        }
-        return RetType();
-    }
 };
 
 
-//------------------Move semantics-----------------//
+//--------------------------------------------------------------------------//
+//------------------Extending stream by concating operations-----------------//
+//--------------------------------------------------------------------------//
 
-namespace {
 
-template <class TStream, class TMap>
-using Briefly = typename std::remove_reference_t<TStream>::
-    template ExtendedStreamType<std::remove_reference_t<TMap> >;
+//namespace {
 
-}
 
-// REMINDER: don't forget change friend-declaration into StreamExtended
-template <class TStream, class TMap>
-auto addMap (TStream&& stream, TMap&& functor)
-    -> Briefly<TStream, TMap>
+
+//}
+
+template <class TStream, class Transform>
+auto operator| (TStream&& stream, map<Transform> functor)
+    -> Briefly<TStream, map<Transform> >
 {
 #ifdef LOL_DEBUG_NOISY
     cout << "---Add Map---" << endl;
 #endif
-    return Briefly<TStream, TMap>(std::forward<TMap>(functor), std::forward<TStream>(stream));
+    return Briefly<TStream, map<Transform> >(functor, std::forward<TStream>(stream));
 }
 
 
+template <class TStream, class Predicate>
+auto operator| (TStream&& stream, filter<Predicate> functor)
+    -> Briefly<TStream, filter<Predicate> >
+{
+    using ExtendedStream = Briefly<TStream, filter<Predicate> >;
+    return ExtendedStream::applyFilterAction(ExtendedStream(functor, std::forward<TStream>(stream)));
+}
 
 
 }

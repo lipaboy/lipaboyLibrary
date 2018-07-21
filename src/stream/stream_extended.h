@@ -29,6 +29,10 @@ using std::endl;
 template <bool isOwnContainer, class TRange>
 struct GetRangeIter {};
 
+template <class TStream, class TOperation>
+using Briefly = typename std::remove_reference_t<TStream>::
+    template ExtendedStreamType<std::remove_reference_t<TOperation> >;
+
 //-----------------Stream Extended class----------------------//
 
 template <class TFunctor, class StorageInfo, class... Rest>
@@ -94,24 +98,17 @@ public:
 
     //----------------------Methods API-----------------------//
 
-    template <class Functor>
-    auto operator| (filter<Functor> functor) -> ExtendedStreamType<filter<Functor> > {
-        using ExtendedStream = ExtendedStreamType<filter<Functor> >;
-        ExtendedStream obj(functor, *this);
-        obj.action_ = [] (ExtendedStream* obj) {
-            obj->throwOnInfiniteStream();
-            obj->filter_(obj->getFunctor().functor());
-            obj->action_ = [] (ExtendedStream*) {};
-        };
-        return std::move(obj);
-    }
-    template <class Functor>
-    auto operator| (map<Functor> functor)
-        -> ExtendedStreamType<map<Functor> >
-    {
-        ExtendedStreamType<map<Functor> > obj(functor, *this);
-        return std::move(obj);
-    }
+//    template <class Functor>
+//    auto operator| (filter<Functor> functor) -> ExtendedStreamType<filter<Functor> > {
+//        using ExtendedStream = ExtendedStreamType<filter<Functor> >;
+//        ExtendedStream obj(functor, *this);
+//        obj.action_ = [] (ExtendedStream* obj) {
+//            obj->throwOnInfiniteStream();
+//            obj->filter_(obj->getFunctor().functor());
+//            obj->action_ = [] (ExtendedStream*) {};
+//        };
+//        return std::move(obj);
+//    }
     auto operator| (get functor) -> ExtendedStreamType<get> {
         using ExtendedStream = ExtendedStreamType<get>;
         ExtendedStream newStream(functor, *this);
@@ -156,6 +153,12 @@ public:
     std::ostream& operator| (print_to&& printer) {
         return apply(*this, std::move(printer));
     }
+    template <class Accumulator, class IdenityFn>
+    auto operator| (reduce<Accumulator, IdenityFn> const & reduceObj)
+        -> typename reduce<Accumulator, IdenityFn>::IdentityRetType
+    {
+        return apply(*this, reduceObj);
+    }
     ResultValueType operator| (sum&&) {
         initSlider();
         if (hasNext()) {
@@ -185,6 +188,13 @@ protected:
     vector<typename Stream_::ResultValueType> apply(Stream_ & obj, to_vector&& toVectorObj) {
         return static_cast<SuperTypePtr>(this)->apply(obj, std::move(toVectorObj));
     }
+    template <class Stream_, class Accumulator, class IdenityFn>
+    auto apply(Stream_ & obj, reduce<Accumulator, IdenityFn> const & reduceObj)
+        -> typename reduce<Accumulator, IdenityFn>::IdentityRetType
+    {
+        return static_cast<SuperTypePtr>(this)->apply(obj, reduceObj);
+    }
+
 
             //-----------------Tools-------------------//
 protected:
@@ -331,23 +341,22 @@ protected:
     }
 
 public:
-    template <class Stream_, class Accumulator, class IdenityFn>
-    auto apply(Stream_ & obj, reduce<Accumulator, IdenityFn> const & reduceObj)
-        -> decltype(auto)
-    {
-        return static_cast<SuperTypePtr>(this)->apply(obj, reduceObj);
+    template <class TStream_>
+    static TStream_ applyFilterAction(TStream_&& stream) {
+        // you can't constraint the lambda only for this because the object will be changed after moving
+        stream.action_ = [] (TStream_* obj) {
+            obj->throwOnInfiniteStream();
+            obj->filter_(obj->getFunctor().functor());
+            obj->action_ = [] (TStream_*) {};
+        };
+        return std::forward<TStream_>(stream);
     }
-    template <class Accumulator, class IdenityFn>
-    auto operator| (reduce<Accumulator, IdenityFn> const & reduceObj)
-        -> decltype(auto) //typename reduce<Accumulator, IdenityFn>::
-            //template IdentityRetType<ResultValueType>::type
-    {
-        return apply(*this, reduceObj);
-    }
+
 
     //--------------------------------------------------------------------------------//
     //-----------------------------------Friends--------------------------------------//
     //--------------------------------------------------------------------------------//
+
 
 };
 

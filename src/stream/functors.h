@@ -44,9 +44,11 @@ using lipaboy_lib::WrapBySTDFunctionType;
 //		 doPreliminaryOperations to check if stream isGeneratorProducing and with NoGetTypeBefore
 // TODO: Think about allocators (in Range when happen copying and creating own container)
 //       (maybe too partical case?)
-// TODO: write for operator map move-semantics
 // TODO: think about single-pass input iterators for stream
 // TODO: test different lambdas (with const&T in return type, with T& in argument type)
+// TODO: make Noisy test for reduce operation
+// TODO: make move-semantics for concating operations to stream
+// TODO: think about writing iterators for Stream
 
 enum Info {
     GENERATOR,
@@ -219,25 +221,59 @@ struct ungroupByBit {
 //-----------------------------------Terminated operations-------------------------------------------//
 //---------------------------------------------------------------------------------------------------//
 
+namespace {
 
-template <class Accumulator, class IdentityFn = std::function<void(void)> >
+template <class Accumulator>
+using GetSecondArgumentType = typename function_traits<
+    lipaboy_lib::WrapBySTDFunctionType<Accumulator> >::template arg<1>::type;
+
+using FalseType =
+//    std::false_type;
+    std::function<void(void)>;
+
+//
+
+template <class T>
+struct result_of_else {
+};
+template <class F, class Arg>
+struct result_of_else<F(Arg)> {
+    using type = typename std::result_of<F(Arg)>::type;
+};
+template <class Arg>
+struct result_of_else<FalseType(Arg)>
+    : std::false_type
+{};
+template <class T>
+using result_of_else_t = typename result_of_else<T>::type;
+
+//
+
+template <class F, class Accumulator>
+struct GetFirstArgumentType_ElseArg {
+    using type = typename function_traits<lipaboy_lib::WrapBySTDFunctionType<F> >::template arg<0>::type;
+};
+
+template <class Accumulator>
+struct GetFirstArgumentType_ElseArg<FalseType, Accumulator> {
+    using type = GetSecondArgumentType<Accumulator>;
+};
+
+}
+
+template <class Accumulator, class IdentityFn = FalseType >
 struct reduce : FunctorHolder<Accumulator>,
                 FunctorHolder<IdentityFn>
 {
 public:
     template <class TResult, class Arg>
-    struct AccumRetType {
-        using type = typename std::result_of<Accumulator(TResult, Arg)>::type;
-    };
+    using AccumRetType = typename std::result_of<Accumulator(TResult, Arg)>::type;
     using IdentityFnType = IdentityFn;
-//    template <class Arg>
-//    struct IdentityRetType {
-////        if constexpr (std::is_same<IdentityFn, std::function<void(void)> >::value)
-////            using type = Arg;
-////        else
-////            using type = typename std::result_of<IdentityFnType(Arg)>::type>;
-////        using type = decltype(identity);
-//    };
+    using ArgType = typename GetFirstArgumentType_ElseArg<IdentityFnType, Accumulator>::type;
+//    template <class ArgType>
+    using IdentityRetType = lipaboy_lib::enable_if_else_t<std::is_same<IdentityFn, FalseType >::value,
+            ArgType, result_of_else_t<IdentityFnType(ArgType)> >;
+
 public:
     reduce(IdentityFn&& identity, Accumulator&& accum)
         : FunctorHolder<Accumulator>(accum),
@@ -245,26 +281,29 @@ public:
     {}
     reduce(Accumulator&& accum)
         : FunctorHolder<Accumulator>(accum),
-          FunctorHolder<IdentityFn>([] (void) -> void {})
+          FunctorHolder<IdentityFn>(FalseType())
     {}
     static constexpr FunctorMetaTypeEnum metaInfo = REDUCE;
 
-    template <class TResult, class Arg>
-    typename AccumRetType<TResult, Arg>::type accum(TResult&& result, Arg&& arg) const {
-        return FunctorHolder<Accumulator>::functor()(std::forward<TResult>(result),
-                                                     std::forward<Arg>(arg));
+    template <class TResult_, class Arg_>
+    AccumRetType<TResult_, Arg_> accum(TResult_&& result, Arg_&& arg) const {
+        return FunctorHolder<Accumulator>::functor()(std::forward<TResult_>(result),
+                                                     std::forward<Arg_>(arg));
     }
-    template <class Arg>
-    decltype(auto) identity(Arg arg) const {
-        if constexpr (std::is_same<IdentityFn, std::function<void(void)> >::value)
-            return std::forward<Arg>(arg);
+    template <class Arg_>
+    IdentityRetType identity(Arg_&& arg) const
+    {
+        if constexpr (std::is_same<IdentityFn, FalseType>::value)
+            return std::forward<Arg_>(arg);
         else
-            return FunctorHolder<IdentityFn>::functor()(std::forward<Arg>(arg));
+            return FunctorHolder<IdentityFn>::functor()(std::forward<Arg_>(arg));
     }
 };
+
 struct sum {
     static constexpr FunctorMetaTypeEnum metaInfo = SUM;
 };
+
 struct print_to {
 public:
     print_to(std::ostream& o, string delimiter = "") : ostreamObj_(o), delimiter_(delimiter) {}
@@ -276,9 +315,13 @@ private:
     std::ostream& ostreamObj_;
     string delimiter_;
 };
+
 struct to_vector {
+    template <class T>
+    using ContainerType = std::vector<T>;
     static constexpr FunctorMetaTypeEnum metaInfo = TO_VECTOR;
 };
+
 struct nth {
     using size_type = size_t;
 

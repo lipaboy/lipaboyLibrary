@@ -300,18 +300,21 @@ TEST(StreamTest, noisy) {
 
 #ifdef LOL_DEBUG_NOISY
 
-        vector<NoisyD> vecNoisy(8);
+        vector<NoisyD> vecNoisy(2);
         auto streamNoisy = createStream(vecNoisy.begin(), vecNoisy.end());
         cout << "\tstart streaming" << endl;
         auto streamTemp2 =
-                (addMap(
-                    addMap(
-                     addMap(
-                         streamNoisy
-                        , map([] (NoisyD&& a) -> NoisyD { return std::move(a); }))
-                     , map([] (NoisyD&& a) -> NoisyD { return std::move(a); }))
-                    , map([] (NoisyD&& a) -> NoisyD { return std::move(a); }))
-                 );
+                (streamNoisy
+                    | map([] (NoisyD&& a) -> NoisyD { return std::move(a); })
+                    | map([] (NoisyD&& a) -> NoisyD { return std::move(a); })
+                    | map([] (NoisyD&& a) -> NoisyD { return std::move(a); })
+    //                    | get(4)
+    //                    | get(4)
+    //                    | filter([] (const Noisy& a) { static int i = 0; return (i++ % 2 == 0); })
+    //                    | get(4)
+    //                | nth(0)
+                );
+
         cout << "\tend streaming" << endl;
         if (!vecNoisy.empty())
             streamTemp2 | nth(0);
@@ -321,9 +324,9 @@ TEST(StreamTest, noisy) {
         cout << "\tstart streaming" << endl;
         auto streamTemp =
             (streamNoisy
-                | map([] (const NoisyD& a) -> NoisyD { return a; })
-                | map([] (const NoisyD& a) -> NoisyD { return a; })
-                | map([] (const NoisyD& a) -> NoisyD { return a; })
+                | filter([] (const NoisyD& ) { return true; })
+                | filter([] (const NoisyD& ) { return true; })
+                | filter([] (const NoisyD& ) { return true; })
 //                    | get(4)
 //                    | get(4)
 //                    | filter([] (const Noisy& a) { static int i = 0; return (i++ % 2 == 0); })
