@@ -29,9 +29,27 @@ using std::endl;
 template <bool isOwnContainer, class TRange>
 struct GetRangeIter {};
 
+
+namespace shortening {
+
 template <class TStream, class TOperation>
-using Briefly = typename std::remove_reference_t<TStream>::
+using StreamTypeExtender = typename std::remove_reference_t<TStream>::
     template ExtendedStreamType<std::remove_reference_t<TOperation> >;
+
+template <class T, class RelativeTo>
+struct relative_const {
+    using type = T;
+};
+
+template <class T, class RelativeTo>
+struct relative_const<T, const RelativeTo> {
+    using type = const T;
+};
+
+template <class T, class RelativeTo>
+using relative_const_t = typename relative_const<T, RelativeTo>::type;
+
+}
 
 //-----------------Stream Extended class----------------------//
 
@@ -98,17 +116,6 @@ public:
 
     //----------------------Methods API-----------------------//
 
-//    template <class Functor>
-//    auto operator| (filter<Functor> functor) -> ExtendedStreamType<filter<Functor> > {
-//        using ExtendedStream = ExtendedStreamType<filter<Functor> >;
-//        ExtendedStream obj(functor, *this);
-//        obj.action_ = [] (ExtendedStream* obj) {
-//            obj->throwOnInfiniteStream();
-//            obj->filter_(obj->getFunctor().functor());
-//            obj->action_ = [] (ExtendedStream*) {};
-//        };
-//        return std::move(obj);
-//    }
     auto operator| (get functor) -> ExtendedStreamType<get> {
         using ExtendedStream = ExtendedStreamType<get>;
         ExtendedStream newStream(functor, *this);
@@ -182,17 +189,17 @@ public:
 protected:
     template <class Stream_>
     std::ostream& apply(Stream_ & obj, print_to&& printer) {
-        return static_cast<SuperTypePtr>(this)->apply(obj, std::move(printer));
+        return superThisPtr()->template apply(obj, std::move(printer));
     }
     template <class Stream_>
     vector<typename Stream_::ResultValueType> apply(Stream_ & obj, to_vector&& toVectorObj) {
-        return static_cast<SuperTypePtr>(this)->apply(obj, std::move(toVectorObj));
+        return superThisPtr()->apply(obj, std::move(toVectorObj));
     }
     template <class Stream_, class Accumulator, class IdenityFn>
     auto apply(Stream_ & obj, reduce<Accumulator, IdenityFn> const & reduceObj)
         -> typename reduce<Accumulator, IdenityFn>::IdentityRetType
     {
-        return static_cast<SuperTypePtr>(this)->apply(obj, reduceObj);
+        return superThisPtr()->apply(obj, reduceObj);
     }
 
 
@@ -215,8 +222,10 @@ protected:
 
 protected:
     void throwOnInfiniteStream() const {
-        static_cast<ConstSuperTypePtr>(this)->throwOnInfiniteStream();
+        constSuperThisPtr()->throwOnInfiniteStream();
     }
+    SuperTypePtr superThisPtr() { return static_cast<SuperTypePtr>(this); }
+    ConstSuperTypePtr constSuperThisPtr() const { return static_cast<ConstSuperTypePtr>(this); }
 
     //-----------------Slider API--------------//
 
@@ -227,7 +236,7 @@ protected:
     void initSlider() {
         doPreliminaryActions();
         throwOnInfiniteStream();
-        static_cast<SuperTypePtr>(this)->template initSlider<isOwnContainer_>();
+        superThisPtr()->template initSlider<isOwnContainer_>();
         if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT)
             indexIter = 0;
     }
@@ -235,7 +244,7 @@ private:
     // nobody instead of initSlider can call it
     void doPreliminaryActions() {
         preAction_(this);
-        static_cast<SuperTypePtr>(this)->doPreliminaryActions();
+        superThisPtr()->doPreliminaryActions();
         action_(this);
     }
 
@@ -249,32 +258,32 @@ protected:
         // method and derived from that class may have the another value of isOwnContainer()
 
         if constexpr (TFunctor::metaInfo == MAP)
-            return std::move(functor_(static_cast<SuperTypePtr>(this)->template nextElem<isOwnContainer_>()));
+            return std::move(functor_(superThisPtr()->template nextElem<isOwnContainer_>()));
         else if constexpr (TFunctor::metaInfo == GROUP_BY_VECTOR) {
             auto partSize = functor_.partSize();
             ResultValueType part;
             size_type i = 0;
             for (; i < partSize && hasNext(); i++)
-                part.push_back(static_cast<SuperTypePtr>(this)->template nextElem<isOwnContainer_>());
+                part.push_back(superThisPtr()->template nextElem<isOwnContainer_>());
 
             return std::move(part);
         }
         else if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT) {
             const size_type bitsCountOfType = 8 * sizeof(ValueType);
             if (indexIter % bitsCountOfType == 0)
-                tempValue = static_cast<SuperTypePtr>(this)->template nextElem<isOwnContainer_>();
+                tempValue = superThisPtr()->template nextElem<isOwnContainer_>();
             bool res = (tempValue & (1 << indexIter)) >> indexIter;
             indexIter = (indexIter + 1) % bitsCountOfType;
             return res;
         }
         else
-            return std::move(static_cast<SuperTypePtr>(this)->template nextElem<isOwnContainer_>());
+            return std::move(superThisPtr()->template nextElem<isOwnContainer_>());
     }
 
     ValueType currentAtom() const { return currentAtom<isOwnContainer()>(); }
     template <bool isOwnContainer_>
     ValueType currentAtom() const {
-        return static_cast<ConstSuperTypePtr>(this)->template currentAtom<isOwnContainer_>();
+        return constSuperThisPtr()->template currentAtom<isOwnContainer_>();
     }
 
     bool hasNext() const { return hasNext<isOwnContainer()>(); }
@@ -282,9 +291,9 @@ protected:
     bool hasNext() const {
         if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT)
             return (indexIter != 0)
-                || static_cast<ConstSuperTypePtr>(this)->template hasNext<isOwnContainer_>();
+                || constSuperThisPtr()->template hasNext<isOwnContainer_>();
         else
-            return static_cast<ConstSuperTypePtr>(this)->template hasNext<isOwnContainer_>();
+            return constSuperThisPtr()->template hasNext<isOwnContainer_>();
     }
 
     //-----------------Slider API Ends--------------//
@@ -294,8 +303,8 @@ protected:
     ValueType getContainerElement(size_type index) {
         return applyFunctors(range().template get<isOwnContainer()>(index));
     }
-    Range & range() { return static_cast<SuperTypePtr>(this)->range(); }
-    const Range & range() const { return static_cast<ConstSuperTypePtr>(this)->range(); }
+    Range & range() { return superThisPtr()->range(); }
+    const Range & range() const { return constSuperThisPtr()->range(); }
 
 public:
     TFunctor const & getFunctor() const { return functor_; }
@@ -305,7 +314,7 @@ public:
 private:
     bool equals(Stream & other) {
         return (functor_ == other.functor_
-                && static_cast<SuperTypePtr>(this)->equals(static_cast<SuperType&>(other))
+                && superThisPtr()->equals(static_cast<SuperType&>(other))
                 );
     }
 
@@ -325,7 +334,7 @@ protected:
     void filter_(TFilterFunctor functor) {
         if constexpr (TFunctor::metaInfo == FILTER) {
             OwnContainerTypePtr pNewContainer = range().makeContainer();
-            SuperTypePtr superThis = static_cast<SuperTypePtr>(this);
+            SuperTypePtr superThis = superThisPtr();
             superThis->initSlider();
             for (; superThis->hasNext(); )
             {
@@ -340,9 +349,9 @@ protected:
         }
     }
 
-public:
+private:
     template <class TStream_>
-    static TStream_ applyFilterAction(TStream_&& stream) {
+    static TStream_ setFilterAction(TStream_&& stream) {
         // you can't constraint the lambda only for this because the object will be changed after moving
         stream.action_ = [] (TStream_* obj) {
             obj->throwOnInfiniteStream();
@@ -357,6 +366,9 @@ public:
     //-----------------------------------Friends--------------------------------------//
     //--------------------------------------------------------------------------------//
 
+    template <class TStream, class Predicate>
+    friend auto operator| (TStream&& stream, filter<Predicate> functor)
+        -> shortening::StreamTypeExtender<TStream, filter<Predicate> >;
 
 };
 

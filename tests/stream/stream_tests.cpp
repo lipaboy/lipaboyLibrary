@@ -300,7 +300,7 @@ TEST(StreamTest, noisy) {
 
 #ifdef LOL_DEBUG_NOISY
 
-        vector<NoisyD> vecNoisy(2);
+        vector<NoisyD> vecNoisy(1);
         auto streamNoisy = createStream(vecNoisy.begin(), vecNoisy.end());
         cout << "\tstart streaming" << endl;
         auto streamTemp2 =

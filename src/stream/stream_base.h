@@ -79,19 +79,6 @@ public:
 
     // TODO: put off this methods into "global" function operators (for move-semantics of *this)
 
-//    template <class Predicate>
-//    auto operator| (filter<Predicate> functor) -> ExtendedStreamType<filter<Predicate> >
-//    {
-//        using ExtendedStream = ExtendedStreamType<filter<Predicate> >;
-//        ExtendedStream newStream(functor, *this);
-//        // you can't constraint the lambda only for this because the object will be changed after moving
-//        newStream.action_ = [] (ExtendedStream* obj) {
-//            obj->throwOnInfiniteStream();
-//            obj->filter_(obj->getFunctor().functor());
-//            obj->action_ = [] (ExtendedStream*) {};
-//        };
-//        return std::move(newStream);
-//    }
     auto operator| (get functor) -> ExtendedStreamType<get> {
         using ExtendedStream = ExtendedStreamType<get>;
         ExtendedStream newStream(functor, *this);
@@ -289,21 +276,21 @@ private:
 
 template <class TStream, class Transform>
 auto operator| (TStream&& stream, map<Transform> functor)
-    -> Briefly<TStream, map<Transform> >
+    -> shortening::StreamTypeExtender<TStream, map<Transform> >
 {
 #ifdef LOL_DEBUG_NOISY
     cout << "---Add Map---" << endl;
 #endif
-    return Briefly<TStream, map<Transform> >(functor, std::forward<TStream>(stream));
+    return shortening::StreamTypeExtender<TStream, map<Transform> >(functor, std::forward<TStream>(stream));
 }
 
 
 template <class TStream, class Predicate>
 auto operator| (TStream&& stream, filter<Predicate> functor)
-    -> Briefly<TStream, filter<Predicate> >
+    -> shortening::StreamTypeExtender<TStream, filter<Predicate> >
 {
-    using ExtendedStream = Briefly<TStream, filter<Predicate> >;
-    return ExtendedStream::applyFilterAction(ExtendedStream(functor, std::forward<TStream>(stream)));
+    using ExtendedStream = shortening::StreamTypeExtender<TStream, filter<Predicate> >;
+    return ExtendedStream::setFilterAction(ExtendedStream(functor, std::forward<TStream>(stream)));
 }
 
 
