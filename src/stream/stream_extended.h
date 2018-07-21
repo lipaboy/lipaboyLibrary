@@ -291,10 +291,10 @@ protected:
             return std::move(superThisPtr()->template nextElem<isOwnContainer_>());
     }
 
-    ValueType currentAtom() const { return currentAtom<isOwnContainer()>(); }
+    ValueType currentAtom() const { return std::move(currentAtom<isOwnContainer()>()); }
     template <bool isOwnContainer_>
     ValueType currentAtom() const {
-        return constSuperThisPtr()->template currentAtom<isOwnContainer_>();
+        return std::move(constSuperThisPtr()->template currentAtom<isOwnContainer_>());
     }
 
     bool hasNext() const { return hasNext<isOwnContainer()>(); }
@@ -335,8 +335,6 @@ protected:
     // TODO: get rid of preAction_: replace it on constexpr condition in doPreliminaryActions()
     ActionType action_ = [] (Stream*) {};
     ActionType preAction_ = [] (Stream*) {};
-    // TODO: think about allocating the memory under these vars instead of storaging on stack
-    // only for ungroupByBit and group operations
     struct TempValueOwner {
         size_type indexIter;
         typename SuperType::ResultValueType tempValue;
@@ -353,10 +351,10 @@ protected:
             for (; superThis->hasNext(); )
             {
                 ValueType atom = superThis->currentAtom();
-                auto elem = superThis->nextElem();
+//                auto elem = superThis->nextElem();
                 // TODO: move the element (only if copy from your own container)
-                if (functor(std::move(elem)) == true) {
-                    pNewContainer->push_back(atom);
+                if (functor(std::move(superThis->nextElem())) == true) {
+                    pNewContainer->push_back(std::move(atom));
                 }
             }
             range().setContainer(std::move(pNewContainer));

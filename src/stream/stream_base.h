@@ -242,9 +242,9 @@ protected:
 //    template <bool isOwnContainer_>
 //    ValueType currentElem() { return range().template currentElem<isOwnContainer_>(); }
 
-    ValueType currentAtom() const { return currentAtom<isOwnContainer()>(); }
+    ValueType currentAtom() const { return std::move(currentAtom<isOwnContainer()>()); }
     template <bool isOwnContainer_>
-    ValueType currentAtom() const { return range().template currentElem<isOwnContainer_>(); }
+    ValueType currentAtom() const { return std::move(range().template currentElem<isOwnContainer_>()); }
 
     bool hasNext() const { return hasNext<isOwnContainer()>(); }
     template <bool isOwnContainer_>
