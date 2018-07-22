@@ -86,7 +86,7 @@ public:
                                             // (because before generating the elements you must set the size)
             [] (ExtendedStream * obj)
             {
-                auto border = obj->getFunctor().border();
+                auto border = obj->operation().border();
                 if (obj->range().isInfinite())
                     obj->range().makeFinite(border);
                 else
@@ -103,7 +103,7 @@ public:
         using ExtendedStream = ExtendedStreamType<skip>;
         ExtendedStream newStream(skipObj, *this);
         newStream.action_ = [] (ExtendedStream* obj) {
-            obj->range().template moveBeginIter<ExtendedStream::isOwnContainer()>(obj->functor_.index());
+            obj->range().template moveBeginIter<ExtendedStream::isOwnContainer()>(obj->operation().index());
             obj->action_ = [] (ExtendedStream*) {};
         };
         return std::move(newStream);
@@ -232,15 +232,15 @@ protected:
     template <bool isOwnContainer_>
     ResultValueType nextElem() { return std::move(range().template nextElem<isOwnContainer_>()); }
 
-    // Why can't we realize this interface:
+    // Why can't we realize currentElem() interface:
     // 1) problem with group operations: somebody must storage the result
     //    of getting current element. Okey, we have tempValue.
     //    But who will initialize it? nextElem()? initSlider()?
     //    Or maybe add condition on first getting current element?
     //    But condition is bad because conveyor breaks down on it.
-//    ValueType currentElem() { return currentElem<isOwnContainer()>(); }
-//    template <bool isOwnContainer_>
-//    ValueType currentElem() { return range().template currentElem<isOwnContainer_>(); }
+    ValueType currentElem() { return std::move(currentElem<isOwnContainer()>()); }
+    template <bool isOwnContainer_>
+    ValueType currentElem() { return std::move(range().template currentElem<isOwnContainer_>()); }
 
     ValueType currentAtom() const { return std::move(currentAtom<isOwnContainer()>()); }
     template <bool isOwnContainer_>
@@ -267,12 +267,6 @@ private:
 //------------------Extending stream by concating operations-----------------//
 //--------------------------------------------------------------------------//
 
-
-//namespace {
-
-
-
-//}
 
 template <class TStream, class Transform>
 auto operator| (TStream&& stream, map<Transform> functor)
