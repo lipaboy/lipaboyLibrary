@@ -220,8 +220,9 @@ protected:
             //-----------------Tools-------------------//
 protected:
     static constexpr bool isOwnContainer() {
-        return (TFunctor::metaInfo == FILTER
-                || TFunctor::metaInfo == GET
+        return (//TFunctor::metaInfo == FILTER
+                //||
+                TFunctor::metaInfo == GET
                 || SuperType::isOwnContainer());
     }
     static constexpr bool isNoGetTypeBefore() {
@@ -235,11 +236,20 @@ protected:
     }
 
 protected:
-    void throwOnInfiniteStream() const {
-        constSuperThisPtr()->throwOnInfiniteStream();
-    }
+    // shortness
+    void throwOnInfiniteStream() const { constSuperThisPtr()->throwOnInfiniteStream(); }
     SuperTypePtr superThisPtr() { return static_cast<SuperTypePtr>(this); }
     ConstSuperTypePtr constSuperThisPtr() const { return static_cast<ConstSuperTypePtr>(this); }
+    template <bool isOwnContainer_>
+    auto superNextElem() -> typename SuperType::ResultValueType {
+        return superThisPtr()->template nextElem<isOwnContainer_>();
+    }
+    template <bool isOwnContainer_>
+    bool superHasNext() const { return constSuperThisPtr()->template hasNext<isOwnContainer_>(); }
+    template <bool isOwnContainer_>
+    auto superCurrentElem() -> typename SuperType::ResultValueType {
+        return superThisPtr()->template currentElem<isOwnContainer_>();
+    }
 
     //------------------------------------------------------------------------//
     //-----------------------------Slider API---------------------------------//
@@ -255,8 +265,16 @@ protected:
         superThisPtr()->template initSlider<isOwnContainer_>();
         if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT)
                 ungroupTempOwner_->indexIter = 0;
+        else if constexpr (TFunctor::metaInfo == FILTER) {
+            // TODO: realize shifting the slider (without creating copy of result object
+                for (; hasNext(); superNextElem<isOwnContainer_>())
+                    if (true == operation().functor()(superCurrentElem<isOwnContainer_>()))
+                        break;
+        }
         else if constexpr (TFunctor::metaInfo == GROUP_BY_VECTOR) {
-                groupedTempOwner_->tempValue = nextElem();
+            auto partSize = operation_.partSize();
+            for (size_type i = 0; i < partSize && hasNext(); i++)
+                groupedTempOwner_->tempValue.push_back(superNextElem<isOwnContainer_>());
         }
     }
 private:
@@ -277,14 +295,21 @@ protected:
         // method and derived from that class may have the another value of isOwnContainer()
 
         if constexpr (TFunctor::metaInfo == MAP)
-                return std::move(operation()(superThisPtr()->template nextElem<isOwnContainer_>()));
+                return std::move(operation()(superNextElem<isOwnContainer_>()));
+        if constexpr (TFunctor::metaInfo == FILTER) {
+                auto currElem = superNextElem<isOwnContainer_>();
+                for (; hasNext(); superNextElem<isOwnContainer_>())
+                    if (true == operation().functor()(superCurrentElem<isOwnContainer_>()))
+                        break;
+                return std::move(currElem);
+        }
         else if constexpr (TFunctor::metaInfo == GROUP_BY_VECTOR) {
                 auto partSize = operation_.partSize();
                 ResultValueType part;
-                size_type i = 0;
-                for (; i < partSize && hasNext(); i++)
-                    part.push_back(superThisPtr()->template nextElem<isOwnContainer_>());
+                for (size_type i = 0; i < partSize && superHasNext<isOwnContainer_>(); i++)
+                    part.push_back(superNextElem<isOwnContainer_>());
 
+                std::swap(groupedTempOwner_->tempValue, part);
                 return std::move(part);
         }
         else if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT) {
@@ -293,13 +318,13 @@ protected:
                 ValueType & tempValue = ungroupTempOwner_->tempValue;
 
                 if (indexIter % bitsCountOfType == 0)
-                    tempValue = superThisPtr()->template nextElem<isOwnContainer_>();
+                    tempValue = superNextElem<isOwnContainer_>();
                 bool res = (tempValue & (1 << indexIter)) >> indexIter;
                 indexIter = (indexIter + 1) % bitsCountOfType;
                 return res;
         }
         else
-                return std::move(superThisPtr()->template nextElem<isOwnContainer_>());
+                return std::move(superNextElem<isOwnContainer_>());
     }
 
     // TODO: must be test
@@ -332,6 +357,9 @@ protected:
         if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT)
                 return (ungroupTempOwner_->indexIter != 0)
                     || constSuperThisPtr()->template hasNext<isOwnContainer_>();
+        else if constexpr (TFunctor::metaInfo == GROUP_BY_VECTOR)
+                return (!groupedTempOwner_->tempValue.empty()
+                        || constSuperThisPtr()->template hasNext<isOwnContainer_>());
         else
                 return constSuperThisPtr()->template hasNext<isOwnContainer_>();
     }
@@ -385,39 +413,12 @@ protected:
     unique_ptr<GroupedTempValueType> groupedTempOwner_;
 
 protected:
-    template <class TFilterFunctor>
-    void filter_(TFilterFunctor functor) {
-        if constexpr (TFunctor::metaInfo == FILTER) {
-                OwnContainerTypePtr pNewContainer = range().makeContainer();
-                SuperTypePtr superThis = superThisPtr();
-                superThis->initSlider();
-                for (; superThis->hasNext(); )
-                {
-                    // Bug: it doesn't work with group_to_vector operation
-                    ValueType atom = superThis->currentAtom();
-                    if (functor(std::move(superThis->nextElem())) == true) {
-                        pNewContainer->push_back(std::move(atom));
-                    }
-                }
-                range().setContainer(std::move(pNewContainer));
-        }
+
 #ifdef LOL_DEBUG_NOISY
         cout << "---Filter ended---" << endl;
 #endif
-    }
 
 private:
-    template <class TStream_>
-    static TStream_ setFilterAction(TStream_&& stream) {
-        // you can't constraint the lambda only for this because the object will be changed after moving
-        stream.action_ = [] (TStream_* obj) {
-            obj->throwOnInfiniteStream();
-            obj->filter_(obj->operation().functor());
-            obj->action_ = [] (TStream_*) {};
-        };
-        return std::forward<TStream_>(stream);
-    }
-
 
     //--------------------------------------------------------------------------------//
     //-----------------------------------Friends--------------------------------------//

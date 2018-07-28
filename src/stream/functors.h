@@ -2,6 +2,7 @@
 
 #include "extra_tools/extra_tools.h"
 
+#include <optional>
 #include <vector>
 #include <functional>
 #include <algorithm>
@@ -26,7 +27,7 @@ using std::function;
 using std::cout;
 using std::endl;
 
-#define LOL_DEBUG_NOISY
+//#define LOL_DEBUG_NOISY
 
 using lipaboy_lib::function_traits;
 using lipaboy_lib::WrapBySTDFunctionType;
@@ -136,7 +137,8 @@ struct FunctorHolder
 
 
 template <class Predicate>
-struct filter : FunctorHolder<Predicate>, TReturnSameType {
+struct filter : FunctorHolder<Predicate>, TReturnSameType
+{
     filter(Predicate functor) : FunctorHolder<Predicate>(functor) {}
     static constexpr FunctorMetaTypeEnum metaInfo = FILTER;
 };

@@ -279,9 +279,8 @@ TEST(UngroupByBit, init_list) {
 
 int sqr (int a) { return a * a; }
 bool kekBool (int a) { return a % 2 == 0; }
-// Why I can't use simple functions
 
-TEST(Filter, init_list) {
+TEST(Filter, vector_int) {
     vector<int> olala = { 1, 2, 3, 4, 5, 6, 7, 8 };
     auto stream2 = createStream(olala.begin(), olala.end());
     auto stream4 = stream2 | filter(kekBool)
@@ -290,6 +289,17 @@ TEST(Filter, init_list) {
     auto kek = stream4 | to_vector();
 
     ASSERT_EQ(kek, decltype(kek)({ 16, 36 }));
+}
+
+TEST(Filter, group_by_vector) {
+    vector<int> olala = { 1, 2, 3, 4, 5, 6, 7, 8 };
+    auto stream2 = createStream(olala.begin(), olala.end());
+    auto kek = stream2
+            | filter([] (auto a) { return a % 2 == 0; })
+            | group_by_vector(3)
+            | to_vector();
+
+    ASSERT_EQ(kek, decltype(kek)({ vector<int>({ 2, 4, 6 }), vector<int>({ 8 }) }));
 }
 
 using lipaboy_lib_tests::NoisyD;

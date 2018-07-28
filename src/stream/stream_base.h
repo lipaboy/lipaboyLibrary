@@ -284,7 +284,10 @@ auto operator| (TStream&& stream, filter<Predicate> functor)
     -> shortening::StreamTypeExtender<TStream, filter<Predicate> >
 {
     using ExtendedStream = shortening::StreamTypeExtender<TStream, filter<Predicate> >;
-    return ExtendedStream::setFilterAction(ExtendedStream(functor, std::forward<TStream>(stream)));
+    return //ExtendedStream::setFilterAction(
+                ExtendedStream(functor, std::forward<TStream>(stream)
+                               //)
+                );
 }
 
 
