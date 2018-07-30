@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <memory>
 
 #include "common_interfaces/algebra.h"
 #include "maths/fixed_precision_number.h"
@@ -17,6 +18,7 @@ using std::cout;
 using std::endl;
 using std::vector;
 using std::string;
+using std::unique_ptr;
 
 using lipaboy_lib::FixedPrecisionNumber;
 using lipaboy_lib::Interval;
@@ -61,55 +63,50 @@ TEST(Interval, contains) {
     ASSERT_TRUE(interval.containsNone(0, 1, 5));
 }
 
-// Test for trying to undestand how work with different types (for example vector<T, Alloc1> and vector<T, Alloc2>)
-template <class T>
-class A {
-public:
-	A(int e) : elem(e) {}
-	int elem;
 
-	template<class U>
-	A<T> const & operator= (A<U> const & second) {
-		elem = second.elem;
-		return *this;
-	}
+class PtrDeallocationWrapper {
+public:
+    using T = string;
+protected:
+    PtrDeallocationWrapper(T * ptr) : ptr_(ptr) {}
+
+public:
+    ~PtrDeallocationWrapper() {}
+    T * ptr() { return ptr_; }
+
+private:
+    T * ptr_;
+};
+
+class PtrDeallocationWrapperOnHeap
+        : public PtrDeallocationWrapper
+{
+public:
+    template <class... Args>
+    PtrDeallocationWrapperOnHeap(Args&&... args)
+        : PtrDeallocationWrapper(new T(std::forward<Args>(args)...))
+    {}
+    ~PtrDeallocationWrapperOnHeap() {
+        delete ptr();
+    }
+};
+
+class PtrDeallocationWrapperOnStack
+        : public PtrDeallocationWrapper
+{
+public:
+    PtrDeallocationWrapperOnStack(T * ptr)
+        : PtrDeallocationWrapper(ptr)
+    {}
+    ~PtrDeallocationWrapperOnStack() {}
 };
 
 TEST(Check, check) {
-	A<int> first(1);
-	A<float> second(2);
+    vector<unique_ptr<PtrDeallocationWrapper> > vec;
 
-	first = second;
-	ASSERT_EQ(first.elem, 2);
-}
-
-//template <class Derived_>
-//class Base {
-//public:
-
-//};
-
-template <class T>
-class Derived {
-public:
-    Derived() : e_(3) {}
-
-    template <class B_>
-    Derived(int e, B_&& b) : e_(e) {}
-
-    int e_;
-};
-
-template <class T>
-void func(T&& t) {
-    using type = std::remove_reference_t<T>;
-    type newT = type(5, std::forward<T>(t));
-}
-
-TEST(Check, check2) {
-    Derived<int> d;
-    func(d);
-    func(std::move(d));
+    vec.push_back(std::move(unique_ptr(new PtrDeallocationWrapperOnHeap("lol"))));
+    string str1 = "kek";
+    vec.push_back(std::move(unique_ptr<PtrDeallocationWrapper>(new PtrDeallocationWrapperOnStack(&str1))));
 }
 
 }

@@ -142,10 +142,10 @@ public:
 
         newStream.*pAction = [] (ExtendedStream * obj) {
             auto border = obj->operation().border();
-            if (obj->range().isInfinite())
+//            if (obj->range().isInfinite())
+//                obj->range().makeFinite(border);
+//            else
                 obj->range().makeFinite(border);
-            else
-                obj->range().setSize(border);
             obj->preAction_ = [] (ExtendedStream*) {};
         };;
 
@@ -266,7 +266,7 @@ protected:
         if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT)
                 ungroupTempOwner_->indexIter = 0;
         else if constexpr (TFunctor::metaInfo == FILTER) {
-            // TODO: realize shifting the slider (without creating copy of result object
+                // TODO: realize shifting the slider (without creating copy of result object
                 for (; hasNext(); superNextElem<isOwnContainer_>())
                     if (true == operation().functor()(superCurrentElem<isOwnContainer_>()))
                         break;
@@ -298,9 +298,11 @@ protected:
                 return std::move(operation()(superNextElem<isOwnContainer_>()));
         if constexpr (TFunctor::metaInfo == FILTER) {
                 auto currElem = superNextElem<isOwnContainer_>();
-                for (; hasNext(); superNextElem<isOwnContainer_>())
-                    if (true == operation().functor()(superCurrentElem<isOwnContainer_>()))
+                for (; hasNext(); superNextElem<isOwnContainer_>()) {
+                    auto elem = superCurrentElem<isOwnContainer_>();
+                    if (true == operation().functor()(elem))
                         break;
+                }
                 return std::move(currElem);
         }
         else if constexpr (TFunctor::metaInfo == GROUP_BY_VECTOR) {

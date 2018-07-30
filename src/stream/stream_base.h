@@ -87,10 +87,10 @@ public:
             [] (ExtendedStream * obj)
             {
                 auto border = obj->operation().border();
-                if (obj->range().isInfinite())
+//                if (obj->range().isInfinite())
+//                    obj->range().makeFinite(border);
+//                else
                     obj->range().makeFinite(border);
-                else
-                    obj->range().setSize(border);
                 obj->preAction_ = [] (ExtendedStream*) {};
             };
         return std::move(newStream);

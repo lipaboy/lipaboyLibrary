@@ -46,7 +46,7 @@ public:
     using OutsideIterator = typename Stream::outside_iterator;
     using size_type = typename Stream::size_type;
     using TIndex = size_type;
-	// TODO: remove this crutch (Visual Studio)
+    // TODO: remove this crutch (Visual Studio compiler cannot resolve it)
 	using GeneratorTypePtr = //typename Stream::GeneneratorTypePtr;
 		std::function<ValueType(void)>;
     using OwnContainerType = OwnContainerTypeWithoutValueType<ValueType>;
@@ -65,7 +65,8 @@ public:
     {}
     Range(GeneratorTypePtr generator)
         : outsideBegin_(), outsideEnd_(), pGenerator_(generator),
-          action_([] (Range*) {})
+          action_([] (Range*) {}),
+          isInfinite_(true)
     {
         setOwnIndices(0, 0);
     }
@@ -73,7 +74,8 @@ public:
         : outsideBegin_(obj.outsideBegin_), outsideEnd_(obj.outsideEnd_),
           ownBeginIndex_(obj.ownBeginIndex_), ownEndIndex_(obj.ownEndIndex_),
           pContainer_(obj.pContainer_ == nullptr ? nullptr : new OwnContainerType(*obj.pContainer_)),
-          pGenerator_(obj.pGenerator_), action_(obj.action_)
+          pGenerator_(obj.pGenerator_), action_(obj.action_),
+          isInfinite_(obj.isInfinite_)
     {
 #ifdef LOL_DEBUG_NOISY
         cout << " Range copy-constructed" << endl;
@@ -83,7 +85,8 @@ public:
         : outsideBegin_(std::move(obj.outsideBegin_)), outsideEnd_(std::move(obj.outsideEnd_)),
           ownBeginIndex_(obj.ownBeginIndex_), ownEndIndex_(obj.ownEndIndex_),
           pContainer_(std::move(obj.pContainer_)),
-          pGenerator_(std::move(obj.pGenerator_)), action_(std::move(obj.action_))
+          pGenerator_(std::move(obj.pGenerator_)), action_(std::move(obj.action_)),
+          isInfinite_(obj.isInfinite_)
     {
 #ifdef LOL_DEBUG_NOISY
         cout << " Range move-constructed" << endl;
@@ -139,27 +142,21 @@ public:
                     setOwnIndices(0, pContainer_->size());
                 }
         }
+        else if constexpr (StorageInfo::info == GENERATOR)
+                size_ = newSize;
         // move end-iter
         if (newSize <= ownEndIndex_ - ownBeginIndex_)
             setOwnIndices(ownBeginIndex_, ownBeginIndex_ + newSize);
     }
     //size_type size() const { return size_; }
-    bool isInfinite() const { return (pGenerator_ != nullptr && pContainer_ == nullptr); }
+    bool isInfinite() const { return isInfinite_; }
     void setContainer(OwnContainerTypePtr pNewContainer) {
         pContainer_ = std::move(pNewContainer);
         setOwnIndices(0, pContainer_->size());
     }
     void makeFinite(size_type size) {
-        if (isInfinite()) {
-            // You can't make it only for this because action_ may be copied at another range object
-            setAction([size] (Range * obj) -> void {
-                obj->pContainer_ = obj->makeContainer();
-                for (size_type i = 0; i < size; i++)
-                    obj->pContainer_->push_back(obj->pGenerator_());
-                obj->setOwnIndices(0, obj->pContainer_->size());
-                obj->setAction([] (Range*) {});  // Why we can use private property in lambda?
-            });
-        }
+        isInfinite_ = false;
+        setSize(size);
     }
 
     void doPreliminaryActions() { action_(this); }
@@ -169,14 +166,22 @@ public:
 
     template <bool isOwnIterator>
     void initSlider() {
-        if constexpr (isOwnIterator)
+        if constexpr (StorageInfo::info == GENERATOR)
+                tempValue_ = pGenerator_();
+        else if constexpr (isOwnIterator)
                 ownIterSlider_ = ownBegin();
         else
                 outsideIterSlider_ = outsideBegin();
     }
     template <bool isOwnIterator>
     ValueType nextElem() {
-        if constexpr (isOwnIterator)
+        if constexpr (StorageInfo::info == GENERATOR) {
+                auto newValue = (size_ > 1) ? pGenerator_() : ValueType();
+                std::swap(newValue, tempValue_);
+                size_ = (hasNext<isOwnIterator>()) ? size_ - 1 : size_;
+                return newValue;
+        }
+        else if constexpr (isOwnIterator)
                 return *(ownIterSlider_++);
         else {
                 ValueType value = *(outsideIterSlider_);
@@ -187,8 +192,24 @@ public:
         }
     }
     template <bool isOwnIterator>
+    void incrementSlider() {
+        if constexpr (StorageInfo::info == GENERATOR) {
+                tempValue_ = pGenerator_();
+                size_ = (hasNext<isOwnIterator>()) ? size_ - 1 : size_;
+        }
+        else if constexpr (isOwnIterator)
+                ownIterSlider_++;
+        else {
+                // Note: you can't optimize it because for istreambuf_iterator
+                //       post-increment operator has unspecified by standard
+                ++outsideIterSlider_;
+        }
+    }
+    template <bool isOwnIterator>
     ValueType currentElem() const {
-        if constexpr (isOwnIterator)
+        if constexpr (StorageInfo::info == GENERATOR)
+                return tempValue_;
+        else if constexpr (isOwnIterator)
                 return *ownIterSlider_;
         else {
                 return *outsideIterSlider_;
@@ -196,7 +217,9 @@ public:
     }
     template <bool isOwnIterator>
     bool hasNext() const {
-        if constexpr (isOwnIterator)
+        if constexpr (StorageInfo::info == GENERATOR)
+                return (size_ > 0);
+        else if constexpr (isOwnIterator)
                 return (ownIterSlider_ != ownEnd());
         else
                 return (outsideIterSlider_ != outsideEnd());
@@ -239,21 +262,26 @@ private:
     TIndex ownBeginIndex_;
     TIndex ownEndIndex_;
     OwnContainerTypePtr pContainer_ = nullptr;
+    size_type size_;
+    bool isInfinite_ = false;
 
     // Generator
     GeneratorTypePtr pGenerator_;
+    ValueType tempValue_;        // only for Generator
     std::function<void(Range*)> action_ = [] (Range*) {};
 
 public:
     template <bool isOwnIterator_>
     void moveBeginIter(size_type position) {
-        if constexpr (isOwnIterator_) {
-            setOwnIndices(ownBeginIndex_ + position, ownEndIndex_);
-            setSize(ownEndIndex_ - ownBeginIndex_);
+        if constexpr (StorageInfo::info == GENERATOR)
+                for (size_type i = 0; i < position; i++)
+                    incrementSlider<isOwnIterator_>();
+        else if constexpr (isOwnIterator_) {
+                setOwnIndices(ownBeginIndex_ + position, ownEndIndex_);
+                setSize(ownEndIndex_ - ownBeginIndex_);
         }
-        else {
-            std::advance(outsideBegin_, position);
-        }
+        else
+                std::advance(outsideBegin_, position);
     }
 };
 

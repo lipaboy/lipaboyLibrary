@@ -133,7 +133,6 @@ TEST(Get, InfiniteStream) {
 TEST(Exception, Infinite) {
     int a = 1;
     auto stream = createStream([&a]() { return a++; });
-    ASSERT_ANY_THROW(stream | to_vector());
     ASSERT_ANY_THROW(stream
                      | map([] (int a) { return 2 * a; })
                      | to_vector());
