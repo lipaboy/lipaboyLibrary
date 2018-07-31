@@ -66,47 +66,67 @@ TEST(Interval, contains) {
 
 class PtrDeallocationWrapper {
 public:
-    using T = string;
-protected:
-    PtrDeallocationWrapper(T * ptr) : ptr_(ptr) {}
-
-public:
-    ~PtrDeallocationWrapper() {}
-    T * ptr() { return ptr_; }
-
-private:
-    T * ptr_;
+    virtual ~PtrDeallocationWrapper() {}
 };
 
+template <class T>
 class PtrDeallocationWrapperOnHeap
         : public PtrDeallocationWrapper
 {
 public:
     template <class... Args>
     PtrDeallocationWrapperOnHeap(Args&&... args)
-        : PtrDeallocationWrapper(new T(std::forward<Args>(args)...))
+        : ptr_(new T(std::forward<Args>(args)...))
     {}
-    ~PtrDeallocationWrapperOnHeap() {
-        delete ptr();
+    virtual ~PtrDeallocationWrapperOnHeap() {
+        cout << "heap deallocation" << endl;
     }
+
+private:
+    unique_ptr<T> ptr_;
 };
 
+template <class T>
 class PtrDeallocationWrapperOnStack
         : public PtrDeallocationWrapper
 {
 public:
-    PtrDeallocationWrapperOnStack(T * ptr)
-        : PtrDeallocationWrapper(ptr)
-    {}
-    ~PtrDeallocationWrapperOnStack() {}
+    PtrDeallocationWrapperOnStack(T * ptr) : ptr_(ptr) {}
+    virtual ~PtrDeallocationWrapperOnStack() {
+        cout << "stack not deallocation" << endl;
+    }
+
+private:
+    T * ptr_;
 };
+
+template <class T, class... Args>
+auto make_heap_ptr(Args&&... args)
+    -> unique_ptr<PtrDeallocationWrapper>
+{
+    return std::move(unique_ptr<PtrDeallocationWrapper>(
+                         new PtrDeallocationWrapperOnHeap<T>(std::forward<Args>(args)...))
+                     );
+}
+
+template <class T>
+auto make_stack_ptr(T* ptr)
+    -> unique_ptr<PtrDeallocationWrapper>
+{
+    return std::move(unique_ptr<PtrDeallocationWrapper>(
+                         new PtrDeallocationWrapperOnStack<T>(ptr))
+                     );
+}
 
 TEST(Check, check) {
     vector<unique_ptr<PtrDeallocationWrapper> > vec;
 
-    vec.push_back(std::move(unique_ptr(new PtrDeallocationWrapperOnHeap("lol"))));
+    vec.push_back(make_heap_ptr<string>("lol"));
     string str1 = "kek";
-    vec.push_back(std::move(unique_ptr<PtrDeallocationWrapper>(new PtrDeallocationWrapperOnStack(&str1))));
+    vec.push_back(make_stack_ptr<string>(&str1));
+
+    vec.pop_back();
+    vec.pop_back();
 }
 
 }
