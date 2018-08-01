@@ -222,8 +222,9 @@ protected:
     static constexpr bool isOwnContainer() {
         return (//TFunctor::metaInfo == FILTER
                 //||
-                TFunctor::metaInfo == GET
-                || SuperType::isOwnContainer());
+                //TFunctor::metaInfo == GET
+                //||
+                SuperType::isOwnContainer());
     }
     static constexpr bool isNoGetTypeBefore() {
         return (TFunctor::metaInfo != GET && SuperType::isNoGetTypeBefore());

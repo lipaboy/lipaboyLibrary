@@ -150,8 +150,9 @@ TEST(Get, Infinite_Empty) {
 //----------------Get operator testing-------------------//
 
 TEST_F(OutsideItersStreamTest, Get_Empty) {
-    auto res = (*pStream)
-            | get(0)
+    auto stream2 = (*pStream)
+            | get(0);
+    auto res = stream2
             | to_vector();
 
     ASSERT_TRUE(res.empty());

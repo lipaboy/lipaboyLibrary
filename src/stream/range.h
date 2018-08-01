@@ -75,7 +75,7 @@ public:
           ownBeginIndex_(obj.ownBeginIndex_), ownEndIndex_(obj.ownEndIndex_),
           pContainer_(obj.pContainer_ == nullptr ? nullptr : new OwnContainerType(*obj.pContainer_)),
           pGenerator_(obj.pGenerator_), action_(obj.action_),
-          isInfinite_(obj.isInfinite_)
+          isInfinite_(obj.isInfinite_), isSizeSet_(obj.isSizeSet_)
     {
 #ifdef LOL_DEBUG_NOISY
         cout << " Range copy-constructed" << endl;
@@ -86,7 +86,7 @@ public:
           ownBeginIndex_(obj.ownBeginIndex_), ownEndIndex_(obj.ownEndIndex_),
           pContainer_(std::move(obj.pContainer_)),
           pGenerator_(std::move(obj.pGenerator_)), action_(std::move(obj.action_)),
-          isInfinite_(obj.isInfinite_)
+          isInfinite_(obj.isInfinite_), isSizeSet_(obj.isSizeSet_)
     {
 #ifdef LOL_DEBUG_NOISY
         cout << " Range move-constructed" << endl;
@@ -134,20 +134,20 @@ public:
         return *iter;
     }
 
-    // Moves end-iter (and copies data to own container if Range used outer one)
     void setSize(size_type newSize) {
-        if constexpr (StorageInfo::info == OUTSIDE_ITERATORS) {
-                if (pContainer_ == nullptr) {
-                    pContainer_ = makeContainer(outsideBegin(), outsideEnd());
-                    setOwnIndices(0, pContainer_->size());
-                }
-        }
-        else if constexpr (StorageInfo::info == GENERATOR)
+        if constexpr (StorageInfo::info == OUTSIDE_ITERATORS)) {
                 size_ = newSize;
-        // move end-iter
-        if (newSize <= ownEndIndex_ - ownBeginIndex_)
-            setOwnIndices(ownBeginIndex_, ownBeginIndex_ + newSize);
+                isSizeSet_ = true;
+        }
+        else if constexpr (StorageInfo::info == GENERATOR) {
+                size_ = newSize;
+        }
+        else {  // move end-iter
+                if (newSize <= ownEndIndex_ - ownBeginIndex_)
+                    setOwnIndices(ownBeginIndex_, ownBeginIndex_ + newSize);
+        }
     }
+
     //size_type size() const { return size_; }
     bool isInfinite() const { return isInfinite_; }
     void setContainer(OwnContainerTypePtr pNewContainer) {
@@ -168,7 +168,7 @@ public:
     void initSlider() {
         if constexpr (StorageInfo::info == GENERATOR)
                 tempValue_ = pGenerator_();
-        else if constexpr (isOwnIterator)
+        else if constexpr (StorageInfo::info == INITIALIZING_LIST)
                 ownIterSlider_ = ownBegin();
         else
                 outsideIterSlider_ = outsideBegin();
@@ -181,13 +181,14 @@ public:
                 size_ = (hasNext<isOwnIterator>()) ? size_ - 1 : size_;
                 return newValue;
         }
-        else if constexpr (isOwnIterator)
+        else if constexpr (StorageInfo::info == INITIALIZING_LIST)
                 return *(ownIterSlider_++);
         else {
                 ValueType value = *(outsideIterSlider_);
                 // Note: you can't optimize it because for istreambuf_iterator
                 //       post-increment operator has unspecified by standard
                 ++outsideIterSlider_;
+                size_ = (hasNext<isOwnIterator>()) ? size_ - 1 : size_;
                 return std::move(value);
         }
     }
@@ -197,7 +198,7 @@ public:
                 tempValue_ = pGenerator_();
                 size_ = (hasNext<isOwnIterator>()) ? size_ - 1 : size_;
         }
-        else if constexpr (isOwnIterator)
+        else if constexpr (StorageInfo::info == INITIALIZING_LIST)
                 ownIterSlider_++;
         else {
                 // Note: you can't optimize it because for istreambuf_iterator
@@ -209,7 +210,7 @@ public:
     ValueType currentElem() const {
         if constexpr (StorageInfo::info == GENERATOR)
                 return tempValue_;
-        else if constexpr (isOwnIterator)
+        else if constexpr (StorageInfo::info == INITIALIZING_LIST)
                 return *ownIterSlider_;
         else {
                 return *outsideIterSlider_;
@@ -219,10 +220,10 @@ public:
     bool hasNext() const {
         if constexpr (StorageInfo::info == GENERATOR)
                 return (size_ > 0);
-        else if constexpr (isOwnIterator)
+        else if constexpr (StorageInfo::info == INITIALIZING_LIST)
                 return (ownIterSlider_ != ownEnd());
-        else
-                return (outsideIterSlider_ != outsideEnd());
+        else    // until
+                return !(outsideIterSlider_ == outsideEnd() || (isSizeSet_ && size_ <= 0));
     }
 
 protected:
@@ -242,11 +243,14 @@ public:
                         && outsideEnd() == other.outsideEnd()
                         && pContainer_ == other.pContainer_
                         );
-        else
+        else if constexpr (StorageInfo::info == INITIALIZING_LIST)
                 return (ownBeginIndex_ == other.ownBeginIndex_
                         && ownEndIndex_ == other.ownEndIndex_
                         && pContainer_ == other.pContainer_
                         );
+        else
+                return (pGenerator_ == other.pGenerator_
+                        && size_ == other.size_);
     }
 
 private:
@@ -262,6 +266,7 @@ private:
     TIndex ownBeginIndex_;
     TIndex ownEndIndex_;
     OwnContainerTypePtr pContainer_ = nullptr;
+    bool isSizeSet_ = false;
     size_type size_;
     bool isInfinite_ = false;
 
@@ -273,16 +278,18 @@ private:
 public:
     template <bool isOwnIterator_>
     void moveBeginIter(size_type position) {
-        if constexpr (StorageInfo::info == GENERATOR)
+        if constexpr (isGeneratorProducing())
                 for (size_type i = 0; i < position; i++)
                     incrementSlider<isOwnIterator_>();
-        else if constexpr (isOwnIterator_) {
+        else if constexpr (StorageInfo::info == INITIALIZING_LIST) {
                 setOwnIndices(ownBeginIndex_ + position, ownEndIndex_);
                 setSize(ownEndIndex_ - ownBeginIndex_);
         }
         else
                 std::advance(outsideBegin_, position);
     }
+
+
 };
 
 }

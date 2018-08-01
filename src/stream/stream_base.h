@@ -186,7 +186,7 @@ public:
 protected:
     static constexpr bool isOwnContainer() {
         return StorageInfo::info == INITIALIZING_LIST
-                || StorageInfo::info == GENERATOR;
+                || isGeneratorProducing();
     }
     static constexpr bool isNoGetTypeBefore() {
         return true;
@@ -194,9 +194,9 @@ protected:
     static constexpr bool isNoGroupBefore() {
         return true;
     }
-    static constexpr bool isGeneratorProducing() {
-        return StorageInfo::info == GENERATOR;
-    }
+    static constexpr bool isGeneratorProducing() { return StorageInfo::info == GENERATOR; }
+    static constexpr bool isOutsideIteratorsRefer() { return StorageInfo::info == OUTSIDE_ITERATORS; }
+    static constexpr bool isInitializeListCreation() { return StorageInfo::info == INITIALIZING_LIST; }
 
 protected:
     // Info:
@@ -209,6 +209,7 @@ protected:
             throw std::logic_error("Infinite stream");
     }
 protected:
+    // TODO: think about this interface
     ValueType getElem(size_type index) const { return getElem<isOwnContainer()>(index); }
     template <bool isOwnContainer_>
     ValueType getElem(size_type index) const {
