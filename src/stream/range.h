@@ -51,7 +51,7 @@ public:
 		std::function<ValueType(void)>;
     using OwnContainerType = OwnContainerTypeWithoutValueType<ValueType>;
     using OwnContainerTypePtr = std::unique_ptr<OwnContainerType>;
-    using OwnIterator = typename Stream::OwnIterator;
+    using OwnIterator = typename OwnContainerType::iterator;
 
 public:
     Range(std::initializer_list<T> init)
@@ -135,7 +135,7 @@ public:
     }
 
     void setSize(size_type newSize) {
-        if constexpr (StorageInfo::info == OUTSIDE_ITERATORS)) {
+        if constexpr (StorageInfo::info == OUTSIDE_ITERATORS) {
                 size_ = newSize;
                 isSizeSet_ = true;
         }

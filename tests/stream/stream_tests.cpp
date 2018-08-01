@@ -191,14 +191,17 @@ TEST_F(OutsideItersStreamTest, Nth_last_elem) {
 }
 
 TEST_F(OutsideItersStreamTest, Nth_out_of_range) {
-    ASSERT_NO_THROW((*pStream) | nth(pOutsideContainer->size()));
-    ASSERT_NO_THROW((*pStream) | nth(-1));
-    ASSERT_NO_THROW((*pStream)
+	ASSERT_ANY_THROW((*pStream) | nth(pOutsideContainer->size()));
+}
+
+TEST_F(OutsideItersStreamTest, Nth_out_of_range_by_negative_index) {
+	ASSERT_ANY_THROW((*pStream) | nth(-1));
+}
+
+TEST_F(OutsideItersStreamTest, Nth_out_of_range_in_extended_stream) {
+    ASSERT_ANY_THROW((*pStream)
                     | map([] (typename OutsideItersStreamTest::ElemType a) { return a; })
                     | nth(pOutsideContainer->size()));
-    ASSERT_NO_THROW((*pStream)
-                    | map([] (typename OutsideItersStreamTest::ElemType a) { return a; })
-                    | nth(-1));
 }
 
 //----------------Skip operator testing-------------------//

@@ -191,10 +191,7 @@ public:
         return ResultValueType();
     }
     ResultValueType operator| (nth&& nthObj) {
-        initSlider();
-        for (size_type i = 0; i < nthObj.index() && hasNext(); i++)
-            nextElem();
-        return nextElem();
+		return apply(*this, std::move(nthObj));
     }
     vector<ResultValueType> operator| (to_vector&& toVectorObj) {
         return apply(*this, std::move(toVectorObj));
@@ -203,17 +200,21 @@ public:
 protected:
     template <class Stream_>
     std::ostream& apply(Stream_ & obj, print_to&& printer) {
-        return superThisPtr()->template apply(obj, std::move(printer));
+        return superThisPtr()->template apply<Stream_>(obj, std::move(printer));
     }
+	template <class Stream_>
+	auto apply(Stream_ & obj, nth&& nthObj) -> typename Stream_::ResultValueType {
+		return superThisPtr()->template apply<Stream_>(obj, std::move(nthObj));
+	}
     template <class Stream_>
-    vector<typename Stream_::ResultValueType> apply(Stream_ & obj, to_vector&& toVectorObj) {
-        return superThisPtr()->apply(obj, std::move(toVectorObj));
+    auto apply(Stream_ & obj, to_vector&& toVectorObj) -> vector<typename Stream_::ResultValueType> {
+        return superThisPtr()->template apply<Stream_>(obj, std::move(toVectorObj));
     }
     template <class Stream_, class Accumulator, class IdenityFn>
     auto apply(Stream_ & obj, reduce<Accumulator, IdenityFn> const & reduceObj)
         -> typename reduce<Accumulator, IdenityFn>::IdentityRetType
     {
-        return superThisPtr()->apply(obj, reduceObj);
+        return superThisPtr()->template apply<Stream_>(obj, reduceObj);
     }
 
 

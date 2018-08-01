@@ -116,15 +116,26 @@ public:
 
     //-----------Terminated operations------------//
 protected:
+	// "apply API" is necessary only for avoiding the code duplication.
+
     template <class Stream_>
     std::ostream& apply(Stream_ & obj, print_to&& printer) {
-        obj.doPreliminaryActions();
         for (obj.initSlider(); obj.hasNext(); )
             printer.ostream() << obj.nextElem() << printer.delimiter();
         return printer.ostream();
     }
+	template <class Stream_>
+	auto apply(Stream_ & obj, nth&& nthObj) -> typename Stream_::ResultValueType
+	{
+		obj.initSlider();
+		for (size_type i = 0; i < nthObj.index() && obj.hasNext(); i++)
+			obj.nextElem();
+		if (!obj.hasNext())
+			throw std::logic_error("Stream (nth operation) : index is out of range");
+		return obj.nextElem();
+	}
     template <class Stream_>
-    vector<typename Stream_::ResultValueType> apply(Stream_ & obj, to_vector&&)
+    auto apply(Stream_ & obj, to_vector&&) -> vector<typename Stream_::ResultValueType>
     {
         using ToVectorType = vector<typename Stream_::ResultValueType>;
         ToVectorType toVector;
@@ -168,12 +179,9 @@ public:
         }
         return ResultValueType();
     }
-    ResultValueType operator| (nth&& nthObj) {
-        initSlider();
-        for (size_type i = 0; i < nthObj.index() && hasNext(); i++)
-            nextElem();
-        return nextElem();
-    }
+	ResultValueType operator| (nth&& nthObj) {
+		return apply(*this, std::move(nthObj));
+	}
     vector<ValueType> operator| (to_vector&& toVectorObj) {
         return apply(*this, std::move(toVectorObj));
     }
@@ -195,8 +203,6 @@ protected:
         return true;
     }
     static constexpr bool isGeneratorProducing() { return StorageInfo::info == GENERATOR; }
-    static constexpr bool isOutsideIteratorsRefer() { return StorageInfo::info == OUTSIDE_ITERATORS; }
-    static constexpr bool isInitializeListCreation() { return StorageInfo::info == INITIALIZING_LIST; }
 
 protected:
     // Info:
