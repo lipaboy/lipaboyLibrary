@@ -103,6 +103,61 @@ TEST(Get, Infinite_Empty) {
     ASSERT_TRUE(res.empty());
 }
 
+//----------------Get operator testing-------------------//
+
+TEST_F(OutsideItersStreamTest, Get_Empty) {
+    auto res = (*pStream)
+            | get(0)
+            | to_vector();
+
+    ASSERT_TRUE(res.empty());
+}
+
+TEST_F(OutsideItersStreamTest, Get_Not_Empty) {
+    auto res = (*pStream)
+            | get(pOutsideContainer->size())
+            | to_vector();
+
+    ASSERT_EQ(res, *pOutsideContainer);
+}
+
+//----------------NTH operator testing-------------------//
+
+TEST_F(OutsideItersStreamTest, Nth_first_elem) {
+    auto res = (*pStream)
+            | nth(0);
+    auto res2 = (*pStream)
+            | map([] (typename OutsideItersStreamTest::ElemType a) { return a; })
+            | nth(0);
+
+    ASSERT_EQ(res, (*pOutsideContainer)[0]);
+    ASSERT_EQ(res2, (*pOutsideContainer)[0]);
+}
+
+TEST_F(OutsideItersStreamTest, Nth_last_elem) {
+    auto res = (*pStream)
+            | nth(pOutsideContainer->size() - 1);
+    auto res2 = (*pStream)
+            | map([] (typename OutsideItersStreamTest::ElemType a) { return a; })
+            | nth(pOutsideContainer->size() - 1);
+
+    ASSERT_EQ(res, pOutsideContainer->back());
+    ASSERT_EQ(res2, pOutsideContainer->back());
+}
+
+TEST_F(OutsideItersStreamTest, Nth_out_of_range) {
+    ASSERT_NO_THROW((*pStream) | nth(pOutsideContainer->size()));
+    ASSERT_NO_THROW((*pStream) | nth(-1));
+    ASSERT_NO_THROW((*pStream)
+                    | map([] (typename OutsideItersStreamTest::ElemType a) { return a; })
+                    | nth(pOutsideContainer->size()));
+    ASSERT_NO_THROW((*pStream)
+                    | map([] (typename OutsideItersStreamTest::ElemType a) { return a; })
+                    | nth(-1));
+}
+
+//----------------Skip operator testing-------------------//
+
 TEST(Skip, Infinite) {
     int a = 0;
     auto res = createStream([&a]() { return a++; })
@@ -123,19 +178,10 @@ TEST(Skip, Finite) {
     ASSERT_EQ(res, vector<int>({ 3 }));
 }
 
-TEST(FileStream, read) {
-    std::ofstream outFile;
-    string filename = "temp.stream.lol";
-    outFile.open(filename, std::ios::out | std::ios::trunc);
-    string fileData = "lol kek cheburek";
-    outFile << fileData;
-    outFile.close();
-
+TEST_F(OutsideItersStreamTest, FileStream_read) {
     std::ifstream inFile;
     inFile.open(filename, std::ios::in | std::ios::binary);
 
-//    auto begin = std::istreambuf_iterator<char>(inFile);
-//    cout << *(begin + 1) << *begin << endl;
     auto fileStream = createStream(std::istreambuf_iterator<char>(inFile),
                                    std::istreambuf_iterator<char>());
 
@@ -147,14 +193,13 @@ TEST(FileStream, read) {
     ASSERT_EQ(res, fileData);
 
     inFile.close();
-    std::remove(filename.c_str());
 }
 
 TEST(Group, Infinite) {
     int a = 0;
     auto res = createStream([&a]() { return a++; })
             | get(4)
-            | group(2)
+            | group_by_vector(2)
             | nth(1);
     ASSERT_EQ(res, decltype(res)({ 2, 3 }));
 }
@@ -179,7 +224,7 @@ TEST(UngroupByBit, init_list) {
     vector<char> olala = { 1, 2 };
     auto vecVec = createStream(olala.begin(), olala.end())
             | ungroupByBit()
-            | group(8)
+            | group_by_vector(8)
             | to_vector();
 
     ASSERT_EQ(vecVec, decltype(vecVec)({ vector<bool>({1,0,0,0,0,0,0,0}),
@@ -204,16 +249,27 @@ TEST(StreamTest, noisy) {
     try {
         //-------------Noisy Test---------------//
 
-//        vector<Noisy> vecNoisy(5);
-//        auto streamNoisy = createStream(vecNoisy.begin(), vecNoisy.end());
-//        (streamNoisy
-//                    //| map([] (const Noisy& a) -> Noisy { return a; })
-//                    | get(4) | get(4)
+        vector<Noisy> vecNoisy(5);
+        auto streamNoisy = createStream(vecNoisy.begin(), vecNoisy.end());
+        cout << "\tstart streaming" << endl;
+        auto streamTemp =
+            (streamNoisy
+                | map([] (const Noisy& a) -> Noisy { return a; })
+                | map([] (const Noisy& a) -> Noisy { return a; })
+                | map([] (const Noisy& a) -> Noisy { return a; })
+//                    | get(4)
+//                    | get(4)
 //                    | filter([] (const Noisy& a) { static int i = 0; return (i++ % 2 == 0); })
-//                    | get(4) | nth(0));
+//                    | get(4)
+//                | nth(0)
+            );
+        cout << "\tend streaming" << endl;
+        streamTemp | nth(0);
+        cout << "\tend nth" << endl;
     } catch (std::bad_alloc & exp) {
         cout << exp.what() << endl;
     }
 }
 
 }
+

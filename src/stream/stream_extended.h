@@ -100,15 +100,15 @@ public:
             auto border = obj->getFunctor().border();
             if (obj->range().isInfinite())
                 obj->range().makeFinite(border);
-            else if (border <= obj->size())
-                obj->range().template setSize<obj->isOwnContainer()>(border);
+            else
+                obj->range().setSize(border);
             obj->preAction_ = [] (ExtendedStream*) {};
         };;
 
         return std::move(newStream);
     }
-    auto operator| (group functor) -> typename ExtendedStreamType<group>::type {
-        typename ExtendedStreamType<group>::type obj(functor, *this);
+    auto operator| (group_by_vector functor) -> typename ExtendedStreamType<group_by_vector>::type {
+        typename ExtendedStreamType<group_by_vector>::type obj(functor, *this);
         return std::move(obj);
     }
     auto operator| (skip&& skipObj) -> typename ExtendedStreamType<skip>::type {
@@ -164,16 +164,14 @@ protected:
 protected:
     static constexpr bool isOwnContainer() {
         return (TFunctor::metaInfo == FILTER
-            // Problem of TODO(1)
-            // because it connected with single-passing property of FileInputstream
-//                || TFunctor::metaInfo != GET
+                || TFunctor::metaInfo == GET
                 || SuperType::isOwnContainer());
     }
     static constexpr bool isNoGetTypeBefore() {
         return (TFunctor::metaInfo != GET && SuperType::isNoGetTypeBefore());
     }
     static constexpr bool isNoGroupBefore() {
-        return (TFunctor::metaInfo != GROUP && SuperType::isNoGroupBefore());
+        return (TFunctor::metaInfo != GROUP_BY_VECTOR && SuperType::isNoGroupBefore());
     }
     static constexpr bool isGeneratorProducing() {
         return SuperType::isGeneratorProducing();
@@ -216,7 +214,7 @@ protected:
 
         if constexpr (TFunctor::metaInfo == MAP)
             return functor_(static_cast<SuperTypePtr>(this)->template nextElem<isOwnContainer_>());
-        else if constexpr (TFunctor::metaInfo == GROUP) {
+        else if constexpr (TFunctor::metaInfo == GROUP_BY_VECTOR) {
             auto partSize = functor_.partSize();
             ResultValueType part;
             size_type i = 0;
@@ -265,12 +263,12 @@ protected:
     const RangeType & range() const { return static_cast<ConstSuperTypePtr>(this)->range(); }
 
 public:
-    size_type size() const {
-        if constexpr (TFunctor::metaInfo == GROUP)
-            return (static_cast<ConstSuperTypePtr>(this)->size() + functor_.partSize() - 1) / functor_.partSize();
-        else
-            return static_cast<ConstSuperTypePtr>(this)->size();
-    }
+//    size_type size() const {
+//        if constexpr (TFunctor::metaInfo == GROUP)
+//            return (static_cast<ConstSuperTypePtr>(this)->size() + functor_.partSize() - 1) / functor_.partSize();
+//        else
+//            return static_cast<ConstSuperTypePtr>(this)->size();
+//    }
     TFunctor const & getFunctor() const { return functor_; }
 
 protected:

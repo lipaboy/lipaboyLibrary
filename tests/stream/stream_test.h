@@ -3,7 +3,8 @@
 
 #include "gtest/gtest.h"
 #include "stream/stream.h"
-#include <forward_list>
+
+#include <fstream>
 
 namespace stream_tests {
 
@@ -12,7 +13,9 @@ using std::endl;
 using std::vector;
 using std::string;
 using std::unique_ptr;
+
 using stream_space::Stream;
+using stream_space::IsOutsideIteratorsRefer;
 
 class Noisy {
 public:
@@ -29,20 +32,37 @@ public:
     }
 };
 
-//class StreamTest : public ::testing::Test  {
-//public:
-//   // typedef Stream<int, boost::random_access_traversal_tag> StreamInt;
-//    //typedef unique_ptr<StreamInt> StreamIntPtr;
+class OutsideItersStreamTest : public ::testing::Test  {
+public:
+    using ElemType = int;
+    using Container = vector<ElemType>;
+    using StreamInt = Stream<IsOutsideIteratorsRefer, typename Container::iterator>;
+    using StreamIntPtr = unique_ptr<StreamInt>;
 
-//protected:
-//    void SetUp() {
-//       // pStream = std::unique_ptr<StreamInt>(new StreamInt({}));
-//    }
-//    void TearDown() {}
+protected:
+    void SetUp() {
+        pOutsideContainer = std::unique_ptr<Container>(new Container({ 1, 2, 3, 4, 5 }));
+        pStream = std::unique_ptr<StreamInt>(stream_space::makeStream(pOutsideContainer->begin(),
+                                                                      pOutsideContainer->end()));
+        //---------------File Stream Init------------//
 
-//protected:
-//   // StreamIntPtr pStream;
-//};
+        std::ofstream outFile;
+        filename = "temp.stream.lol";
+        outFile.open(filename, std::ios::out | std::ios::trunc);
+        fileData = "lol kek cheburek";
+        outFile << fileData;
+        outFile.close();
+    }
+    void TearDown() {
+        std::remove(filename.c_str());
+    }
+
+protected:
+    StreamIntPtr pStream;
+    unique_ptr<Container> pOutsideContainer;
+    string filename;
+    string fileData;
+};
 
 }
 

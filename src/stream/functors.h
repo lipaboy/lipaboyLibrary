@@ -10,18 +10,6 @@
 
 #include <iostream>
 
-
-//#define IS_TEST_RUN229
-//
-//#ifdef IS_TEST_RUN229
-//#include "gtest/gtest.h"
-//
-//namespace stream_tests {
-//class StreamTest;
-//}
-//
-//#endif
-
 namespace stream_space {
 
 namespace functors_space {
@@ -36,17 +24,19 @@ using std::endl;
 
 // PLAN FOR STREAM:
 //-----------------
-// TODO (1): remove the getting of size property from Range API and Stream at all
-//       because Stream is a Stream. Nothing more, nothing less.
 // TODO: remove duplication of code for terminated operators like
 //       it made for operator reduce
+//       This duplication lead to extra testing of code
 // TODO: add group/ungroup operations for bits (0, 1)
 // TODO: think about condition of InfiniteStream when cause throwing an logic exception.
 //       Maybe put it into doPreliminaryOperations()
 //       And think about initSlider -> maybe move it into that one too?
 //		 And think about preAction_ -> you can remove it. Add constexpr condition into
 //		 doPreliminaryOperations to check if stream isGeneratorProducing and with NoGetTypeBefore
-// TODO: Change get() operation to copy at new container when with OutsideIterators
+// TODO: Think about allocators (in Range when happen copying and creating own container)
+//       (maybe too partical case?)
+// TODO: write for operator map move-semantics
+// TODO: think about single-pass input iterators for stream
 
 enum Info {
     GENERATOR,
@@ -73,7 +63,7 @@ enum FunctorMetaTypeEnum {
     GET,
     SKIP,
     PRINT_TO,
-    GROUP,
+    GROUP_BY_VECTOR,
     SUM,
     TO_VECTOR,
     NTH,
@@ -145,14 +135,14 @@ private:
     size_type border_;
 };
 
-struct group {
+struct group_by_vector {
     using size_type = size_t;
 
-    group(size_type partSize) : partSize_(partSize) {
+    group_by_vector(size_type partSize) : partSize_(partSize) {
         if (partSize == 0)
             throw std::logic_error("Parameter of GroupType constructor must be positive");
     }
-    static constexpr FunctorMetaTypeEnum metaInfo = GROUP;
+    static constexpr FunctorMetaTypeEnum metaInfo = GROUP_BY_VECTOR;
 
     template <class Arg>
     struct RetType {
@@ -263,7 +253,7 @@ struct to_vector {
     static constexpr FunctorMetaTypeEnum metaInfo = TO_VECTOR;
 };
 struct nth {
-    using size_type = size_t;
+    using size_type = size_t;   // !DANGER! - because ( for (i = 0; i < index() - 1; i++) {...} )
 
     nth(size_type index) : index_(index) {}
     static constexpr FunctorMetaTypeEnum metaInfo = NTH;

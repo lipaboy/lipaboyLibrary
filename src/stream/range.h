@@ -52,46 +52,45 @@ public:
 	using GeneratorTypePtr = //typename Stream::GeneneratorTypePtr;
 		std::function<ValueType(void)>;
     using OwnContainerType = OwnContainerTypeWithoutValueType<ValueType>;
-    using OwnContainerTypePtr = unique_ptr<OwnContainerType>;
-	using OwnIterator = //typename Stream::OwnIterator;
-		typename OwnContainerType::iterator;
+    using OwnContainerTypePtr = std::unique_ptr<OwnContainerType>;
+    using OwnIterator = typename Stream::OwnIterator;
 
 public:
     RangeType(std::initializer_list<T> init)
         : pContainer_(new OwnContainerType(init)), pGenerator_(nullptr)
     {
-        size_ = pContainer_->size();
         setOwnIndices(0, pContainer_->size());
     }
     template <class OuterIterator>
     RangeType(OuterIterator begin, OuterIterator end)
         : outsideBegin_(begin), outsideEnd_(end), pGenerator_(nullptr)
-    {
-        if constexpr (std::is_same<typename std::iterator_traits<OuterIterator>::iterator_category,
-                std::input_iterator_tag>::value == false)
-            size_ = std::distance(begin, end);
-    }
+    {}
     RangeType(GeneratorTypePtr generator)
-        : outsideBegin_(), outsideEnd_(), pGenerator_(generator), size_(0),
+        : outsideBegin_(), outsideEnd_(), pGenerator_(generator),
           action_([] (RangeType*) {})
     {
-        setOwnIndicesByDefault();
+        setOwnIndices(0, 0);
     }
     RangeType(const RangeType& obj)
         : outsideBegin_(obj.outsideBegin_), outsideEnd_(obj.outsideEnd_),
           ownBeginIndex_(obj.ownBeginIndex_), ownEndIndex_(obj.ownEndIndex_),
           pContainer_(obj.pContainer_ == nullptr ? nullptr : new OwnContainerType(*obj.pContainer_)),
-          pGenerator_(obj.pGenerator_), size_(obj.size_), action_(obj.action_)
+          pGenerator_(obj.pGenerator_), action_(obj.action_)
     {}
     RangeType(RangeType&& obj)
         : outsideBegin_(std::move(obj.outsideBegin_)), outsideEnd_(std::move(obj.outsideEnd_)),
           ownBeginIndex_(obj.ownBeginIndex_), ownEndIndex_(obj.ownEndIndex_),
           pContainer_(std::move(obj.pContainer_)),
-          pGenerator_(std::move(obj.pGenerator_)), size_(obj.size_), action_(std::move(obj.action_))
+          pGenerator_(std::move(obj.pGenerator_)), action_(std::move(obj.action_))
     {}
 
 public:
     OwnContainerTypePtr makeContainer() { return std::make_unique<OwnContainerType>(); }
+    OwnContainerTypePtr makeContainer(size_type size) { return std::make_unique<OwnContainerType>(size); }
+    template <class TIterator_>
+    OwnContainerTypePtr makeContainer(TIterator_ first, TIterator_ end) {
+        return std::make_unique<OwnContainerType>(first, end);
+    }
 
     //------------Iterators API-------------//
 
@@ -125,34 +124,32 @@ public:
         return *iter;
     }
 
-	// Sets size_ at new value and moves end-iter
-	template <bool isOwnIterator_>
+    // Moves end-iter (and copies data to own container if Range used outer one)
     void setSize(size_type newSize) {
-        size_ = newSize;
-		// move end-iter
-        if constexpr (isOwnIterator_) 
-            setOwnIndices(ownBeginIndex_, ownBeginIndex_ + size());
-        else {
-            outsideEnd_ = outsideBegin();
-            std::advance(outsideEnd_, size());
+        if constexpr (StorageInfo::info == OUTSIDE_ITERATORS) {
+            if (pContainer_ == nullptr) {
+                pContainer_ = makeContainer(outsideBegin(), outsideEnd());
+                setOwnIndices(0, pContainer_->size());
+            }
         }
+        // move end-iter
+        if (newSize <= ownEndIndex_ - ownBeginIndex_)
+            setOwnIndices(ownBeginIndex_, ownBeginIndex_ + newSize);
     }
-    size_type size() const { return size_; }
+    //size_type size() const { return size_; }
     bool isInfinite() const { return (pGenerator_ != nullptr && pContainer_ == nullptr); }
     void setContainer(OwnContainerTypePtr pNewContainer) {
         pContainer_ = std::move(pNewContainer);
-        setOwnIndicesByDefault();
-        setSize<true>(pContainer_->size());
+        setOwnIndices(0, pContainer_->size());
     }
     void makeFinite(size_type size) {
-        setSize<StorageInfo::info == GENERATOR>(size);
         if (isInfinite()) {
-            pContainer_ = makeContainer();
             // You can't make it only for this because action_ may be copied at another range object
-            setAction([] (RangeType * obj) -> void {
-                for (size_type i = 0; i < obj->size(); i++)
+            setAction([size] (RangeType * obj) -> void {
+                obj->pContainer_ = obj->makeContainer();
+                for (size_type i = 0; i < size; i++)
                     obj->pContainer_->push_back(obj->pGenerator_());
-                obj->setOwnIndicesByDefault();
+                obj->setOwnIndices(0, obj->pContainer_->size());
                 obj->setAction([] (RangeType*) {});  // Why we can use private property in lambda?
             });
         }
@@ -203,10 +200,6 @@ protected:
         ownBeginIndex_ = first;
         ownEndIndex_ = second;
     }
-    void setOwnIndicesByDefault() {
-        ownBeginIndex_ = 0;
-        ownEndIndex_ = size();
-    }
 
 private:
     // Iterators that refer to outside of class container
@@ -224,7 +217,6 @@ private:
 
     // Generator
     GeneratorTypePtr pGenerator_;
-    size_type size_;     // think about skip(count) before get(border)
     std::function<void(RangeType*)> action_ = [] (RangeType*) {};
 
 public:
@@ -232,11 +224,10 @@ public:
     void moveBeginIter(size_type position) {
         if constexpr (isOwnIterator_) {
             setOwnIndices(ownBeginIndex_ + position, ownEndIndex_);
-            setSize<isOwnIterator_>(ownEndIndex_ - ownBeginIndex_);
+            setSize(ownEndIndex_ - ownBeginIndex_);
         }
         else {
             std::advance(outsideBegin_, position);
-            setSize<isOwnIterator_>(size() - position);
         }
     }
 };
