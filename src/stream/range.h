@@ -70,12 +70,13 @@ public:
     {
         setOwnIndices(0, 0);
     }
+	// TODO : make it default
     Range(const Range& obj)
         : outsideBegin_(obj.outsideBegin_), outsideEnd_(obj.outsideEnd_),
           ownBeginIndex_(obj.ownBeginIndex_), ownEndIndex_(obj.ownEndIndex_),
           pContainer_(obj.pContainer_ == nullptr ? nullptr : new OwnContainerType(*obj.pContainer_)),
           pGenerator_(obj.pGenerator_), action_(obj.action_),
-          isInfinite_(obj.isInfinite_), isSizeSet_(obj.isSizeSet_)
+          isInfinite_(obj.isInfinite_), isSizeSet_(obj.isSizeSet_), size_(obj.size_)
     {
 #ifdef LOL_DEBUG_NOISY
         cout << " Range copy-constructed" << endl;
@@ -86,7 +87,7 @@ public:
           ownBeginIndex_(obj.ownBeginIndex_), ownEndIndex_(obj.ownEndIndex_),
           pContainer_(std::move(obj.pContainer_)),
           pGenerator_(std::move(obj.pGenerator_)), action_(std::move(obj.action_)),
-          isInfinite_(obj.isInfinite_), isSizeSet_(obj.isSizeSet_)
+          isInfinite_(obj.isInfinite_), isSizeSet_(obj.isSizeSet_), size_(obj.size_)
     {
 #ifdef LOL_DEBUG_NOISY
         cout << " Range move-constructed" << endl;
@@ -178,7 +179,7 @@ public:
         if constexpr (StorageInfo::info == GENERATOR) {
                 auto newValue = (size_ > 1) ? pGenerator_() : ValueType();
                 std::swap(newValue, tempValue_);
-                size_ = (hasNext<isOwnIterator>()) ? size_ - 1 : size_;
+                size_ = (hasNext()) ? size_ - 1 : size_;
                 return newValue;
         }
         else if constexpr (StorageInfo::info == INITIALIZING_LIST)
@@ -188,7 +189,7 @@ public:
                 // Note: you can't optimize it because for istreambuf_iterator
                 //       post-increment operator has unspecified by standard
                 ++outsideIterSlider_;
-                size_ = (hasNext<isOwnIterator>()) ? size_ - 1 : size_;
+                size_ = (hasNext()) ? size_ - 1 : size_;
                 return std::move(value);
         }
     }
@@ -196,7 +197,7 @@ public:
     void incrementSlider() {
         if constexpr (StorageInfo::info == GENERATOR) {
                 tempValue_ = pGenerator_();
-                size_ = (hasNext<isOwnIterator>()) ? size_ - 1 : size_;
+                size_ = (hasNext()) ? size_ - 1 : size_;
         }
         else if constexpr (StorageInfo::info == INITIALIZING_LIST)
                 ownIterSlider_++;
@@ -204,6 +205,7 @@ public:
                 // Note: you can't optimize it because for istreambuf_iterator
                 //       post-increment operator has unspecified by standard
                 ++outsideIterSlider_;
+				size_ = (hasNext()) ? size_ - 1 : size_;
         }
     }
     template <bool isOwnIterator>
@@ -212,11 +214,9 @@ public:
                 return tempValue_;
         else if constexpr (StorageInfo::info == INITIALIZING_LIST)
                 return *ownIterSlider_;
-        else {
+        else
                 return *outsideIterSlider_;
-        }
     }
-    template <bool isOwnIterator>
     bool hasNext() const {
         if constexpr (StorageInfo::info == GENERATOR)
                 return (size_ > 0);

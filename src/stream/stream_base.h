@@ -253,9 +253,9 @@ protected:
     template <bool isOwnContainer_>
     ValueType currentAtom() const { return std::move(range().template currentElem<isOwnContainer_>()); }
 
-    bool hasNext() const { return hasNext<isOwnContainer()>(); }
-    template <bool isOwnContainer_>
-    bool hasNext() const { return range().template hasNext<isOwnContainer_>(); }
+    //bool hasNext() const { return hasNext<isOwnContainer()>(); }
+    //template <bool isOwnContainer_>
+    bool hasNext() const { return range().hasNext(); }
 
     //-----------------Slider API Ends--------------//
 
@@ -276,7 +276,7 @@ private:
 
 
 template <class TStream, class Transform>
-auto operator| (TStream&& stream, map<Transform> functor)
+auto operator| (TStream&& stream, map<Transform>&& functor)
     -> shortening::StreamTypeExtender<TStream, map<Transform> >
 {
 #ifdef LOL_DEBUG_NOISY
@@ -290,11 +290,7 @@ template <class TStream, class Predicate>
 auto operator| (TStream&& stream, filter<Predicate> functor)
     -> shortening::StreamTypeExtender<TStream, filter<Predicate> >
 {
-    using ExtendedStream = shortening::StreamTypeExtender<TStream, filter<Predicate> >;
-    return //ExtendedStream::setFilterAction(
-                ExtendedStream(functor, std::forward<TStream>(stream)
-                               //)
-                );
+    return shortening::StreamTypeExtender<TStream, filter<Predicate> >(functor, std::forward<TStream>(stream));
 }
 
 

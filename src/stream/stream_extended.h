@@ -247,7 +247,7 @@ protected:
         return superThisPtr()->template nextElem<isOwnContainer_>();
     }
     template <bool isOwnContainer_>
-    bool superHasNext() const { return constSuperThisPtr()->template hasNext<isOwnContainer_>(); }
+    bool superHasNext() const { return constSuperThisPtr()->hasNext(); }
     template <bool isOwnContainer_>
     auto superCurrentElem() -> typename SuperType::ResultValueType {
         return superThisPtr()->template currentElem<isOwnContainer_>();
@@ -349,23 +349,17 @@ protected:
                 return std::move(range().template currentElem<isOwnContainer_>());
     }
 
-    ValueType currentAtom() const { return std::move(currentAtom<isOwnContainer()>()); }
-    template <bool isOwnContainer_>
-    ValueType currentAtom() const {
-        return std::move(constSuperThisPtr()->template currentAtom<isOwnContainer_>());
-    }
-
-    bool hasNext() const { return hasNext<isOwnContainer()>(); }
-    template <bool isOwnContainer_>
+    //bool hasNext() const { return hasNext<isOwnContainer()>(); }
+    //template <bool isOwnContainer_>
     bool hasNext() const {
         if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT)
                 return (ungroupTempOwner_->indexIter != 0)
-                    || constSuperThisPtr()->template hasNext<isOwnContainer_>();
+                    || constSuperThisPtr()->hasNext();
         else if constexpr (TFunctor::metaInfo == GROUP_BY_VECTOR)
                 return (!groupedTempOwner_->tempValue.empty()
-                        || constSuperThisPtr()->template hasNext<isOwnContainer_>());
+                        || constSuperThisPtr()->hasNext());
         else
-                return constSuperThisPtr()->template hasNext<isOwnContainer_>();
+                return constSuperThisPtr()->hasNext();
     }
 
 
