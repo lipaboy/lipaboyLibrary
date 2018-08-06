@@ -199,6 +199,56 @@ template <typename T>
 using WrapBySTDFunctionType = typename WrapBySTDFunction<T>::type;
 
 
+//-----------------------------------------------------------------------//
+//---------------------PRODUCING ITERATOR BY FUNCTION--------------------//
+//-----------------------------------------------------------------------//
+
+template <class T>
+class ProducingIterator {
+public:
+	using GeneratorType = std::function<T(void)>;
+	using value_type = T;
+	using reference = T & ;
+	using const_reference = const reference;
+	using const_pointer = const T *;
+
+public:
+	ProducingIterator(GeneratorType gen) 
+		: generator_(gen), currentElem_(gen()) 
+	{}
+	ProducingIterator(ProducingIterator const & obj)
+		: generator_(obj.generator_),
+		currentElem_(obj.currentElem_)
+	{}
+	ProducingIterator(ProducingIterator&& obj) noexcept
+		: generator_(std::move(obj.generator_)),
+		currentElem_(std::move(obj.currentElem_))
+	{}
+
+	const_reference operator*() { return currentElem_; }
+	const_pointer operator->() { return &currentElem_; }
+
+	bool operator== (ProducingIterator const & other) const {
+		return generator_ == other.generator_
+			&& currentElem_ == other.currentElem_;
+	}
+	bool operator!= (ProducingIterator const & other) const { return !((*this) == other); }
+
+	ProducingIterator operator++() {
+		currentElem_ = generator_();
+		return *this;
+	}
+	ProducingIterator operator++(int) {
+		ProducingIterator prev = *this;
+		currentElem_ = generator_();
+		return prev;
+	}
+
+private:
+	GeneratorType generator_;
+	value_type currentElem_;
+};
+
 }
 
 //#endif // EXTRA_TOOLS_H

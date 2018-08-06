@@ -5,6 +5,7 @@
 namespace lipaboy_lib_tests {
 
 using lipaboy_lib::RelativeForward;
+using lipaboy_lib::ProducingIterator;
 
 namespace {
 
@@ -65,6 +66,16 @@ TEST(RelativeForward, simple_test) {
     ASSERT_FALSE(isLValueRef(std::move(temp)));
     ASSERT_TRUE(isRValueRef(std::move(temp)));
     ASSERT_FALSE(isRValueRef(temp));
+}
+
+TEST(ProducingIterator, lambda_relative_on_external_context) {
+	int x = 0;
+	ProducingIterator<int> iter([&a = x]() { return a++; });
+
+	ASSERT_EQ(*(iter++), 0);
+	ASSERT_EQ(*iter, 1);
+	++iter;
+	ASSERT_EQ(*(++iter), 3);
 }
 
 }

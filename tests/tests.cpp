@@ -63,32 +63,12 @@ TEST(Interval, contains) {
     ASSERT_TRUE(interval.containsNone(0, 1, 5));
 }
 
-class A {
-public:
-	A(std::initializer_list<string> init) : init_(init) {
-		begin_ = init_.begin();
-		end_ = init_.end();
-	}
 
-	using Iterator = typename std::initializer_list<string>::iterator;
-	Iterator begin_;
-	Iterator end_;
-	std::initializer_list<string> init_;
-};
+
 
 
 TEST(Check, check) {
-	/*std::initializer_list<string> init = { "a", "b", "c" };
-	vector<string> vec(init);
-
-	EXPECT_TRUE(std::equal(init.begin(), init.end(), vec.begin()));
-
-	A a = { "c", "d", "e" };
-	vec = { "c", "d", "e" };
-
-	EXPECT_TRUE(std::equal(a.init_.begin(), a.init_.end(), vec.begin()));
-	EXPECT_EQ(*a.begin_, "c");
-	cout << a.init_.size() << endl;*/
+	
 }
 
 }

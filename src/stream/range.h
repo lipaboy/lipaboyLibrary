@@ -193,7 +193,7 @@ public:
                 ValueType value = *(outsideIterSlider_);
                 // Note: you can't optimize it because for istreambuf_iterator
                 //       post-increment operator has unspecified by standard
-                ++outsideIterSlider_;
+                ++outsideIterSlider_; // maybe replace it to std::next
                 size_ = (hasNext()) ? size_ - 1 : size_;
                 return std::move(value);
         }
