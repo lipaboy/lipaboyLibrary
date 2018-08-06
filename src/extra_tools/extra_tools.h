@@ -210,7 +210,10 @@ public:
 	using value_type = T;
 	using reference = T & ;
 	using const_reference = const reference;
-	using const_pointer = const T *;
+	using pointer = T * ;
+	using const_pointer = const pointer;
+	using iterator_category = std::input_iterator_tag;
+	//using difference_type = std::ptrdiff_t;		//??????????????
 
 public:
 	ProducingIterator(GeneratorType gen) 
@@ -228,6 +231,7 @@ public:
 	const_reference operator*() { return currentElem_; }
 	const_pointer operator->() { return &currentElem_; }
 
+	// Not strong condition
 	bool operator== (ProducingIterator const & other) const {
 		return generator_ == other.generator_
 			&& currentElem_ == other.currentElem_;
@@ -247,6 +251,7 @@ public:
 private:
 	GeneratorType generator_;
 	value_type currentElem_;
+	// maybe I need to add the counter for distinguishing the iterators
 };
 
 }

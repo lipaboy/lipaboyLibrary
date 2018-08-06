@@ -2,6 +2,8 @@
 
 #include "extra_tools/extra_tools.h"
 
+#include <iterator>
+
 namespace lipaboy_lib_tests {
 
 using lipaboy_lib::RelativeForward;
@@ -76,6 +78,11 @@ TEST(ProducingIterator, lambda_relative_on_external_context) {
 	ASSERT_EQ(*iter, 1);
 	++iter;
 	ASSERT_EQ(*(++iter), 3);
+
+	// no difference_type
+	/*auto lol = std::is_same<typename std::iterator_traits<ProducingIterator<int> >::iterator_category,
+		std::input_iterator_tag>::value;
+	ASSERT_TRUE(lol);*/
 }
 
 }
