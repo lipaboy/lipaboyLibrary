@@ -3,6 +3,7 @@
 #include <type_traits>
 #include <tuple>
 #include <functional>
+#include <memory>
 
 // debugging
 #include <iostream>
@@ -208,6 +209,8 @@ class ProducingIterator {
 public:
 	using GeneratorType = std::function<T(void)>;
 	using value_type = T;
+	using CurrentValueType = value_type;
+	using CurrentValueTypePtr = std::shared_ptr<CurrentValueType>;
 	using reference = T & ;
 	using const_reference = const reference;
 	using pointer = T * ;
@@ -217,40 +220,89 @@ public:
 
 public:
 	ProducingIterator(GeneratorType gen) 
-		: generator_(gen), currentElem_(gen()) 
+		: generator_(gen), pCurrentElem_(std::make_shared<CurrentValueType>(gen()))
 	{}
 	ProducingIterator(ProducingIterator const & obj)
 		: generator_(obj.generator_),
-		currentElem_(obj.currentElem_)
-	{}
-	ProducingIterator(ProducingIterator&& obj) noexcept
-		: generator_(std::move(obj.generator_)),
-		currentElem_(std::move(obj.currentElem_))
+		pCurrentElem_(obj.pCurrentElem_)
 	{}
 
-	const_reference operator*() { return currentElem_; }
-	const_pointer operator->() { return &currentElem_; }
+	const_reference operator*() { return *pCurrentElem_; }
+	const_pointer operator->() { return &(*pCurrentElem_); }
 
-	// Not strong condition
-	bool operator== (ProducingIterator const & other) const {
-		return generator_ == other.generator_
-			&& currentElem_ == other.currentElem_;
+	// Note: not strong condition (maybe add counter to distinguishing the different iterators)
+	bool operator== (ProducingIterator & other) {
+		return generator_.target<T(void)>() == other.generator_.target<T(void)>()
+			&& pCurrentElem_ == other.pCurrentElem_
+			&& *pCurrentElem_ == *(other.pCurrentElem_);
 	}
-	bool operator!= (ProducingIterator const & other) const { return !((*this) == other); }
+	bool operator!= (ProducingIterator & other) { return !((*this) == other); }
 
 	ProducingIterator operator++() {
-		currentElem_ = generator_();
+		*pCurrentElem_ = generator_();
 		return *this;
 	}
-	ProducingIterator operator++(int) {
-		ProducingIterator prev = *this;
-		currentElem_ = generator_();
-		return prev;
+	// Info: Return type is void because you cannot return previous iterator.
+	//		 You cannot return previous iterator because pCurrentElem_ of different copies [iterators]
+	//		 point to the same variable. If we don't have pointer to current elem then
+	//		 we must have storage it directly (as a field). But copy constructor of iterator will be expensive.
+	void operator++(int) {
+		*pCurrentElem_ = generator_();
 	}
 
 private:
 	GeneratorType generator_;
-	value_type currentElem_;
+	CurrentValueTypePtr pCurrentElem_;
+};
+
+template <class T>
+class InitializerListIterator {
+public:
+	using value_type = T;
+	using ContainerType = std::vector<value_type>;
+	using ContainerTypePtr = std::shared_ptr<ContainerType>;
+	using Subiterator = typename ContainerType::iterator;
+	using reference = T & ;
+	using const_reference = const reference;
+	using pointer = T * ;
+	using const_pointer = const pointer;
+	using iterator_category = std::input_iterator_tag;
+	//using difference_type = std::ptrdiff_t;		//??????????????
+
+public:
+	InitializerListIterator(std::initializer_list<T> init)
+		: pContainer_(std::make_shared<ContainerType>(init))
+	{
+		subiter_ = pContainer_->begin();
+	}
+	InitializerListIterator(InitializerListIterator const & obj)
+		: pContainer_(obj.pContainer_),
+		subiter_(obj.subiter_)
+	{}
+
+	const_reference operator*() { return *subiter_; }
+	const_pointer operator->() { return &(*subiter_); }
+
+	// Not strong condition
+	bool operator== (InitializerListIterator const & other) const {
+		return pContainer_ == other.pContainer_
+			&& subiter_ == other.subiter_;
+	}
+	bool operator!= (InitializerListIterator const & other) const { return !((*this) == other); }
+
+	InitializerListIterator operator++() {
+		++subiter_;
+		return *this;
+	}
+	InitializerListIterator operator++(int) {
+		InitializerListIterator prev = *this;
+		++subiter_;
+		return prev;
+	}
+
+private:
+	ContainerTypePtr pContainer_;
+	Subiterator subiter_;
 	// maybe I need to add the counter for distinguishing the iterators
 };
 
