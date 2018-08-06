@@ -6,41 +6,83 @@
 
 namespace stream_space {
 
+
+template <class TIterator>
+using StreamOfOutsideIterators = Stream<functors_space::IsOutsideIteratorsRefer, TIterator>;
+
+template <class T>
+using StreamOfInitializingList = 
+	Stream<IsInitializingListCreation, typename OwnContainerTypeWithoutValueType<T>::iterator>;
+
+template <class Generator>
+using StreamOfGenerator = Stream<IsGeneratorProducing,
+									typename OwnContainerTypeWithoutValueType<
+										typename std::result_of<Generator(void)>::type
+									>::iterator
+								>;
+
+template <class T>
+using StreamOfGenerator_t = Stream<IsGeneratorProducing,
+	typename OwnContainerTypeWithoutValueType<T>::iterator
+>;
+
+
 //-------------------Wrappers-----------------------//
 
 template <class TIterator>
-auto createStream(TIterator begin, TIterator end)
-    -> Stream<IsOutsideIteratorsRefer, TIterator>
+auto buildStream(TIterator begin, TIterator end)
+    -> StreamOfOutsideIterators<TIterator>
 {
-    return Stream<IsOutsideIteratorsRefer, TIterator>(begin, end);
+    return StreamOfOutsideIterators<TIterator>(begin, end);
 }
 
 template <class TIterator>
-auto makeStream(TIterator begin, TIterator end)
-    -> Stream<IsOutsideIteratorsRefer, TIterator> *
+auto allocateStream(TIterator begin, TIterator end)
+    -> StreamOfOutsideIterators<TIterator> *
 {
-    return new Stream<IsOutsideIteratorsRefer, TIterator>(begin, end);
+    return new StreamOfOutsideIterators<TIterator>(begin, end);
 }
 
 template <class T>
-decltype(auto) createStream(std::initializer_list<T> init)
+auto buildStream(std::initializer_list<T> init)
+	-> StreamOfInitializingList<T>
 {
-    return Stream<IsInitializingListCreation, typename OwnContainerTypeWithoutValueType<T>::iterator>(init);
+    return StreamOfInitializingList<T>(init);
+}
+
+template <class T>
+auto allocateStream(std::initializer_list<T>)
+	-> StreamOfInitializingList<T> *
+{
+	return new StreamOfInitializingList<T>(begin, end);
 }
 
 template <class T, class... Args>
-decltype(auto) createStream(T elem, Args... args)
+auto buildStream(T elem, Args... args)
+	-> StreamOfInitializingList<T>
 {
-    return Stream<IsInitializingListCreation,
-            typename OwnContainerTypeWithoutValueType<T>::iterator>({elem, args...});
+    return StreamOfInitializingList<T>({elem, args...});
+}
+
+template <class T, class... Args>
+auto allocateStream(T elem, Args... args)
+	-> StreamOfInitializingList<T> *
+{
+	return new StreamOfInitializingList<T>({ elem, args... });
 }
 
 template <class Generator>
-decltype(auto) createStream(Generator&& generator)
+auto buildStream(Generator&& generator) 
+	-> StreamOfGenerator<Generator>
 {
-    return Stream<IsGeneratorProducing,
-            typename OwnContainerTypeWithoutValueType<
-                typename std::result_of<Generator(void)>::type>::iterator>(std::forward<Generator>(generator));
+    return StreamOfGenerator<Generator>(std::forward<Generator>(generator));
+}
+
+template <class Generator>
+auto allocateStream(Generator&& generator)
+	-> StreamOfGenerator<Generator> *
+{
+	return new StreamOfGenerator<Generator>(std::forward<Generator>(generator));
 }
 
 }

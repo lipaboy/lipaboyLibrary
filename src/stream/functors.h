@@ -51,6 +51,7 @@ using lipaboy_lib::WrapBySTDFunctionType;
 // TODO: make move-semantics for concating operations to stream
 // TODO: think about writing iterators for Stream
 // TODO: test the allocating memory under tempOwner_ in ExtendedStream
+// TODO: rename type name of template parameter (OutsideIterator) to right one
 
 enum Info {
     GENERATOR,
@@ -336,6 +337,37 @@ private:
     size_type index_;
 };
 
+}	
+
+//----------------------------------------------------------------//
+//--------------------functor_space ends--------------------------//
+//----------------------------------------------------------------//
+
+namespace shortening {
+
+	template <class TStream, class TOperation>
+	using StreamTypeExtender = typename std::remove_reference_t<TStream>::
+		template ExtendedStreamType<std::remove_reference_t<TOperation> >;
+
+	
+	namespace experimental {
+
+		// smth interesting
+
+		template <class T, class RelativeTo>
+		struct relative_const {
+			using type = T;
+		};
+
+		template <class T, class RelativeTo>
+		struct relative_const<T, const RelativeTo> {
+			using type = const T;
+		};
+
+		template <class T, class RelativeTo>
+		using relative_const_t = typename relative_const<T, RelativeTo>::type;
+
+	}
 
 }
 

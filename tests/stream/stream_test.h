@@ -25,13 +25,13 @@ class OutsideItersStreamTest : public ::testing::Test  {
 public:
     using ElemType = int;
     using Container = vector<ElemType>;
-    using StreamType = Stream<IsOutsideIteratorsRefer, typename Container::iterator>;
+    using StreamType = stream_space::StreamOfOutsideIterators<typename Container::iterator>;
     using StreamTypePtr = unique_ptr<StreamType>;
 
 protected:
     void SetUp() {
         pOutsideContainer = std::unique_ptr<Container>(new Container({ 1, 2, 3, 4, 5 }));
-        pStream = std::unique_ptr<StreamType>(stream_space::makeStream(pOutsideContainer->begin(),
+        pStream = std::unique_ptr<StreamType>(stream_space::allocateStream(pOutsideContainer->begin(),
                                                                       pOutsideContainer->end()));
         //---------------File Stream Init------------//
 
@@ -53,6 +53,29 @@ protected:
     string fileData;
 };
 
-}
+#include <optional>
+
+using std::optional;
+
+class InfiniteStreamTest : public ::testing::Test {
+public:
+	using ElemType = int;
+	using Container = vector<ElemType>;
+	using StreamType = stream_space::StreamOfGenerator<std::function<ElemType(void)> >;
+	using StreamTypePtr = unique_ptr<StreamType>;
+
+protected:
+	void SetUp() {
+		static int x = 0;
+		pStream = std::unique_ptr<StreamType>(stream_space::allocateStream([&a = x]() -> ElemType { return a++; }));
+	}
+	void TearDown() {
+	}
+
+protected:
+	StreamTypePtr pStream;
+};
+
+} 
 
 #endif // HASH_MAP_TEST_H

@@ -17,6 +17,7 @@ using std::vector;
 using std::pair;
 using std::string;
 using std::unique_ptr;
+using std::shared_ptr;
 
 // For debugging
 using std::cout;
@@ -63,20 +64,22 @@ public:
     Range(OuterIterator begin, OuterIterator end)
         : outsideBegin_(begin), outsideEnd_(end), pGenerator_(nullptr)
     {}
-    Range(GeneratorTypePtr generator)
-        : outsideBegin_(), outsideEnd_(), pGenerator_(generator),
-          action_([] (Range*) {}),
-          isInfinite_(true)
+	Range(GeneratorTypePtr generator)
+		: outsideBegin_(), outsideEnd_(), pGenerator_(generator),
+		isInfinite_(true),
+		pTempValue_(std::make_shared<ValueType>())
     {
         setOwnIndices(0, 0);
     }
-	// TODO : make it default
+
+	// TODO : make constructors the default
     Range(const Range& obj)
         : outsideBegin_(obj.outsideBegin_), outsideEnd_(obj.outsideEnd_),
-          ownBeginIndex_(obj.ownBeginIndex_), ownEndIndex_(obj.ownEndIndex_),
-          pContainer_(obj.pContainer_ == nullptr ? nullptr : new OwnContainerType(*obj.pContainer_)),
-          pGenerator_(obj.pGenerator_), action_(obj.action_),
-          isInfinite_(obj.isInfinite_), isSizeSet_(obj.isSizeSet_), size_(obj.size_)
+        ownBeginIndex_(obj.ownBeginIndex_), ownEndIndex_(obj.ownEndIndex_),
+        pContainer_(obj.pContainer_ == nullptr ? nullptr : new OwnContainerType(*obj.pContainer_)),
+        pGenerator_(obj.pGenerator_), 
+        isInfinite_(obj.isInfinite_), isSizeSet_(obj.isSizeSet_), size_(obj.size_), 
+		pTempValue_(obj.pTempValue_)
     {
 #ifdef LOL_DEBUG_NOISY
         cout << " Range copy-constructed" << endl;
@@ -84,10 +87,11 @@ public:
     }
     Range(Range&& obj) noexcept
         : outsideBegin_(std::move(obj.outsideBegin_)), outsideEnd_(std::move(obj.outsideEnd_)),
-          ownBeginIndex_(obj.ownBeginIndex_), ownEndIndex_(obj.ownEndIndex_),
-          pContainer_(std::move(obj.pContainer_)),
-          pGenerator_(std::move(obj.pGenerator_)), action_(std::move(obj.action_)),
-          isInfinite_(obj.isInfinite_), isSizeSet_(obj.isSizeSet_), size_(obj.size_)
+        ownBeginIndex_(obj.ownBeginIndex_), ownEndIndex_(obj.ownEndIndex_),
+        pContainer_(std::move(obj.pContainer_)),
+        pGenerator_(std::move(obj.pGenerator_)), 
+        isInfinite_(obj.isInfinite_), isSizeSet_(obj.isSizeSet_), size_(obj.size_),
+		pTempValue_(std::move(obj.pTempValue_))
     {
 #ifdef LOL_DEBUG_NOISY
         cout << " Range move-constructed" << endl;
@@ -160,15 +164,16 @@ public:
         setSize(size);
     }
 
-    void doPreliminaryActions() { action_(this); }
+    void doPreliminaryActions() {}
     void setAction(std::function<void(Range*)> newAction) { action_ = newAction; }
 
     //-----------------Slider API---------------//
 
     template <bool isOwnIterator>
     void initSlider() {
+		// !! Problem with double initializing tempValue (when initSlider is called twice -> nth(0); nth(0); )
         if constexpr (StorageInfo::info == GENERATOR)
-                tempValue_ = pGenerator_();
+                *pTempValue_ = pGenerator_();
         else if constexpr (StorageInfo::info == INITIALIZING_LIST)
                 ownIterSlider_ = ownBegin();
         else
@@ -178,9 +183,9 @@ public:
     ValueType nextElem() {
         if constexpr (StorageInfo::info == GENERATOR) {
                 auto newValue = (size_ > 1) ? pGenerator_() : ValueType();
-                std::swap(newValue, tempValue_);
+                std::swap(newValue, *pTempValue_);
                 size_ = (hasNext()) ? size_ - 1 : size_;
-                return newValue;
+                return std::move(newValue);
         }
         else if constexpr (StorageInfo::info == INITIALIZING_LIST)
                 return *(ownIterSlider_++);
@@ -196,7 +201,7 @@ public:
     template <bool isOwnIterator>
     void incrementSlider() {
         if constexpr (StorageInfo::info == GENERATOR) {
-                tempValue_ = pGenerator_();
+                *pTempValue_ = pGenerator_();
                 size_ = (hasNext()) ? size_ - 1 : size_;
         }
         else if constexpr (StorageInfo::info == INITIALIZING_LIST)
@@ -211,7 +216,7 @@ public:
     template <bool isOwnIterator>
     ValueType currentElem() const {
         if constexpr (StorageInfo::info == GENERATOR)
-                return tempValue_;
+                return *pTempValue_;
         else if constexpr (StorageInfo::info == INITIALIZING_LIST)
                 return *ownIterSlider_;
         else
@@ -272,8 +277,9 @@ private:
 
     // Generator
     GeneratorTypePtr pGenerator_;
-    ValueType tempValue_;        // only for Generator
-    std::function<void(Range*)> action_ = [] (Range*) {};
+	// Note: pTempValue - is something strange (like I don't know
+	//		 what's kind of relationship it has with Stream logic)
+    shared_ptr<ValueType> pTempValue_ = nullptr;        // only for Generator
 
 public:
     template <bool isOwnIterator_>

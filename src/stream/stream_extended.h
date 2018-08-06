@@ -21,8 +21,6 @@ using std::pair;
 using std::string;
 using std::unique_ptr;
 
-using lipaboy_lib::RelativeForward;
-
 using namespace functors_space;
 
 using std::cout;
@@ -31,27 +29,6 @@ using std::endl;
 template <bool isOwnContainer, class TRange>
 struct GetRangeIter {};
 
-
-namespace shortening {
-
-template <class TStream, class TOperation>
-using StreamTypeExtender = typename std::remove_reference_t<TStream>::
-    template ExtendedStreamType<std::remove_reference_t<TOperation> >;
-
-template <class T, class RelativeTo>
-struct relative_const {
-    using type = T;
-};
-
-template <class T, class RelativeTo>
-struct relative_const<T, const RelativeTo> {
-    using type = const T;
-};
-
-template <class T, class RelativeTo>
-using relative_const_t = typename relative_const<T, RelativeTo>::type;
-
-}
 
 //-----------------Stream Extended class----------------------//
 

@@ -63,70 +63,32 @@ TEST(Interval, contains) {
     ASSERT_TRUE(interval.containsNone(0, 1, 5));
 }
 
-
-class PtrDeallocationWrapper {
+class A {
 public:
-    virtual ~PtrDeallocationWrapper() {}
+	A(std::initializer_list<string> init) : init_(init) {
+		begin_ = init_.begin();
+		end_ = init_.end();
+	}
+
+	using Iterator = typename std::initializer_list<string>::iterator;
+	Iterator begin_;
+	Iterator end_;
+	std::initializer_list<string> init_;
 };
 
-template <class T>
-class PtrDeallocationWrapperOnHeap
-        : public PtrDeallocationWrapper
-{
-public:
-    template <class... Args>
-    PtrDeallocationWrapperOnHeap(Args&&... args)
-        : ptr_(new T(std::forward<Args>(args)...))
-    {}
-    virtual ~PtrDeallocationWrapperOnHeap() {
-        cout << "heap deallocation" << endl;
-    }
-
-private:
-    unique_ptr<T> ptr_;
-};
-
-template <class T>
-class PtrDeallocationWrapperOnStack
-        : public PtrDeallocationWrapper
-{
-public:
-    PtrDeallocationWrapperOnStack(T * ptr) : ptr_(ptr) {}
-    virtual ~PtrDeallocationWrapperOnStack() {
-        cout << "stack not deallocation" << endl;
-    }
-
-private:
-    T * ptr_;
-};
-
-template <class T, class... Args>
-auto make_heap_ptr(Args&&... args)
-    -> unique_ptr<PtrDeallocationWrapper>
-{
-    return std::move(unique_ptr<PtrDeallocationWrapper>(
-                         new PtrDeallocationWrapperOnHeap<T>(std::forward<Args>(args)...))
-                     );
-}
-
-template <class T>
-auto make_stack_ptr(T* ptr)
-    -> unique_ptr<PtrDeallocationWrapper>
-{
-    return std::move(unique_ptr<PtrDeallocationWrapper>(
-                         new PtrDeallocationWrapperOnStack<T>(ptr))
-                     );
-}
 
 TEST(Check, check) {
-    vector<unique_ptr<PtrDeallocationWrapper> > vec;
+	/*std::initializer_list<string> init = { "a", "b", "c" };
+	vector<string> vec(init);
 
-    vec.push_back(make_heap_ptr<string>("lol"));
-    string str1 = "kek";
-    vec.push_back(make_stack_ptr<string>(&str1));
+	EXPECT_TRUE(std::equal(init.begin(), init.end(), vec.begin()));
 
-    vec.pop_back();
-    vec.pop_back();
+	A a = { "c", "d", "e" };
+	vec = { "c", "d", "e" };
+
+	EXPECT_TRUE(std::equal(a.init_.begin(), a.init_.end(), vec.begin()));
+	EXPECT_EQ(*a.begin_, "c");
+	cout << a.init_.size() << endl;*/
 }
 
 }

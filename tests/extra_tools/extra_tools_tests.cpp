@@ -38,13 +38,13 @@ template <class A_>
 using Briefly = RelativeForward<A_&&, typename std::remove_reference_t<A_>::value_type>;
 
 template <class A_>
-bool isLValue(A_&& a) {
+bool isLValueRef(A_&& a) {
     return std::is_lvalue_reference<
             decltype(Briefly<A_&&>::forward(a.n))>::value;
 }
 
 template <class A_>
-bool isRValue(A_&& a) {
+bool isRValueRef(A_&& a) {
     return std::is_rvalue_reference<
             decltype(Briefly<A_&&>::forward(a.n))>::value;
 }
@@ -61,10 +61,10 @@ TEST(RelativeForward, noisy_test) {
 
 TEST(RelativeForward, simple_test) {
     A<int> temp;
-    ASSERT_TRUE(isLValue(temp));
-    ASSERT_FALSE(isLValue(std::move(temp)));
-    ASSERT_TRUE(isRValue(std::move(temp)));
-    ASSERT_FALSE(isRValue(temp));
+    ASSERT_TRUE(isLValueRef(temp));
+    ASSERT_FALSE(isLValueRef(std::move(temp)));
+    ASSERT_TRUE(isRValueRef(std::move(temp)));
+    ASSERT_FALSE(isRValueRef(temp));
 }
 
 }
