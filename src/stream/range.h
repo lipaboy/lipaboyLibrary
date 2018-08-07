@@ -160,7 +160,7 @@ public:
     ValueType currentElem() const {
             return *outsideBegin();
     }
-    bool hasNext() const {
+    bool hasNext() {
         if constexpr (isGeneratorProducing())
                 return (size_ > 0);
         else if constexpr (isInitilizerListCreation())

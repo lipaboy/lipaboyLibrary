@@ -49,7 +49,6 @@ using lipaboy_lib::WrapBySTDFunctionType;
 // TODO: think about writing iterators for Stream
 //		 Stream is like specific iterator (like boost::transform_iterator)
 // TODO: test the allocating memory under tempOwner_ in ExtendedStream
-// TODO: rename type name of template parameter (TIterator) to right one
 
 enum Info {
     GENERATOR,

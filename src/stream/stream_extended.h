@@ -175,7 +175,7 @@ protected:
     SuperTypePtr superThisPtr() { return static_cast<SuperTypePtr>(this); }
     ConstSuperTypePtr constSuperThisPtr() const { return static_cast<ConstSuperTypePtr>(this); }
     auto superNextElem() -> typename SuperType::ResultValueType { return superThisPtr()->nextElem(); }
-    bool superHasNext() const { return constSuperThisPtr()->hasNext(); }
+    bool superHasNext() { return superThisPtr()->hasNext(); }
     auto superCurrentElem() -> typename SuperType::ResultValueType {
         return superThisPtr()->currentElem();
     }
@@ -196,9 +196,9 @@ public:
                 ungroupTempOwner_->indexIter = 0;
         else if constexpr (TFunctor::metaInfo == FILTER) {
                 // TODO: realize shifting the slider (without creating copy of result object
-                for (; hasNext(); superNextElem())
+                /*for (; hasNext(); superNextElem())
                     if (true == operation().functor()(superCurrentElem()))
-                        break;
+                        break;*/
         }
         else if constexpr (TFunctor::metaInfo == GROUP_BY_VECTOR) {
             auto partSize = operation_.partSize();
@@ -227,11 +227,8 @@ public:
                 return std::move(operation()(superNextElem()));
         if constexpr (TFunctor::metaInfo == FILTER) {
                 auto currElem = superNextElem();
-                for (; hasNext(); superNextElem()) {
-                    auto elem = superCurrentElem();
-                    if (true == operation().functor()(elem))
-                        break;
-                }
+				// ! calling hasNext() of current StreamType ! in order to skip unfilter elems
+				this->hasNext();
                 return std::move(currElem);
         }
         else if constexpr (TFunctor::metaInfo == GROUP_BY_VECTOR) {
@@ -270,19 +267,30 @@ public:
                 bool res = (tempValue & (1 << indexIter)) >> indexIter;
                 return res;
         }
+		else if constexpr (TFunctor::metaInfo == FILTER) {
+				// ! calling hasNext() of current StreamType ! in order to skip unfilter elems
+				this->hasNext();	
+				return std::move(superThisPtr()->currentElem());
+		}
         else
                 return std::move(superThisPtr()->currentElem());
     }
 
-    bool hasNext() const {
+    bool hasNext() {
         if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT)
                 return (ungroupTempOwner_->indexIter != 0)
-                    || constSuperThisPtr()->hasNext();
+                    || superHasNext();
         else if constexpr (TFunctor::metaInfo == GROUP_BY_VECTOR)
                 return (!groupedTempOwner_->tempValue.empty()
-                        || constSuperThisPtr()->hasNext());
+                        || superHasNext());
+		else if constexpr (TFunctor::metaInfo == FILTER) {
+				for (; superHasNext(); superNextElem())
+					if (true == operation().functor()(superCurrentElem()))
+						return true;
+				return false;
+		}
         else
-                return constSuperThisPtr()->hasNext();
+                return superHasNext();
     }
 
 

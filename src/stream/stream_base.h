@@ -176,7 +176,7 @@ public:
 	}
     ResultValueType nextElem() { return std::move(range().nextElem()); }
     ValueType currentElem() { return std::move(range().currentElem()); }
-    bool hasNext() const { return range().hasNext(); }
+    bool hasNext() { return range().hasNext(); }
 
     //-----------------Slider API Ends--------------//
 
