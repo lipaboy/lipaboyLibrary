@@ -26,31 +26,21 @@ using lipaboy_lib::RelativeForward;
 
 //--------------------------Stream Base (specialization class)----------------------//
 
-namespace {
-template <class T> using OwnContainerTypeWithoutValueType = vector<T>;
-}
-
-template <class StorageInfo, class OutsideIterator>
-class Stream<StorageInfo, OutsideIterator> {
+template <class OutsideIterator>
+class Stream<OutsideIterator> {
 public:
     using T = typename std::iterator_traits<OutsideIterator>::value_type;
     using ValueType = T;
     using size_type = size_t;
     using outside_iterator = OutsideIterator;
     class Range;
-    using OwnContainerType = typename Range::OwnContainerType;
-    using OwnContainerTypePtr = typename Range::OwnContainerTypePtr;   // TODO: make it unique (it is not easy)
-    using OwnIterator = typename OwnContainerType::iterator;
-
-    // TODO: make unique_ptr
-    using GeneratorTypePtr = std::function<T(void)>;
 
     template <class Functor>
-    using ExtendedStreamType = Stream<Functor, StorageInfo, OutsideIterator>;
+    using ExtendedStreamType = Stream<Functor, OutsideIterator>;
 
     using ResultValueType = ValueType;
 
-    template <typename, typename, typename...> friend class Stream;
+    template <typename, typename...> friend class Stream;
 
 public:
     //----------------------Constructors----------------------//
@@ -72,8 +62,7 @@ public:
         cout << "   StreamBase move-constructed" << endl;
 #endif
     }
-    explicit
-    Stream(GeneratorTypePtr generator) : range_(generator) {}
+    Stream(typename Range::GeneratorTypePtr generator) : range_(generator) {}
 
     //----------------------Methods API-----------------------//
 
@@ -82,8 +71,7 @@ public:
     auto operator| (get functor) -> ExtendedStreamType<get> {
         using ExtendedStream = ExtendedStreamType<get>;
         ExtendedStream newStream(functor, *this);
-        newStream.action_ =              // preAction_ -> is important
-                                            // (because before generating the elements you must set the size)
+        newStream.action_ =
             [] (ExtendedStream * obj)
             {
                 auto border = obj->operation().border();
@@ -112,10 +100,6 @@ public:
     }
 
     //-----------Terminated operations------------//
-protected:
-	// "apply API" is necessary only for avoiding the code duplication.
-
-    
 
 public:
     std::ostream& operator| (print_to&& printer) {

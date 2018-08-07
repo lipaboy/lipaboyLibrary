@@ -11,24 +11,13 @@ using lipaboy_lib::ProducingIterator;
 using lipaboy_lib::InitializerListIterator;
 
 template <class TIterator>
-using StreamOfOutsideIterators = Stream<functors_space::IsOutsideIteratorsRefer, TIterator>;
+using StreamOfOutsideIterators = Stream<TIterator>;
 
 template <class T>
-using StreamOfInitializingList = 
-	Stream<IsInitializingListCreation, InitializerListIterator<T> >;
+using StreamOfInitializingList = Stream<InitializerListIterator<T> >;
 
 template <class Generator>
-using StreamOfGenerator = Stream<IsGeneratorProducing, 
-								 ProducingIterator<typename std::result_of<Generator(void)>::type>
-								/*typename OwnContainerTypeWithoutValueType<
-									typename std::result_of<Generator(void)>::type
-								>::iterator*/
-								>;
-
-template <class T>
-using StreamOfGenerator_t = Stream<IsGeneratorProducing,
-	typename OwnContainerTypeWithoutValueType<T>::iterator
->;
+using StreamOfGenerator = Stream<ProducingIterator<typename std::result_of<Generator(void)>::type> >;
 
 
 //-------------------Wrappers-----------------------//

@@ -28,29 +28,27 @@ using std::endl;
 
 //-----------------Stream Extended class----------------------//
 
-template <class TFunctor, class StorageInfo, class... Rest>
-class Stream : public Stream<StorageInfo, Rest...> {
+template <class TFunctor, class... Rest>
+class Stream : public Stream<Rest...> {
 public:
     using size_type = size_t;
     using FunctorType = TFunctor;
-    using SuperType = Stream<StorageInfo, Rest...>;
+    using SuperType = Stream<Rest...>;
     using ConstSuperType = const SuperType;
     using iterator = typename SuperType::outside_iterator;
     using SuperTypePtr = SuperType *;
     using ConstSuperTypePtr = const SuperType *;
     using ValueType = typename SuperType::ValueType;
     using Range = typename SuperType::Range;
-    using OwnContainerType = typename SuperType::OwnContainerType;
-    using OwnContainerTypePtr = typename SuperType::OwnContainerTypePtr;
     using ActionSignature = void(Stream*);
     using ActionType = std::function<ActionSignature>;
 
     template <class Functor>
-    using ExtendedStreamType = Stream<Functor, FunctorType, StorageInfo, Rest...>;
+    using ExtendedStreamType = Stream<Functor, FunctorType, Rest...>;
 
     using ResultValueType = typename TFunctor::template RetType<typename SuperType::ResultValueType>::type;
 
-    template <typename, typename, typename...> friend class Stream;
+    template <typename, typename...> friend class Stream;
 
     //----------------------Constructors----------------------//
 public:

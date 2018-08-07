@@ -25,8 +25,8 @@ using std::endl;
 
 //--------------------RangeType-----------------------//
 
-template <class StorageInfo, class TIterator>
-class Stream<StorageInfo, TIterator>::Range {
+template <class TIterator>
+class Stream<TIterator>::Range {
 public:
     using ValueType = typename Stream::ValueType;
     using reference = ValueType&;
@@ -37,9 +37,6 @@ public:
     // TODO: remove this crutch (Visual Studio compiler cannot resolve it)
 	using GeneratorTypePtr = //typename Stream::GeneneratorTypePtr;
 		std::function<ValueType(void)>;
-    using OwnContainerType = OwnContainerTypeWithoutValueType<ValueType>;
-    using OwnContainerTypePtr = std::unique_ptr<OwnContainerType>;
-    using OwnIterator = typename OwnContainerType::iterator;
 
 public:
     Range(std::initializer_list<T> init)
