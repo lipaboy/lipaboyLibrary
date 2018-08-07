@@ -103,6 +103,7 @@ public:
 
 public:
     std::ostream& operator| (print_to&& printer) {
+		assertOnInfiniteStream<Stream>();
         return apply(*this, std::move(printer));
     }
 
@@ -110,9 +111,11 @@ public:
     auto operator| (reduce<Accumulator, IdentityFn> const & reduceObj)
         -> typename reduce<Accumulator, IdentityFn>::IdentityRetType
     {
+		assertOnInfiniteStream<Stream>();
         return apply(*this, reduceObj);
     }
     ResultValueType operator| (sum&&) {
+		assertOnInfiniteStream<Stream>();
         init();
         if (hasNext()) {
             auto result = nextElem();
@@ -123,9 +126,11 @@ public:
         return ResultValueType();
     }
 	ResultValueType operator| (nth&& nthObj) {
+		assertOnInfiniteStream<Stream>();
 		return apply(*this, std::move(nthObj));
 	}
     vector<ValueType> operator| (to_vector&& toVectorObj) {
+		assertOnInfiniteStream<Stream>();
         return apply(*this, std::move(toVectorObj));
     }
 
@@ -153,9 +158,10 @@ protected:
     // (because all the variadic templates are friends
     // from current Stream to first specialization) (it is not a real inheritance)
 
-    void throwOnInfiniteStream() const {
-        if (range().isInfinite())
-            throw std::logic_error("Infinite stream");
+	template <class TStream_>
+	inline static constexpr void assertOnInfiniteStream() {
+		static_assert(!TStream_::isGeneratorProducing() || !TStream_::isNoGetTypeBefore(),
+			"Stream error: attempt to work with infinite stream");
     }
 protected:
     // TODO: think about this interface
@@ -165,15 +171,9 @@ protected:
 
     //-----------------Slider API--------------//
 
-private:
-	void doPreliminaryActions() { range().doPreliminaryActions(); }
 
 public:
-	void init() {
-		doPreliminaryActions();
-		throwOnInfiniteStream();
-		range().init();
-	}
+	void init() {}
     ResultValueType nextElem() { return std::move(range().nextElem()); }
     ValueType currentElem() { return std::move(range().currentElem()); }
     bool hasNext() { return range().hasNext(); }

@@ -130,13 +130,13 @@ TEST(Get, InfiniteStream) {
     ASSERT_EQ(res, vector<int>({ 1, 5, 7, 11 }));
 }
 
-TEST(Exception, Infinite) {
-    int a = 1;
-    auto stream = buildStream([&a]() { return a++; });
-    ASSERT_ANY_THROW(stream
-                     | map([] (int a) { return 2 * a; })
-                     | to_vector());
-}
+//TEST(Exception, Infinite) {
+//    int a = 1;
+//    auto stream = buildStream([&a]() { return a++; });
+//    ASSERT_ANY_THROW(stream
+//                     | map([] (int a) { return 2 * a; })
+//                     | to_vector());
+//}
 
 TEST(Get, Infinite_Empty) {
     int a = 0;
@@ -187,19 +187,20 @@ TEST_F(PrepareStreamTest, Nth_last_elem) {
     ASSERT_EQ(res, pOutsideContainer->back());
 }
 
-TEST_F(PrepareStreamTest, Nth_out_of_range) {
-	ASSERT_ANY_THROW(buildStream(begin(), end()) | nth(pOutsideContainer->size()));
-}
-
-TEST_F(PrepareStreamTest, Nth_out_of_range_by_negative_index) {
-	ASSERT_ANY_THROW(buildStream(begin(), end()) | nth(-1));
-}
-
-TEST_F(PrepareStreamTest, Nth_out_of_range_in_extended_stream) {
-    ASSERT_ANY_THROW(buildStream(begin(), end())
-                    | map([] (typename PrepareStreamTest::ElemType a) { return a; })
-                    | nth(pOutsideContainer->size()));
-}
+//TEST_F(PrepareStreamTest, Nth_out_of_range) {
+//	ASSERT_ANY_THROW(buildStream(begin(), end()) | nth(pOutsideContainer->size()));
+//}
+//
+//TEST_F(PrepareStreamTest, Nth_out_of_range_by_negative_index) {
+//	ASSERT_ANY_THROW(buildStream(begin(), end()) | nth(-1));
+//}
+//
+//TEST_F(PrepareStreamTest, Nth_out_of_range_in_extended_stream) {
+//    ASSERT_ANY_THROW(buildStream(begin(), end())
+//                    | map([] (typename PrepareStreamTest::ElemType a) { return a; })
+//                    | nth(pOutsideContainer->size()));
+//	//buildStream(begin(), end()) | print_to(cout);
+//}
 
 //----------------Skip operator testing-------------------//
 

@@ -112,13 +112,8 @@ public:
 		isInfinite_ = false;
 	}
 
-    void doPreliminaryActions() {}
-
     //-----------------Slider API---------------//
 
-    void init() {
-		// !! Problem with double initializing tempValue (when initSlider is called twice -> nth(0); nth(0); )
-    }
     ValueType nextElem() {
         if constexpr (isGeneratorProducing()) {
                 size_ = (hasNext()) ? size_ - 1 : size_;

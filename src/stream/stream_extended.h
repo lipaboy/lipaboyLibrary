@@ -20,6 +20,7 @@ using std::vector;
 using std::pair;
 using std::string;
 using std::unique_ptr;
+using std::shared_ptr;
 
 using namespace functors_space;
 
@@ -57,10 +58,17 @@ public:
     Stream (TFunctor_&& functor, StreamSuperType_&& obj) noexcept
         : SuperType(std::forward<StreamSuperType_>(obj)), operation_(std::forward<TFunctor_>(functor))
     {
-        if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT)
-                ungroupTempOwner_ = std::make_unique<UngroupTempValueType>();
-        if constexpr (TFunctor::metaInfo == GROUP_BY_VECTOR)
-                groupedTempOwner_ = std::make_unique<GroupedTempValueType>();
+		if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT) {
+				ungroupTempOwner_ = std::make_shared<UngroupTempValueType>();
+				ungroupTempOwner_->indexIter = 0;
+		}
+		else if constexpr (TFunctor::metaInfo == GROUP_BY_VECTOR) {
+				groupedTempOwner_ = std::make_shared<GroupedTempValueType>();
+				init();
+				auto partSize = operation_.partSize();
+				for (size_type i = 0; i < partSize && hasNext(); i++)
+					groupedTempOwner_->tempValue.push_back(superNextElem());
+		}
 #ifdef LOL_DEBUG_NOISY
         if constexpr (std::is_rvalue_reference<StreamSuperType_&&>::value)
                 cout << "   Stream is extended by move-constructor" << endl;
@@ -70,28 +78,23 @@ public:
     }
 public:
     Stream (Stream const & obj)
-        : SuperType(static_cast<ConstSuperType&>(obj))
-        ,
-          operation_(obj.operation_),
-          action_(obj.action_)
+        : SuperType(static_cast<ConstSuperType&>(obj)),
+        operation_(obj.operation_),
+        action_(obj.action_),
+		ungroupTempOwner_(obj.ungroupTempOwner_),
+		groupedTempOwner_(obj.groupedTempOwner_)
     {
-        if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT)
-                ungroupTempOwner_ = std::make_unique<UngroupTempValueType>();
-        if constexpr (TFunctor::metaInfo == GROUP_BY_VECTOR)
-                groupedTempOwner_ = std::make_unique<GroupedTempValueType>();
 #ifdef LOL_DEBUG_NOISY
         cout << "   StreamEx copy-constructed" << endl;
 #endif
     }
     Stream (Stream&& obj) noexcept
         : SuperType(std::move(obj)),
-          operation_(std::move(obj.operation_)),
-          action_(std::move(obj.action_))
+        operation_(std::move(obj.operation_)),
+        action_(std::move(obj.action_)),
+		ungroupTempOwner_(std::move(obj.ungroupTempOwner_)),
+		groupedTempOwner_(std::move(obj.groupedTempOwner_))
     {
-        if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT)
-                ungroupTempOwner_ = std::make_unique<UngroupTempValueType>();
-        if constexpr (TFunctor::metaInfo == GROUP_BY_VECTOR)
-                groupedTempOwner_ = std::make_unique<GroupedTempValueType>();
 #ifdef LOL_DEBUG_NOISY
         cout << "   StreamEx move-constructed" << endl;
 #endif
@@ -132,15 +135,18 @@ public:
     //-------------------Terminated operations-----------------//
 
     std::ostream& operator| (print_to&& printer) {
+		assertOnInfiniteStream<Stream>();
         return apply(*this, std::move(printer));
     }
     template <class Accumulator, class IdenityFn>
     auto operator| (reduce<Accumulator, IdenityFn> const & reduceObj)
         -> typename reduce<Accumulator, IdenityFn>::IdentityRetType
     {
+		assertOnInfiniteStream<Stream>();
         return apply(*this, reduceObj);
     }
     ResultValueType operator| (sum&&) {
+		assertOnInfiniteStream<Stream>();
         init();
         if (hasNext()) {
             auto result = nextElem();
@@ -151,9 +157,11 @@ public:
         return ResultValueType();
     }
     ResultValueType operator| (nth&& nthObj) {
+		assertOnInfiniteStream<Stream>();
 		return apply(*this, std::move(nthObj));
     }
     vector<ResultValueType> operator| (to_vector&& toVectorObj) {
+		assertOnInfiniteStream<Stream>();
         return apply(*this, std::move(toVectorObj));
     }
 
@@ -168,10 +176,13 @@ protected:
     static constexpr bool isGeneratorProducing() {
         return SuperType::isGeneratorProducing();
     }
+	template <class TStream_>
+	inline static constexpr void assertOnInfiniteStream() { 
+		SuperType::template assertOnInfiniteStream<TStream_>(); 
+	}
 
 protected:
     // shortness
-    void throwOnInfiniteStream() const { constSuperThisPtr()->throwOnInfiniteStream(); }
     SuperTypePtr superThisPtr() { return static_cast<SuperTypePtr>(this); }
     ConstSuperTypePtr constSuperThisPtr() const { return static_cast<ConstSuperTypePtr>(this); }
     auto superNextElem() -> typename SuperType::ResultValueType { return superThisPtr()->nextElem(); }
@@ -189,29 +200,9 @@ public:
     // For calling all the actions into stream (must be called into terminated operations
     // or before using slider API)
     void init() {
-        doPreliminaryActions();
-        throwOnInfiniteStream();
-        superThisPtr()->init();
-        if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT)
-                ungroupTempOwner_->indexIter = 0;
-        else if constexpr (TFunctor::metaInfo == FILTER) {
-                // TODO: realize shifting the slider (without creating copy of result object
-                /*for (; hasNext(); superNextElem())
-                    if (true == operation().functor()(superCurrentElem()))
-                        break;*/
-        }
-        else if constexpr (TFunctor::metaInfo == GROUP_BY_VECTOR) {
-            auto partSize = operation_.partSize();
-            for (size_type i = 0; i < partSize && hasNext(); i++)
-                groupedTempOwner_->tempValue.push_back(superNextElem());
-        }
-    }
-private:
-    // nobody instead of initSlider can call it
-    void doPreliminaryActions() {
 		if constexpr (TFunctor::metaInfo == GET && SuperType::isNoGetTypeBefore())
 			action_(this);
-        superThisPtr()->doPreliminaryActions();
+		superThisPtr()->init();
 		if constexpr (!(TFunctor::metaInfo == GET && SuperType::isNoGetTypeBefore()))
 			action_(this);
     }
@@ -284,6 +275,7 @@ public:
                 return (!groupedTempOwner_->tempValue.empty()
                         || superHasNext());
 		else if constexpr (TFunctor::metaInfo == FILTER) {
+			// TODO: realize shifting the slider (without creating copy of result object)
 				for (; superHasNext(); superNextElem())
 					if (true == operation().functor()(superCurrentElem()))
 						return true;
@@ -330,12 +322,12 @@ protected:
         size_type indexIter;
         ValueType tempValue;
     };
-    unique_ptr<UngroupTempValueType> ungroupTempOwner_;
+    shared_ptr<UngroupTempValueType> ungroupTempOwner_;
     // uses for group_to_vector operation
     struct GroupedTempValueType {
         ResultValueType tempValue;
     };
-    unique_ptr<GroupedTempValueType> groupedTempOwner_;
+	shared_ptr<GroupedTempValueType> groupedTempOwner_;
 
 protected:
 
