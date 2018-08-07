@@ -216,7 +216,10 @@ public:
 	using pointer = T * ;
 	using const_pointer = const pointer;
 	using iterator_category = std::input_iterator_tag;
-	//using difference_type = std::ptrdiff_t;		//??????????????
+		// It is type of measuring the distance between iterators (nothing else).
+		// It is commented because ProducingIterator is not a real iterator. You can't count the distance
+		// between iterators
+	//using difference_type = std::ptrdiff_t;		
 
 public:
 	ProducingIterator(GeneratorType gen) 
@@ -267,7 +270,7 @@ public:
 	using pointer = T * ;
 	using const_pointer = const pointer;
 	using iterator_category = std::input_iterator_tag;
-	//using difference_type = std::ptrdiff_t;		//??????????????
+	using difference_type = std::ptrdiff_t;		// type of measuring the distance between iterators (nothing else)
 
 public:
 	InitializerListIterator(std::initializer_list<T> init)

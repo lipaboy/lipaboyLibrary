@@ -93,7 +93,7 @@ TEST(ProducingIterator, lambda_relative_on_external_context) {
 	// don't work because ProducingIterator hasn't strong condition in comparison
 	//ASSERT_TRUE(iter != iter2);
 
-	// no difference_type
+	// ProducingIterator is not a real iterator
 	/*auto lol = std::is_same<typename std::iterator_traits<ProducingIterator<int> >::iterator_category,
 		std::input_iterator_tag>::value;
 	ASSERT_TRUE(lol);*/
@@ -115,9 +115,9 @@ TEST(InitializingListIterator, simple) {
 	ASSERT_EQ(iter, iter2);
 
 	// no difference_type
-	/*auto lol = std::is_same<typename std::iterator_traits<ProducingIterator<int> >::iterator_category,
+	auto lol = std::is_same<typename std::iterator_traits<ProducingIterator<int> >::iterator_category,
 	std::input_iterator_tag>::value;
-	ASSERT_TRUE(lol);*/
+	ASSERT_TRUE(lol);
 }
 
 }
