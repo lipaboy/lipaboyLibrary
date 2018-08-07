@@ -17,7 +17,6 @@ using std::string;
 using std::unique_ptr;
 
 using stream_space::Stream;
-using stream_space::IsOutsideIteratorsRefer;
 
 using lipaboy_lib_tests::Noisy;
 

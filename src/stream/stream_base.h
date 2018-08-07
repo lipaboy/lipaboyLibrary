@@ -26,17 +26,17 @@ using lipaboy_lib::RelativeForward;
 
 //--------------------------Stream Base (specialization class)----------------------//
 
-template <class OutsideIterator>
-class Stream<OutsideIterator> {
+template <class TIterator>
+class Stream<TIterator> {
 public:
-    using T = typename std::iterator_traits<OutsideIterator>::value_type;
+    using T = typename std::iterator_traits<TIterator>::value_type;
     using ValueType = T;
     using size_type = size_t;
-    using outside_iterator = OutsideIterator;
+    using outside_iterator = TIterator;
     class Range;
 
     template <class Functor>
-    using ExtendedStreamType = Stream<Functor, OutsideIterator>;
+    using ExtendedStreamType = Stream<Functor, TIterator>;
 
     using ResultValueType = ValueType;
 
@@ -138,10 +138,10 @@ protected:
     static constexpr bool isNoGetTypeBefore() { return true; }
     static constexpr bool isNoGroupBefore() { return true; }
     static constexpr bool isGeneratorProducing() {
-		return std::is_same_v<OutsideIterator, ProducingIterator<ValueType> >;
+		return std::is_same_v<TIterator, ProducingIterator<ValueType> >;
 	}
 	static constexpr bool isInitilizerListCreation() {
-		return std::is_same_v<OutsideIterator, InitializerListIterator<ValueType> >;
+		return std::is_same_v<TIterator, InitializerListIterator<ValueType> >;
 	}
 	static constexpr bool isOutsideIteratorsRefer() {
 		return !isGeneratorProducing() && !isInitilizerListCreation();

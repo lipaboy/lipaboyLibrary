@@ -49,24 +49,12 @@ using lipaboy_lib::WrapBySTDFunctionType;
 // TODO: think about writing iterators for Stream
 //		 Stream is like specific iterator (like boost::transform_iterator)
 // TODO: test the allocating memory under tempOwner_ in ExtendedStream
-// TODO: rename type name of template parameter (OutsideIterator) to right one
+// TODO: rename type name of template parameter (TIterator) to right one
 
 enum Info {
     GENERATOR,
     OUTSIDE_ITERATORS,
     INITIALIZER_LIST
-};
-// Infinite stream
-struct IsGeneratorProducing {
-    static constexpr Info info = GENERATOR;
-};
-// Finite stream
-struct IsOutsideIteratorsRefer {
-    static constexpr Info info = OUTSIDE_ITERATORS;
-};
-// Finite stream
-struct IsInitializingListCreation {
-    static constexpr Info info = INITIALIZER_LIST;
 };
 
 enum FunctorMetaTypeEnum {
