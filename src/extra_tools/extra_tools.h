@@ -204,6 +204,8 @@ using WrapBySTDFunctionType = typename WrapBySTDFunction<T>::type;
 //---------------------PRODUCING ITERATOR BY FUNCTION--------------------//
 //-----------------------------------------------------------------------//
 
+// TODO: think about incrementing without saving value
+
 template <class T>
 class ProducingIterator {
 public:
@@ -219,9 +221,12 @@ public:
 		// It is type of measuring the distance between iterators (nothing else).
 		// It is commented because ProducingIterator is not a real iterator. You can't count the distance
 		// between iterators
-	//using difference_type = std::ptrdiff_t;		
+	using difference_type = void;//std::ptrdiff_t;		
 
 public:
+	ProducingIterator()
+		: generator_(nullptr), pCurrentElem_(nullptr)
+	{}
 	ProducingIterator(GeneratorType gen) 
 		: generator_(gen), pCurrentElem_(std::make_shared<CurrentValueType>(gen()))
 	{}
@@ -273,6 +278,9 @@ public:
 	using difference_type = std::ptrdiff_t;		// type of measuring the distance between iterators (nothing else)
 
 public:
+	InitializerListIterator() 
+		: pContainer_(nullptr), subiter_()
+	{}
 	InitializerListIterator(std::initializer_list<T> init)
 		: pContainer_(std::make_shared<ContainerType>(init))
 	{

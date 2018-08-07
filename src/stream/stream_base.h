@@ -87,10 +87,7 @@ public:
             [] (ExtendedStream * obj)
             {
                 auto border = obj->operation().border();
-//                if (obj->range().isInfinite())
-//                    obj->range().makeFinite(border);
-//                else
-                    obj->range().makeFinite(border);
+                obj->range().makeFinite(border);
                 obj->preAction_ = [] (ExtendedStream*) {};
             };
         return std::move(newStream);
@@ -103,7 +100,7 @@ public:
         using ExtendedStream = ExtendedStreamType<skip>;
         ExtendedStream newStream(skipObj, *this);
         newStream.action_ = [] (ExtendedStream* obj) {
-            obj->range().template moveBeginIter<ExtendedStream::isOwnContainer()>(obj->operation().index());
+            obj->range().moveBeginIter(obj->operation().index());
             obj->action_ = [] (ExtendedStream*) {};
         };
         return std::move(newStream);
@@ -216,45 +213,23 @@ protected:
     }
 protected:
     // TODO: think about this interface
-    ValueType getElem(size_type index) const { return getElem<isOwnContainer()>(index); }
-    template <bool isOwnContainer_>
     ValueType getElem(size_type index) const {
-        return this->range().template get<isOwnContainer_>(index);
+        return this->range().get(index);
     }
 
     //-----------------Slider API--------------//
 
-    void initSlider() { initSlider<isOwnContainer()>(); }
-    template <bool isOwnContainer_>
-    void initSlider() {
-        doPreliminaryActions();
-        throwOnInfiniteStream();
-        range().template initSlider<isOwnContainer_>();
-    }
 private:
-    void doPreliminaryActions() { range().doPreliminaryActions(); }
+	void doPreliminaryActions() { range().doPreliminaryActions(); }
 
 protected:
-    ResultValueType nextElem() { return std::move(nextElem<isOwnContainer()>()); }
-    template <bool isOwnContainer_>
-    ResultValueType nextElem() { return std::move(range().template nextElem<isOwnContainer_>()); }
-
-    // Why can't we realize currentElem() interface:
-    // 1) problem with group operations: somebody must storage the result
-    //    of getting current element. Okey, we have tempValue.
-    //    But who will initialize it? nextElem()? initSlider()?
-    //    Or maybe add condition on first getting current element?
-    //    But condition is bad because conveyor breaks down on it.
-    ValueType currentElem() { return std::move(currentElem<isOwnContainer()>()); }
-    template <bool isOwnContainer_>
-    ValueType currentElem() { return std::move(range().template currentElem<isOwnContainer_>()); }
-
-    ValueType currentAtom() const { return std::move(currentAtom<isOwnContainer()>()); }
-    template <bool isOwnContainer_>
-    ValueType currentAtom() const { return std::move(range().template currentElem<isOwnContainer_>()); }
-
-    //bool hasNext() const { return hasNext<isOwnContainer()>(); }
-    //template <bool isOwnContainer_>
+	void initSlider() {
+		doPreliminaryActions();
+		throwOnInfiniteStream();
+		range().initSlider();
+	}
+    ResultValueType nextElem() { return std::move(range().nextElem()); }
+    ValueType currentElem() { return std::move(range().currentElem()); }
     bool hasNext() const { return range().hasNext(); }
 
     //-----------------Slider API Ends--------------//

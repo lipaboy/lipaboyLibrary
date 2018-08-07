@@ -3,22 +3,26 @@
 #include "stream_extended.h"
 #include "stream_base.h"
 #include "range.h"
+#include "extra_tools/extra_tools.h"
 
 namespace stream_space {
 
+using lipaboy_lib::ProducingIterator;
+using lipaboy_lib::InitializerListIterator;
 
 template <class TIterator>
 using StreamOfOutsideIterators = Stream<functors_space::IsOutsideIteratorsRefer, TIterator>;
 
 template <class T>
 using StreamOfInitializingList = 
-	Stream<IsInitializingListCreation, typename OwnContainerTypeWithoutValueType<T>::iterator>;
+	Stream<IsInitializingListCreation, InitializerListIterator<T> >;
 
 template <class Generator>
-using StreamOfGenerator = Stream<IsGeneratorProducing,
-									typename OwnContainerTypeWithoutValueType<
-										typename std::result_of<Generator(void)>::type
-									>::iterator
+using StreamOfGenerator = Stream<IsGeneratorProducing, 
+								 ProducingIterator<typename std::result_of<Generator(void)>::type>
+								/*typename OwnContainerTypeWithoutValueType<
+									typename std::result_of<Generator(void)>::type
+								>::iterator*/
 								>;
 
 template <class T>

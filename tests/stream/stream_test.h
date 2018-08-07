@@ -31,8 +31,6 @@ public:
 protected:
     void SetUp() {
         pOutsideContainer = std::unique_ptr<Container>(new Container({ 1, 2, 3, 4, 5 }));
-        pStream = std::unique_ptr<StreamType>(stream_space::allocateStream(pOutsideContainer->begin(),
-                                                                      pOutsideContainer->end()));
         //---------------File Stream Init------------//
 
         std::ofstream outFile;
@@ -46,35 +44,34 @@ protected:
         std::remove(filename.c_str());
     }
 
+	typename Container::iterator begin() { return pOutsideContainer->begin(); }
+	typename Container::iterator end() { return pOutsideContainer->end(); }
+
 protected:
-    StreamTypePtr pStream;
     unique_ptr<Container> pOutsideContainer;
     string filename;
     string fileData;
 };
 
-#include <optional>
 
-using std::optional;
-
-class InfiniteStreamTest : public ::testing::Test {
-public:
-	using ElemType = int;
-	using Container = vector<ElemType>;
-	using StreamType = stream_space::StreamOfGenerator<std::function<ElemType(void)> >;
-	using StreamTypePtr = unique_ptr<StreamType>;
-
-protected:
-	void SetUp() {
-		static int x = 0;
-		pStream = std::unique_ptr<StreamType>(stream_space::allocateStream([&a = x]() -> ElemType { return a++; }));
-	}
-	void TearDown() {
-	}
-
-protected:
-	StreamTypePtr pStream;
-};
+//class InfiniteStreamTest : public ::testing::Test {
+//public:
+//	using ElemType = int;
+//	using Container = vector<ElemType>;
+//	using StreamType = stream_space::StreamOfGenerator<std::function<ElemType(void)> >;
+//	using StreamTypePtr = unique_ptr<StreamType>;
+//
+//protected:
+//	void SetUp() {
+//		static int x = 0;
+//		pStream = std::unique_ptr<StreamType>(stream_space::allocateStream([&a = x]() -> ElemType { return a++; }));
+//	}
+//	void TearDown() {
+//	}
+//
+//protected:
+//	StreamTypePtr pStream;
+//};
 
 } 
 
