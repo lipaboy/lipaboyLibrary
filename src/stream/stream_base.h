@@ -82,13 +82,13 @@ public:
     auto operator| (get functor) -> ExtendedStreamType<get> {
         using ExtendedStream = ExtendedStreamType<get>;
         ExtendedStream newStream(functor, *this);
-        newStream.preAction_ =              // preAction_ -> is important
+        newStream.action_ =              // preAction_ -> is important
                                             // (because before generating the elements you must set the size)
             [] (ExtendedStream * obj)
             {
                 auto border = obj->operation().border();
                 obj->range().makeFinite(border);
-                obj->preAction_ = [] (ExtendedStream*) {};
+                obj->action_ = [] (ExtendedStream*) {};
             };
         return std::move(newStream);
     }
@@ -115,45 +115,7 @@ public:
 protected:
 	// "apply API" is necessary only for avoiding the code duplication.
 
-    template <class Stream_>
-    std::ostream& apply(Stream_ & obj, print_to&& printer) {
-        for (obj.initSlider(); obj.hasNext(); )
-            printer.ostream() << obj.nextElem() << printer.delimiter();
-        return printer.ostream();
-    }
-	template <class Stream_>
-	auto apply(Stream_ & obj, nth&& nthObj) -> typename Stream_::ResultValueType
-	{
-		obj.initSlider();
-		for (size_type i = 0; i < nthObj.index() && obj.hasNext(); i++)
-			obj.nextElem();
-		if (!obj.hasNext())
-			throw std::logic_error("Stream (nth operation) : index is out of range");
-		return obj.nextElem();
-	}
-    template <class Stream_>
-    auto apply(Stream_ & obj, to_vector&&) -> vector<typename Stream_::ResultValueType>
-    {
-        using ToVectorType = vector<typename Stream_::ResultValueType>;
-        ToVectorType toVector;
-        for (obj.initSlider(); obj.hasNext(); )
-            toVector.push_back(obj.nextElem());
-        return std::move(toVector);
-    }
-    template <class Stream_, class Accumulator, class IdentityFn>
-    auto apply(Stream_ & obj, reduce<Accumulator, IdentityFn> const & reduceObj)
-        -> typename reduce<Accumulator, IdentityFn>::IdentityRetType
-    {
-        using RetType = typename reduce<Accumulator, IdentityFn>::IdentityRetType;
-        obj.initSlider();
-        if (obj.hasNext()) {
-            auto result = reduceObj.identity(obj.nextElem());
-            for (; obj.hasNext(); )
-                result = reduceObj.accum(result, obj.nextElem());
-            return result;
-        }
-        return RetType();
-    }
+    
 
 public:
     std::ostream& operator| (print_to&& printer) {
@@ -167,7 +129,7 @@ public:
         return apply(*this, reduceObj);
     }
     ResultValueType operator| (sum&&) {
-        initSlider();
+        init();
         if (hasNext()) {
             auto result = nextElem();
             for (; hasNext();)
@@ -185,21 +147,21 @@ public:
 
     //------------------Additional methods---------------//
 
-public:
+protected:
     Range & range() { return range_; }
     const Range & range() const { return range_; }
 protected:
-    static constexpr bool isOwnContainer() {
-        return StorageInfo::info == INITIALIZING_LIST
-                || isGeneratorProducing();
-    }
-    static constexpr bool isNoGetTypeBefore() {
-        return true;
-    }
-    static constexpr bool isNoGroupBefore() {
-        return true;
-    }
-    static constexpr bool isGeneratorProducing() { return StorageInfo::info == GENERATOR; }
+    static constexpr bool isNoGetTypeBefore() { return true; }
+    static constexpr bool isNoGroupBefore() { return true; }
+    static constexpr bool isGeneratorProducing() {
+		return std::is_same_v<OutsideIterator, ProducingIterator<ValueType> >;
+	}
+	static constexpr bool isInitilizerListCreation() {
+		return std::is_same_v<OutsideIterator, InitializerListIterator<ValueType> >;
+	}
+	static constexpr bool isOutsideIteratorsRefer() {
+		return !isGeneratorProducing() && !isInitilizerListCreation();
+	}
 
 protected:
     // Info:
@@ -222,11 +184,11 @@ protected:
 private:
 	void doPreliminaryActions() { range().doPreliminaryActions(); }
 
-protected:
-	void initSlider() {
+public:
+	void init() {
 		doPreliminaryActions();
 		throwOnInfiniteStream();
-		range().initSlider();
+		range().init();
 	}
     ResultValueType nextElem() { return std::move(range().nextElem()); }
     ValueType currentElem() { return std::move(range().currentElem()); }
@@ -243,6 +205,7 @@ private:
 private:
     Range range_;
 };
+
 
 
 //--------------------------------------------------------------------------//

@@ -25,19 +25,6 @@ using std::endl;
 
 //--------------------RangeType-----------------------//
 
-template <class TRange>
-struct GetRangeIter<true, TRange> {
-    using TIterator = typename TRange::OwnIterator;
-    static TIterator begin(const TRange& obj) { return obj.ownBegin(); }
-    static TIterator end(const TRange& obj) { return obj.ownEnd(); }
-};
-template <class TRange>
-struct GetRangeIter<false, TRange> {
-    using TIterator = typename TRange::OutsideIterator;
-    static TIterator begin(const TRange& obj) { return obj.outsideBegin(); }
-    static TIterator end(const TRange& obj) { return obj.outsideEnd(); }
-};
-
 template <class StorageInfo, class TIterator>
 class Stream<StorageInfo, TIterator>::Range {
 public:
@@ -96,10 +83,7 @@ public:
 #endif
     }
 
-public:
-
-    //------------Iterators API-------------//
-
+protected:
     OutsideIterator outsideBegin() const { return outsideBegin_; }
     OutsideIterator outsideEnd() const { return outsideEnd_; }
 
@@ -110,48 +94,48 @@ public:
         return *iter;
     }
 
+private:
     void setSize(size_type newSize) {
-        if constexpr (StorageInfo::info == OUTSIDE_ITERATORS) {
+        if constexpr (isOutsideIteratorsRefer()) {
                 size_ = newSize;
                 isSizeSet_ = true;
         }
-        else if constexpr (StorageInfo::info == GENERATOR) {
+        else if constexpr (isGeneratorProducing()) 
                 size_ = newSize;
-        }
-        else {
+        else // InitializerList
 				size_ = (size_ >= newSize) ? newSize : size_;
-			// move end-iter
-                /*if (newSize <= ownEndIndex_ - ownBeginIndex_)
-                    setOwnIndices(ownBeginIndex_, ownBeginIndex_ + newSize);*/
-        }
     }
 
-    //size_type size() const { return size_; }
+public:
     bool isInfinite() const { return isInfinite_; }
-    void makeFinite(size_type size) {
-        isInfinite_ = false;
-        setSize(size);
-    }
+	// INFO: you cannot move it into setSize because if you do so
+	//		 then Skip operation can make Infinite stream not infinite
+	//		 (see moveIterBegin() method)
+	void makeFinite(size_type newSize) {
+		setSize(newSize);
+		isInfinite_ = false;
+	}
 
     void doPreliminaryActions() {}
 
     //-----------------Slider API---------------//
 
-    void initSlider() {
+    void init() {
 		// !! Problem with double initializing tempValue (when initSlider is called twice -> nth(0); nth(0); )
     }
     ValueType nextElem() {
-        if constexpr (StorageInfo::info == GENERATOR) {
+        if constexpr (isGeneratorProducing()) {
                 size_ = (hasNext()) ? size_ - 1 : size_;
 				auto currElem = std::move(*outsideBegin());
 				++outsideBegin_;
                 return std::move(currElem);
         }
-		else if constexpr (StorageInfo::info == INITIALIZING_LIST) {
+		else if constexpr (isInitilizerListCreation()) {
 				size_ = (hasNext()) ? size_ - 1 : size_;
 				return std::move(*(outsideBegin_++));
 		}
-        else {
+        else // constexpr isOutsideIteratorsRefer()
+		{
                 ValueType value = *(outsideBegin());
                 // Note: you can't optimize it because for istreambuf_iterator
                 //       post-increment operator has unspecified by standard
@@ -161,15 +145,16 @@ public:
         }
     }
     void incrementSlider() {
-        if constexpr (StorageInfo::info == GENERATOR) {
+        if constexpr (isGeneratorProducing()) {
 				++outsideBegin_;
                 size_ = (hasNext()) ? size_ - 1 : size_;
         }
-		else if constexpr (StorageInfo::info == INITIALIZING_LIST) {
+		else if constexpr (isInitilizerListCreation()) {
 				++outsideBegin_;
 				size_ = (hasNext()) ? size_ - 1 : size_;
 		}
-        else {
+        else // constexpr isOutsideIteratorsRefer()
+		{
                 // Note: you can't optimize it because for istreambuf_iterator
                 //       post-increment operator has unspecified by standard
                 ++outsideBegin_;
@@ -177,38 +162,23 @@ public:
         }
     }
     ValueType currentElem() const {
-        /*if constexpr (StorageInfo::info == GENERATOR)
-                return *pTempValue_;
-        else if constexpr (StorageInfo::info == INITIALIZING_LIST)
-                return *ownIterSlider_;
-        else*/
-                return *outsideBegin();
+            return *outsideBegin();
     }
     bool hasNext() const {
-        if constexpr (StorageInfo::info == GENERATOR)
+        if constexpr (isGeneratorProducing())
                 return (size_ > 0);
-        else if constexpr (StorageInfo::info == INITIALIZING_LIST)
+        else if constexpr (isInitilizerListCreation())
                 return (size_ > 0);
         else    // until
                 return !(outsideBegin() == outsideEnd() || (isSizeSet_ && size_ <= 0));
     }
 
-protected:
-
 public:
 
     bool equals(Range & other) {
-        // INFO: it is the right condition because OwnContainer will be appeared when
-        // terminated operation is applied to stream. Before that stream refers to
-        // outer iterators (if it uses them from the beginning)
-        //if constexpr (StorageInfo::info == OUTSIDE_ITERATORS)
+		// TODO: maybe add comparison for size_
                 return (outsideBegin() == other.outsideBegin()
-                        && outsideEnd() == other.outsideEnd()
-                        );
-        /*else if constexpr (StorageInfo::info == INITIALIZING_LIST)
-                return true;
-        else
-                return true;*/
+                        && outsideEnd() == other.outsideEnd());
     }
 
 private:
@@ -224,19 +194,12 @@ private:
 
 public:
     void moveBeginIter(size_type position) {
-		if constexpr (isGeneratorProducing()) {
-				std::advance(outsideBegin_, position);
+		std::advance(outsideBegin_, position);
+		if constexpr (isGeneratorProducing() || isInitilizerListCreation()) 
 				setSize(size_ - position);
-		}
-		else if constexpr (StorageInfo::info == INITIALIZING_LIST) {
-				std::advance(outsideBegin_, position);
-				setSize(size_ - position);
-		}
-		else {
-				std::advance(outsideBegin_, position);
+		else // constexpr
 				if (isSizeSet_)
 					setSize(size_ - position);
-		}
     }
 
 

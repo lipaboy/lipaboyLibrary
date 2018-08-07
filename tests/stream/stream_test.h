@@ -21,7 +21,7 @@ using stream_space::IsOutsideIteratorsRefer;
 
 using lipaboy_lib_tests::Noisy;
 
-class OutsideItersStreamTest : public ::testing::Test  {
+class PrepareStreamTest : public ::testing::Test  {
 public:
     using ElemType = int;
     using Container = vector<ElemType>;

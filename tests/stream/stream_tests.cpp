@@ -46,7 +46,7 @@ using namespace functors_space;
 
 //----------Constructor-----------//
 
-TEST_F(OutsideItersStreamTest, copy_constructor) {
+TEST_F(PrepareStreamTest, copy_constructor) {
     auto temp = buildStream(begin(), end()) | get(pOutsideContainer->size() - 1);
     auto obj = Stream(temp);
 
@@ -56,7 +56,7 @@ TEST_F(OutsideItersStreamTest, copy_constructor) {
     ASSERT_TRUE(obj2 == buildStream(begin(), end()));
 }
 
-TEST_F(OutsideItersStreamTest, move_constructor) {
+TEST_F(PrepareStreamTest, move_constructor) {
     auto temp = buildStream(begin(), end()) | get(pOutsideContainer->size() - 1);
     auto temp2 = Stream(temp);
     auto obj = Stream(std::move(temp2));
@@ -68,14 +68,14 @@ TEST_F(OutsideItersStreamTest, move_constructor) {
     ASSERT_TRUE(obj2 == buildStream(begin(), end()));
 }
 
-TEST_F(OutsideItersStreamTest, copy_constructor_by_extending_the_stream) {
+TEST_F(PrepareStreamTest, copy_constructor_by_extending_the_stream) {
     auto obj = typename StreamType::template
             ExtendedStreamType<get>(get(pOutsideContainer->size() - 1), buildStream(begin(), end()));
 
     ASSERT_TRUE(buildStream(begin(), end()) == static_cast<StreamType&>(obj));
 }
 
-TEST_F(OutsideItersStreamTest, move_constructor_by_extending_the_stream) {
+TEST_F(PrepareStreamTest, move_constructor_by_extending_the_stream) {
     auto temp = Stream(buildStream(begin(), end()));
     auto obj = typename StreamType::template
             ExtendedStreamType<get>(get(pOutsideContainer->size() - 1), std::move(temp));
@@ -149,7 +149,7 @@ TEST(Get, Infinite_Empty) {
 
 //----------------Get operator testing-------------------//
 
-TEST_F(OutsideItersStreamTest, Get_Empty) {
+TEST_F(PrepareStreamTest, Get_Empty) {
     auto stream2 = buildStream(begin(), end())
             | get(0);
     auto res = stream2
@@ -158,7 +158,7 @@ TEST_F(OutsideItersStreamTest, Get_Empty) {
     ASSERT_TRUE(res.empty());
 }
 
-TEST_F(OutsideItersStreamTest, Get_Not_Empty) {
+TEST_F(PrepareStreamTest, Get_Not_Empty) {
     auto res = buildStream(begin(), end())
             | get(pOutsideContainer->size())
             | to_vector();
@@ -168,42 +168,42 @@ TEST_F(OutsideItersStreamTest, Get_Not_Empty) {
 
 //----------------NTH operator testing-------------------//
 
-TEST_F(OutsideItersStreamTest, Nth_first_elem) {
+TEST_F(PrepareStreamTest, Nth_first_elem) {
     auto res = buildStream(begin(), end())
             | nth(0);
     auto res2 = buildStream(begin(), end())
-            | map([] (typename OutsideItersStreamTest::ElemType a) { return a; })
+            | map([] (typename PrepareStreamTest::ElemType a) { return a; })
             | nth(0);
 
     ASSERT_EQ(res, (*pOutsideContainer)[0]);
     ASSERT_EQ(res2, (*pOutsideContainer)[0]);
 }
 
-TEST_F(OutsideItersStreamTest, Nth_last_elem) {
+TEST_F(PrepareStreamTest, Nth_last_elem) {
     auto res = buildStream(begin(), end())
-            | map([] (typename OutsideItersStreamTest::ElemType a) { return a; })
+            | map([] (typename PrepareStreamTest::ElemType a) { return a; })
             | nth(pOutsideContainer->size() - 1);
 
     ASSERT_EQ(res, pOutsideContainer->back());
 }
 
-TEST_F(OutsideItersStreamTest, Nth_out_of_range) {
+TEST_F(PrepareStreamTest, Nth_out_of_range) {
 	ASSERT_ANY_THROW(buildStream(begin(), end()) | nth(pOutsideContainer->size()));
 }
 
-TEST_F(OutsideItersStreamTest, Nth_out_of_range_by_negative_index) {
+TEST_F(PrepareStreamTest, Nth_out_of_range_by_negative_index) {
 	ASSERT_ANY_THROW(buildStream(begin(), end()) | nth(-1));
 }
 
-TEST_F(OutsideItersStreamTest, Nth_out_of_range_in_extended_stream) {
+TEST_F(PrepareStreamTest, Nth_out_of_range_in_extended_stream) {
     ASSERT_ANY_THROW(buildStream(begin(), end())
-                    | map([] (typename OutsideItersStreamTest::ElemType a) { return a; })
+                    | map([] (typename PrepareStreamTest::ElemType a) { return a; })
                     | nth(pOutsideContainer->size()));
 }
 
 //----------------Skip operator testing-------------------//
 
-TEST(Skip, infinite) {
+TEST(Skip, Infinite) {
 	int a = 0;
     auto res = buildStream([&a]() { return a++; })
             | get(4)
@@ -223,7 +223,7 @@ TEST(Skip, Finite) {
     ASSERT_EQ(res, vector<int>({ 3 }));
 }
 
-TEST_F(OutsideItersStreamTest, FileStream_read) {
+TEST_F(PrepareStreamTest, FileStream_read) {
     std::ifstream inFile;
     inFile.open(filename, std::ios::in | std::ios::binary);
 

@@ -26,10 +26,6 @@ using namespace functors_space;
 using std::cout;
 using std::endl;
 
-template <bool isOwnContainer, class TRange>
-struct GetRangeIter {};
-
-
 //-----------------Stream Extended class----------------------//
 
 template <class TFunctor, class StorageInfo, class... Rest>
@@ -79,8 +75,7 @@ public:
         : SuperType(static_cast<ConstSuperType&>(obj))
         ,
           operation_(obj.operation_),
-          action_(obj.action_),
-          preAction_(obj.preAction_)
+          action_(obj.action_)
     {
         if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT)
                 ungroupTempOwner_ = std::make_unique<UngroupTempValueType>();
@@ -93,8 +88,7 @@ public:
     Stream (Stream&& obj) noexcept
         : SuperType(std::move(obj)),
           operation_(std::move(obj.operation_)),
-          action_(std::move(obj.action_)),
-          preAction_(std::move(obj.preAction_))
+          action_(std::move(obj.action_))
     {
         if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT)
                 ungroupTempOwner_ = std::make_unique<UngroupTempValueType>();
@@ -110,17 +104,11 @@ public:
     auto operator| (get functor) -> ExtendedStreamType<get> {
         using ExtendedStream = ExtendedStreamType<get>;
         ExtendedStream newStream(functor, *this);
-        typename ExtendedStream::ActionType ExtendedStream::*pAction;
 
-        if constexpr (isNoGetTypeBefore() && isGeneratorProducing())
-            pAction = &ExtendedStream::preAction_;
-        else
-            pAction = &ExtendedStream::action_;
-
-        newStream.*pAction = [] (ExtendedStream * obj) {
+        newStream.action_ = [] (ExtendedStream * obj) {
             auto border = obj->operation().border();
             obj->range().makeFinite(border);
-            obj->preAction_ = [] (ExtendedStream*) {};
+            obj->action_ = [] (ExtendedStream*) {};
         };;
 
         return std::move(newStream);
@@ -155,7 +143,7 @@ public:
         return apply(*this, reduceObj);
     }
     ResultValueType operator| (sum&&) {
-        initSlider();
+        init();
         if (hasNext()) {
             auto result = nextElem();
             for (; hasNext();)
@@ -171,36 +159,8 @@ public:
         return apply(*this, std::move(toVectorObj));
     }
 
-protected:
-    template <class Stream_>
-    std::ostream& apply(Stream_ & obj, print_to&& printer) {
-        return superThisPtr()->template apply<Stream_>(obj, std::move(printer));
-    }
-	template <class Stream_>
-	auto apply(Stream_ & obj, nth&& nthObj) -> typename Stream_::ResultValueType {
-		return superThisPtr()->template apply<Stream_>(obj, std::move(nthObj));
-	}
-    template <class Stream_>
-    auto apply(Stream_ & obj, to_vector&& toVectorObj) -> vector<typename Stream_::ResultValueType> {
-        return superThisPtr()->template apply<Stream_>(obj, std::move(toVectorObj));
-    }
-    template <class Stream_, class Accumulator, class IdenityFn>
-    auto apply(Stream_ & obj, reduce<Accumulator, IdenityFn> const & reduceObj)
-        -> typename reduce<Accumulator, IdenityFn>::IdentityRetType
-    {
-        return superThisPtr()->template apply<Stream_>(obj, reduceObj);
-    }
-
-
             //-----------------Tools-------------------//
 protected:
-    static constexpr bool isOwnContainer() {
-        return (//TFunctor::metaInfo == FILTER
-                //||
-                //TFunctor::metaInfo == GET
-                //||
-                SuperType::isOwnContainer());
-    }
     static constexpr bool isNoGetTypeBefore() {
         return (TFunctor::metaInfo != GET && SuperType::isNoGetTypeBefore());
     }
@@ -226,12 +186,14 @@ protected:
     //-----------------------------Slider API---------------------------------//
     //------------------------------------------------------------------------//
 
+public:
+
     // For calling all the actions into stream (must be called into terminated operations
     // or before using slider API)
-    void initSlider() {
+    void init() {
         doPreliminaryActions();
         throwOnInfiniteStream();
-        superThisPtr()->initSlider();
+        superThisPtr()->init();
         if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT)
                 ungroupTempOwner_->indexIter = 0;
         else if constexpr (TFunctor::metaInfo == FILTER) {
@@ -249,12 +211,14 @@ protected:
 private:
     // nobody instead of initSlider can call it
     void doPreliminaryActions() {
-        preAction_(this);
+		if constexpr (TFunctor::metaInfo == GET && SuperType::isNoGetTypeBefore())
+			action_(this);
         superThisPtr()->doPreliminaryActions();
-        action_(this);
+		if constexpr (!(TFunctor::metaInfo == GET && SuperType::isNoGetTypeBefore()))
+			action_(this);
     }
 
-protected:
+public:
     ResultValueType nextElem() {
         // Template Parameter Explaination:
         // must be so (isOwnContainer_ instead of isOwnContainer())
@@ -330,13 +294,13 @@ protected:
 
 
 protected:
-
     Range & range() { return superThisPtr()->range(); }
     const Range & range() const { return constSuperThisPtr()->range(); }
 
 public:
     TFunctor const & operation() const { return operation_; }
 
+	// Not strong condition (because you don't compare the operations
     bool operator==(Stream & other) { return equals(other); }
     bool operator!=(Stream & other) { return !((*this) == other); }
 private:
@@ -355,7 +319,6 @@ protected:
     // TODO: add getter/setter
     // TODO: get rid of preAction_: replace it on constexpr condition in doPreliminaryActions()
     ActionType action_ = [] (Stream*) {};
-    ActionType preAction_ = [] (Stream*) {};
     // uses for ungroup_by_bits operation
     struct UngroupTempValueType {
         size_type indexIter;

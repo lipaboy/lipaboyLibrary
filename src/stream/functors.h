@@ -37,26 +37,24 @@ using lipaboy_lib::WrapBySTDFunctionType;
 // TODO: remove duplication of code for terminated operators like
 //       it made for operator reduce
 //       This duplication lead to extra testing of code
-// TODO: add group/ungroup operations for bits (0, 1)
 // TODO: think about condition of InfiniteStream when cause throwing an logic exception.
 //       Maybe put it into doPreliminaryOperations()
 //       And think about initSlider -> maybe move it into that one too?
-//		 And think about preAction_ -> you can remove it. Add constexpr condition into
 //		 doPreliminaryOperations to check if stream isGeneratorProducing and with NoGetTypeBefore
 // TODO: Think about allocators (in Range when happen copying and creating own container)
 //       (maybe too partical case?)
-// TODO: think about single-pass input iterators for stream
 // TODO: test different lambdas (with const&T in return type, with T& in argument type)
 // TODO: make Noisy test for reduce operation
 // TODO: make move-semantics for concating operations to stream
 // TODO: think about writing iterators for Stream
+//		 Stream is like specific iterator (like boost::transform_iterator)
 // TODO: test the allocating memory under tempOwner_ in ExtendedStream
 // TODO: rename type name of template parameter (OutsideIterator) to right one
 
 enum Info {
     GENERATOR,
     OUTSIDE_ITERATORS,
-    INITIALIZING_LIST
+    INITIALIZER_LIST
 };
 // Infinite stream
 struct IsGeneratorProducing {
@@ -68,7 +66,7 @@ struct IsOutsideIteratorsRefer {
 };
 // Finite stream
 struct IsInitializingListCreation {
-    static constexpr Info info = INITIALIZING_LIST;
+    static constexpr Info info = INITIALIZER_LIST;
 };
 
 enum FunctorMetaTypeEnum {
@@ -336,6 +334,52 @@ struct nth {
 private:
     size_type index_;
 };
+
+//---------------------------------------------------------//
+//--------------------------Apply API----------------------//
+//---------------------------------------------------------//
+
+template <class Stream_>
+std::ostream& apply(Stream_ & obj, print_to&& printer) {
+	for (obj.init(); obj.hasNext(); )
+		printer.ostream() << obj.nextElem() << printer.delimiter();
+	return printer.ostream();
+}
+template <class Stream_>
+auto apply(Stream_ & obj, nth&& nthObj) -> typename Stream_::ResultValueType
+{
+	obj.init();
+	for (size_t i = 0; i < nthObj.index() && obj.hasNext(); i++)
+		obj.nextElem();
+	if (!obj.hasNext())
+		throw std::logic_error("Stream (nth operation) : index is out of range");
+	return obj.nextElem();
+}
+template <class Stream_>
+auto apply(Stream_ & obj, to_vector&&) -> vector<typename Stream_::ResultValueType>
+{
+	using ToVectorType = vector<typename Stream_::ResultValueType>;
+	ToVectorType toVector;
+	for (obj.init(); obj.hasNext(); )
+		toVector.push_back(obj.nextElem());
+	return std::move(toVector);
+}
+template <class Stream_, class Accumulator, class IdentityFn>
+auto apply(Stream_ & obj, reduce<Accumulator, IdentityFn> const & reduceObj)
+	-> typename reduce<Accumulator, IdentityFn>::IdentityRetType
+{
+	using RetType = typename reduce<Accumulator, IdentityFn>::IdentityRetType;
+	obj.init();
+	if (obj.hasNext()) {
+		auto result = reduceObj.identity(obj.nextElem());
+		for (; obj.hasNext(); )
+			result = reduceObj.accum(result, obj.nextElem());
+		return result;
+	}
+	return RetType();
+}
+
+
 
 }	
 
