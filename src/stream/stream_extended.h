@@ -48,7 +48,7 @@ public:
     template <class Functor>
     using ExtendedStreamType = Stream<Functor, OperationType, Rest...>;
 
-    using ResultValueType = typename TOperation::template RetType<typename SuperType::ResultValueType>::type;
+    using ResultValueType = typename TOperation::template RetType<typename SuperType::ResultValueType>;
 
     template <typename, typename...> friend class Stream;
 

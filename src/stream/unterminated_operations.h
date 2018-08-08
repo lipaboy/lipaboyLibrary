@@ -48,13 +48,14 @@ namespace operations_space {
 		UNGROUP_BY_BIT
 	};
 
+	
 	//---------------Special structs--------------//
+
+	// TODO: put off "Special structs" into own file or into extra_tools.h"
 
 	struct TReturnSameType {
 		template <class Arg>
-		struct RetType {
-			using type = Arg;
-		};
+		using RetType = Arg;
 	};
 	template <class Functor>
 	struct FunctorMetaType {
@@ -110,9 +111,7 @@ namespace operations_space {
 	struct map : FunctorHolder<Transform> {
 	public:
 		template <class Arg>
-		struct RetType {
-			using type = typename std::result_of<Transform(Arg)>::type;
-		};
+		using RetType = typename std::result_of<Transform(Arg)>::type;
 
 	public:
 		map(Transform functor) : FunctorHolder<Transform>(functor) {}
@@ -120,7 +119,7 @@ namespace operations_space {
 
 		template <class Arg>
 		auto operator()(Arg&& arg) const
-			-> typename RetType<Arg>::type
+			-> RetType<Arg>
 		{
 			return FunctorHolder<Transform>::functor()(std::forward<Arg>(arg));
 		}
@@ -140,18 +139,22 @@ namespace operations_space {
 	};
 
 	struct group_by_vector {
+	public:
 		using size_type = size_t;
 
+		template <class Arg>
+		using RetType = vector<Arg>;
+
+	public:
 		group_by_vector(size_type partSize) : partSize_(partSize) {
 			if (partSize == 0)
 				throw std::logic_error("Parameter of GroupType constructor must be positive");
 		}
 		static constexpr FunctorMetaTypeEnum metaInfo = GROUP_BY_VECTOR;
 
-		template <class Arg>
-		struct RetType {
-			using type = vector<Arg>;
-		};
+		/*template <class Arg>
+		auto operator()(Arg&& arg)
+			-> RetType<Arg>;*/
 
 		size_type partSize() const { return partSize_; }
 	private:
@@ -175,9 +178,7 @@ namespace operations_space {
 		static constexpr FunctorMetaTypeEnum metaInfo = UNGROUP_BY_BIT;
 
 		template <class Arg>
-		struct RetType {
-			using type = bool;
-		};
+		using RetType = bool;
 	};
 
 }	
