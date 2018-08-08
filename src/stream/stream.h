@@ -1,10 +1,10 @@
 #pragma once
 
-#include "stream/stream_extended.h"
-#include "stream/stream_base.h"
-#include "stream/range.h"
-#include "stream/initializer_list_iterator.h"
-#include "stream/producing_iterator.h"
+#include "stream_extended.h"
+#include "stream_basic.h"
+#include "range.h"
+#include "initializer_list_iterator.h"
+#include "producing_iterator.h"
 
 namespace lipaboy_lib {
 

@@ -1,7 +1,6 @@
 #pragma once
 
-#include "functors.h"
-#include "extra_tools/extra_tools.h"
+#include "operations.h"
 
 #include <vector>
 #include <functional>
@@ -24,7 +23,7 @@ using std::string;
 using std::unique_ptr;
 using std::shared_ptr;
 
-using namespace functors_space;
+using namespace operations_space;
 
 using std::cout;
 using std::endl;

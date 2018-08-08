@@ -1,6 +1,6 @@
 #pragma once
 
-#include "stream_base.h"
+#include "stream_basic.h"
 
 #include <memory>
 #include <vector>

@@ -30,7 +30,7 @@ using std::unique_ptr;
 
 using namespace lipaboy_lib;
 using namespace lipaboy_lib::stream_space;
-using namespace lipaboy_lib::stream_space::functors_space;
+using namespace lipaboy_lib::stream_space::operations_space;
 
 //---------------------------------Tests-------------------------------//
 
