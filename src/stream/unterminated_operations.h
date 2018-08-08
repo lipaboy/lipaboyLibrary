@@ -34,30 +34,6 @@ namespace operations_space {
 	using lipaboy_lib::function_traits;
 	using lipaboy_lib::WrapBySTDFunctionType;
 
-	// PLAN FOR STREAM:
-	//-----------------
-	// TODO: remove duplication of code for terminated operators like
-	//       it made for operator reduce
-	//       This duplication lead to extra testing of code
-	// TODO: think about condition of InfiniteStream when cause throwing an logic exception.
-	//       Maybe put it into doPreliminaryOperations()
-	//       And think about initSlider -> maybe move it into that one too?
-	//		 doPreliminaryOperations to check if stream isGeneratorProducing and with NoGetTypeBefore
-	// TODO: Think about allocators (in Range when happen copying and creating own container)
-	//       (maybe too partical case?)
-	// TODO: test different lambdas (with const&T in return type, with T& in argument type)
-	// TODO: make Noisy test for reduce operation
-	// TODO: make move-semantics for concating operations to stream
-	// TODO: think about writing iterators for Stream
-	//		 Stream is like specific iterator (like boost::transform_iterator)
-	// TODO: test the allocating memory under tempOwner_ in ExtendedStream
-
-	enum Info {
-		GENERATOR,
-		OUTSIDE_ITERATORS,
-		INITIALIZER_LIST
-	};
-
 	enum FunctorMetaTypeEnum {
 		FILTER,
 		MAP,
@@ -71,7 +47,6 @@ namespace operations_space {
 		NTH,
 		UNGROUP_BY_BIT
 	};
-
 
 	//---------------Special structs--------------//
 
@@ -88,26 +63,25 @@ namespace operations_space {
 
 	template <class Functor>
 	struct FunctorHolderDirectly : FunctorMetaType<Functor> {
-		using FunctorType = Functor;
-		FunctorHolderDirectly(FunctorType func) : functor_(func) {}
+		using OperationType = Functor;
+		FunctorHolderDirectly(OperationType func) : functor_(func) {}
 
-		FunctorType functor() const { return functor_; }
+		OperationType functor() const { return functor_; }
 	private:
-		FunctorType functor_;
+		OperationType functor_;
 	};
 
 	// Wrap almost all the functions by std::function (except lambda with auto arguments and etc.)
 	template <class Functor>
 	struct FunctorHolderWrapper : FunctorMetaType<WrapBySTDFunctionType<Functor> > {
-		using FunctorType = WrapBySTDFunctionType<Functor>;
-		FunctorHolderWrapper(FunctorType func) : functor_(func) {}
+		using OperationType = WrapBySTDFunctionType<Functor>;
+		FunctorHolderWrapper(OperationType func) : functor_(func) {}
 
-		FunctorType functor() const { return functor_; }
+		OperationType functor() const { return functor_; }
 	private:
-		FunctorType functor_;
+		OperationType functor_;
 	};
 
-	// TODO: refactor, change names of meta functor and functor
 	template <class Functor>
 	struct FunctorHolder
 	//        : FunctorHolderWrapper<Functor>
@@ -120,8 +94,9 @@ namespace operations_space {
 	};
 
 
-	//---------------Non-terminated operations-----------//
-
+	//-------------------------------------------------------------------------------------//
+	//--------------------------------Unterminated operations------------------------------//
+	//-------------------------------------------------------------------------------------//
 
 
 	template <class Predicate>

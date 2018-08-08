@@ -30,11 +30,11 @@ using std::endl;
 
 //-----------------Stream Extended class----------------------//
 
-template <class TFunctor, class... Rest>
+template <class TOperation, class... Rest>
 class Stream : public Stream<Rest...> {
 public:
     using size_type = size_t;
-    using FunctorType = TFunctor;
+    using OperationType = TOperation;
     using SuperType = Stream<Rest...>;
     using ConstSuperType = const SuperType;
     using iterator = typename SuperType::outside_iterator;
@@ -46,9 +46,9 @@ public:
     using ActionType = std::function<ActionSignature>;
 
     template <class Functor>
-    using ExtendedStreamType = Stream<Functor, FunctorType, Rest...>;
+    using ExtendedStreamType = Stream<Functor, OperationType, Rest...>;
 
-    using ResultValueType = typename TFunctor::template RetType<typename SuperType::ResultValueType>::type;
+    using ResultValueType = typename TOperation::template RetType<typename SuperType::ResultValueType>::type;
 
     template <typename, typename...> friend class Stream;
 
@@ -59,11 +59,11 @@ public:
     Stream (TFunctor_&& functor, StreamSuperType_&& obj) noexcept
         : SuperType(std::forward<StreamSuperType_>(obj)), operation_(std::forward<TFunctor_>(functor))
     {
-		if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT) {
+		if constexpr (TOperation::metaInfo == UNGROUP_BY_BIT) {
 				ungroupTempOwner_ = std::make_shared<UngroupTempValueType>();
 				ungroupTempOwner_->indexIter = 0;
 		}
-		else if constexpr (TFunctor::metaInfo == GROUP_BY_VECTOR) {
+		else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR) {
 				groupedTempOwner_ = std::make_shared<GroupedTempValueType>();
 				init();
 				auto partSize = operation_.partSize();
@@ -169,10 +169,10 @@ public:
             //-----------------Tools-------------------//
 protected:
     static constexpr bool isNoGetTypeBefore() {
-        return (TFunctor::metaInfo != GET && SuperType::isNoGetTypeBefore());
+        return (TOperation::metaInfo != GET && SuperType::isNoGetTypeBefore());
     }
     static constexpr bool isNoGroupBefore() {
-        return (TFunctor::metaInfo != GROUP_BY_VECTOR && SuperType::isNoGroupBefore());
+        return (TOperation::metaInfo != GROUP_BY_VECTOR && SuperType::isNoGroupBefore());
     }
     static constexpr bool isGeneratorProducing() {
         return SuperType::isGeneratorProducing();
@@ -201,10 +201,10 @@ public:
     // For calling all the actions into stream (must be called into terminated operations
     // or before using slider API)
     void init() {
-		if constexpr (TFunctor::metaInfo == GET && SuperType::isNoGetTypeBefore())
+		if constexpr (TOperation::metaInfo == GET && SuperType::isNoGetTypeBefore())
 			action_(this);
 		superThisPtr()->init();
-		if constexpr (!(TFunctor::metaInfo == GET && SuperType::isNoGetTypeBefore()))
+		if constexpr (!(TOperation::metaInfo == GET && SuperType::isNoGetTypeBefore()))
 			action_(this);
     }
 
@@ -215,15 +215,15 @@ public:
         // because client who call this
         // method and derived from that class may have the another value of isOwnContainer()
 
-        if constexpr (TFunctor::metaInfo == MAP)
+        if constexpr (TOperation::metaInfo == MAP)
                 return std::move(operation()(superNextElem()));
-        if constexpr (TFunctor::metaInfo == FILTER) {
+        if constexpr (TOperation::metaInfo == FILTER) {
                 auto currElem = superNextElem();
 				// ! calling hasNext() of current StreamType ! in order to skip unfilter elems
 				this->hasNext();
                 return std::move(currElem);
         }
-        else if constexpr (TFunctor::metaInfo == GROUP_BY_VECTOR) {
+        else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR) {
                 auto partSize = operation_.partSize();
                 ResultValueType part;
                 for (size_type i = 0; i < partSize && superHasNext(); i++)
@@ -232,7 +232,7 @@ public:
                 std::swap(groupedTempOwner_->tempValue, part);
                 return std::move(part);
         }
-        else if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT) {
+        else if constexpr (TOperation::metaInfo == UNGROUP_BY_BIT) {
                 constexpr size_type bitsCountOfType = 8 * sizeof(ValueType);
                 size_type & indexIter = ungroupTempOwner_->indexIter;
                 ValueType & tempValue = ungroupTempOwner_->tempValue;
@@ -249,17 +249,17 @@ public:
 
     // TODO: must be test
     ValueType currentElem() {
-        if constexpr (TFunctor::metaInfo == MAP)
+        if constexpr (TOperation::metaInfo == MAP)
                 return std::move(operation()(superThisPtr()->currentElem()));
-        else if constexpr (TFunctor::metaInfo == GROUP_BY_VECTOR)
+        else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR)
                 return groupedTempOwner_->tempValue;
-        else if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT) {
+        else if constexpr (TOperation::metaInfo == UNGROUP_BY_BIT) {
                 size_type & indexIter = ungroupTempOwner_->indexIter;
                 ValueType & tempValue = ungroupTempOwner_->tempValue;
                 bool res = (tempValue & (1 << indexIter)) >> indexIter;
                 return res;
         }
-		else if constexpr (TFunctor::metaInfo == FILTER) {
+		else if constexpr (TOperation::metaInfo == FILTER) {
 				// ! calling hasNext() of current StreamType ! in order to skip unfilter elems
 				this->hasNext();	
 				return std::move(superThisPtr()->currentElem());
@@ -269,13 +269,13 @@ public:
     }
 
     bool hasNext() {
-        if constexpr (TFunctor::metaInfo == UNGROUP_BY_BIT)
+        if constexpr (TOperation::metaInfo == UNGROUP_BY_BIT)
                 return (ungroupTempOwner_->indexIter != 0)
                     || superHasNext();
-        else if constexpr (TFunctor::metaInfo == GROUP_BY_VECTOR)
+        else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR)
                 return (!groupedTempOwner_->tempValue.empty()
                         || superHasNext());
-		else if constexpr (TFunctor::metaInfo == FILTER) {
+		else if constexpr (TOperation::metaInfo == FILTER) {
 			// TODO: realize shifting the slider (without creating copy of result object)
 				for (; superHasNext(); superNextElem())
 					if (true == operation().functor()(superCurrentElem()))
@@ -297,7 +297,7 @@ protected:
     const Range & range() const { return constSuperThisPtr()->range(); }
 
 public:
-    TFunctor const & operation() const { return operation_; }
+    TOperation const & operation() const { return operation_; }
 
 	// Not strong condition (because you don't compare the operations
     bool operator==(Stream & other) { return equals(other); }
@@ -314,7 +314,7 @@ private:
     //---------------------------------------------------//
 
 protected:
-    TFunctor operation_;
+    TOperation operation_;
     // TODO: add getter/setter
     // TODO: get rid of preAction_: replace it on constexpr condition in doPreliminaryActions()
     ActionType action_ = [] (Stream*) {};
