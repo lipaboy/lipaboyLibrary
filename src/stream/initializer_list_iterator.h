@@ -2,6 +2,8 @@
 #include <functional>
 #include <memory>
 
+namespace lipaboy_lib {
+
 namespace stream_space {
 
 template <class T>
@@ -57,5 +59,7 @@ private:
 	Subiterator subiter_;
 	// maybe I need to add the counter for distinguishing the iterators
 };
+
+}
 
 }

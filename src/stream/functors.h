@@ -14,6 +14,8 @@
 
 #include <iostream>
 
+namespace lipaboy_lib {
+
 namespace stream_space {
 
 namespace functors_space {
@@ -399,6 +401,8 @@ namespace shortening {
 		using relative_const_t = typename relative_const<T, RelativeTo>::type;
 
 	}
+
+}
 
 }
 

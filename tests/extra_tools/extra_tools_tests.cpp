@@ -9,7 +9,6 @@
 namespace lipaboy_lib_tests {
 
 using lipaboy_lib::RelativeForward;
-using lipaboy_lib::ProducingIterator;
 
 using std::string;
 using std::cout;

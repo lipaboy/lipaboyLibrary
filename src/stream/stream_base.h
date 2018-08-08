@@ -13,6 +13,8 @@
 
 #include <iostream>
 
+namespace lipaboy_lib {
+
 namespace stream_space {
 
 using std::vector;
@@ -213,5 +215,7 @@ auto operator| (TStream&& stream, filter<Predicate> functor)
     return shortening::StreamTypeExtender<TStream, filter<Predicate> >(functor, std::forward<TStream>(stream));
 }
 
+
+}
 
 }

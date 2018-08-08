@@ -16,6 +16,8 @@ using std::vector;
 using std::string;
 using std::unique_ptr;
 
+using namespace lipaboy_lib;
+
 using stream_space::Stream;
 
 using lipaboy_lib_tests::Noisy;

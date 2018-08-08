@@ -28,14 +28,14 @@ using std::list;
 using std::string;
 using std::unique_ptr;
 
-using namespace stream_space;
-using namespace functors_space;
+using namespace lipaboy_lib;
+using namespace lipaboy_lib::stream_space;
+using namespace lipaboy_lib::stream_space::functors_space;
 
 //---------------------------------Tests-------------------------------//
 
 
 //-------------------------------------//
-
 
 
 //----------Constructor-----------//

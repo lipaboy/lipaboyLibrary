@@ -2,6 +2,8 @@
 #include <memory>
 #include <type_traits>
 
+namespace lipaboy_lib {
+
 namespace stream_space {
 	//-----------------------------------------------------------------------//
 	//---------------------PRODUCING ITERATOR BY FUNCTION--------------------//
@@ -66,3 +68,6 @@ namespace stream_space {
 		CurrentValueTypePtr pCurrentElem_;
 	};
 }
+
+}
+

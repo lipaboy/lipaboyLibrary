@@ -5,6 +5,8 @@
 
 namespace stream_tests {
 
+	using namespace lipaboy_lib;
+
 	using std::cout;
 	using std::endl;
 

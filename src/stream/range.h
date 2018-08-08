@@ -11,6 +11,8 @@
 
 #include <iostream>
 
+namespace lipaboy_lib {
+
 namespace stream_space {
 
 using std::vector;
@@ -197,3 +199,6 @@ public:
 };
 
 }
+
+}
+
