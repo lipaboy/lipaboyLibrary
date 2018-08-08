@@ -312,6 +312,17 @@ TEST(Filter, group_by_vector) {
     ASSERT_EQ(kek, decltype(kek)({ vector<int>({ 2, 4, 6 }), vector<int>({ 8 }) }));
 }
 
+TEST(GroupByVector, filter) {
+	vector<int> olala = { 1, 2, 3, 4, 5, 6, 7, 8 };
+	auto stream2 = buildStream(olala.begin(), olala.end());
+	auto kek = stream2
+		| group_by_vector(3)
+		| filter([](auto& vec) { return vec[0] % 2 == 0; })
+		| to_vector();
+
+	ASSERT_EQ(kek, decltype(kek)({ vector<int>({ 4, 5, 6 }) }));
+}
+
 using lipaboy_lib_tests::NoisyD;
 
 TEST(StreamTest, noisy) {

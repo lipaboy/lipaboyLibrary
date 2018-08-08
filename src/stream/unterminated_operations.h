@@ -6,10 +6,11 @@
 #include <functional>
 #include <algorithm>
 #include <iterator>
-
 #include <typeinfo>
 #include <ostream>
 #include <type_traits>
+
+#include <any>
 
 #include <iostream>
 
@@ -152,13 +153,54 @@ namespace operations_space {
 		}
 		static constexpr FunctorMetaTypeEnum metaInfo = GROUP_BY_VECTOR;
 
-		/*template <class Arg>
-		auto operator()(Arg&& arg)
-			-> RetType<Arg>;*/
+		template <class TSubStream>
+		void init(TSubStream& stream)
+		{
+			using ReturnType = RetType<typename TSubStream::ResultValueType>;
+			currentElem_ = std::any(ReturnType());
+			pCurrentElem<TSubStream>()->reserve(partSize());
 
+			for (size_type i = 0; i < partSize() && stream.hasNext(); i++)
+				pCurrentElem<TSubStream>()->push_back(std::move(stream.nextElem()));
+		}
+
+		template <class TSubStream>
+		auto nextElem(TSubStream& stream) 
+			-> RetType<typename TSubStream::ResultValueType> 
+		{
+			using ReturnType = RetType<typename TSubStream::ResultValueType>;
+			ReturnType part;
+			part.reserve(partSize());
+
+			for (size_type i = 0; i < partSize() && stream.hasNext(); i++)
+				part.push_back(std::move(stream.nextElem()));
+
+			// swapping
+
+			auto temp = std::move(part);
+			part = std::move(std::any_cast<ReturnType>(currentElem_));
+			currentElem_ = std::move(temp);
+
+			return std::move(part);
+		}
+
+		template <class TSubStream>
+		auto currentElem() -> RetType<typename TSubStream::ResultValueType> {
+			return std::any_cast<RetType<typename TSubStream::ResultValueType> >(currentElem_);
+		}
+		template <class TSubStream>
+		bool isEmpty() { return pCurrentElem<TSubStream>->empty(); }
 		size_type partSize() const { return partSize_; }
+
+	private:
+		template <class TSubStream>
+		auto pCurrentElem() -> RetType<typename TSubStream::ResultValueType>* {
+			return std::any_cast<RetType<typename TSubStream::ResultValueType> >(&currentElem_);
+		}
+		
 	private:
 		size_type partSize_;
+		std::any currentElem_;
 	};
 
 	struct skip : TReturnSameType {

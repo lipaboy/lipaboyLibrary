@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <any>
 
 #include "common_interfaces/algebra.h"
 #include "maths/fixed_precision_number.h"
@@ -19,6 +20,7 @@ using std::endl;
 using std::vector;
 using std::string;
 using std::unique_ptr;
+using std::any;
 
 using lipaboy_lib::FixedPrecisionNumber;
 using lipaboy_lib::Interval;
@@ -68,7 +70,12 @@ TEST(Interval, contains) {
 
 
 TEST(Check, check) {
-	
+	any lol = any(vector<int>({ 1, 2 }));
+
+	ASSERT_EQ(std::any_cast<vector<int>>(lol)[0], 1);
+
+	std::any_cast<vector<int>>(&lol)->operator[](0) = 3;
+	ASSERT_EQ(std::any_cast<vector<int>>(lol)[0], 3);
 }
 
 }
