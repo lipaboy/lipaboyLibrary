@@ -19,20 +19,14 @@
 
 #include "stream_test.h"
 
-#include <optional>
-
 namespace stream_tests {
-
-using std::optional;
 
 using std::cout;
 using std::endl;
 using std::vector;
 using std::list;
 using std::string;
-using std::unordered_map;
 using std::unique_ptr;
-using std::tuple;
 
 using namespace stream_space;
 using namespace functors_space;

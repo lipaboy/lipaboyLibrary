@@ -170,8 +170,6 @@ protected:
     }
 
     //-----------------Slider API--------------//
-
-
 public:
 	void init() {}
     ResultValueType nextElem() { return std::move(range().nextElem()); }

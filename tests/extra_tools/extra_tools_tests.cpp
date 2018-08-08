@@ -10,7 +10,6 @@ namespace lipaboy_lib_tests {
 
 using lipaboy_lib::RelativeForward;
 using lipaboy_lib::ProducingIterator;
-using lipaboy_lib::InitializerListIterator;
 
 using std::string;
 using std::cout;
@@ -75,49 +74,6 @@ TEST(RelativeForward, simple_test) {
     ASSERT_FALSE(isLValueRef(std::move(temp)));
     ASSERT_TRUE(isRValueRef(std::move(temp)));
     ASSERT_FALSE(isRValueRef(temp));
-}
-
-TEST(ProducingIterator, lambda_relative_on_external_context) {
-	int x = 0;
-	ProducingIterator<int> iter([&a = x]() { return a++; });
-
-	ASSERT_EQ(*iter, 0);
-	iter++;
-	ASSERT_EQ(*iter, 1);
-	++iter;
-	ASSERT_EQ(*(++iter), 3);
-
-	auto iter2 = iter;
-	ASSERT_TRUE(iter == iter2);
-	iter++;
-	// don't work because ProducingIterator hasn't strong condition in comparison
-	//ASSERT_TRUE(iter != iter2);
-
-	// ProducingIterator is not a real iterator
-	/*auto lol = std::is_same<typename std::iterator_traits<ProducingIterator<int> >::iterator_category,
-		std::input_iterator_tag>::value;
-	ASSERT_TRUE(lol);*/
-}
-
-TEST(InitializingListIterator, simple) {
-	InitializerListIterator<string> iter({ "a", "b", "c", "d", "e" });
-
-	ASSERT_EQ(*(iter++), "a");
-	ASSERT_EQ(*iter, "b");
-	++iter;
-	ASSERT_EQ(*(++iter), "d");
-
-	auto iter2 = iter;
-
-	ASSERT_EQ(*(iter2++), "d");
-	ASSERT_NE(iter, iter2);
-	iter++;
-	ASSERT_EQ(iter, iter2);
-
-	// no difference_type
-	auto lol = std::is_same<typename std::iterator_traits<InitializerListIterator<string> >::iterator_category,
-							std::input_iterator_tag>::value;
-	ASSERT_TRUE(lol);
 }
 
 }

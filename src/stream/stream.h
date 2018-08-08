@@ -1,14 +1,12 @@
 #pragma once
 
-#include "stream_extended.h"
-#include "stream_base.h"
-#include "range.h"
-#include "extra_tools/extra_tools.h"
+#include "stream/stream_extended.h"
+#include "stream/stream_base.h"
+#include "stream/range.h"
+#include "stream/initializer_list_iterator.h"
+#include "stream/producing_iterator.h"
 
 namespace stream_space {
-
-using lipaboy_lib::ProducingIterator;
-using lipaboy_lib::InitializerListIterator;
 
 template <class TIterator>
 using StreamOfOutsideIterators = Stream<TIterator>;
