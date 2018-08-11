@@ -188,8 +188,10 @@ namespace operations_space {
 		auto currentElem() -> RetType<typename TSubStream::ResultValueType> {
 			return std::any_cast<RetType<typename TSubStream::ResultValueType> >(currentElem_);
 		}
+
 		template <class TSubStream>
 		bool isEmpty() { return pCurrentElem<TSubStream>->empty(); }
+
 		size_type partSize() const { return partSize_; }
 
 	private:

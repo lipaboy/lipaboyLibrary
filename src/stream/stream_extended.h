@@ -66,10 +66,10 @@ public:
 		else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR) {
 				groupedTempOwner_ = std::make_shared<GroupedTempValueType>();
 				init();
-				auto partSize = operation_.partSize();
+				/*auto partSize = operation_.partSize();
 				for (size_type i = 0; i < partSize && hasNext(); i++)
-					groupedTempOwner_->tempValue.push_back(std::move(superNextElem()));
-				//operation_.init(*superThisPtr());
+					groupedTempOwner_->tempValue.push_back(std::move(superNextElem()));*/
+				operation_.init(*superThisPtr());
 		}
 #ifdef LOL_DEBUG_NOISY
         if constexpr (std::is_rvalue_reference<StreamSuperType_&&>::value)
@@ -225,14 +225,14 @@ public:
                 return std::move(currElem);
         }
         else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR) {
-                auto partSize = operation_.partSize();
-                ResultValueType part;
-                for (size_type i = 0; i < partSize && superHasNext(); i++)
-                    part.push_back(std::move(superNextElem()));
+                //auto partSize = operation_.partSize();
+                //ResultValueType part;
+                //for (size_type i = 0; i < partSize && superHasNext(); i++)
+                //    part.push_back(std::move(superNextElem()));
 
-                std::swap(groupedTempOwner_->tempValue, part);
-                return std::move(part);
-				//return std::move(operation_.nextElem(*superThisPtr()));
+                //std::swap(groupedTempOwner_->tempValue, part);
+                //return std::move(part);
+				return std::move(operation_.nextElem(*superThisPtr()));
         }
         else if constexpr (TOperation::metaInfo == UNGROUP_BY_BIT) {
                 constexpr size_type bitsCountOfType = 8 * sizeof(ValueType);
@@ -254,8 +254,8 @@ public:
         if constexpr (TOperation::metaInfo == MAP)
                 return std::move(operation()(superThisPtr()->currentElem()));
 		else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR) {
-				return groupedTempOwner_->tempValue;
-				//return std::move(operation_.template currentElem<SuperType>());
+				//return groupedTempOwner_->tempValue;
+				return std::move(operation_.currentElem<SuperType>());
 		}
         else if constexpr (TOperation::metaInfo == UNGROUP_BY_BIT) {
                 size_type & indexIter = ungroupTempOwner_->indexIter;
@@ -277,8 +277,7 @@ public:
                 return (ungroupTempOwner_->indexIter != 0)
                     || superHasNext();
         else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR)
-                return (!groupedTempOwner_->tempValue.empty()
-						//operation_.isEmpty<SuperType>()
+                return (operation_.isEmpty<SuperType>()
                         || superHasNext());
 		else if constexpr (TOperation::metaInfo == FILTER) {
 			// TODO: realize shifting the slider (without creating copy of result object)
