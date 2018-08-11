@@ -56,6 +56,7 @@ public:
 public:
 
     template <class StreamSuperType_, class TFunctor_>
+    explicit
     Stream (TFunctor_&& functor, StreamSuperType_&& obj) noexcept
         : SuperType(std::forward<StreamSuperType_>(obj)), operation_(std::forward<TFunctor_>(functor))
     {
@@ -255,7 +256,7 @@ public:
                 return std::move(operation()(superThisPtr()->currentElem()));
 		else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR) {
 				//return groupedTempOwner_->tempValue;
-				return std::move(operation_.currentElem<SuperType>());
+                return std::move(operation_.template currentElem<SuperType>());
 		}
         else if constexpr (TOperation::metaInfo == UNGROUP_BY_BIT) {
                 size_type & indexIter = ungroupTempOwner_->indexIter;
@@ -277,12 +278,12 @@ public:
                 return (ungroupTempOwner_->indexIter != 0)
                     || superHasNext();
         else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR)
-                return (operation_.isEmpty<SuperType>()
+                return (operation_.template isEmpty<SuperType>()
                         || superHasNext());
 		else if constexpr (TOperation::metaInfo == FILTER) {
 			// TODO: realize shifting the slider (without creating copy of result object)
 				for (; superHasNext(); superNextElem())
-					if (true == operation().functor()(superCurrentElem()))
+                    if (true == operation().functor()(superCurrentElem()))
 						return true;
 				return false;
 		}

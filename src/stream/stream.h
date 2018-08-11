@@ -36,26 +36,26 @@ namespace stream_space {
 		return new StreamOfOutsideIterators<TIterator>(begin, end);
 	}
 
-	template <class T>
-	auto buildStream(std::initializer_list<T> init)
-		-> StreamOfInitializingList<T>
-	{
-		return StreamOfInitializingList<T>(init);
-	}
+    template <class T>
+    auto buildStream(std::initializer_list<T> init)
+        -> StreamOfInitializingList<T>
+    {
+        return StreamOfInitializingList<T>(init);
+    }
 
 	template <class T>
-	auto allocateStream(std::initializer_list<T>)
+    auto allocateStream(std::initializer_list<T> init)
 		-> StreamOfInitializingList<T> *
 	{
-		return new StreamOfInitializingList<T>(begin, end);
+        return new StreamOfInitializingList<T>(init);
 	}
 
-	template <class T, class... Args>
-	auto buildStream(T elem, Args... args)
-		-> StreamOfInitializingList<T>
-	{
-		return StreamOfInitializingList<T>({ elem, args... });
-	}
+    template <class T, class... Args>
+    auto buildStream(T elem, Args... args)
+        -> StreamOfInitializingList<T>
+    {
+        return StreamOfInitializingList<T>({ elem, args... });
+    }
 
 	template <class T, class... Args>
 	auto allocateStream(T elem, Args... args)
@@ -64,12 +64,12 @@ namespace stream_space {
 		return new StreamOfInitializingList<T>({ elem, args... });
 	}
 
-	template <class Generator>
-	auto buildStream(Generator&& generator)
-		-> StreamOfGenerator<Generator>
-	{
-		return StreamOfGenerator<Generator>(std::forward<Generator>(generator));
-	}
+    template <class Generator>
+    auto buildStream(Generator&& generator)
+        -> StreamOfGenerator<Generator>
+    {
+        return StreamOfGenerator<Generator>(std::forward<Generator>(generator));
+    }
 
 	template <class Generator>
 	auto allocateStream(Generator&& generator)

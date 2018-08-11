@@ -1,3 +1,5 @@
+#pragma once
+
 #include <functional>
 #include <memory>
 #include <type_traits>
@@ -26,7 +28,7 @@ namespace stream_space {
 		// It is type of measuring the distance between iterators (nothing else).
 		// It is commented because ProducingIterator is not a real iterator. You can't count the distance
 		// between iterators
-		using difference_type = void;//std::ptrdiff_t;		
+        using difference_type = std::ptrdiff_t;
 
 	public:
 		ProducingIterator()
@@ -45,7 +47,8 @@ namespace stream_space {
 
 		// Note: not strong condition (maybe add counter to distinguishing the different iterators)
 		bool operator== (ProducingIterator & other) {
-			return generator_.target<T(void)>() == other.generator_.target<T(void)>()
+            return generator_.template target<T(*)(void)>()
+                    == other.generator_.template target<T(*)(void)>()
 				&& pCurrentElem_ == other.pCurrentElem_
 				&& *pCurrentElem_ == *(other.pCurrentElem_);
 		}

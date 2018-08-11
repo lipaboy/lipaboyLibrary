@@ -47,6 +47,7 @@ TEST_F(PrepareStreamTest, copy_constructor) {
     ASSERT_TRUE(temp == obj);
 
     auto obj2 = Stream(buildStream(begin(), end()));
+    static_assert(std::is_same_v<decltype(obj2), decltype(buildStream(begin(), end()))>, "lol");
     ASSERT_TRUE(obj2 == buildStream(begin(), end()));
 }
 
@@ -317,7 +318,8 @@ TEST(GroupByVector, filter) {
 	auto stream2 = buildStream(olala.begin(), olala.end());
 	auto kek = stream2
 		| group_by_vector(3)
-		| filter([](auto& vec) { return vec[0] % 2 == 0; })
+        | filter([](auto const & vec) { return vec[0] % 2 == 0; })
+// why I cannot use auto&
 		| to_vector();
 
 	ASSERT_EQ(kek, decltype(kek)({ vector<int>({ 4, 5, 6 }) }));

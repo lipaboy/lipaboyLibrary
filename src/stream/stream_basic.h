@@ -2,6 +2,8 @@
 
 #include "stream_extended.h"
 #include "extra_tools/extra_tools.h"
+#include "producing_iterator.h"
+#include "initializer_list_iterator.h"
 
 #include <vector>
 #include <functional>
@@ -22,8 +24,6 @@ using std::pair;
 using std::string;
 
 using std::cout;
-using std::endl;
-using lipaboy_lib::RelativeForward;
 
 
 //--------------------------Stream Base (specialization class)----------------------//
@@ -64,6 +64,7 @@ public:
         cout << "   StreamBase move-constructed" << endl;
 #endif
     }
+    explicit
     Stream(typename Range::GeneratorTypePtr generator) : range_(generator) {}
 
     //----------------------Methods API-----------------------//
@@ -181,10 +182,10 @@ public:
     //-----------------Slider API Ends--------------//
 
 public:
-    bool operator==(Stream & other) { return equals(other); }
-    bool operator!=(Stream & other) { return !((*this) == other); }
+    bool operator==(Stream const & other) const { return equals(other); }
+    bool operator!=(Stream const & other) const { return !((*this) == other); }
 private:
-    bool equals(Stream & other) { return range_.equals(other.range_); }
+    bool equals(Stream const & other) const { return range_.equals(other.range_); }
 
 private:
     Range range_;

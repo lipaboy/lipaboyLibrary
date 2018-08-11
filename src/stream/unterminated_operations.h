@@ -190,7 +190,7 @@ namespace operations_space {
 		}
 
 		template <class TSubStream>
-		bool isEmpty() { return pCurrentElem<TSubStream>->empty(); }
+        bool isEmpty() { return pCurrentElem<TSubStream>()->empty(); }
 
 		size_type partSize() const { return partSize_; }
 
