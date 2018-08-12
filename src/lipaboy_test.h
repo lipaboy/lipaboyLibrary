@@ -6,7 +6,7 @@
 #include "maths/fixed_precision_number.h"
 #include "containers/bit_vector.h"
 
-namespace LipaboyLib {
+namespace lipaboy_lib {
 	int lipaboyMain();
 }
 

@@ -2,7 +2,7 @@
 #define COMPARABLE_H
 
 //Lipa std
-namespace LipaboyLib {
+namespace lipaboy_lib {
 
     // Hint: EitherComparable with other object types
 

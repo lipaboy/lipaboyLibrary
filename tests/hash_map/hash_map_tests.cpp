@@ -31,7 +31,7 @@ using std::unique_ptr;
 
 TEST(HashMapAllocs, default_alloc) {
 	using HashMapType = HashMap<int, int>;
-	HashMapType kek(typename HashMapType::ValueTypeAllocator());
+	//HashMapType kek(typename HashMapType::ValueTypeAllocator());
 	//ASSERT_TRUE(std::is_same<typename HashMapType::ValueTypeAllocator, std::allocator<std::pair<int, int> > >::value == true);
 }
 

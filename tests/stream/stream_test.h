@@ -4,6 +4,8 @@
 #include "gtest/gtest.h"
 #include "stream/stream.h"
 
+#include "extra_tools/extra_tools_tests.h"
+
 #include <fstream>
 
 namespace stream_tests {
@@ -14,36 +16,22 @@ using std::vector;
 using std::string;
 using std::unique_ptr;
 
+using namespace lipaboy_lib;
+
 using stream_space::Stream;
-using stream_space::IsOutsideIteratorsRefer;
 
-class Noisy {
-public:
-    Noisy() { cout << "Constructed" << endl; }
-    Noisy(Noisy const & ) { cout << "Copy-Constructed" << endl; }
-    Noisy(Noisy && ) { cout << "Move-Constructed" << endl; }
-    ~Noisy() { cout << "Destructed" << endl; }
+using lipaboy_lib_tests::Noisy;
 
-    const Noisy& operator= (const Noisy&) {
-        return *this;
-    }
-    const Noisy& operator= (const Noisy&&) {
-        return *this;
-    }
-};
-
-class OutsideItersStreamTest : public ::testing::Test  {
+class PrepareStreamTest : public ::testing::Test  {
 public:
     using ElemType = int;
     using Container = vector<ElemType>;
-    using StreamInt = Stream<IsOutsideIteratorsRefer, typename Container::iterator>;
-    using StreamIntPtr = unique_ptr<StreamInt>;
+    using StreamType = stream_space::StreamOfOutsideIterators<typename Container::iterator>;
+    using StreamTypePtr = unique_ptr<StreamType>;
 
 protected:
     void SetUp() {
         pOutsideContainer = std::unique_ptr<Container>(new Container({ 1, 2, 3, 4, 5 }));
-        pStream = std::unique_ptr<StreamInt>(stream_space::makeStream(pOutsideContainer->begin(),
-                                                                      pOutsideContainer->end()));
         //---------------File Stream Init------------//
 
         std::ofstream outFile;
@@ -57,13 +45,35 @@ protected:
         std::remove(filename.c_str());
     }
 
+	typename Container::iterator begin() { return pOutsideContainer->begin(); }
+	typename Container::iterator end() { return pOutsideContainer->end(); }
+
 protected:
-    StreamIntPtr pStream;
     unique_ptr<Container> pOutsideContainer;
     string filename;
     string fileData;
 };
 
-}
+
+//class InfiniteStreamTest : public ::testing::Test {
+//public:
+//	using ElemType = int;
+//	using Container = vector<ElemType>;
+//	using StreamType = stream_space::StreamOfGenerator<std::function<ElemType(void)> >;
+//	using StreamTypePtr = unique_ptr<StreamType>;
+//
+//protected:
+//	void SetUp() {
+//		static int x = 0;
+//		pStream = std::unique_ptr<StreamType>(stream_space::allocateStream([&a = x]() -> ElemType { return a++; }));
+//	}
+//	void TearDown() {
+//	}
+//
+//protected:
+//	StreamTypePtr pStream;
+//};
+
+} 
 
 #endif // HASH_MAP_TEST_H

@@ -1,25 +1,29 @@
 #include "gtest/gtest.h"
-#include "gmock/gmock.h"
 
 #include <iostream>
 #include <vector>
 #include <string>
+#include <memory>
+#include <any>
 
 #include "common_interfaces/algebra.h"
 #include "maths/fixed_precision_number.h"
 #include "intervals/interval.h"
 
 #include "stream/stream_test.h"
+#include "extra_tools/extra_tools_tests.h"
 
-namespace check_tests {
+namespace lipaboy_lib_tests {
 
 using std::cout;
 using std::endl;
 using std::vector;
 using std::string;
+using std::unique_ptr;
+using std::any;
 
-using LipaboyLib::FixedPrecisionNumber;
-using LipaboyLib::Interval;
+using lipaboy_lib::FixedPrecisionNumber;
+using lipaboy_lib::Interval;
 
 
 TEST(Algebra, check) {
@@ -61,26 +65,17 @@ TEST(Interval, contains) {
     ASSERT_TRUE(interval.containsNone(0, 1, 5));
 }
 
-// Test for trying to undestand how work with different types (for example vector<T, Alloc1> and vector<T, Alloc2>)
-template <class T>
-class A {
-public:
-	A(int e) : elem(e) {}
-	int elem;
 
-	template<class U>
-	A<T> const & operator= (A<U> const & second) {
-		elem = second.elem;
-		return *this;
-	}
-};
+
+
 
 TEST(Check, check) {
-	A<int> first(1);
-	A<float> second(2);
+	any lol = any(vector<int>({ 1, 2 }));
 
-	first = second;
-	ASSERT_EQ(first.elem, 2);
+	ASSERT_EQ(std::any_cast<vector<int>>(lol)[0], 1);
+
+	std::any_cast<vector<int>>(&lol)->operator[](0) = 3;
+	ASSERT_EQ(std::any_cast<vector<int>>(lol)[0], 3);
 }
 
 }

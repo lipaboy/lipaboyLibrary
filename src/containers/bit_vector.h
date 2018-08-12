@@ -9,7 +9,7 @@
 
 //Unfortunately, I invented the bicycle: std::bitset<size_t N>
 
-namespace LipaboyLib {
+namespace lipaboy_lib {
 
 	typedef boost::any_range<
 		int,
@@ -25,7 +25,8 @@ namespace LipaboyLib {
 	inline T addBitOne(T number, uint32_t position) { return number | (1u << position); }
 	template <typename T>
 	inline void setBitOne(T& number, uint32_t position) { number |= (1u << position); }
-	// [ (sign * max) xor (((sign * max) xor number) | (1 << pos)) ] == [ (bit == 0) ? ~(~number | (1 << pos)) : number | (1 << pos) ]
+    // [ (sign * max) xor (((sign * max) xor number) | (1 << pos)) ] equal expressions
+    //      [ (bit == 0) ? ~(~number | (1 << pos)) : number | (1 << pos) ] (but second expr with condition)
 	template <typename T>
 	inline void setBit(T& number, uint32_t position, BitType bit) { 
 		number = ((!bit) * (~static_cast<T>(0))) ^ (

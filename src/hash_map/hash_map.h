@@ -2,6 +2,7 @@
 #define HASH_MAP_H
 
 #include "forward_list_storaged_size.h"
+#include "extra_tools/extra_tools.h"
 
 #include <memory>
 #include <vector>
@@ -119,8 +120,8 @@ public:
         iterator iter = find(key);
         key_type keyTemp = key;
         if (iter == this->end()) {
-            auto index = calculateIndexByKey(key);
-            container_[index].emplace_front(std::forward<E>(key), std::forward<P>(mappedValue));
+            auto count = calculateIndexByKey(key);
+            container_[count].emplace_front(std::forward<E>(key), std::forward<P>(mappedValue));
             setSize(1 + size());
             rehash();
         }
@@ -320,9 +321,9 @@ template <class Key,
 typename HashMap<Key, T, Hash, KeyEqual, TAllocator>::iterator
 HashMap<Key, T, Hash, KeyEqual, TAllocator>::find(const key_type& key) {
     if (!empty()) {
-        size_type index = calculateIndexByKey(key);
+        size_type count = calculateIndexByKey(key);
         auto containerIter = container_.begin();
-        std::advance(containerIter, index);
+        std::advance(containerIter, count);
 
         auto nodeIter = std::find_if(containerIter->begin(), containerIter->end(),
             [&key] (const HashMap::value_type & node) {
@@ -337,13 +338,6 @@ HashMap<Key, T, Hash, KeyEqual, TAllocator>::find(const key_type& key) {
 
 //---------------------Nested Template Classes-------------------//
 
-template<bool B, class T1, class T2>
-struct enable_if_else {};
-template<class T1, class T2>
-struct enable_if_else<true, T1, T2> { typedef T1 type; };
-template<class T1, class T2>
-struct enable_if_else<false, T1, T2> { typedef T2 type; };
-
 template <bool B, class T>
 struct IContainer {};
 template <class T>
@@ -356,6 +350,8 @@ struct IContainer<false, T> {
     static typename T::const_iterator begin(const T & list) { return list.cbegin(); }
     static typename T::const_iterator end(const T & list) { return list.cend(); }
 };
+
+using lipaboy_lib::enable_if_else;
 
 template <class Key,
           class T,

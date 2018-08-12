@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-namespace LipaboyLib {
+namespace lipaboy_lib {
 
 	template <class T>
 	class NumberSettable { public: virtual void setNumber(const T& val) noexcept = 0; };

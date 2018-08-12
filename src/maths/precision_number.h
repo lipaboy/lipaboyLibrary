@@ -7,7 +7,7 @@
 
 #include <ostream>
 
-namespace LipaboyLib {
+namespace lipaboy_lib {
 
     // PLAN
     //---------

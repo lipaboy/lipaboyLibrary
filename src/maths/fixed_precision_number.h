@@ -7,7 +7,7 @@
 
 #include <ostream>
 
-namespace LipaboyLib {
+namespace lipaboy_lib {
 
 	template <typename T, typename IntegerType = int>
 	inline constexpr T powDozen(IntegerType power) {
