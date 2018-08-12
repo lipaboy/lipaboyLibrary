@@ -83,10 +83,6 @@ public:
     auto operator| (skip&& skipObj) -> ExtendedStreamType<skip> {
         using ExtendedStream = ExtendedStreamType<skip>;
         ExtendedStream newStream(skipObj, *this);
-        newStream.action_ = [] (ExtendedStream* obj) {
-            obj->range().moveBeginIter(obj->operation().index());
-            obj->action_ = [] (ExtendedStream*) {};
-        };
         return std::move(newStream);
     }
 
@@ -161,8 +157,8 @@ protected:
     }
 protected:
     // TODO: think about this interface
-    ValueType getElem(size_type index) const {
-        return this->range().get(index);
+    ValueType getElem(size_type count) const {
+        return this->range().get(count);
     }
 
     //-----------------Slider API--------------//

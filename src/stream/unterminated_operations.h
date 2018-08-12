@@ -142,12 +142,12 @@ namespace operations_space {
 		template <class TSubStream>
 		auto nextElem(TSubStream& stream) -> typename TSubStream::ResultValueType {
 			--size_;
-			return stream.nextElem();
+			return std::move(stream.nextElem());
 		}
 
 		template <class TSubStream>
 		auto currentElem(TSubStream& stream) -> typename TSubStream::ResultValueType {
-			return stream.currentElem();
+			return std::move(stream.currentElem());
 		}
 
 		template <class TSubStream>
@@ -232,14 +232,38 @@ namespace operations_space {
 	};
 
 	struct skip : TReturnSameType {
+	public:
 		using size_type = size_t;
 
-		skip(size_type index) : index_(index) {}
 		static constexpr FunctorMetaTypeEnum metaInfo = SKIP;
+	public:
+		skip(size_type count) : count_(count) {}
 
-		size_type index() const { return index_; }
+		template <class TSubStream>
+		void init(TSubStream& stream) {
+			for (size_type i = 0; i < count() && stream.hasNext(); i++) {
+				// TODO: replace it on incrementSlider()
+				stream.nextElem();
+			}
+		}
+
+		template <class TSubStream>
+		auto nextElem(TSubStream& stream) -> typename TSubStream::ResultValueType {
+			return std::move(stream.nextElem());
+		}
+
+		template <class TSubStream>
+		auto currentElem(TSubStream& stream) -> typename TSubStream::ResultValueType {
+			return std::move(stream.currentElem());
+		}
+
+		template <class TSubStream>
+		bool hasNext(TSubStream& stream) { return stream.hasNext(); }
+
+		size_type count() const { return count_; }
+
 	private:
-		size_type index_;
+		size_type count_;
 	};
 
 	struct ungroup_by_bit {

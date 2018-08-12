@@ -107,10 +107,6 @@ public:
     auto operator| (skip&& skipObj) -> ExtendedStreamType<skip> {
         using ExtendedStream = ExtendedStreamType<skip>;
         ExtendedStream newStream(skipObj, *this);
-        newStream.action_ = [] (ExtendedStream* obj) {
-            obj->range().moveBeginIter(obj->operation().index());
-            obj->action_ = [] (ExtendedStream*) {};
-        };
         return std::move(newStream);
     }
     auto operator| (ungroup_by_bit functor) -> ExtendedStreamType<ungroup_by_bit> {
@@ -189,7 +185,8 @@ public:
 		if constexpr (TOperation::metaInfo == GET && SuperType::isNoGetTypeBefore())
 			action_(this);
 		superThisPtr()->init();
-		if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR || TOperation::metaInfo == GET)
+		if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR || TOperation::metaInfo == GET
+				|| TOperation::metaInfo == SKIP)
 			operation_.init<SuperType>(*superThisPtr());
 		if constexpr (!(TOperation::metaInfo == GET && SuperType::isNoGetTypeBefore()))
 			action_(this);
@@ -205,7 +202,9 @@ public:
 				this->hasNext();
                 return std::move(currElem);
         }
-        else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR || TOperation::metaInfo == GET) {
+        else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR || TOperation::metaInfo == GET
+			|| TOperation::metaInfo == SKIP) 
+		{
 				return std::move(operation_.nextElem<SuperType>(*superThisPtr()));
         }
         else if constexpr (TOperation::metaInfo == UNGROUP_BY_BIT) {
@@ -227,7 +226,9 @@ public:
 	ResultValueType currentElem() {
         if constexpr (TOperation::metaInfo == MAP)
                 return std::move(operation_.functor()(superThisPtr()->currentElem()));
-		else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR || TOperation::metaInfo == GET) {
+		else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR || TOperation::metaInfo == GET
+			|| TOperation::metaInfo == SKIP) 
+		{
 					// #Crutch: it is strange crutch because Visual Studio can't call the template method 
 					// without argument
 					// that can help it to deduce the type of template method
@@ -254,7 +255,8 @@ public:
 		if constexpr (TOperation::metaInfo == UNGROUP_BY_BIT)
 				return (ungroupTempOwner_->indexIter != 0)
 					|| superHasNext();
-		else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR || TOperation::metaInfo == GET)
+		else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR || TOperation::metaInfo == GET
+			|| TOperation::metaInfo == SKIP)
 				return operation_.hasNext<SuperType>(*superThisPtr());
 		else if constexpr (TOperation::metaInfo == FILTER) {
 			// TODO: realize shifting the slider (without creating copy of result object)

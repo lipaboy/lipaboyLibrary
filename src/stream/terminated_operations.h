@@ -139,12 +139,12 @@ namespace operations_space {
 	struct nth {
 		using size_type = size_t;
 
-		nth(size_type index) : index_(index) {}
+		nth(size_type count) : count_(count) {}
 		static constexpr FunctorMetaTypeEnum metaInfo = NTH;
 
-		size_type index() const { return index_; }
+		size_type count() const { return count_; }
 	private:
-		size_type index_;
+		size_type count_;
 	};
 
 	//---------------------------------------------------------//
@@ -161,7 +161,7 @@ namespace operations_space {
 	auto apply(Stream_ & obj, nth&& nthObj) -> typename Stream_::ResultValueType
 	{
 		obj.init();
-		for (size_t i = 0; i < nthObj.index() && obj.hasNext(); i++)
+		for (size_t i = 0; i < nthObj.count() && obj.hasNext(); i++)
 			obj.nextElem();
 		if (!obj.hasNext())
 			throw std::logic_error("Stream (nth operation) : index is out of range");

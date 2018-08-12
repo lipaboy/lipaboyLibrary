@@ -119,8 +119,8 @@ public:
         iterator iter = find(key);
         key_type keyTemp = key;
         if (iter == this->end()) {
-            auto index = calculateIndexByKey(key);
-            container_[index].emplace_front(std::forward<E>(key), std::forward<P>(mappedValue));
+            auto count = calculateIndexByKey(key);
+            container_[count].emplace_front(std::forward<E>(key), std::forward<P>(mappedValue));
             setSize(1 + size());
             rehash();
         }
@@ -320,9 +320,9 @@ template <class Key,
 typename HashMap<Key, T, Hash, KeyEqual, TAllocator>::iterator
 HashMap<Key, T, Hash, KeyEqual, TAllocator>::find(const key_type& key) {
     if (!empty()) {
-        size_type index = calculateIndexByKey(key);
+        size_type count = calculateIndexByKey(key);
         auto containerIter = container_.begin();
-        std::advance(containerIter, index);
+        std::advance(containerIter, count);
 
         auto nodeIter = std::find_if(containerIter->begin(), containerIter->end(),
             [&key] (const HashMap::value_type & node) {
