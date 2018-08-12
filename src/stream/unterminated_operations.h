@@ -111,11 +111,16 @@ namespace operations_space {
 
 		template <class TSubStream>
 		void init(TSubStream& stream)
-		{}
+		{
+			hasNext<TSubStream>(stream);
+		}
 
 		template <class TSubStream>
 		auto nextElem(TSubStream& stream) -> typename TSubStream::ResultValueType {
-			return std::move(stream.nextElem());
+			auto currElem = std::move(stream.nextElem());
+			// ! calling hasNext() of current StreamType ! in order to skip unfilter elems
+			hasNext<TSubStream>(stream);
+			return std::move(currElem);
 		}
 
 		template <class TSubStream>
@@ -124,7 +129,12 @@ namespace operations_space {
 		}
 
 		template <class TSubStream>
-		bool hasNext(TSubStream& stream) { return stream.hasNext(); }
+		bool hasNext(TSubStream& stream) { 
+			for (; stream.hasNext(); stream.nextElem())
+				if (true == functor()(std::move(currentElem<TSubStream>(stream))))
+					return true;
+			return false;
+		}
 	};
 
 	template <class Transform>

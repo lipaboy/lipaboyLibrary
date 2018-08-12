@@ -130,43 +130,21 @@ public:
 
 public:
     ResultValueType nextElem() {
-        if constexpr (TOperation::metaInfo == FILTER) {
-                auto currElem = superNextElem();
-				// ! calling hasNext() of current StreamType ! in order to skip unfilter elems
-				this->hasNext();
-                return std::move(currElem);
-        }
-        else
-				return std::move(operation_.nextElem<SuperType>(*superThisPtr()));
+		return std::move(operation_.nextElem<SuperType>(*superThisPtr()));
     }
 
     // TODO: must be test
 	ResultValueType currentElem() {
-		if constexpr (TOperation::metaInfo == FILTER) {
-				// ! calling hasNext() of current StreamType ! in order to skip unfilter elems
-				this->hasNext();	
-				return std::move(superThisPtr()->currentElem());
-		}
-		else {
-				// #Crutch: it is strange crutch because Visual Studio can't call the template method 
-				// without argument
-				// that can help it to deduce the type of template method
-				// Solve: Problem in the intersection 
-				//        of names (currentElem() of Stream and currentElem() of operation_)
-				return std::move(operation_.currentElem<SuperType>(*superThisPtr()));
-		}
+		// #Crutch: it is strange crutch because Visual Studio can't call the template method 
+		// without argument
+		// that can help it to deduce the type of template method
+		// Solve: Problem in the intersection 
+		//        of names (currentElem() of Stream and currentElem() of operation_)
+		return std::move(operation_.currentElem<SuperType>(*superThisPtr()));
     }
 
     bool hasNext() {
-		if constexpr (TOperation::metaInfo == FILTER) {
-			// TODO: realize shifting the slider (without creating copy of result object)
-				for (; superHasNext(); superNextElem())
-                    if (true == operation().functor()(superCurrentElem()))
-						return true;
-				return false;
-		}
-        else
-                return operation_.hasNext<SuperType>(*superThisPtr());
+        return operation_.hasNext<SuperType>(*superThisPtr());
     }
 
 
