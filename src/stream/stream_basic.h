@@ -74,13 +74,6 @@ public:
     auto operator| (get functor) -> ExtendedStreamType<get> {
         using ExtendedStream = ExtendedStreamType<get>;
         ExtendedStream newStream(functor, *this);
-        newStream.action_ =
-            [] (ExtendedStream * obj)
-            {
-                auto border = obj->operation().border();
-                obj->range().makeFinite(border);
-                obj->action_ = [] (ExtendedStream*) {};
-            };
         return std::move(newStream);
     }
     auto operator| (group_by_vector functor) -> ExtendedStreamType<group_by_vector> {

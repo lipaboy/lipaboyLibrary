@@ -119,7 +119,7 @@ TEST(Get, InfiniteStream) {
     auto res = buildStream([&a]() { return a++; })
             | filter([] (int b) -> bool { return b % 2 != 0; })
             | filter([] (int b) -> bool { return b % 3 != 0; })
-            | get(11)
+            | get(4)
             | to_vector();
 
     ASSERT_EQ(res, vector<int>({ 1, 5, 7, 11 }));
@@ -140,6 +140,16 @@ TEST(Get, Infinite_Empty) {
             | to_vector();
 
     ASSERT_TRUE(res.empty());
+}
+
+TEST(Get, Group_Infinite) {
+	int a = 0;
+	auto res = buildStream([&a]() { return a++; })
+		| group_by_vector(2)
+		| get(4)
+		| nth(2);
+
+	ASSERT_EQ(res, vector<int>({ 4, 5 }));
 }
 
 //----------------Get operator testing-------------------//

@@ -64,14 +64,6 @@ public:
 				ungroupTempOwner_ = std::make_shared<UngroupTempValueType>();
 				ungroupTempOwner_->indexIter = 0;
 		}
-		else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR) {
-				groupedTempOwner_ = std::make_shared<GroupedTempValueType>();
-				//init();
-				/*auto partSize = operation_.partSize();
-				for (size_type i = 0; i < partSize && hasNext(); i++)
-					groupedTempOwner_->tempValue.push_back(std::move(superNextElem()));*/
-				/*operation_.init(*superThisPtr());*/
-		}
 #ifdef LOL_DEBUG_NOISY
         if constexpr (std::is_rvalue_reference<StreamSuperType_&&>::value)
                 cout << "   Stream is extended by move-constructor" << endl;
@@ -84,8 +76,7 @@ public:
         : SuperType(static_cast<ConstSuperType&>(obj)),
         operation_(obj.operation_),
         action_(obj.action_),
-		ungroupTempOwner_(obj.ungroupTempOwner_),
-		groupedTempOwner_(obj.groupedTempOwner_)
+		ungroupTempOwner_(obj.ungroupTempOwner_)
     {
 #ifdef LOL_DEBUG_NOISY
         cout << "   StreamEx copy-constructed" << endl;
@@ -95,8 +86,7 @@ public:
         : SuperType(std::move(obj)),
         operation_(std::move(obj.operation_)),
         action_(std::move(obj.action_)),
-		ungroupTempOwner_(std::move(obj.ungroupTempOwner_)),
-		groupedTempOwner_(std::move(obj.groupedTempOwner_))
+		ungroupTempOwner_(std::move(obj.ungroupTempOwner_))
     {
 #ifdef LOL_DEBUG_NOISY
         cout << "   StreamEx move-constructed" << endl;
@@ -108,13 +98,6 @@ public:
     auto operator| (get functor) -> ExtendedStreamType<get> {
         using ExtendedStream = ExtendedStreamType<get>;
         ExtendedStream newStream(functor, *this);
-
-        newStream.action_ = [] (ExtendedStream * obj) {
-            auto border = obj->operation().border();
-            obj->range().makeFinite(border);
-            obj->action_ = [] (ExtendedStream*) {};
-        };;
-
         return std::move(newStream);
     }
     auto operator| (group_by_vector functor) -> ExtendedStreamType<group_by_vector> {
@@ -206,7 +189,7 @@ public:
 		if constexpr (TOperation::metaInfo == GET && SuperType::isNoGetTypeBefore())
 			action_(this);
 		superThisPtr()->init();
-		if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR)
+		if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR || TOperation::metaInfo == GET)
 			operation_.init<SuperType>(*superThisPtr());
 		if constexpr (!(TOperation::metaInfo == GET && SuperType::isNoGetTypeBefore()))
 			action_(this);
@@ -222,7 +205,7 @@ public:
 				this->hasNext();
                 return std::move(currElem);
         }
-        else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR) {
+        else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR || TOperation::metaInfo == GET) {
 				return std::move(operation_.nextElem<SuperType>(*superThisPtr()));
         }
         else if constexpr (TOperation::metaInfo == UNGROUP_BY_BIT) {
@@ -244,7 +227,7 @@ public:
 	ResultValueType currentElem() {
         if constexpr (TOperation::metaInfo == MAP)
                 return std::move(operation_.functor()(superThisPtr()->currentElem()));
-		else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR) {
+		else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR || TOperation::metaInfo == GET) {
 					// #Crutch: it is strange crutch because Visual Studio can't call the template method 
 					// without argument
 					// that can help it to deduce the type of template method
@@ -271,7 +254,7 @@ public:
 		if constexpr (TOperation::metaInfo == UNGROUP_BY_BIT)
 				return (ungroupTempOwner_->indexIter != 0)
 					|| superHasNext();
-		else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR)
+		else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR || TOperation::metaInfo == GET)
 				return operation_.hasNext<SuperType>(*superThisPtr());
 		else if constexpr (TOperation::metaInfo == FILTER) {
 			// TODO: realize shifting the slider (without creating copy of result object)
@@ -322,11 +305,6 @@ protected:
         ValueType tempValue;
     };
     shared_ptr<UngroupTempValueType> ungroupTempOwner_;
-    // uses for group_to_vector operation
-    struct GroupedTempValueType {
-        ResultValueType tempValue;
-    };
-	shared_ptr<GroupedTempValueType> groupedTempOwner_;
 
 protected:
 

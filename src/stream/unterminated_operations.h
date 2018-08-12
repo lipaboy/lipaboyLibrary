@@ -126,17 +126,40 @@ namespace operations_space {
 		}
 	};
 
-	struct get : TReturnSameType {
+	struct get : TReturnSameType 
+	{
+	public:
 		using size_type = size_t;
-		get(size_type border) : border_(border) {}
+
 		static constexpr FunctorMetaTypeEnum metaInfo = GET;
+	public:
+		get(size_type size) : size_(size) {}
 
-		size_type border() const { return border_; }
+		template <class TSubStream>
+		void init(TSubStream& stream)
+		{}
 
-		bool operator==(get const & other) const { return border_ == other.border_; }
+		template <class TSubStream>
+		auto nextElem(TSubStream& stream) -> typename TSubStream::ResultValueType {
+			--size_;
+			return stream.nextElem();
+		}
+
+		template <class TSubStream>
+		auto currentElem(TSubStream& stream) -> typename TSubStream::ResultValueType {
+			return stream.currentElem();
+		}
+
+		template <class TSubStream>
+		bool hasNext(TSubStream& stream) { return size() > 0 && stream.hasNext(); }
+
+		size_type size() const { return size_; }
+
+		bool operator==(get const & other) const { return size() == other.size(); }
 		bool operator!=(get const & other) const { return !(*this == other); }
+
 	private:
-		size_type border_;
+		size_type size_;
 	};
 
 	struct group_by_vector {
@@ -146,12 +169,12 @@ namespace operations_space {
 		template <class Arg>
 		using RetType = vector<Arg>;
 
+		static constexpr FunctorMetaTypeEnum metaInfo = GROUP_BY_VECTOR;
 	public:
 		group_by_vector(size_type partSize) : partSize_(partSize) {
 			if (partSize == 0)
 				throw std::logic_error("Parameter of GroupType constructor must be positive");
 		}
-		static constexpr FunctorMetaTypeEnum metaInfo = GROUP_BY_VECTOR;
 
 		template <class TSubStream>
 		void init(TSubStream& stream)
