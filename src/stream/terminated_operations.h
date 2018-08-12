@@ -112,16 +112,50 @@ namespace operations_space {
 			else
 				return FunctorHolder<IdentityFn>::functor()(std::forward<Arg_>(arg));
 		}
+
+		template <class Stream_>
+		auto apply(Stream_ & obj) -> typename reduce<Accumulator, IdentityFn>::IdentityRetType
+		{
+			using RetType = typename reduce<Accumulator, IdentityFn>::IdentityRetType;
+			obj.init();
+			if (obj.hasNext()) {
+				auto result = identity(obj.nextElem());
+				for (; obj.hasNext(); )
+					result = accum(result, obj.nextElem());
+				return result;
+			}
+			return RetType();
+		}
+
 	};
 
 	struct sum {
 		static constexpr FunctorMetaTypeEnum metaInfo = SUM;
+
+		template <class TStream>
+		auto apply(TStream & stream) -> typename TStream::ResultValueType 
+		{
+			using TResult = typename TStream::ResultValueType;
+			//stream.assertOnInfiniteStream<TStream>();
+			stream.init();
+			auto result = (stream.hasNext()) ? stream.nextElem() : TResult();
+			for (; stream.hasNext();)
+				result += stream.nextElem();
+			return std::move(result);
+		}
 	};
 
 	struct print_to {
 	public:
 		print_to(std::ostream& o, string delimiter = "") : ostreamObj_(o), delimiter_(delimiter) {}
 		static constexpr FunctorMetaTypeEnum metaInfo = PRINT_TO;
+
+		template <class Stream_>
+		std::ostream& apply(Stream_ & obj) {
+			for (obj.init(); obj.hasNext(); )
+				ostream() << obj.nextElem() << printer.delimiter();
+			return ostream();
+		}
 
 		std::ostream& ostream() { return ostreamObj_; }
 		string const & delimiter() const { return delimiter_; }
@@ -134,6 +168,16 @@ namespace operations_space {
 		template <class T>
 		using ContainerType = std::vector<T>;
 		static constexpr FunctorMetaTypeEnum metaInfo = TO_VECTOR;
+
+		template <class Stream_>
+		auto apply(Stream_ & obj) -> vector<typename Stream_::ResultValueType>
+		{
+			using ToVectorType = vector<typename Stream_::ResultValueType>;
+			ToVectorType toVector;
+			for (obj.init(); obj.hasNext(); )
+				toVector.push_back(obj.nextElem());
+			return std::move(toVector);
+		}
 	};
 
 	struct nth {
@@ -142,55 +186,30 @@ namespace operations_space {
 		nth(size_type count) : count_(count) {}
 		static constexpr FunctorMetaTypeEnum metaInfo = NTH;
 
+		template <class Stream_>
+		auto apply(Stream_ & obj) -> typename Stream_::ResultValueType
+		{
+			obj.init();
+			for (size_t i = 0; i < count() && obj.hasNext(); i++)
+				obj.nextElem();
+			if (!obj.hasNext())
+				throw std::logic_error("Stream (nth operation) : index is out of range");
+			return obj.nextElem();
+		}
+
 		size_type count() const { return count_; }
 	private:
 		size_type count_;
 	};
 
-	//---------------------------------------------------------//
-	//--------------------------Apply API----------------------//
-	//---------------------------------------------------------//
+	//-------------------------------------------------------------//
+	//--------------------------Apply API--------------------------//
+	//-------------------------------------------------------------//
 
-	template <class Stream_>
-	std::ostream& apply(Stream_ & obj, print_to&& printer) {
-		for (obj.init(); obj.hasNext(); )
-			printer.ostream() << obj.nextElem() << printer.delimiter();
-		return printer.ostream();
-	}
-	template <class Stream_>
-	auto apply(Stream_ & obj, nth&& nthObj) -> typename Stream_::ResultValueType
-	{
-		obj.init();
-		for (size_t i = 0; i < nthObj.count() && obj.hasNext(); i++)
-			obj.nextElem();
-		if (!obj.hasNext())
-			throw std::logic_error("Stream (nth operation) : index is out of range");
-		return obj.nextElem();
-	}
-	template <class Stream_>
-	auto apply(Stream_ & obj, to_vector&&) -> vector<typename Stream_::ResultValueType>
-	{
-		using ToVectorType = vector<typename Stream_::ResultValueType>;
-		ToVectorType toVector;
-		for (obj.init(); obj.hasNext(); )
-			toVector.push_back(obj.nextElem());
-		return std::move(toVector);
-	}
-	template <class Stream_, class Accumulator, class IdentityFn>
-	auto apply(Stream_ & obj, reduce<Accumulator, IdentityFn> const & reduceObj)
-		-> typename reduce<Accumulator, IdentityFn>::IdentityRetType
-	{
-		using RetType = typename reduce<Accumulator, IdentityFn>::IdentityRetType;
-		obj.init();
-		if (obj.hasNext()) {
-			auto result = reduceObj.identity(obj.nextElem());
-			for (; obj.hasNext(); )
-				result = reduceObj.accum(result, obj.nextElem());
-			return result;
-		}
-		return RetType();
-	}
-
+	
+	
+	
+	
 
 
 }

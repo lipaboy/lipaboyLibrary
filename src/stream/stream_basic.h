@@ -74,34 +74,27 @@ public:
 public:
     std::ostream& operator| (print_to&& printer) {
 		assertOnInfiniteStream<Stream>();
-        return apply(*this, std::move(printer));
+		return printer.apply(*this);
     }
 
     template <class Accumulator, class IdentityFn>
-    auto operator| (reduce<Accumulator, IdentityFn> const & reduceObj)
+    auto operator| (reduce<Accumulator, IdentityFn>&& reduceObj)
         -> typename reduce<Accumulator, IdentityFn>::IdentityRetType
     {
 		assertOnInfiniteStream<Stream>();
-        return apply(*this, reduceObj);
+        return reduceObj.apply(*this);
     }
-    ResultValueType operator| (sum&&) {
+    ResultValueType operator| (sum&& sumObj) {
 		assertOnInfiniteStream<Stream>();
-        init();
-        if (hasNext()) {
-            auto result = nextElem();
-            for (; hasNext();)
-                result += nextElem();
-            return result;
-        }
-        return ResultValueType();
+		return sumObj.apply(*this);
     }
 	ResultValueType operator| (nth&& nthObj) {
 		assertOnInfiniteStream<Stream>();
-		return apply(*this, std::move(nthObj));
+		return nthObj.apply(*this);
 	}
     vector<ValueType> operator| (to_vector&& toVectorObj) {
 		assertOnInfiniteStream<Stream>();
-        return apply(*this, std::move(toVectorObj));
+        return toVectorObj.apply(*this);
     }
 
     //------------------Additional methods---------------//
@@ -157,11 +150,6 @@ private:
 private:
     Range range_;
 };
-
-
-
-
-
 
 }
 

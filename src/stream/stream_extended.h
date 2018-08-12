@@ -97,33 +97,25 @@ public:
 
     std::ostream& operator| (print_to&& printer) {
 		assertOnInfiniteStream<Stream>();
-        return apply(*this, std::move(printer));
+        return printer.apply(*this);
     }
     template <class Accumulator, class IdenityFn>
-    auto operator| (reduce<Accumulator, IdenityFn> const & reduceObj)
+    auto operator| (reduce<Accumulator, IdenityFn>&& reduceObj)
         -> typename reduce<Accumulator, IdenityFn>::IdentityRetType
     {
 		assertOnInfiniteStream<Stream>();
-        return apply(*this, reduceObj);
+		return reduceObj.apply(*this);
     }
-    ResultValueType operator| (sum&&) {
-		assertOnInfiniteStream<Stream>();
-        init();
-        if (hasNext()) {
-            auto result = nextElem();
-            for (; hasNext();)
-                result += nextElem();
-            return result;
-        }
-        return ResultValueType();
+    ResultValueType operator| (sum&& sumObj) {
+		return sumObj.apply(*this);
     }
     ResultValueType operator| (nth&& nthObj) {
 		assertOnInfiniteStream<Stream>();
-		return apply(*this, std::move(nthObj));
+		return nthObj.apply(*this);
     }
     vector<ResultValueType> operator| (to_vector&& toVectorObj) {
 		assertOnInfiniteStream<Stream>();
-        return apply(*this, std::move(toVectorObj));
+		return toVectorObj.apply(*this);
     }
 
             //-----------------Tools-------------------//
@@ -261,18 +253,6 @@ protected:
         ValueType tempValue;
     };
     shared_ptr<UngroupTempValueType> ungroupTempOwner_;
-
-protected:
-
-#ifdef LOL_DEBUG_NOISY
-        cout << "---Filter ended---" << endl;
-#endif
-
-private:
-
-    //--------------------------------------------------------------------------------//
-    //-----------------------------------Friends--------------------------------------//
-    //--------------------------------------------------------------------------------//
 
 };
 
