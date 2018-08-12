@@ -60,10 +60,6 @@ public:
     Stream (TFunctor_&& functor, StreamSuperType_&& obj) noexcept
         : SuperType(std::forward<StreamSuperType_>(obj)), operation_(std::forward<TFunctor_>(functor))
     {
-		if constexpr (TOperation::metaInfo == UNGROUP_BY_BIT) {
-				ungroupTempOwner_ = std::make_shared<UngroupTempValueType>();
-				ungroupTempOwner_->indexIter = 0;
-		}
 #ifdef LOL_DEBUG_NOISY
         if constexpr (std::is_rvalue_reference<StreamSuperType_&&>::value)
                 cout << "   Stream is extended by move-constructor" << endl;
@@ -74,8 +70,7 @@ public:
 public:
     Stream (Stream const & obj)
         : SuperType(static_cast<ConstSuperType&>(obj)),
-        operation_(obj.operation_),
-		ungroupTempOwner_(obj.ungroupTempOwner_)
+        operation_(obj.operation_)
     {
 #ifdef LOL_DEBUG_NOISY
         cout << "   StreamEx copy-constructed" << endl;
@@ -83,8 +78,7 @@ public:
     }
     Stream (Stream&& obj) noexcept
         : SuperType(std::move(obj)),
-        operation_(std::move(obj.operation_)),
-		ungroupTempOwner_(std::move(obj.ungroupTempOwner_))
+        operation_(std::move(obj.operation_))
     {
 #ifdef LOL_DEBUG_NOISY
         cout << "   StreamEx move-constructed" << endl;
@@ -92,31 +86,6 @@ public:
     }
 
 	//----------------------Methods API-----------------------//
-
-    //-------------------Terminated operations-----------------//
-
-    std::ostream& operator| (print_to&& printer) {
-		assertOnInfiniteStream<Stream>();
-        return printer.apply(*this);
-    }
-    template <class Accumulator, class IdenityFn>
-    auto operator| (reduce<Accumulator, IdenityFn>&& reduceObj)
-        -> typename reduce<Accumulator, IdenityFn>::IdentityRetType
-    {
-		assertOnInfiniteStream<Stream>();
-		return reduceObj.apply(*this);
-    }
-    ResultValueType operator| (sum&& sumObj) {
-		return sumObj.apply(*this);
-    }
-    ResultValueType operator| (nth&& nthObj) {
-		assertOnInfiniteStream<Stream>();
-		return nthObj.apply(*this);
-    }
-    vector<ResultValueType> operator| (to_vector&& toVectorObj) {
-		assertOnInfiniteStream<Stream>();
-		return toVectorObj.apply(*this);
-    }
 
             //-----------------Tools-------------------//
 protected:
@@ -129,6 +98,8 @@ protected:
     static constexpr bool isGeneratorProducing() {
         return SuperType::isGeneratorProducing();
     }
+
+public:
 	template <class TStream_>
 	inline static constexpr void assertOnInfiniteStream() { 
 		SuperType::template assertOnInfiniteStream<TStream_>(); 
@@ -165,30 +136,13 @@ public:
 				this->hasNext();
                 return std::move(currElem);
         }
-        else if constexpr (TOperation::metaInfo == UNGROUP_BY_BIT) {
-                constexpr size_type bitsCountOfType = 8 * sizeof(ValueType);
-                size_type & indexIter = ungroupTempOwner_->indexIter;
-                ValueType & tempValue = ungroupTempOwner_->tempValue;
-
-                if (indexIter % bitsCountOfType == 0)
-                    tempValue = superNextElem();
-                bool res = (tempValue & (1 << indexIter)) >> indexIter;
-                indexIter = (indexIter + 1) % bitsCountOfType;
-                return res;
-        }
         else
 				return std::move(operation_.nextElem<SuperType>(*superThisPtr()));
     }
 
     // TODO: must be test
 	ResultValueType currentElem() {
-		if constexpr (TOperation::metaInfo == UNGROUP_BY_BIT) {
-                size_type & indexIter = ungroupTempOwner_->indexIter;
-                ValueType & tempValue = ungroupTempOwner_->tempValue;
-                bool res = (tempValue & (1 << indexIter)) >> indexIter;
-                return res;
-        }
-		else if constexpr (TOperation::metaInfo == FILTER) {
+		if constexpr (TOperation::metaInfo == FILTER) {
 				// ! calling hasNext() of current StreamType ! in order to skip unfilter elems
 				this->hasNext();	
 				return std::move(superThisPtr()->currentElem());
@@ -204,10 +158,7 @@ public:
     }
 
     bool hasNext() {
-		if constexpr (TOperation::metaInfo == UNGROUP_BY_BIT)
-				return (ungroupTempOwner_->indexIter != 0)
-					|| superHasNext();
-		else if constexpr (TOperation::metaInfo == FILTER) {
+		if constexpr (TOperation::metaInfo == FILTER) {
 			// TODO: realize shifting the slider (without creating copy of result object)
 				for (; superHasNext(); superNextElem())
                     if (true == operation().functor()(superCurrentElem()))
@@ -247,12 +198,6 @@ private:
 
 protected:
     TOperation operation_;
-    // uses for ungroup_by_bits operation
-    struct UngroupTempValueType {
-        size_type indexIter;
-        ValueType tempValue;
-    };
-    shared_ptr<UngroupTempValueType> ungroupTempOwner_;
 
 };
 

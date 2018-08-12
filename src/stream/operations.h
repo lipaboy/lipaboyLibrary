@@ -35,9 +35,18 @@ namespace stream_space {
 	namespace shortening {
 
 		template <class TStream, class TOperation>
-		using StreamTypeExtender = typename std::remove_reference_t<TStream>::
-			template ExtendedStreamType<std::remove_reference_t<TOperation> >;
+		struct StreamTypeExtender {
+			using type = typename std::remove_reference_t<TStream>::
+				template ExtendedStreamType<std::remove_reference_t<TOperation> >;
+		};
 
+		/*template <class TIterator>
+		struct StreamTypeExtender<void, TIterator> {
+		using type = Stream<TIterator>;
+		};*/
+
+		template <class TStream, class TOperation>
+		using StreamTypeExtender_t = typename StreamTypeExtender<TStream, TOperation>::type;
 
 		namespace experimental {
 

@@ -84,10 +84,14 @@ namespace operations_space {
 		using AccumRetType = typename std::result_of<Accumulator(TResult, Arg)>::type;
 		using IdentityFnType = IdentityFn;
 		using ArgType = typename GetFirstArgumentType_ElseArg<IdentityFnType, Accumulator>::type;
-		//    template <class ArgType>
 		using IdentityRetType = lipaboy_lib::enable_if_else_t<std::is_same<IdentityFn, FalseType >::value,
 			ArgType, result_of_else_t<IdentityFnType(ArgType)> >;
 
+		template <class Arg>
+		using RetType = IdentityRetType;
+
+		static constexpr OperationMetaTypeEnum metaInfo = REDUCE;
+		static constexpr bool isTerminated = true;
 	public:
 		reduce(IdentityFn&& identity, Accumulator&& accum)
 			: FunctorHolder<Accumulator>(accum),
@@ -97,7 +101,6 @@ namespace operations_space {
 			: FunctorHolder<Accumulator>(accum),
 			FunctorHolder<IdentityFn>(FalseType())
 		{}
-		static constexpr FunctorMetaTypeEnum metaInfo = REDUCE;
 
 		template <class TResult_, class Arg_>
 		AccumRetType<TResult_, Arg_> accum(TResult_&& result, Arg_&& arg) const {
@@ -114,7 +117,7 @@ namespace operations_space {
 		}
 
 		template <class Stream_>
-		auto apply(Stream_ & obj) -> typename reduce<Accumulator, IdentityFn>::IdentityRetType
+		auto apply(Stream_ & obj) -> IdentityRetType
 		{
 			using RetType = typename reduce<Accumulator, IdentityFn>::IdentityRetType;
 			obj.init();
@@ -130,7 +133,11 @@ namespace operations_space {
 	};
 
 	struct sum {
-		static constexpr FunctorMetaTypeEnum metaInfo = SUM;
+		static constexpr OperationMetaTypeEnum metaInfo = SUM;
+		static constexpr bool isTerminated = true;
+
+		template <class Arg>
+		using RetType = Arg;
 
 		template <class TStream>
 		auto apply(TStream & stream) -> typename TStream::ResultValueType 
@@ -147,8 +154,13 @@ namespace operations_space {
 
 	struct print_to {
 	public:
+		template <class Arg>
+		using RetType = std::ostream&;
+
+	public:
 		print_to(std::ostream& o, string delimiter = "") : ostreamObj_(o), delimiter_(delimiter) {}
-		static constexpr FunctorMetaTypeEnum metaInfo = PRINT_TO;
+		static constexpr OperationMetaTypeEnum metaInfo = PRINT_TO;
+		static constexpr bool isTerminated = true;
 
 		template <class Stream_>
 		std::ostream& apply(Stream_ & obj) {
@@ -165,9 +177,13 @@ namespace operations_space {
 	};
 
 	struct to_vector {
-		template <class T>
-		using ContainerType = std::vector<T>;
-		static constexpr FunctorMetaTypeEnum metaInfo = TO_VECTOR;
+	public:
+		template <class Arg>
+		using RetType = std::vector<Arg>;
+
+		static constexpr OperationMetaTypeEnum metaInfo = TO_VECTOR;
+		static constexpr bool isTerminated = true;
+	public:
 
 		template <class Stream_>
 		auto apply(Stream_ & obj) -> vector<typename Stream_::ResultValueType>
@@ -183,8 +199,12 @@ namespace operations_space {
 	struct nth {
 		using size_type = size_t;
 
+		template <class Arg>
+		using RetType = Arg;
+
 		nth(size_type count) : count_(count) {}
-		static constexpr FunctorMetaTypeEnum metaInfo = NTH;
+		static constexpr OperationMetaTypeEnum metaInfo = NTH;
+		static constexpr bool isTerminated = true;
 
 		template <class Stream_>
 		auto apply(Stream_ & obj) -> typename Stream_::ResultValueType
