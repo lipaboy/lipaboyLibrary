@@ -219,7 +219,7 @@ namespace operations_space {
 		size_type index_;
 	};
 
-	struct ungroupByBit {
+	struct ungroup_by_bit {
 		using size_type = size_t;
 
 		static constexpr FunctorMetaTypeEnum metaInfo = UNGROUP_BY_BIT;

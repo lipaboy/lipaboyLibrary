@@ -130,8 +130,8 @@ public:
         };
         return std::move(newStream);
     }
-    auto operator| (ungroupByBit functor) -> ExtendedStreamType<ungroupByBit> {
-        ExtendedStreamType<ungroupByBit> obj(functor, *this);
+    auto operator| (ungroup_by_bit functor) -> ExtendedStreamType<ungroup_by_bit> {
+        ExtendedStreamType<ungroup_by_bit> obj(functor, *this);
         return std::move(obj);
     }
 

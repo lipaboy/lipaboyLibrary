@@ -209,6 +209,17 @@ TEST(Skip, Infinite) {
     ASSERT_EQ(res, vector<int>({ 2, 3 }));
 }
 
+TEST(Skip, Group_Infinite) {
+	int a = 0;
+	auto res = buildStream([&a]() { return a++; })
+		| get(4)
+		| group_by_vector(2)
+		| skip(1)
+		| nth(0);
+
+	ASSERT_EQ(res, vector<int>({ 2, 3 }));
+}
+
 TEST(Skip, Finite) {
     std::list<int> lol = { 1, 2, 3 };
     auto res = buildStream(lol.begin(), lol.end())
@@ -264,7 +275,7 @@ TEST(Sum, Infinite) {
 TEST(UngroupByBit, init_list) {
     vector<char> olala = { 1, 2 };
     auto vecVec = buildStream(olala.begin(), olala.end())
-            | ungroupByBit()
+            | ungroup_by_bit()
             | group_by_vector(8)
             | to_vector();
 
