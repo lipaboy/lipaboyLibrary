@@ -24,6 +24,12 @@ namespace stream_space {
 	// TODO: think about writing iterators for Stream
 	//		 Stream is like specific iterator (like boost::transform_iterator)
 	// TODO: test the allocating memory under tempOwner_ in ExtendedStream
+	// TODO: wrong logic of using operations_space::get and skip (you need to skip current elements 
+	//		 instead of skipping atomic ones)
+	// TODO: instead of using std::any into group_by_vector (too many dynamic allocations)
+	//		 you can replace it on two classes: group_by_vector and group_by_vector_impl<T>
+	//		 where you store type into template parameter. Client will use ungeneric group_by_vector
+	//		 but Stream will substitute it on generic group_by_vector_impl<T>
 
 
 	namespace shortening {

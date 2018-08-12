@@ -66,11 +66,11 @@ public:
 		}
 		else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR) {
 				groupedTempOwner_ = std::make_shared<GroupedTempValueType>();
-				init();
+				//init();
 				/*auto partSize = operation_.partSize();
 				for (size_type i = 0; i < partSize && hasNext(); i++)
 					groupedTempOwner_->tempValue.push_back(std::move(superNextElem()));*/
-				operation_.init(*superThisPtr());
+				/*operation_.init(*superThisPtr());*/
 		}
 #ifdef LOL_DEBUG_NOISY
         if constexpr (std::is_rvalue_reference<StreamSuperType_&&>::value)
@@ -206,6 +206,8 @@ public:
 		if constexpr (TOperation::metaInfo == GET && SuperType::isNoGetTypeBefore())
 			action_(this);
 		superThisPtr()->init();
+		if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR)
+			operation_.init<SuperType>(*superThisPtr());
 		if constexpr (!(TOperation::metaInfo == GET && SuperType::isNoGetTypeBefore()))
 			action_(this);
     }
@@ -233,7 +235,7 @@ public:
 
                 //std::swap(groupedTempOwner_->tempValue, part);
                 //return std::move(part);
-				return std::move(operation_.nextElem(*superThisPtr()));
+				return std::move(operation_.nextElem<SuperType>(*superThisPtr()));
         }
         else if constexpr (TOperation::metaInfo == UNGROUP_BY_BIT) {
                 constexpr size_type bitsCountOfType = 8 * sizeof(ValueType);
@@ -253,10 +255,14 @@ public:
     // TODO: must be test
 	ResultValueType currentElem() {
         if constexpr (TOperation::metaInfo == MAP)
-                return std::move(operation()(superThisPtr()->currentElem()));
+                return std::move(operation_.functor()(superThisPtr()->currentElem()));
 		else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR) {
-				//return groupedTempOwner_->tempValue;
-                return std::move(operation_.template currentElem<SuperType>());
+					// #Crutch: it is strange crutch because Visual Studio can't call the template method 
+					// without argument
+					// that can help it to deduce the type of template method
+					// Solve: Problem in the intersection 
+					//        of names (currentElem() of Stream and currentElem() of operation_)
+                return std::move(operation_.current_<SuperType>());
 		}
         else if constexpr (TOperation::metaInfo == UNGROUP_BY_BIT) {
                 size_type & indexIter = ungroupTempOwner_->indexIter;
@@ -277,9 +283,9 @@ public:
         if constexpr (TOperation::metaInfo == UNGROUP_BY_BIT)
                 return (ungroupTempOwner_->indexIter != 0)
                     || superHasNext();
-        else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR)
-                return (operation_.template isEmpty<SuperType>()
-                        || superHasNext());
+		else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR)
+				return (operation_.hasNext_<SuperType>()
+					|| superHasNext());
 		else if constexpr (TOperation::metaInfo == FILTER) {
 			// TODO: realize shifting the slider (without creating copy of result object)
 				for (; superHasNext(); superNextElem())
