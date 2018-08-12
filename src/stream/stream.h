@@ -10,6 +10,8 @@ namespace lipaboy_lib {
 
 namespace stream_space {
 
+	
+
 	//-------------Different types of Stream---------------//
 
 	template <class TIterator>
@@ -84,14 +86,41 @@ namespace stream_space {
 	//------------------Extending stream by concating operations-----------------//
 	//--------------------------------------------------------------------------//
 
-	template <class TStream, class TOperation>
-	auto operator| (TStream&& stream, TOperation functor)
-		-> shortening::StreamTypeExtender<TStream, TOperation>
+	// You cannot union these functions into one with Forward semantics because it will be to common
+	// Example (this function will apply for such expression: std::ios::in | std::ios::out)
+
+	template <class TOperation, class... Args>
+	auto operator| (Stream<Args...>& stream, TOperation operation)
+		-> lipaboy_lib::enable_if_else_t<TOperation::isTerminated, 
+				typename TOperation::template RetType<typename Stream<Args...>::ResultValueType>,
+				shortening::StreamTypeExtender_t<Stream<Args...>, TOperation> >
 	{
-#ifdef LOL_DEBUG_NOISY
-		cout << "---Add TOperation---" << endl;
-#endif
-		return shortening::StreamTypeExtender<TStream, TOperation>(functor, std::forward<TStream>(stream));
+		using StreamType = Stream<Args...>;
+
+		if constexpr (TOperation::isTerminated == true) {
+				stream.template assertOnInfiniteStream<StreamType>();
+				return operation.apply(stream);
+		}
+		else
+				return shortening::StreamTypeExtender_t<StreamType, TOperation>
+					(operation, stream);
+	}
+
+	template <class TOperation, class... Args>
+	auto operator| (Stream<Args...>&& stream, TOperation operation)
+		-> lipaboy_lib::enable_if_else_t<TOperation::isTerminated,
+				typename TOperation::template RetType<typename Stream<Args...>::ResultValueType>,
+				shortening::StreamTypeExtender_t<Stream<Args...>, TOperation> >
+	{
+		using StreamType = Stream<Args...>;
+
+		if constexpr (TOperation::isTerminated == true) {
+			stream.template assertOnInfiniteStream<StreamType>();
+			return operation.apply(stream);
+		}
+		else
+			return shortening::StreamTypeExtender_t<StreamType, TOperation>
+			(operation, std::move(stream));
 	}
 }
 

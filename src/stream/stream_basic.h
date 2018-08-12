@@ -44,6 +44,9 @@ public:
 
     template <typename, typename...> friend class Stream;
 
+	//using SuperType = void;
+	//using OperationType = TIterator;
+
 public:
     //----------------------Constructors----------------------//
 
@@ -69,36 +72,6 @@ public:
 
     //----------------------Methods API-----------------------//
 
-    //-----------Terminated operations------------//
-
-public:
-    std::ostream& operator| (print_to&& printer) {
-		assertOnInfiniteStream<Stream>();
-		return printer.apply(*this);
-    }
-
-    template <class Accumulator, class IdentityFn>
-    auto operator| (reduce<Accumulator, IdentityFn>&& reduceObj)
-        -> typename reduce<Accumulator, IdentityFn>::IdentityRetType
-    {
-		assertOnInfiniteStream<Stream>();
-        return reduceObj.apply(*this);
-    }
-    ResultValueType operator| (sum&& sumObj) {
-		assertOnInfiniteStream<Stream>();
-		return sumObj.apply(*this);
-    }
-	ResultValueType operator| (nth&& nthObj) {
-		assertOnInfiniteStream<Stream>();
-		return nthObj.apply(*this);
-	}
-    vector<ValueType> operator| (to_vector&& toVectorObj) {
-		assertOnInfiniteStream<Stream>();
-        return toVectorObj.apply(*this);
-    }
-
-    //------------------Additional methods---------------//
-
 protected:
     Range & range() { return range_; }
     const Range & range() const { return range_; }
@@ -115,18 +88,18 @@ protected:
 		return !isGeneratorProducing() && !isInitilizerListCreation();
 	}
 
-protected:
-    // Info:
-    // illusion of protected (it means that can be replace on private)
-    // (because all the variadic templates are friends
-    // from current Stream to first specialization) (it is not a real inheritance)
-
+public:
 	template <class TStream_>
 	inline static constexpr void assertOnInfiniteStream() {
 		static_assert(!TStream_::isGeneratorProducing() || !TStream_::isNoGetTypeBefore(),
 			"Stream error: attempt to work with infinite stream");
     }
 protected:
+	// Info:
+	// illusion of protected (it means that can be replace on private)
+	// (because all the variadic templates are friends
+	// from current Stream to first specialization) (it is not a real inheritance)
+
     // TODO: think about this interface
     ValueType getElem(size_type count) const {
         return this->range().get(count);

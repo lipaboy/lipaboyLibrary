@@ -35,7 +35,7 @@ namespace operations_space {
 	using lipaboy_lib::function_traits;
 	using lipaboy_lib::WrapBySTDFunctionType;
 
-	enum FunctorMetaTypeEnum {
+	enum OperationMetaTypeEnum {
 		FILTER,
 		MAP,
 		REDUCE,
@@ -104,7 +104,8 @@ namespace operations_space {
 	template <class Predicate>
 	struct filter : FunctorHolder<Predicate>, TReturnSameType
 	{
-		static constexpr FunctorMetaTypeEnum metaInfo = FILTER;
+		static constexpr OperationMetaTypeEnum metaInfo = FILTER;
+		static constexpr bool isTerminated = false;
 	public:
 		filter(Predicate functor) : FunctorHolder<Predicate>(functor) {}
 
@@ -132,7 +133,8 @@ namespace operations_space {
 		template <class Arg>
 		using RetType = typename std::result_of<Transform(Arg)>::type;
 
-		static constexpr FunctorMetaTypeEnum metaInfo = MAP;
+		static constexpr OperationMetaTypeEnum metaInfo = MAP;
+		static constexpr bool isTerminated = false;
 	public:
 		map(Transform functor) : FunctorHolder<Transform>(functor) {}
 
@@ -159,7 +161,8 @@ namespace operations_space {
 	public:
 		using size_type = size_t;
 
-		static constexpr FunctorMetaTypeEnum metaInfo = GET;
+		static constexpr OperationMetaTypeEnum metaInfo = GET;
+		static constexpr bool isTerminated = false;
 	public:
 		get(size_type size) : size_(size) {}
 
@@ -197,7 +200,8 @@ namespace operations_space {
 		template <class Arg>
 		using RetType = vector<Arg>;
 
-		static constexpr FunctorMetaTypeEnum metaInfo = GROUP_BY_VECTOR;
+		static constexpr OperationMetaTypeEnum metaInfo = GROUP_BY_VECTOR;
+		static constexpr bool isTerminated = false;
 	public:
 		group_by_vector(size_type partSize) : partSize_(partSize) {
 			if (partSize == 0)
@@ -263,7 +267,8 @@ namespace operations_space {
 	public:
 		using size_type = size_t;
 
-		static constexpr FunctorMetaTypeEnum metaInfo = SKIP;
+		static constexpr OperationMetaTypeEnum metaInfo = SKIP;
+		static constexpr bool isTerminated = false;
 	public:
 		skip(size_type count) : count_(count) {}
 
@@ -301,7 +306,8 @@ namespace operations_space {
 		template <class Arg>
 		using RetType = bool;
 
-		static constexpr FunctorMetaTypeEnum metaInfo = UNGROUP_BY_BIT;
+		static constexpr OperationMetaTypeEnum metaInfo = UNGROUP_BY_BIT;
+		static constexpr bool isTerminated = false;
 	public:
 
 		template <class TSubStream>

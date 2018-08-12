@@ -93,31 +93,6 @@ public:
 
 	//----------------------Methods API-----------------------//
 
-    //-------------------Terminated operations-----------------//
-
-    std::ostream& operator| (print_to&& printer) {
-		assertOnInfiniteStream<Stream>();
-        return printer.apply(*this);
-    }
-    template <class Accumulator, class IdenityFn>
-    auto operator| (reduce<Accumulator, IdenityFn>&& reduceObj)
-        -> typename reduce<Accumulator, IdenityFn>::IdentityRetType
-    {
-		assertOnInfiniteStream<Stream>();
-		return reduceObj.apply(*this);
-    }
-    ResultValueType operator| (sum&& sumObj) {
-		return sumObj.apply(*this);
-    }
-    ResultValueType operator| (nth&& nthObj) {
-		assertOnInfiniteStream<Stream>();
-		return nthObj.apply(*this);
-    }
-    vector<ResultValueType> operator| (to_vector&& toVectorObj) {
-		assertOnInfiniteStream<Stream>();
-		return toVectorObj.apply(*this);
-    }
-
             //-----------------Tools-------------------//
 protected:
     static constexpr bool isNoGetTypeBefore() {
@@ -129,6 +104,8 @@ protected:
     static constexpr bool isGeneratorProducing() {
         return SuperType::isGeneratorProducing();
     }
+
+public:
 	template <class TStream_>
 	inline static constexpr void assertOnInfiniteStream() { 
 		SuperType::template assertOnInfiniteStream<TStream_>(); 
