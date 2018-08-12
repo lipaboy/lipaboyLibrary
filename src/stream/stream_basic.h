@@ -69,28 +69,6 @@ public:
 
     //----------------------Methods API-----------------------//
 
-    // TODO: put off this methods into "global" function operators (for move-semantics of *this)
-
-    auto operator| (get functor) -> ExtendedStreamType<get> {
-        using ExtendedStream = ExtendedStreamType<get>;
-        ExtendedStream newStream(functor, *this);
-        return std::move(newStream);
-    }
-    auto operator| (group_by_vector functor) -> ExtendedStreamType<group_by_vector> {
-        ExtendedStreamType<group_by_vector> newStream(functor, *this);
-        return std::move(newStream);   // copy container (only once)
-    }
-    auto operator| (skip&& skipObj) -> ExtendedStreamType<skip> {
-        using ExtendedStream = ExtendedStreamType<skip>;
-        ExtendedStream newStream(skipObj, *this);
-        return std::move(newStream);
-    }
-
-    auto operator| (ungroup_by_bit functor) -> ExtendedStreamType<ungroup_by_bit> {
-        ExtendedStreamType<ungroup_by_bit> newStream(functor, *this);
-        return std::move(newStream);
-    }
-
     //-----------Terminated operations------------//
 
 public:
@@ -182,28 +160,7 @@ private:
 
 
 
-//--------------------------------------------------------------------------//
-//------------------Extending stream by concating operations-----------------//
-//--------------------------------------------------------------------------//
 
-
-template <class TStream, class Transform>
-auto operator| (TStream&& stream, map<Transform>&& functor)
-    -> shortening::StreamTypeExtender<TStream, map<Transform> >
-{
-#ifdef LOL_DEBUG_NOISY
-    cout << "---Add Map---" << endl;
-#endif
-    return shortening::StreamTypeExtender<TStream, map<Transform> >(functor, std::forward<TStream>(stream));
-}
-
-
-template <class TStream, class Predicate>
-auto operator| (TStream&& stream, filter<Predicate> functor)
-    -> shortening::StreamTypeExtender<TStream, filter<Predicate> >
-{
-    return shortening::StreamTypeExtender<TStream, filter<Predicate> >(functor, std::forward<TStream>(stream));
-}
 
 
 }

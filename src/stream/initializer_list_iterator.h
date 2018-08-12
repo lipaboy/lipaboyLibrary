@@ -47,7 +47,6 @@ public:
 	const_reference operator*() { return *subiter_; }
 	const_pointer operator->() { return &(*subiter_); }
 
-	// Not strong condition
 	bool operator== (InitializerListIterator const & other) const {
 		return pContainer_ == other.pContainer_
 			&& subiter_ == other.subiter_;

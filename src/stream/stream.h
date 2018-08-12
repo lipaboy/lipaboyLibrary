@@ -10,6 +10,8 @@ namespace lipaboy_lib {
 
 namespace stream_space {
 
+	//-------------Different types of Stream---------------//
+
 	template <class TIterator>
 	using StreamOfOutsideIterators = Stream<TIterator>;
 
@@ -78,6 +80,19 @@ namespace stream_space {
 		return new StreamOfGenerator<Generator>(std::forward<Generator>(generator));
 	}
 
+	//--------------------------------------------------------------------------//
+	//------------------Extending stream by concating operations-----------------//
+	//--------------------------------------------------------------------------//
+
+	template <class TStream, class TOperation>
+	auto operator| (TStream&& stream, TOperation functor)
+		-> shortening::StreamTypeExtender<TStream, TOperation>
+	{
+#ifdef LOL_DEBUG_NOISY
+		cout << "---Add TOperation---" << endl;
+#endif
+		return shortening::StreamTypeExtender<TStream, TOperation>(functor, std::forward<TStream>(stream));
+	}
 }
 
 }

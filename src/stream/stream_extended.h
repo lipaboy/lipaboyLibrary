@@ -75,7 +75,6 @@ public:
     Stream (Stream const & obj)
         : SuperType(static_cast<ConstSuperType&>(obj)),
         operation_(obj.operation_),
-        action_(obj.action_),
 		ungroupTempOwner_(obj.ungroupTempOwner_)
     {
 #ifdef LOL_DEBUG_NOISY
@@ -85,7 +84,6 @@ public:
     Stream (Stream&& obj) noexcept
         : SuperType(std::move(obj)),
         operation_(std::move(obj.operation_)),
-        action_(std::move(obj.action_)),
 		ungroupTempOwner_(std::move(obj.ungroupTempOwner_))
     {
 #ifdef LOL_DEBUG_NOISY
@@ -93,26 +91,7 @@ public:
 #endif
     }
 
-    //----------------------Methods API-----------------------//
-
-    auto operator| (get functor) -> ExtendedStreamType<get> {
-        using ExtendedStream = ExtendedStreamType<get>;
-        ExtendedStream newStream(functor, *this);
-        return std::move(newStream);
-    }
-    auto operator| (group_by_vector functor) -> ExtendedStreamType<group_by_vector> {
-        ExtendedStreamType<group_by_vector> obj(functor, *this);
-        return std::move(obj);
-    }
-    auto operator| (skip&& skipObj) -> ExtendedStreamType<skip> {
-        using ExtendedStream = ExtendedStreamType<skip>;
-        ExtendedStream newStream(skipObj, *this);
-        return std::move(newStream);
-    }
-    auto operator| (ungroup_by_bit functor) -> ExtendedStreamType<ungroup_by_bit> {
-        ExtendedStreamType<ungroup_by_bit> obj(functor, *this);
-        return std::move(obj);
-    }
+	//----------------------Methods API-----------------------//
 
     //-------------------Terminated operations-----------------//
 
@@ -276,9 +255,6 @@ private:
 
 protected:
     TOperation operation_;
-    // TODO: add getter/setter
-    // TODO: get rid of preAction_: replace it on constexpr condition in doPreliminaryActions()
-    ActionType action_ = [] (Stream*) {};
     // uses for ungroup_by_bits operation
     struct UngroupTempValueType {
         size_type indexIter;
