@@ -163,7 +163,7 @@ protected:
 
     //-----------------Slider API--------------//
 public:
-	void init() {}
+	void init() { range().init(); }
     ResultValueType nextElem() { return std::move(range().nextElem()); }
     ValueType currentElem() { return std::move(range().currentElem()); }
     bool hasNext() { return range().hasNext(); }

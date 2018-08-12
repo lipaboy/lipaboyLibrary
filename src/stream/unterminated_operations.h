@@ -104,8 +104,26 @@ namespace operations_space {
 	template <class Predicate>
 	struct filter : FunctorHolder<Predicate>, TReturnSameType
 	{
-		filter(Predicate functor) : FunctorHolder<Predicate>(functor) {}
 		static constexpr FunctorMetaTypeEnum metaInfo = FILTER;
+	public:
+		filter(Predicate functor) : FunctorHolder<Predicate>(functor) {}
+
+		template <class TSubStream>
+		void init(TSubStream& stream)
+		{}
+
+		template <class TSubStream>
+		auto nextElem(TSubStream& stream) -> typename TSubStream::ResultValueType {
+			return std::move(stream.nextElem());
+		}
+
+		template <class TSubStream>
+		auto currentElem(TSubStream& stream) -> typename TSubStream::ResultValueType {
+			return std::move(stream.currentElem());
+		}
+
+		template <class TSubStream>
+		bool hasNext(TSubStream& stream) { return stream.hasNext(); }
 	};
 
 	template <class Transform>
@@ -114,16 +132,26 @@ namespace operations_space {
 		template <class Arg>
 		using RetType = typename std::result_of<Transform(Arg)>::type;
 
+		static constexpr FunctorMetaTypeEnum metaInfo = MAP;
 	public:
 		map(Transform functor) : FunctorHolder<Transform>(functor) {}
-		static constexpr FunctorMetaTypeEnum metaInfo = MAP;
 
-		template <class Arg>
-		auto operator()(Arg&& arg) const
-			-> RetType<Arg>
-		{
-			return FunctorHolder<Transform>::functor()(std::forward<Arg>(arg));
+		template <class TSubStream>
+		void init(TSubStream& stream)
+		{}
+
+		template <class TSubStream>
+		auto nextElem(TSubStream& stream) -> typename TSubStream::ResultValueType {
+			return std::move(functor()(stream.nextElem()));
 		}
+
+		template <class TSubStream>
+		auto currentElem(TSubStream& stream) -> typename TSubStream::ResultValueType {
+			return std::move(functor()(stream.currentElem()));
+		}
+
+		template <class TSubStream>
+		bool hasNext(TSubStream& stream) { return stream.hasNext(); }
 	};
 
 	struct get : TReturnSameType 
@@ -267,12 +295,28 @@ namespace operations_space {
 	};
 
 	struct ungroup_by_bit {
+	public:
 		using size_type = size_t;
-
-		static constexpr FunctorMetaTypeEnum metaInfo = UNGROUP_BY_BIT;
 
 		template <class Arg>
 		using RetType = bool;
+
+		static constexpr FunctorMetaTypeEnum metaInfo = UNGROUP_BY_BIT;
+	public:
+
+		template <class TSubStream>
+		void init(TSubStream& stream)
+		{}
+
+		template <class TSubStream>
+		auto nextElem(TSubStream& stream) -> typename TSubStream::ResultValueType {
+			return std::move(stream.nextElem());
+		}
+
+		template <class TSubStream>
+		auto currentElem(TSubStream& stream) -> typename TSubStream::ResultValueType {
+			return std::move(stream.currentElem());
+		}
 	};
 
 }	

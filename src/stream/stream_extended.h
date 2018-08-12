@@ -182,30 +182,17 @@ public:
     // For calling all the actions into stream (must be called into terminated operations
     // or before using slider API)
     void init() {
-		if constexpr (TOperation::metaInfo == GET && SuperType::isNoGetTypeBefore())
-			action_(this);
 		superThisPtr()->init();
-		if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR || TOperation::metaInfo == GET
-				|| TOperation::metaInfo == SKIP)
-			operation_.init<SuperType>(*superThisPtr());
-		if constexpr (!(TOperation::metaInfo == GET && SuperType::isNoGetTypeBefore()))
-			action_(this);
+		operation_.init<SuperType>(*superThisPtr());
     }
 
 public:
     ResultValueType nextElem() {
-        if constexpr (TOperation::metaInfo == MAP)
-                return std::move(operation()(superNextElem()));
         if constexpr (TOperation::metaInfo == FILTER) {
                 auto currElem = superNextElem();
 				// ! calling hasNext() of current StreamType ! in order to skip unfilter elems
 				this->hasNext();
                 return std::move(currElem);
-        }
-        else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR || TOperation::metaInfo == GET
-			|| TOperation::metaInfo == SKIP) 
-		{
-				return std::move(operation_.nextElem<SuperType>(*superThisPtr()));
         }
         else if constexpr (TOperation::metaInfo == UNGROUP_BY_BIT) {
                 constexpr size_type bitsCountOfType = 8 * sizeof(ValueType);
@@ -219,24 +206,12 @@ public:
                 return res;
         }
         else
-                return std::move(superNextElem());
+				return std::move(operation_.nextElem<SuperType>(*superThisPtr()));
     }
 
     // TODO: must be test
 	ResultValueType currentElem() {
-        if constexpr (TOperation::metaInfo == MAP)
-                return std::move(operation_.functor()(superThisPtr()->currentElem()));
-		else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR || TOperation::metaInfo == GET
-			|| TOperation::metaInfo == SKIP) 
-		{
-					// #Crutch: it is strange crutch because Visual Studio can't call the template method 
-					// without argument
-					// that can help it to deduce the type of template method
-					// Solve: Problem in the intersection 
-					//        of names (currentElem() of Stream and currentElem() of operation_)
-                return std::move(operation_.currentElem<SuperType>(*superThisPtr()));
-		}
-        else if constexpr (TOperation::metaInfo == UNGROUP_BY_BIT) {
+		if constexpr (TOperation::metaInfo == UNGROUP_BY_BIT) {
                 size_type & indexIter = ungroupTempOwner_->indexIter;
                 ValueType & tempValue = ungroupTempOwner_->tempValue;
                 bool res = (tempValue & (1 << indexIter)) >> indexIter;
@@ -247,17 +222,20 @@ public:
 				this->hasNext();	
 				return std::move(superThisPtr()->currentElem());
 		}
-        else
-                return std::move(superThisPtr()->currentElem());
+		else {
+				// #Crutch: it is strange crutch because Visual Studio can't call the template method 
+				// without argument
+				// that can help it to deduce the type of template method
+				// Solve: Problem in the intersection 
+				//        of names (currentElem() of Stream and currentElem() of operation_)
+				return std::move(operation_.currentElem<SuperType>(*superThisPtr()));
+		}
     }
 
     bool hasNext() {
 		if constexpr (TOperation::metaInfo == UNGROUP_BY_BIT)
 				return (ungroupTempOwner_->indexIter != 0)
 					|| superHasNext();
-		else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR || TOperation::metaInfo == GET
-			|| TOperation::metaInfo == SKIP)
-				return operation_.hasNext<SuperType>(*superThisPtr());
 		else if constexpr (TOperation::metaInfo == FILTER) {
 			// TODO: realize shifting the slider (without creating copy of result object)
 				for (; superHasNext(); superNextElem())
@@ -266,7 +244,7 @@ public:
 				return false;
 		}
         else
-                return superHasNext();
+                return operation_.hasNext<SuperType>(*superThisPtr());
     }
 
 

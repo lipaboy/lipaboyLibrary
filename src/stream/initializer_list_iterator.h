@@ -19,9 +19,17 @@ public:
 	using const_reference = const reference;
 	using pointer = T * ;
 	using const_pointer = const pointer;
-	using iterator_category = std::input_iterator_tag;
-	using difference_type = std::ptrdiff_t;		// type of measuring the distance between iterators (nothing else)
+	// you can't derive the iterator_category because you need implementations of contract responsibilities of abstraction
+	using iterator_category = //std::iterator_traits<Subiterator>::iterator_category;
+		std::input_iterator_tag;
+	// type of measuring the distance between iterators (nothing else)
+	using difference_type = typename std::iterator_traits<Subiterator>::difference_type;		
 
+private:
+	InitializerListIterator(ContainerTypePtr pContainer, Subiterator subiter)
+		: pContainer_(pContainer),
+		subiter_(subiter)
+	{}
 public:
 	InitializerListIterator()
 		: pContainer_(nullptr), subiter_()
@@ -55,6 +63,10 @@ public:
 		++subiter_;
 		return prev;
 	}
+
+	//------------Own API------------//
+
+	InitializerListIterator endIter() { return InitializerListIterator(pContainer_, pContainer_->end()); }
 
 private:
 	ContainerTypePtr pContainer_;

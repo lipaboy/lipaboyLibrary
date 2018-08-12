@@ -83,7 +83,6 @@ TEST_F(PrepareStreamTest, move_constructor_by_extending_the_stream) {
 
 
 TEST(Filter, sample) {
-
     auto res = buildStream(1, 2, 3)
             | filter([] (auto x) { return (x == x); })
             | to_vector();

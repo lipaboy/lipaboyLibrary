@@ -42,31 +42,27 @@ public:
 public:
     explicit
     Range(std::initializer_list<ValueType> init)
-        : firstIter_(init), 
-		lastIter_(), 
-		size_(init.size())
-    {}
+        : firstIter_(init)
+    {
+		if constexpr (Stream::isInitilizerListCreation())
+				lastIter_ = firstIter_.endIter();
+	}
     template <class OuterIterator>
     explicit
     Range(OuterIterator begin, OuterIterator end)
         : firstIter_(begin), 
-		lastIter_(end),
-		isSizeSet_(false)
+		lastIter_(end)
     {}
     explicit
 	Range(GeneratorTypePtr generator)
 		: firstIter_(generator), 
-		lastIter_(), 
-		isInfinite_(true)
+		lastIter_()
     {}
 
 	// TODO : make constructors the default
     Range(const Range& obj)
         : firstIter_(obj.firstIter_),
-		lastIter_(obj.lastIter_),
-        isInfinite_(obj.isInfinite_), 
-		isSizeSet_(obj.isSizeSet_), 
-		size_(obj.size_)
+		lastIter_(obj.lastIter_)
     {
 #ifdef LOL_DEBUG_NOISY
         cout << " Range copy-constructed" << endl;
@@ -74,10 +70,7 @@ public:
     }
     Range(Range&& obj) noexcept
         : firstIter_(std::move(obj.firstIter_)), 
-		lastIter_(std::move(obj.lastIter_)),
-        isInfinite_(obj.isInfinite_), 
-		isSizeSet_(obj.isSizeSet_), 
-		size_(obj.size_)
+		lastIter_(std::move(obj.lastIter_))
     {
 #ifdef LOL_DEBUG_NOISY
         cout << " Range move-constructed" << endl;
@@ -85,121 +78,50 @@ public:
     }
 
 protected:
-    TIterator outsideBegin() const { return firstIter_; }
-    TIterator outsideEnd() const { return lastIter_; }
+    TIterator firstIter() const { return firstIter_; }
+    TIterator lastIter() const { return lastIter_; }
 
 public:
     ValueType get(size_type ind) const {
-        auto iter = outsideBegin();
+        auto iter = firstIter();
         std::advance(iter, ind);
         return *iter;
     }
 
 public:
-    bool isInfinite() const { return isInfinite_; }
-	// INFO: you cannot move it into setSize because if you do so
-	//		 then Skip operation can make Infinite stream not infinite
-	//		 (see moveIterBegin() method)
-	void makeFinite(size_type newSize) {
-		setSize(newSize);
-		isInfinite_ = false;
-	}
 
     //-----------------Slider API---------------//
 
-
-    ValueType currentElem() const {
-            return *outsideBegin();
-    }
-    bool hasNext() {
-        if constexpr (isGeneratorProducing())
-                return (size_ > 0);
-        else if constexpr (isInitilizerListCreation())
-                return (size_ > 0);
-        else    // until
-                return !(outsideBegin() == outsideEnd() || (isSizeSet_ && size_ <= 0));
-    }
+	void init() {}
+	ValueType nextElem() {
+		ValueType value = *(firstIter());
+		// Note: you can't optimize it because for istreambuf_iterator
+		//       post-increment operator has unspecified by standard
+		// Note(2): upper note has the same effect with ProducingIterator<T>
+		//			maybe this effect the same for all the input-iterators
+		++firstIter_; // maybe replace it to std::next
+		return std::move(value);
+	}
+	void incrementSlider() {
+		// Note: you can't optimize it because for istreambuf_iterator
+		//       post-increment operator has unspecified by standard
+		++firstIter_;
+	}
+    ValueType currentElem() const { return *firstIter(); }
+    bool hasNext() { return firstIter() != lastIter(); }
 
 public:
 
     bool equals(Range const & other) const {
 		// TODO: maybe add comparison for size_
-                return (outsideBegin() == other.outsideBegin()
-                        && outsideEnd() == other.outsideEnd());
+                return (firstIter() == other.firstIter()
+                        && lastIter() == other.lastIter());
     }
 
 private:
     // Iterators that refer to outside of class container
     TIterator firstIter_;
     TIterator lastIter_;
-
-	// If you want to exclude useless fields (e.g. lastIter_ from InitializerListCreation or GeneratorProducing)
-	// then you can pass necessary fields through wrapper: IteratorPair (begin-end, begin-size, begin-size-isInfinite)
-	bool isInfinite_ = false;
-    bool isSizeSet_ = false;
-    size_type size_;
-
-public:
-    void moveBeginIter(size_type position) {
-		std::advance(firstIter_, position);
-		if constexpr (isGeneratorProducing() || isInitilizerListCreation()) 
-				setSize(size_ - position);
-		else // constexpr
-				if (isSizeSet_)
-					setSize(size_ - position);
-    }
-
-    ValueType nextElem() {
-        if constexpr (Stream::isGeneratorProducing()) {
-                size_ = (hasNext()) ? size_ - 1 : size_;
-                auto currElem = std::move(*outsideBegin());
-                ++firstIter_;
-                return std::move(currElem);
-        }
-        else if constexpr (Stream::isInitilizerListCreation()) {
-                size_ = (hasNext()) ? size_ - 1 : size_;
-                return std::move(*(firstIter_++));
-        }
-        else // constexpr isOutsideIteratorsRefer()
-        {
-                ValueType value = *(outsideBegin());
-                // Note: you can't optimize it because for istreambuf_iterator
-                //       post-increment operator has unspecified by standard
-                ++firstIter_; // maybe replace it to std::next
-                size_ = (hasNext()) ? size_ - 1 : size_;
-                return std::move(value);
-        }
-    }
-    void incrementSlider() {
-        if constexpr (Stream::isGeneratorProducing()) {
-                ++firstIter_;
-                size_ = (hasNext()) ? size_ - 1 : size_;
-        }
-        else if constexpr (Stream::isInitilizerListCreation()) {
-                ++firstIter_;
-                size_ = (hasNext()) ? size_ - 1 : size_;
-        }
-        else // constexpr isOutsideIteratorsRefer()
-        {
-                // Note: you can't optimize it because for istreambuf_iterator
-                //       post-increment operator has unspecified by standard
-                ++firstIter_;
-                size_ = (hasNext()) ? size_ - 1 : size_;
-        }
-    }
-
-private:
-    void setSize(size_type newSize) {
-        if constexpr (Stream::isOutsideIteratorsRefer()) {
-                size_ = newSize;
-                isSizeSet_ = true;
-        }
-        else if constexpr (Stream::isGeneratorProducing())
-                size_ = newSize;
-        else // InitializerList
-                size_ = (size_ >= newSize) ? newSize : size_;
-    }
-
 
 };
 
