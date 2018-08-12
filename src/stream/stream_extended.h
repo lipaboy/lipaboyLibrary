@@ -214,11 +214,6 @@ public:
 
 public:
     ResultValueType nextElem() {
-        // Template Parameter Explaination:
-        // must be so (isOwnContainer_ instead of isOwnContainer())
-        // because client who call this
-        // method and derived from that class may have the another value of isOwnContainer()
-
         if constexpr (TOperation::metaInfo == MAP)
                 return std::move(operation()(superNextElem()));
         if constexpr (TOperation::metaInfo == FILTER) {
@@ -228,13 +223,6 @@ public:
                 return std::move(currElem);
         }
         else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR) {
-                //auto partSize = operation_.partSize();
-                //ResultValueType part;
-                //for (size_type i = 0; i < partSize && superHasNext(); i++)
-                //    part.push_back(std::move(superNextElem()));
-
-                //std::swap(groupedTempOwner_->tempValue, part);
-                //return std::move(part);
 				return std::move(operation_.nextElem<SuperType>(*superThisPtr()));
         }
         else if constexpr (TOperation::metaInfo == UNGROUP_BY_BIT) {
@@ -262,7 +250,7 @@ public:
 					// that can help it to deduce the type of template method
 					// Solve: Problem in the intersection 
 					//        of names (currentElem() of Stream and currentElem() of operation_)
-                return std::move(operation_.current_<SuperType>());
+                return std::move(operation_.currentElem<SuperType>(*superThisPtr()));
 		}
         else if constexpr (TOperation::metaInfo == UNGROUP_BY_BIT) {
                 size_type & indexIter = ungroupTempOwner_->indexIter;
@@ -280,12 +268,11 @@ public:
     }
 
     bool hasNext() {
-        if constexpr (TOperation::metaInfo == UNGROUP_BY_BIT)
-                return (ungroupTempOwner_->indexIter != 0)
-                    || superHasNext();
+		if constexpr (TOperation::metaInfo == UNGROUP_BY_BIT)
+				return (ungroupTempOwner_->indexIter != 0)
+					|| superHasNext();
 		else if constexpr (TOperation::metaInfo == GROUP_BY_VECTOR)
-				return (operation_.hasNext_<SuperType>()
-					|| superHasNext());
+				return operation_.hasNext<SuperType>(*superThisPtr());
 		else if constexpr (TOperation::metaInfo == FILTER) {
 			// TODO: realize shifting the slider (without creating copy of result object)
 				for (; superHasNext(); superNextElem())

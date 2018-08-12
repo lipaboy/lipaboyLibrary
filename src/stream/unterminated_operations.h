@@ -185,12 +185,15 @@ namespace operations_space {
 		}
 
 		template <class TSubStream>
-		auto current_() -> RetType<typename TSubStream::ResultValueType> {
+		auto currentElem(TSubStream&) -> RetType<typename TSubStream::ResultValueType> {
 			return *(this->template pCurrentElem<TSubStream>());
 		}
 
 		template <class TSubStream>
-        bool hasNext_() { return !(this->template pCurrentElem<TSubStream>()->empty()); }
+        bool hasNext(TSubStream& stream) { 
+			return !(this->template pCurrentElem<TSubStream>()->empty())
+				|| stream.hasNext(); 
+		}
 
 		size_type partSize() const { return partSize_; }
 
