@@ -2,6 +2,7 @@
 
 #include "terminated_operations.h"
 #include "unterminated_operations.h"
+#include "group_by_vector.h"
 
 namespace lipaboy_lib {
 
