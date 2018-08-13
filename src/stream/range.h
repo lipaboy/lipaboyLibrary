@@ -82,13 +82,6 @@ protected:
     TIterator lastIter() const { return lastIter_; }
 
 public:
-    ValueType get(size_type ind) const {
-        auto iter = firstIter();
-        std::advance(iter, ind);
-        return *iter;
-    }
-
-public:
 
     //-----------------Slider API---------------//
 

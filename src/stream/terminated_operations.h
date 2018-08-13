@@ -143,7 +143,6 @@ namespace operations_space {
 		auto apply(TStream & stream) -> typename TStream::ResultValueType 
 		{
 			using TResult = typename TStream::ResultValueType;
-			//stream.assertOnInfiniteStream<TStream>();
 			stream.init();
 			auto result = (stream.hasNext()) ? stream.nextElem() : TResult();
 			for (; stream.hasNext();)

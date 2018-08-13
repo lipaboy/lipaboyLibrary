@@ -100,10 +100,6 @@ protected:
 	// (because all the variadic templates are friends
 	// from current Stream to first specialization) (it is not a real inheritance)
 
-    // TODO: think about this interface
-    ValueType getElem(size_type count) const {
-        return this->range().get(count);
-    }
 
     //-----------------Slider API--------------//
 public:
