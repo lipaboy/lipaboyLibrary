@@ -1,5 +1,6 @@
 #pragma once
 
+#include "operations/operations.h"
 #include "stream_extended.h"
 #include "stream_basic.h"
 #include "range.h"

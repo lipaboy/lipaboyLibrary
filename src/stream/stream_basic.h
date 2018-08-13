@@ -77,7 +77,6 @@ protected:
     const Range & range() const { return range_; }
 protected:
     static constexpr bool isNoGetTypeBefore() { return true; }
-    static constexpr bool isNoGroupBefore() { return true; }
     static constexpr bool isGeneratorProducing() {
 		return std::is_same_v<TIterator, ProducingIterator<ValueType> >;
 	}

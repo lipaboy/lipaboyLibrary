@@ -1,6 +1,6 @@
 #pragma once
 
-#include "operations.h"
+#include "operations/operations.h"
 
 #include <vector>
 #include <functional>
@@ -91,9 +91,6 @@ public:
 protected:
     static constexpr bool isNoGetTypeBefore() {
         return (TOperation::metaInfo != GET && SuperType::isNoGetTypeBefore());
-    }
-    static constexpr bool isNoGroupBefore() {
-        return (TOperation::metaInfo != GROUP_BY_VECTOR && SuperType::isNoGroupBefore());
     }
     static constexpr bool isGeneratorProducing() {
         return SuperType::isGeneratorProducing();
