@@ -1,6 +1,6 @@
 #pragma once
 
-#include "operations/operations.h"
+#include "operators/operators.h"
 #include "stream_extended.h"
 #include "stream_basic.h"
 #include "range.h"
@@ -90,39 +90,39 @@ namespace stream_space {
 	// You cannot union these functions into one with Forward semantics because it will be to common
 	// Example (this function will apply for such expression: std::ios::in | std::ios::out)
 
-	template <class TOperation, class... Args>
-	auto operator| (Stream<Args...>& stream, TOperation operation)
-		-> lipaboy_lib::enable_if_else_t<TOperation::isTerminated, 
-				typename TOperation::template RetType<typename Stream<Args...>::ResultValueType>,
-				shortening::StreamTypeExtender_t<Stream<Args...>, TOperation> >
+	template <class TOperator, class... Args>
+	auto operator| (Stream<Args...>& stream, TOperator operation)
+		-> lipaboy_lib::enable_if_else_t<TOperator::isTerminated, 
+				typename TOperator::template RetType<typename Stream<Args...>::ResultValueType>,
+				shortening::StreamTypeExtender_t<Stream<Args...>, TOperator> >
 	{
 		using StreamType = Stream<Args...>;
 
-		if constexpr (TOperation::isTerminated == true) {
+		if constexpr (TOperator::isTerminated == true) {
 				stream.template assertOnInfiniteStream<StreamType>();
 				return operation.apply(stream);
 		}
 		else {
-				//static_assert(TOperation::isTerminated , "lol1");
-				return shortening::StreamTypeExtender_t<StreamType, TOperation>
+				//static_assert(TOperator::isTerminated , "lol1");
+				return shortening::StreamTypeExtender_t<StreamType, TOperator>
 					(operation, stream);
 		}
 	}
 
-	template <class TOperation, class... Args>
-	auto operator| (Stream<Args...>&& stream, TOperation operation)
-		-> lipaboy_lib::enable_if_else_t<TOperation::isTerminated,
-				typename TOperation::template RetType<typename Stream<Args...>::ResultValueType>,
-				shortening::StreamTypeExtender_t<Stream<Args...>, TOperation> >
+	template <class TOperator, class... Args>
+	auto operator| (Stream<Args...>&& stream, TOperator operation)
+		-> lipaboy_lib::enable_if_else_t<TOperator::isTerminated,
+				typename TOperator::template RetType<typename Stream<Args...>::ResultValueType>,
+				shortening::StreamTypeExtender_t<Stream<Args...>, TOperator> >
 	{
 		using StreamType = Stream<Args...>;
 
-		if constexpr (TOperation::isTerminated == true) {
+		if constexpr (TOperator::isTerminated == true) {
 			stream.template assertOnInfiniteStream<StreamType>();
 			return operation.apply(stream);
 		}
 		else
-			return shortening::StreamTypeExtender_t<StreamType, TOperation>
+			return shortening::StreamTypeExtender_t<StreamType, TOperator>
 			(operation, std::move(stream));
 	}
 }

@@ -30,7 +30,7 @@ using std::unique_ptr;
 
 using namespace lipaboy_lib;
 using namespace lipaboy_lib::stream_space;
-using namespace lipaboy_lib::stream_space::operations_space;
+using namespace lipaboy_lib::stream_space::operators_space;
 
 //---------------------------------Tests-------------------------------//
 
@@ -354,7 +354,8 @@ TEST(StreamTest, noisy) {
 #ifdef LOL_DEBUG_NOISY
 
         vector<NoisyD> vecNoisy(1);
-        auto streamNoisy = createStream(vecNoisy.begin(), vecNoisy.end());
+        auto streamNoisy = buildStream(std::move_iterator(vecNoisy.begin()), 
+			std::move_iterator(vecNoisy.end()));
         cout << "\tstart streaming" << endl;
         auto streamTemp2 =
                 (streamNoisy
@@ -375,11 +376,11 @@ TEST(StreamTest, noisy) {
         cout << "\t------------" << endl;
 
         cout << "\tstart streaming" << endl;
-        auto streamTemp =
-            (streamNoisy
+		auto streamTemp =
+			(buildStream(vecNoisy.begin(), vecNoisy.end())
                 | filter([] (const NoisyD& ) { return true; })
-                | filter([] (const NoisyD& ) { return true; })
-                | filter([] (const NoisyD& ) { return true; })
+                //| filter([] (const NoisyD& ) { return true; })
+                //| filter([] (const NoisyD& ) { return true; })
 //                    | get(4)
 //                    | get(4)
 //                    | filter([] (const Noisy& a) { static int i = 0; return (i++ % 2 == 0); })

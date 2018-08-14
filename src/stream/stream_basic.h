@@ -45,7 +45,7 @@ public:
     template <typename, typename...> friend class Stream;
 
 	//using SuperType = void;
-	//using OperationType = TIterator;
+	//using OperatorType = TIterator;
 
 public:
     //----------------------Constructors----------------------//
@@ -106,6 +106,7 @@ public:
     ResultValueType nextElem() { return std::move(range().nextElem()); }
     ValueType currentElem() { return std::move(range().currentElem()); }
     bool hasNext() { return range().hasNext(); }
+	void incrementSlider() { range().incrementSlider(); }
 
     //-----------------Slider API Ends--------------//
 

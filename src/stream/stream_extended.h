@@ -1,6 +1,6 @@
 #pragma once
 
-#include "operations/operations.h"
+#include "operators/operators.h"
 
 #include <vector>
 #include <functional>
@@ -23,18 +23,18 @@ using std::string;
 using std::unique_ptr;
 using std::shared_ptr;
 
-using namespace operations_space;
+using namespace operators_space;
 
 using std::cout;
 using std::endl;
 
 //-----------------Stream Extended class----------------------//
 
-template <class TOperation, class... Rest>
+template <class TOperator, class... Rest>
 class Stream : public Stream<Rest...> {
 public:
     using size_type = size_t;
-    using OperationType = TOperation;
+    using OperatorType = TOperator;
     using SuperType = Stream<Rest...>;
     using ConstSuperType = const SuperType;
     using iterator = typename SuperType::outside_iterator;
@@ -46,9 +46,9 @@ public:
     using ActionType = std::function<ActionSignature>;
 
     template <class Functor>
-    using ExtendedStreamType = Stream<Functor, OperationType, Rest...>;
+    using ExtendedStreamType = Stream<Functor, OperatorType, Rest...>;
 
-    using ResultValueType = typename TOperation::template RetType<typename SuperType::ResultValueType>;
+    using ResultValueType = typename TOperator::template RetType<typename SuperType::ResultValueType>;
 
     template <typename, typename...> friend class Stream;
 
@@ -58,7 +58,7 @@ public:
     template <class StreamSuperType_, class TFunctor_>
     explicit
     Stream (TFunctor_&& functor, StreamSuperType_&& obj) noexcept
-        : SuperType(std::forward<StreamSuperType_>(obj)), operation_(std::forward<TFunctor_>(functor))
+        : SuperType(std::forward<StreamSuperType_>(obj)), operator_(std::forward<TFunctor_>(functor))
     {
 #ifdef LOL_DEBUG_NOISY
         if constexpr (std::is_rvalue_reference<StreamSuperType_&&>::value)
@@ -70,7 +70,7 @@ public:
 public:
     Stream (Stream const & obj)
         : SuperType(static_cast<ConstSuperType&>(obj)),
-        operation_(obj.operation_)
+        operator_(obj.operator_)
     {
 #ifdef LOL_DEBUG_NOISY
         cout << "   StreamEx copy-constructed" << endl;
@@ -78,7 +78,7 @@ public:
     }
     Stream (Stream&& obj) noexcept
         : SuperType(std::move(obj)),
-        operation_(std::move(obj.operation_))
+        operator_(std::move(obj.operator_))
     {
 #ifdef LOL_DEBUG_NOISY
         cout << "   StreamEx move-constructed" << endl;
@@ -90,7 +90,7 @@ public:
             //-----------------Tools-------------------//
 protected:
     static constexpr bool isNoGetTypeBefore() {
-        return (TOperation::metaInfo != GET && SuperType::isNoGetTypeBefore());
+        return (TOperator::metaInfo != GET && SuperType::isNoGetTypeBefore());
     }
     static constexpr bool isGeneratorProducing() {
         return SuperType::isGeneratorProducing();
@@ -122,12 +122,12 @@ public:
     // or before using slider API)
     void init() {
 		superThisPtr()->init();
-		operation_.init<SuperType>(*superThisPtr());
+		operator_.init<SuperType>(*superThisPtr());
     }
 
 public:
     ResultValueType nextElem() {
-		return std::move(operation_.nextElem<SuperType>(*superThisPtr()));
+		return std::move(operator_.nextElem<SuperType>(*superThisPtr()));
     }
 
     // TODO: must be test
@@ -136,13 +136,17 @@ public:
 		// without argument
 		// that can help it to deduce the type of template method
 		// Solve: Problem in the intersection 
-		//        of names (currentElem() of Stream and currentElem() of operation_)
-		return std::move(operation_.currentElem<SuperType>(*superThisPtr()));
+		//        of names (currentElem() of Stream and currentElem() of operator_)
+		return std::move(operator_.currentElem<SuperType>(*superThisPtr()));
     }
 
     bool hasNext() {
-        return operation_.hasNext<SuperType>(*superThisPtr());
+        return operator_.hasNext<SuperType>(*superThisPtr());
     }
+
+	void incrementSlider() {
+		operator_.incrementSlider<SuperType>(*superThisPtr());
+	}
 
 
     //------------------------------------------------------------------------//
@@ -155,14 +159,14 @@ protected:
     const Range & range() const { return constSuperThisPtr()->range(); }
 
 public:
-    TOperation const & operation() const { return operation_; }
+    TOperator const & operation() const { return operator_; }
 
 	// Not strong condition (because you don't compare the operations
     bool operator==(Stream & other) { return equals(other); }
     bool operator!=(Stream & other) { return !((*this) == other); }
 private:
     bool equals(Stream & other) {
-        return (operation_ == other.operation_
+        return (operator_ == other.operator_
                 && superThisPtr()->equals(static_cast<SuperType&>(other))
                 );
     }
@@ -172,7 +176,7 @@ private:
     //---------------------------------------------------//
 
 protected:
-    TOperation operation_;
+    TOperator operator_;
 
 };
 

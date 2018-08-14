@@ -11,7 +11,7 @@ namespace lipaboy_lib {
 namespace stream_space {
 
 // TODO: refactor it
-namespace operations_space {
+namespace operators_space {
 
 	using std::vector;
 	using std::shared_ptr;
@@ -28,7 +28,7 @@ namespace operations_space {
 		template <class T>
 		using RetType = vector<T>;
 
-		//static constexpr OperationMetaTypeEnum metaInfo = GROUP_BY_VECTOR;
+		//static constexpr OperatorMetaTypeEnum metaInfo = GROUP_BY_VECTOR;
 		static constexpr bool isTerminated = false;
 	public:
 		group_by_vector(size_type partSize) : partSize_(partSize) {
@@ -51,8 +51,9 @@ namespace operations_space {
 		using RetType = vector<Arg_>;
 		using ReturnType = RetType<T>;
 		using ReturnTypePtr = shared_ptr<ReturnType>;
+		using const_reference = const ReturnType &;
 
-		static constexpr OperationMetaTypeEnum metaInfo = GROUP_BY_VECTOR;
+		static constexpr OperatorMetaTypeEnum metaInfo = GROUP_BY_VECTOR;
 		static constexpr bool isTerminated = false;
 	public:
 		group_by_vector_impl(size_type partSize) : partSize_(partSize) {
@@ -65,29 +66,30 @@ namespace operations_space {
 		template <class TSubStream>
 		void init(TSubStream& stream)
 		{
-			pCurrentElem_ = std::make_shared<ReturnType>();
-			pCurrentElem_->reserve(partSize());
-
-			for (size_type i = 0; i < partSize() && stream.hasNext(); i++)
-				pCurrentElem_->push_back(std::move(stream.nextElem()));
+			pCurrentElem_ = std::make_shared<ReturnType>(partSize());
+			incrementSlider<TSubStream>(stream);
 		}
 
 		template <class TSubStream>
 		auto nextElem(TSubStream& stream)
 			-> ReturnType
 		{
-			ReturnType part;
-			part.reserve(partSize());
-
-			for (size_type i = 0; i < partSize() && stream.hasNext(); i++)
-				part.push_back(std::move(stream.nextElem()));
-
-			std::swap(*pCurrentElem_, part);
+			ReturnType part(partSize());
+			std::swap(part, *pCurrentElem_);
+			incrementSlider<TSubStream>(stream);
 			return std::move(part);
 		}
 
 		template <class TSubStream>
-		auto currentElem(TSubStream&) -> ReturnType const & {
+		void incrementSlider(TSubStream& stream) {
+			size_type i = 0;
+			for (; i < partSize() && stream.hasNext(); i++)
+				(*pCurrentElem_)[i] = (std::move(stream.nextElem()));
+			pCurrentElem_->resize(i);
+		}
+
+		template <class TSubStream>
+		auto currentElem(TSubStream&) -> const_reference {
 			return *pCurrentElem_;
 		}
 
@@ -104,8 +106,19 @@ namespace operations_space {
 		ReturnTypePtr pCurrentElem_ = nullptr;
 	};
 
-
 }
+
+using operators_space::group_by_vector;
+using operators_space::group_by_vector_impl;
+
+template <class TStream>
+struct shortening::StreamTypeExtender<TStream, group_by_vector> {
+	template <class T>
+	using remref = std::remove_reference_t<T>;
+
+	using type = typename remref<TStream>::template ExtendedStreamType<
+		remref<group_by_vector_impl<typename TStream::ResultValueType> > >;
+};
 
 }
 

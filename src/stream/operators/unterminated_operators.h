@@ -21,7 +21,7 @@ namespace lipaboy_lib {
 namespace stream_space {
 
 	// TODO: refactor it
-namespace operations_space {
+namespace operators_space {
 
 	using std::vector;
 	using std::pair;
@@ -45,7 +45,7 @@ namespace operations_space {
 	template <class Predicate>
 	struct filter : FunctorHolder<Predicate>, TReturnSameType
 	{
-		static constexpr OperationMetaTypeEnum metaInfo = FILTER;
+		static constexpr OperatorMetaTypeEnum metaInfo = FILTER;
 		static constexpr bool isTerminated = false;
 	public:
 		filter(Predicate functor) : FunctorHolder<Predicate>(functor) {}
@@ -65,13 +65,16 @@ namespace operations_space {
 		}
 
 		template <class TSubStream>
+		void incrementSlider(TSubStream& stream) { stream.incrementSlider(); }
+
+		template <class TSubStream>
 		auto currentElem(TSubStream& stream) -> typename TSubStream::ResultValueType {
 			return std::move(stream.currentElem());
 		}
 
 		template <class TSubStream>
 		bool hasNext(TSubStream& stream) { 
-			for (; stream.hasNext(); stream.nextElem())
+			for (; stream.hasNext(); stream.incrementSlider())
 				if (true == functor()(std::move(currentElem<TSubStream>(stream))))
 					return true;
 			return false;
@@ -84,7 +87,7 @@ namespace operations_space {
 		template <class T>
 		using RetType = typename std::result_of<Transform(T)>::type;
 
-		static constexpr OperationMetaTypeEnum metaInfo = MAP;
+		static constexpr OperatorMetaTypeEnum metaInfo = MAP;
 		static constexpr bool isTerminated = false;
 	public:
 		map(Transform functor) : FunctorHolder<Transform>(functor) {}
@@ -97,6 +100,9 @@ namespace operations_space {
 		auto nextElem(TSubStream& stream) -> typename TSubStream::ResultValueType {
 			return std::move(functor()(stream.nextElem()));
 		}
+
+		template <class TSubStream>
+		void incrementSlider(TSubStream& stream) { stream.incrementSlider(); }
 
 		template <class TSubStream>
 		auto currentElem(TSubStream& stream) -> typename TSubStream::ResultValueType {
@@ -112,7 +118,7 @@ namespace operations_space {
 	public:
 		using size_type = size_t;
 
-		static constexpr OperationMetaTypeEnum metaInfo = GET;
+		static constexpr OperatorMetaTypeEnum metaInfo = GET;
 		static constexpr bool isTerminated = false;
 	public:
 		get(size_type size) : size_(size) {}
@@ -133,6 +139,12 @@ namespace operations_space {
 		}
 
 		template <class TSubStream>
+		void incrementSlider(TSubStream& stream) { 
+			--size_;
+			stream.incrementSlider(); 
+		}
+
+		template <class TSubStream>
 		bool hasNext(TSubStream& stream) { return size() > 0 && stream.hasNext(); }
 
 		size_type size() const { return size_; }
@@ -148,7 +160,7 @@ namespace operations_space {
 	public:
 		using size_type = size_t;
 
-		static constexpr OperationMetaTypeEnum metaInfo = SKIP;
+		static constexpr OperatorMetaTypeEnum metaInfo = SKIP;
 		static constexpr bool isTerminated = false;
 	public:
 		skip(size_type count) : count_(count) {}
@@ -172,62 +184,15 @@ namespace operations_space {
 		}
 
 		template <class TSubStream>
+		void incrementSlider(TSubStream& stream) { stream.incrementSlider(); }
+
+		template <class TSubStream>
 		bool hasNext(TSubStream& stream) { return stream.hasNext(); }
 
 		size_type count() const { return count_; }
 
 	private:
 		size_type count_;
-	};
-
-	struct ungroup_by_bit {
-	public:
-		using size_type = size_t;
-
-		template <class T>
-		using RetType = bool;
-
-		static constexpr OperationMetaTypeEnum metaInfo = UNGROUP_BY_BIT;
-		static constexpr bool isTerminated = false;
-	public:
-
-		template <class TSubStream>
-		void init(TSubStream& stream)
-		{
-			currBit_ = 0;
-			currentElem_ = stream.currentElem();
-		}
-
-		template <class TSubStream>
-		auto nextElem(TSubStream& stream) -> typename TSubStream::ResultValueType {
-			using TResult = typename TSubStream::ResultValueType;
-			constexpr size_type bitsCountOfType = 8 * sizeof(TResult);
-			TResult & elem = *pCurrentElem<TSubStream>();
-
-			if (currBit_ % bitsCountOfType == 0)
-				currentElem_ = stream.nextElem();
-			bool res = (1 == (elem & (1 << currBit_)) >> currBit_);
-			currBit_ = (currBit_ + 1) % bitsCountOfType;	//iter++;
-
-			return res;
-		}
-
-		template <class TSubStream>
-		bool currentElem(TSubStream& stream) {
-			return ((*pCurrentElem<TSubStream>()) & (1 << currBit_)) >> currBit_;
-		}
-
-		template <class TSubStream>
-		bool hasNext(TSubStream& stream) { return currBit_ != 0 || stream.hasNext(); }
-
-	private:
-		template <class TSubStream>
-		auto pCurrentElem() -> typename TSubStream::ResultValueType* {
-			return std::any_cast<typename TSubStream::ResultValueType>(&currentElem_);
-		}
-
-		size_type currBit_;
-		std::any currentElem_;
 	};
 
 

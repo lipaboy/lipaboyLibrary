@@ -19,7 +19,7 @@ namespace lipaboy_lib {
 
 namespace stream_space {
 
-namespace operations_space {
+namespace operators_space {
 
 	using std::vector;
 	using std::pair;
@@ -90,7 +90,7 @@ namespace operations_space {
 		template <class T>
 		using RetType = IdentityRetType;
 
-		static constexpr OperationMetaTypeEnum metaInfo = REDUCE;
+		static constexpr OperatorMetaTypeEnum metaInfo = REDUCE;
 		static constexpr bool isTerminated = true;
 	public:
 		reduce(IdentityFn&& identity, Accumulator&& accum)
@@ -133,7 +133,7 @@ namespace operations_space {
 	};
 
 	struct sum {
-		static constexpr OperationMetaTypeEnum metaInfo = SUM;
+		static constexpr OperatorMetaTypeEnum metaInfo = SUM;
 		static constexpr bool isTerminated = true;
 
 		template <class T>
@@ -158,7 +158,7 @@ namespace operations_space {
 
 	public:
 		print_to(std::ostream& o, string delimiter = "") : ostreamObj_(o), delimiter_(delimiter) {}
-		static constexpr OperationMetaTypeEnum metaInfo = PRINT_TO;
+		static constexpr OperatorMetaTypeEnum metaInfo = PRINT_TO;
 		static constexpr bool isTerminated = true;
 
 		template <class Stream_>
@@ -180,7 +180,7 @@ namespace operations_space {
 		template <class T>
 		using RetType = std::vector<T>;
 
-		static constexpr OperationMetaTypeEnum metaInfo = TO_VECTOR;
+		static constexpr OperatorMetaTypeEnum metaInfo = TO_VECTOR;
 		static constexpr bool isTerminated = true;
 	public:
 
@@ -202,7 +202,7 @@ namespace operations_space {
 		using RetType = T;
 
 		nth(size_type count) : count_(count) {}
-		static constexpr OperationMetaTypeEnum metaInfo = NTH;
+		static constexpr OperatorMetaTypeEnum metaInfo = NTH;
 		static constexpr bool isTerminated = true;
 
 		template <class Stream_>
