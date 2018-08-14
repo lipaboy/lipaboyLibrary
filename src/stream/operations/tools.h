@@ -40,8 +40,8 @@ namespace operations_space {
 	// TODO: put off "Special structs" into own file or into extra_tools.h"
 
 	struct TReturnSameType {
-		template <class Arg>
-		using RetType = Arg;
+		template <class T>
+		using RetType = T;
 	};
 	template <class Functor>
 	struct FunctorMetaType {

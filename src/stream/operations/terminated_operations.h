@@ -50,12 +50,12 @@ namespace operations_space {
 		template <class T>
 		struct result_of_else {
 		};
-		template <class F, class Arg>
-		struct result_of_else<F(Arg)> {
-			using type = typename std::result_of<F(Arg)>::type;
+		template <class F, class T>
+		struct result_of_else<F(T)> {
+			using type = typename std::result_of<F(T)>::type;
 		};
-		template <class Arg>
-		struct result_of_else<FalseType(Arg)>
+		template <class T>
+		struct result_of_else<FalseType(T)>
 			: std::false_type
 		{};
 		template <class T>
@@ -80,14 +80,14 @@ namespace operations_space {
 		FunctorHolder<IdentityFn>
 	{
 	public:
-		template <class TResult, class Arg>
-		using AccumRetType = typename std::result_of<Accumulator(TResult, Arg)>::type;
+		template <class TResult, class T>
+		using AccumRetType = typename std::result_of<Accumulator(TResult, T)>::type;
 		using IdentityFnType = IdentityFn;
 		using ArgType = typename GetFirstArgumentType_ElseArg<IdentityFnType, Accumulator>::type;
 		using IdentityRetType = lipaboy_lib::enable_if_else_t<std::is_same<IdentityFn, FalseType >::value,
 			ArgType, result_of_else_t<IdentityFnType(ArgType)> >;
 
-		template <class Arg>
+		template <class T>
 		using RetType = IdentityRetType;
 
 		static constexpr OperationMetaTypeEnum metaInfo = REDUCE;
@@ -136,8 +136,8 @@ namespace operations_space {
 		static constexpr OperationMetaTypeEnum metaInfo = SUM;
 		static constexpr bool isTerminated = true;
 
-		template <class Arg>
-		using RetType = Arg;
+		template <class T>
+		using RetType = T;
 
 		template <class TStream>
 		auto apply(TStream & stream) -> typename TStream::ResultValueType 
@@ -153,7 +153,7 @@ namespace operations_space {
 
 	struct print_to {
 	public:
-		template <class Arg>
+		template <class T>
 		using RetType = std::ostream&;
 
 	public:
@@ -177,8 +177,8 @@ namespace operations_space {
 
 	struct to_vector {
 	public:
-		template <class Arg>
-		using RetType = std::vector<Arg>;
+		template <class T>
+		using RetType = std::vector<T>;
 
 		static constexpr OperationMetaTypeEnum metaInfo = TO_VECTOR;
 		static constexpr bool isTerminated = true;
@@ -198,8 +198,8 @@ namespace operations_space {
 	struct nth {
 		using size_type = size_t;
 
-		template <class Arg>
-		using RetType = Arg;
+		template <class T>
+		using RetType = T;
 
 		nth(size_type count) : count_(count) {}
 		static constexpr OperationMetaTypeEnum metaInfo = NTH;

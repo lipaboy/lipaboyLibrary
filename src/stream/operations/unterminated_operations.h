@@ -81,8 +81,8 @@ namespace operations_space {
 	template <class Transform>
 	struct map : FunctorHolder<Transform> {
 	public:
-		template <class Arg>
-		using RetType = typename std::result_of<Transform(Arg)>::type;
+		template <class T>
+		using RetType = typename std::result_of<Transform(T)>::type;
 
 		static constexpr OperationMetaTypeEnum metaInfo = MAP;
 		static constexpr bool isTerminated = false;
@@ -184,7 +184,7 @@ namespace operations_space {
 	public:
 		using size_type = size_t;
 
-		template <class Arg>
+		template <class T>
 		using RetType = bool;
 
 		static constexpr OperationMetaTypeEnum metaInfo = UNGROUP_BY_BIT;

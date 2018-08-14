@@ -29,10 +29,19 @@ namespace stream_space {
 
 	namespace shortening {
 
+		using namespace operations_space;
+
 		template <class TStream, class TOperation>
 		struct StreamTypeExtender {
 			using type = typename std::remove_reference_t<TStream>::
 				template ExtendedStreamType<std::remove_reference_t<TOperation> >;
+		};
+
+		template <class TStream>
+		struct StreamTypeExtender<TStream, group_by_vector> {
+			using type = typename std::remove_reference_t<TStream>::
+				template ExtendedStreamType<std::remove_reference_t<
+					group_by_vector_impl<typename TStream::ResultValueType> > >;
 		};
 
 		/*template <class TIterator>

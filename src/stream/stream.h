@@ -102,9 +102,11 @@ namespace stream_space {
 				stream.template assertOnInfiniteStream<StreamType>();
 				return operation.apply(stream);
 		}
-		else
+		else {
+				//static_assert(TOperation::isTerminated , "lol1");
 				return shortening::StreamTypeExtender_t<StreamType, TOperation>
 					(operation, stream);
+		}
 	}
 
 	template <class TOperation, class... Args>
