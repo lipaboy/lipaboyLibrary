@@ -88,9 +88,12 @@ protected:
 	}
 
 public:
+	inline static constexpr bool isInfinite() {
+		return isGeneratorProducing() && isNoGetTypeBefore();
+	}
 	template <class TStream_>
-	inline static constexpr void assertOnInfiniteStream() {
-		static_assert(!TStream_::isGeneratorProducing() || !TStream_::isNoGetTypeBefore(),
+	inline static constexpr void assertOnInfinite() {
+		static_assert(!TStream_::isInfinite(),
 			"Stream error: attempt to work with infinite stream");
     }
 protected:

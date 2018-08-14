@@ -99,7 +99,7 @@ namespace stream_space {
 		using StreamType = Stream<Args...>;
 
 		if constexpr (TOperator::isTerminated == true) {
-				stream.template assertOnInfiniteStream<StreamType>();
+				stream.template assertOnInfinite<StreamType>();
 				return operation.apply(stream);
 		}
 		else {
@@ -118,7 +118,7 @@ namespace stream_space {
 		using StreamType = Stream<Args...>;
 
 		if constexpr (TOperator::isTerminated == true) {
-			stream.template assertOnInfiniteStream<StreamType>();
+			stream.template assertOnInfinite<StreamType>();
 			return operation.apply(stream);
 		}
 		else

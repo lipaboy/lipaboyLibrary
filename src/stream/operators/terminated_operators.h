@@ -210,10 +210,10 @@ namespace operators_space {
 		{
 			obj.init();
 			for (size_t i = 0; i < count() && obj.hasNext(); i++)
-				obj.nextElem();
+				obj.incrementSlider();
 			if (!obj.hasNext())
 				throw std::logic_error("Stream (nth operation) : index is out of range");
-			return obj.nextElem();
+			return std::move(obj.nextElem());
 		}
 
 		size_type count() const { return count_; }

@@ -97,9 +97,12 @@ protected:
     }
 
 public:
+	inline static constexpr bool isInfinite() {
+		return isGeneratorProducing() && isNoGetTypeBefore();
+	}
 	template <class TStream_>
-	inline static constexpr void assertOnInfiniteStream() { 
-		SuperType::template assertOnInfiniteStream<TStream_>(); 
+	inline static constexpr void assertOnInfinite() { 
+		SuperType::template assertOnInfinite<TStream_>(); 
 	}
 
 protected:
