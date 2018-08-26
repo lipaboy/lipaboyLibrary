@@ -52,9 +52,13 @@ public:
 
     template <class OuterIterator>
     explicit
-    Stream(OuterIterator begin, OuterIterator end) : range_(begin, end) {}
+		Stream(OuterIterator begin, OuterIterator end) : range_(begin, end) {}
     explicit
-    Stream(std::initializer_list<T> init) : range_(init) {}
+		Stream(std::initializer_list<T> init) : range_(init) {}
+	//template <size_type size>
+	//explicit
+	//	Stream(T(&init)[size]) : range_(init) {}
+
     Stream(Stream const & obj) : range_(obj.range_)
     {
 #ifdef LOL_DEBUG_NOISY
@@ -81,7 +85,9 @@ protected:
 		return std::is_same_v<TIterator, ProducingIterator<ValueType> >;
 	}
 	static constexpr bool isInitilizerListCreation() {
-		return std::is_same_v<TIterator, InitializerListIterator<ValueType> >;
+		return std::is_same_v<TIterator, InitializerListIterator<ValueType> 
+			//typename std::initializer_list<ValueType>::iterator
+		>;
 	}
 	static constexpr bool isOutsideIteratorsRefer() {
 		return !isGeneratorProducing() && !isInitilizerListCreation();

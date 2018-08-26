@@ -13,7 +13,8 @@ namespace lipaboy_lib {
 using std::cout;
 using std::endl;
 
-// TODO: put off this instrument to another file
+// TODO: it is not a "enable.." logic. It is like choosing the types relative to condition. 
+//		 Refactor it.
 template<bool B, class T1, class T2>
 struct enable_if_else {};
 template<class T1, class T2>

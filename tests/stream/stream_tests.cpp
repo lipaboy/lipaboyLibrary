@@ -346,6 +346,21 @@ TEST(GroupByVector, filter) {
 
 using lipaboy_lib_tests::NoisyD;
 
+TEST(StreamTest, unique_ptr_test) {
+	using move_only = std::unique_ptr<int>;
+	move_only lol[] = { std::unique_ptr<int>(new int(5)) };
+	auto stream = buildStream(lol) 
+		| map([](auto&& elem) -> move_only { return std::move(elem); });
+
+	ASSERT_EQ(*(stream | nth(0)), 5);
+
+	move_only lol2[] = { std::unique_ptr<int>(new int(3)) };
+	auto stream2 = buildStream(lol2, lol2 + 1) 
+	//	| filter([](auto& elem) { return true; })
+		;
+	//ASSERT_EQ(*(stream2 | nth(0)), 3);
+}
+
 TEST(StreamTest, noisy) {
     try {
         //-------------Noisy Test---------------//

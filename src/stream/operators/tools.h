@@ -30,13 +30,14 @@ namespace operators_space {
 	//		 but Stream will substitute it on generic group_by_vector_impl<T>
 	//		---The same in ungroup_by_bit class!
 	// TODO: wrap the temporary values into shared_ptr (in ungroup_by_bit)
-	// TODO: write MovableStream (maybe you need move_iterators??)
+	// TODO: write MovableStream (maybe you need move_iterators??) but if you have InitializerListIterator??
+	// TODO: think about issue to workin with InitializerList inside of Stream
 
 
 
 	using std::function;
 
-	#define LOL_DEBUG_NOISY
+	//#define LOL_DEBUG_NOISY
 
 	using lipaboy_lib::function_traits;
 	using lipaboy_lib::WrapBySTDFunctionType;

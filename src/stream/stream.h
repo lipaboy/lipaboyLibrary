@@ -19,7 +19,9 @@ namespace stream_space {
 	using StreamOfOutsideIterators = Stream<TIterator>;
 
 	template <class T>
-	using StreamOfInitializingList = Stream<InitializerListIterator<T> >;
+	using StreamOfInitializingList = Stream<InitializerListIterator<T> 
+		//typename std::initializer_list<T>::iterator
+	>;
 
 	template <class Generator>
 	using StreamOfGenerator = Stream<ProducingIterator<typename std::result_of<Generator(void)>::type> >;
@@ -81,6 +83,17 @@ namespace stream_space {
 		-> StreamOfGenerator<Generator> *
 	{
 		return new StreamOfGenerator<Generator>(std::forward<Generator>(generator));
+	}
+
+
+	template <class T, size_t size>
+	auto buildStream(T(&init)[size])
+		-> StreamOfOutsideIterators<std::move_iterator<T*> >
+	{
+		return StreamOfOutsideIterators<std::move_iterator<T*> >(
+			std::make_move_iterator<T*>(std::begin(init)),
+			std::make_move_iterator<T*>(std::end(init))
+			);
 	}
 
 	//--------------------------------------------------------------------------//

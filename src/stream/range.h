@@ -1,6 +1,7 @@
 #pragma once
 
 #include "stream_basic.h"
+#include "extra_tools/extra_tools.h"
 
 #include <memory>
 #include <vector>
@@ -41,7 +42,7 @@ public:
 
 public:
     explicit
-    Range(std::initializer_list<ValueType> init)
+		Range(std::initializer_list<ValueType> init)
         : firstIter_(init)
     {
 		if constexpr (Stream::isInitilizerListCreation())
@@ -49,33 +50,15 @@ public:
 	}
     template <class OuterIterator>
     explicit
-    Range(OuterIterator begin, OuterIterator end)
+		Range(OuterIterator begin, OuterIterator end)
         : firstIter_(begin), 
 		lastIter_(end)
     {}
     explicit
-	Range(GeneratorTypePtr generator)
+		Range(GeneratorTypePtr generator)
 		: firstIter_(generator), 
 		lastIter_()
     {}
-
-	// TODO : make constructors the default
-    Range(const Range& obj)
-        : firstIter_(obj.firstIter_),
-		lastIter_(obj.lastIter_)
-    {
-#ifdef LOL_DEBUG_NOISY
-        cout << " Range copy-constructed" << endl;
-#endif
-    }
-    Range(Range&& obj) noexcept
-        : firstIter_(std::move(obj.firstIter_)), 
-		lastIter_(std::move(obj.lastIter_))
-    {
-#ifdef LOL_DEBUG_NOISY
-        cout << " Range move-constructed" << endl;
-#endif
-    }
 
 protected:
     TIterator firstIter() const { return firstIter_; }

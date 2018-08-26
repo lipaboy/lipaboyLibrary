@@ -9,6 +9,7 @@
 #include "common_interfaces/algebra.h"
 #include "maths/fixed_precision_number.h"
 #include "intervals/interval.h"
+#include "extra_tools/extra_tools.h"
 
 #include "stream/stream_test.h"
 #include "extra_tools/extra_tools_tests.h"
@@ -66,7 +67,20 @@ TEST(Interval, contains) {
 }
 
 
-
+// -------------- Doesn't work------------//
+//struct A {
+//	template <class A_>
+//	A(A_&& obj, void* p) 
+//		: a(lipaboy_lib::RelativeForward<A_, string>::forward(obj.a))
+//	{}
+//
+//	A(const A& obj) :  A<const A&>(obj, nullptr)
+//	{}
+//	A(A&& obj) :  A<A&&>(std::move(obj), nullptr)
+//	{}
+//
+//	string a;
+//};
 
 
 TEST(Check, check) {
