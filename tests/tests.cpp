@@ -5,6 +5,8 @@
 #include <string>
 #include <memory>
 #include <any>
+#include <list>
+#include <tuple>
 
 #include "common_interfaces/algebra.h"
 #include "maths/fixed_precision_number.h"
@@ -82,14 +84,41 @@ TEST(Interval, contains) {
 //	string a;
 //};
 
+template <class... Args>
+decltype(auto) combine(Args... arg) {
+	return std::make_tuple(arg...);
+}
+
+template <class... Args>
+decltype(auto) combine2(std::list<Args>... list) {
+	std::list<std::tuple<Args...> > res;
+	size_t const size = std::min({ list.size()... });
+
+	//for (auto & elem : list) 
+	//cout << size << endl;
+
+	for (size_t i = 0; i < size; i++) {
+		res.push_front(std::tuple<Args...>(list.front()...));
+		(list.pop_front(), ...);
+	}
+
+	return res;
+}
 
 TEST(Check, check) {
-	any lol = any(vector<int>({ 1, 2 }));
+	using std::get;
 
-	ASSERT_EQ(std::any_cast<vector<int>>(lol)[0], 1);
+	auto res = combine(1, "lol");
 
-	std::any_cast<vector<int>>(&lol)->operator[](0) = 3;
-	ASSERT_EQ(std::any_cast<vector<int>>(lol)[0], 3);
+	ASSERT_EQ(get<0>(res), 1);
+	ASSERT_EQ(get<1>(res), std::string("lol"));
+
+	auto res2 = combine2(std::list<int>({ 1, 2, 3 }), std::list<string>({ "lol", "kek" }));
+
+	ASSERT_TRUE([]() -> bool { return true; }());
+
+	ASSERT_EQ(get<0>(res2.front()), 2);
+	ASSERT_EQ(get<1>(res2.front()), "kek");
 }
 
 }
