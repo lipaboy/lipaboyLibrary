@@ -136,7 +136,7 @@ namespace stream_space {
 		}
 		else
 			return shortening::StreamTypeExtender_t<StreamType, TOperator>
-			(operation, std::move(stream));
+				(operation, std::move(stream));
 	}
 }
 

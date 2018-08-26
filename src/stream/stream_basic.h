@@ -108,7 +108,6 @@ protected:
 	// (because all the variadic templates are friends
 	// from current Stream to first specialization) (it is not a real inheritance)
 
-
     //-----------------Slider API--------------//
 public:
 	void init() { range().init(); }
