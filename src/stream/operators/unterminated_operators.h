@@ -75,7 +75,7 @@ namespace operators_space {
 		template <class TSubStream>
 		bool hasNext(TSubStream& stream) { 
 			for (; stream.hasNext(); stream.incrementSlider())
-				if (true == functor()(std::move(currentElem<TSubStream>(stream))))
+                if (true == FunctorHolder<Predicate>::functor()(std::move(currentElem<TSubStream>(stream))))
 					return true;
 			return false;
 		}
@@ -98,7 +98,7 @@ namespace operators_space {
 
 		template <class TSubStream>
 		auto nextElem(TSubStream& stream) -> typename TSubStream::ResultValueType {
-			return std::move(functor()(stream.nextElem()));
+            return std::move(FunctorHolder<Transform>::functor()(stream.nextElem()));
 		}
 
 		template <class TSubStream>
@@ -106,7 +106,7 @@ namespace operators_space {
 
 		template <class TSubStream>
 		auto currentElem(TSubStream& stream) -> typename TSubStream::ResultValueType {
-			return std::move(functor()(stream.currentElem()));
+            return std::move(FunctorHolder<Transform>::functor()(stream.currentElem()));
 		}
 
 		template <class TSubStream>

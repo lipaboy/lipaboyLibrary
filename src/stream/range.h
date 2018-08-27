@@ -84,7 +84,8 @@ public:
 		++firstIter_;
 	}
     ValueType currentElem() const { return *firstIter(); }
-    bool hasNext() { return firstIter() != lastIter(); }
+    // Linux (gcc): why I can't replace it on getter samples
+    bool hasNext() { return firstIter_ != lastIter_; }
 
 public:
 

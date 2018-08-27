@@ -6,6 +6,8 @@ include_directories("${CMAKE_SOURCE_DIR}/src")
 set(TEST_SOURCE
     tests.cpp
 
+    long_numbers/long_numbers_tests.cpp
+
 	stream/producing_iterator_tests.cpp
 	stream/initializer_list_iterator_tests.cpp
     stream/stream_tests.cpp

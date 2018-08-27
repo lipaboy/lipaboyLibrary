@@ -125,12 +125,16 @@ public:
     // or before using slider API)
     void init() {
 		superThisPtr()->init();
-		operator_.init<SuperType>(*superThisPtr());
+        operator_.template init<SuperType>(*superThisPtr());
     }
 
 public:
     ResultValueType nextElem() {
-		return std::move(operator_.nextElem<SuperType>(*superThisPtr()));
+#ifdef WIN32
+        return std::move(operator_.nextElem<SuperType>(*superThisPtr()));
+#else
+        return std::move(operator_.template nextElem<SuperType>(*superThisPtr()));
+#endif
     }
 
     // TODO: must be test
@@ -139,16 +143,28 @@ public:
 		// without argument
 		// that can help it to deduce the type of template method
 		// Solve: Problem in the intersection 
-		//        of names (currentElem() of Stream and currentElem() of operator_)
-		return std::move(operator_.currentElem<SuperType>(*superThisPtr()));
+        //        of names (currentElem() of Stream and currentElem() of operator_)
+#ifdef WIN32
+        return std::move(operator_.currentElem<SuperType>(*superThisPtr()));
+#else
+        return std::move(operator_.template currentElem<SuperType>(*superThisPtr()));
+#endif
     }
 
     bool hasNext() {
+#ifdef WIN32
         return operator_.hasNext<SuperType>(*superThisPtr());
+#else
+        return operator_.template hasNext<SuperType>(*superThisPtr());
+#endif
     }
 
 	void incrementSlider() {
-		operator_.incrementSlider<SuperType>(*superThisPtr());
+#ifdef WIN32
+        operator_.incrementSlider<SuperType>(*superThisPtr());
+#else
+        operator_.template incrementSlider<SuperType>(*superThisPtr());
+#endif
 	}
 
 
