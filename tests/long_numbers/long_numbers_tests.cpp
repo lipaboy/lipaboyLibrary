@@ -4,7 +4,11 @@
 
 namespace long_numbers_tests {
 
-TEST(LongNumber, check) {
+using namespace lipaboy_lib;
+
+using long_numbers_space::LongInteger;
+
+TEST(LongInteger, check) {
 
 }
 
