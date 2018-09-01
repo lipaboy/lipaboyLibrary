@@ -4,8 +4,8 @@
 #include "stream_extended.h"
 #include "stream_basic.h"
 #include "range.h"
-#include "initializer_list_iterator.h"
-#include "producing_iterator.h"
+#include "extra_tools/initializer_list_iterator.h"
+#include "extra_tools/producing_iterator.h"
 
 namespace lipaboy_lib {
 

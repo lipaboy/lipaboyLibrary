@@ -8,6 +8,8 @@ set(TEST_SOURCE
 
     long_numbers/long_numbers_tests.cpp
 
+	stream_v2/stream_v2_tests.cpp
+
 	stream/producing_iterator_tests.cpp
 	stream/initializer_list_iterator_tests.cpp
     stream/stream_tests.cpp

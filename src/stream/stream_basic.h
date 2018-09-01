@@ -2,8 +2,8 @@
 
 #include "stream_extended.h"
 #include "extra_tools/extra_tools.h"
-#include "producing_iterator.h"
-#include "initializer_list_iterator.h"
+#include "extra_tools/producing_iterator.h"
+#include "extra_tools/initializer_list_iterator.h"
 
 #include <vector>
 #include <functional>

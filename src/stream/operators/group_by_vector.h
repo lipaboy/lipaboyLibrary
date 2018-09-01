@@ -60,7 +60,8 @@ namespace operators_space {
 			if (partSize == 0)
 				throw std::logic_error("Parameter of GroupType constructor must be positive");
 		}
-		group_by_vector_impl(group_by_vector const & groupObj) : group_by_vector_impl(groupObj.part()) 
+		group_by_vector_impl(group_by_vector const & groupObj) 
+			: group_by_vector_impl(groupObj.part()) 
 		{}
 
 		template <class TSubStream>

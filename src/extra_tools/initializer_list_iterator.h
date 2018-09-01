@@ -11,8 +11,6 @@
 
 namespace lipaboy_lib {
 
-namespace stream_space {
-
 
 	// unreal iterator because we can't make make_iterator from it
 template <class T>
@@ -96,4 +94,3 @@ private:
 
 }
 
-}

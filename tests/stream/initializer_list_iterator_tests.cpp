@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 
-#include "stream/initializer_list_iterator.h"
+#include "extra_tools/initializer_list_iterator.h"
 
 namespace stream_tests {
 
@@ -14,7 +14,6 @@ namespace stream_tests {
 	using std::vector;
 	using std::string;
 
-	using stream_space::InitializerListIterator;
 
 	TEST(InitializingListIterator, simple) {
 		InitializerListIterator<string> iter({ "a", "b", "c", "d", "e" });
