@@ -4,7 +4,7 @@
 #include "../maths/point2d.h"
 #include "segment.h"
 
-namespace LipaboyLib {
+namespace lipaboy_lib {
 
 //TODO: extend to template
 class RectSegment
