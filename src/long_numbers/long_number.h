@@ -1,5 +1,8 @@
 #pragma once
 
+#include <functional>
+#include <iterator>
+#include <numeric>
 #include <algorithm>
 #include <array>
 #include <cstdint>
@@ -7,6 +10,7 @@
 
 #include "extra_tools/extra_tools.h"
 #include "intervals/cutoffborders.h"
+#include "extra_tools/maths_tools.h"
 
 namespace lipaboy_lib {
 
@@ -24,6 +28,7 @@ using std::array;
 using std::string;
 using lipaboy_lib::cutOffLeftBorder;
 using lipaboy_lib::enable_if_else_t;
+using lipaboy_lib::powDozen;
 
 // Concept: it is simple long number, without any trivial optimizations like
 //			checking if number is increasing or not (in order to making less computations)
@@ -38,7 +43,7 @@ namespace extra {
 	inline constexpr TWord setBitsFromStart(size_t bitsCount) {
 		return (bitsCount <= 0) ? TWord(0) 
 			: (bitsCount <= 1) ? TWord(1) 
-			: (1 << (bitsCount - 1)) | setBitsFromStart(bitsCount - 1);
+			: (TWord(1) << (bitsCount - 1)) | setBitsFromStart<TWord>(bitsCount - 1);
 	}
 
 	template <class TWord>
@@ -61,6 +66,10 @@ public:
     using ResultType = std::remove_reference_t<TResult>;
 	using ContainerType = array<IntegralType, lengthOfIntegrals>;
 	using iterator = typename ContainerType::iterator;
+	using const_iterator = typename ContainerType::const_iterator;
+
+	using reference = IntegralType&;
+	using const_reference = const IntegralType&;
 
 public:
 	// Note: Non-initialized constructor: without filling array by zero value.
@@ -76,53 +85,86 @@ public:
     }
 	LongIntegerDecimal(LongIntegerDecimal const & other) {
 		checkTemplateParameters();
-		std::copy(other.begin(), other.end(), this->begin());
+		std::copy(other.cbegin(), other.cend(), this->begin());
 	}
 
 	LongIntegerDecimal(string const & numberDecimalStr) {
-		constexpr IntegralType decimalModulus = extra::bitsCount<IntegralType>() / 3 - 1;
-
-		int end = numberDecimalStr.size();
-		int begin = cutOffLeftBorder<int>(end - decimalModulus, 0);
-		for (size_t i = 0; end - begin > 0; i++) {
+		int last = numberDecimalStr.size();
+		int first = cutOffLeftBorder<int>(last - modulusDegree() + 1, 0);
+		size_t i = 0;
+		for (; last - first > 0; i++) {
 			// for optimization you need to see the StringView (foly library)
-			auto sub = numberDecimalStr.substr(begin, end - begin);
+			auto sub = numberDecimalStr.substr(first, last - first);
 			IntegralType part = static_cast<IntegralType>(std::stoi(sub));
 			number_[i] = part;
 
-			end -= decimalModulus;
-			begin = cutOffLeftBorder<int>(begin - decimalModulus, 0);
+			last -= modulusDegree() - 1;
+			first = cutOffLeftBorder<int>(first - modulusDegree() + 1, 0);
 		}
+		std::fill(std::next(begin(), i), end(), zero());
 	}
 
-	LongIntegerDecimal operator+(LongIntegerDecimal const & other) {
+	LongIntegerDecimal operator+(LongIntegerDecimal const & other) const {
 		LongIntegerDecimal res(*this);
-		constexpr TResult lessHalfOfBits = extra::setBitsFromStart<TResult>(extra::bitsCount<TWord>() / 2);
+		constexpr size_t halfBits = extra::bitsCount<TResult>() / 2;
+		constexpr TResult lessHalfOfBits = extra::setBitsFromStart<TResult>(halfBits);
 		constexpr TResult moreHalfOfBits = ~lessHalfOfBits;
 
 		// Think_About: maybe std::partial_sum can be useful?
 
-		IntegralType lessPart = IntegralType(0);
-		IntegralType morePart = IntegralType(0);
+		IntegralType lessPart = zero();
+		IntegralType morePart = zero();
 		for (size_t i = 0; i < length(); i++) {
 			TResult doubleTemp = res[i] + other[i] + morePart;
 
 			lessPart = doubleTemp & lessHalfOfBits;
-			morePart = doubleTemp & moreHalfOfBits;
+			morePart = static_cast<IntegralType>((doubleTemp & moreHalfOfBits) >> halfBits);
 
-			res[i] = lessPart;
+			res[i] = lessPart % modulus();
+			morePart += lessPart / modulus();
 		}
 
 		return res;
 	}
 
+	string to_string() const {
+		// Opinion: bad readible
+		/*return std::accumulate(std::next(cbegin()), cend(),
+			std::to_string(number_[0]),
+			[](string& acc, IntegralType elem) {
+				return (elem == zero()) ? acc 
+					: std::to_string(elem) + acc;
+			});*/
+		// Better realization (reallocation memory criteria)
+		string res = "";
+		bool isFirstNonZeroMet = false;
+		for (int i = length() - 1; i >= 0; i--) {
+			string part = std::to_string(number_[i]);
+			if (number_[i] != zero()) {
+				res += ((false == isFirstNonZeroMet) ? "" 
+					: string(modulusDegree() - 1 - part.size(), '0')) 
+					+ part;
+				isFirstNonZeroMet = true;
+			}
+		}
+		return res;
+	}
+
 	//------------Setters, Getters----------//
 
-	constexpr size_t length() { return lengthOfIntegrals; }
+	constexpr size_t length() const { return lengthOfIntegrals; }
 
 protected:
+	constexpr IntegralType modulusDegree() const { return extra::bitsCount<IntegralType>() / 3; }
+	constexpr IntegralType modulus() const { return powDozen<IntegralType>(modulusDegree()); }
+	constexpr IntegralType zero() const { return IntegralType(0); }
+
 	iterator begin() { return number_.begin(); }
 	iterator end() { return number_.end(); }
+	const_iterator cbegin() const { return number_.cbegin(); }
+	const_iterator cend() const { return number_.cend(); }
+	const_reference operator[] (size_t index) const { return number_[index]; }
+	reference operator[] (size_t index) { return number_[index]; }
 
 private:
 	void checkTemplateParameters() {
