@@ -173,10 +173,11 @@ public:
 		return (minus_ != other.minus_ || !std::equal(cbegin(), cend(), other.cbegin()));
 	}
 	bool operator== (LongIntegerDecimal const & other) const { return !(*this != other); }
-	/*bool operator< (LongIntegerDecimal const & other) const {
-		return minus_ 
-			std::lexicographical_compare(cbegin(), cend(), other.cbegin(), other.cend());
-	}*/
+	bool operator< (LongIntegerDecimal const & other) const {
+		if (sign() * other.sign() < TSign(0))
+			return minus_;
+		return std::lexicographical_compare(cbegin(), cend(), other.cbegin(), other.cend());
+	}
 
 protected:
 	constexpr IntegralType modulusDegree() const { 
