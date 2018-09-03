@@ -162,7 +162,7 @@ public:
 	//------------Setters, Getters----------//
 
 	constexpr size_t length() const { return lengthOfIntegrals; }
-	//TSign sign() const { retkurn m}
+	//TSign sign() const { return m}
 
 	//------------Comparison----------------//
 
@@ -170,6 +170,7 @@ public:
 		return (minus_ != other.minus_ || !std::equal(cbegin(), cend(), other.cbegin()));
 	}
 	bool operator== (LongIntegerDecimal const & other) const { return !(*this != other); }
+	//bool operator<
 
 protected:
 	constexpr IntegralType modulusDegree() const { 
