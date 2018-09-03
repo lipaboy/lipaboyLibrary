@@ -14,6 +14,37 @@ using std::cout;
 using std::endl;
 using std::string;
 
+//-----------Crash-----------//
+
+TEST(LongInteger, overflow) {
+	ASSERT_NO_THROW(LongIntegerDecimal<1> num1 = "789100000200");
+}
+
+//-----------Equality-----------//
+
+TEST(LongInteger, inequality) {
+	LongIntegerDecimal<3> num1 = "00001000789100000200";
+	LongIntegerDecimal<3> num2 = "789100000200";
+
+	ASSERT_NE(num1, num2);
+}
+
+TEST(LongInteger, equality2) {
+	LongIntegerDecimal<3> num1 = "00000000789100000200";
+	LongIntegerDecimal<3> num2 = "789100000200";
+
+	ASSERT_EQ(num1, num2);
+}
+
+TEST(LongInteger, equality) {
+	LongIntegerDecimal<2> num1 = "789100000200";
+	LongIntegerDecimal<2> num2 = "789100000200";
+
+	ASSERT_EQ(num1, num2);
+}
+
+//---------Operator+ checking-----------//
+
 TEST(LongInteger, sum_double_rank_by_crossing_parts) {
 	LongIntegerDecimal<2> num1 = "789100000200";
 	LongIntegerDecimal<2> num2 = "111901000001";

@@ -61,6 +61,8 @@ class LongIntegerDecimal
 public:
 	using TIntegral = std::uint32_t;
 	using TResult = std::uint64_t;
+	using TSign = signed int;
+
     using IntegralType =
         std::remove_reference_t<
             enable_if_else_t<2 * sizeof(TIntegral) == sizeof(TResult), TIntegral, void> >;
@@ -73,18 +75,24 @@ public:
 	using const_reference = const IntegralType&;
 
 public:
-	// Note: Non-initialized constructor: without filling array by zero value.
+	// Note: Non-initialized constructor: without filling array by zeroIntegral value.
 	explicit
 	LongIntegerDecimal() {
 		checkTemplateParameters();
 	}
+	explicit
+		LongIntegerDecimal(int small) : minus_(std::signbit(small)) {
+		checkTemplateParameters();
+		number_[0] = std::abs(small);
+		std::fill(std::next(begin()), end(), TIntegral(0));
+	}
     explicit
-    LongIntegerDecimal(int32_t small) {
+    LongIntegerDecimal(int32_t small) : minus_(false) {
 		checkTemplateParameters();
         number_[0] = small;
 		std::fill(std::next(begin()), end(), TIntegral(0));
     }
-	LongIntegerDecimal(LongIntegerDecimal const & other) {
+	LongIntegerDecimal(LongIntegerDecimal const & other) : minus_(other.minus_) {
 		checkTemplateParameters();
 		std::copy(other.cbegin(), other.cend(), this->begin());
 	}
@@ -93,7 +101,7 @@ public:
 		int last = numberDecimalStr.size();
 		int first = cutOffLeftBorder<int>(last - modulusDegree(), 0);
 		size_t i = 0;
-		for (; last - first > 0; i++) {
+		for (; last - first > 0 && i < length(); i++) {
 			// for optimization you need to see the StringView (foly library)
 			auto sub = numberDecimalStr.substr(first, last - first);
 			IntegralType part = static_cast<IntegralType>(std::stoi(sub));
@@ -102,7 +110,7 @@ public:
 			last -= modulusDegree();
 			first = cutOffLeftBorder<int>(first - modulusDegree(), 0);
 		}
-		std::fill(std::next(begin(), i), end(), zero());
+		std::fill(std::next(begin(), i), end(), zeroIntegral());
 	}
 
 	LongIntegerDecimal operator+(LongIntegerDecimal const & other) const {
@@ -113,8 +121,8 @@ public:
 
 		// Think_About: maybe std::partial_sum can be useful?
 
-		IntegralType lessPart = zero();
-		IntegralType morePart = zero();
+		IntegralType lessPart = zeroIntegral();
+		IntegralType morePart = zeroIntegral();
 		for (size_t i = 0; i < length(); i++) {
 			TResult doubleTemp = res[i] + other[i] + morePart;
 
@@ -133,7 +141,7 @@ public:
 		/*return std::accumulate(std::next(cbegin()), cend(),
 			std::to_string(number_[0]),
 			[](string& acc, IntegralType elem) {
-				return (elem == zero()) ? acc 
+				return (elem == zeroIntegral()) ? acc 
 					: std::to_string(elem) + acc;
 			});*/
 		// Better realization (reallocation memory criteria)
@@ -141,7 +149,7 @@ public:
 		bool isFirstNonZeroMet = false;
 		for (int i = length() - 1; i >= 0; i--) {
 			string part = std::to_string(number_[i]);
-			if (number_[i] != zero()) {
+			if (number_[i] != zeroIntegral()) {
 				res += ((false == isFirstNonZeroMet) ? "" 
 					: string(modulusDegree() - part.size(), '0')) 
 					+ part;
@@ -154,6 +162,14 @@ public:
 	//------------Setters, Getters----------//
 
 	constexpr size_t length() const { return lengthOfIntegrals; }
+	//TSign sign() const { retkurn m}
+
+	//------------Comparison----------------//
+
+	bool operator!= (LongIntegerDecimal const & other) const {
+		return (minus_ != other.minus_ || !std::equal(cbegin(), cend(), other.cbegin()));
+	}
+	bool operator== (LongIntegerDecimal const & other) const { return !(*this != other); }
 
 protected:
 	constexpr IntegralType modulusDegree() const { 
@@ -161,12 +177,14 @@ protected:
 			std::log(2) / std::log(10) * double(extra::bitsCount<IntegralType>()))); 
 	}
 	constexpr IntegralType modulus() const { return powDozen<IntegralType>(modulusDegree()); }
-	constexpr IntegralType zero() const { return IntegralType(0); }
+	constexpr IntegralType zeroIntegral() const { return IntegralType(0); }
 
 	iterator begin() { return number_.begin(); }
 	iterator end() { return number_.end(); }
 	const_iterator cbegin() const { return number_.cbegin(); }
 	const_iterator cend() const { return number_.cend(); }
+	// Question: is it normal? Two methods have the same signature and live together?? 
+	//			 Maybe operator[] is exception of rules?
 	const_reference operator[] (size_t index) const { return number_[index]; }
 	reference operator[] (size_t index) { return number_[index]; }
 
@@ -177,7 +195,12 @@ private:
 
 private:
     array<IntegralType, lengthOfIntegrals> number_;
-	bool sign_;
+	bool minus_;
+
+
+public:
+	// Class behavior
+
 };
 
 }
