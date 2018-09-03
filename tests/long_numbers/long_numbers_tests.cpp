@@ -78,15 +78,19 @@ TEST(LongInteger, inequality) {
 	ASSERT_EQ(num3, num4);
 }
 
-TEST(LongInteger, equality2) {
-	
-}
-
 TEST(LongInteger, equality) {
 	LongIntegerDecimal<2> num1("789100000200");
 	LongIntegerDecimal<2> num2("789100000200");
 
 	ASSERT_EQ(num1, num2);
+}
+
+//---------Operator- checking-----------//
+
+TEST(LongInteger, inverse_the_number) {
+	LongIntegerDecimal<1> num("2");
+
+	ASSERT_EQ(-num, LongIntegerDecimal<1>("-2"));
 }
 
 //---------Operator+ checking-----------//

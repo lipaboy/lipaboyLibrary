@@ -80,6 +80,11 @@ public:
 	using reference = IntegralType&;
 	using const_reference = const IntegralType&;
 
+protected:
+	LongIntegerDecimal(ContainerType const & number, bool minus)
+		: number_(number), minus_(minus)
+	{}
+
 public:
 	// Note: Non-initialized constructor: without filling array by zeroIntegral value.
 	explicit
@@ -114,8 +119,12 @@ public:
 		std::fill(std::next(begin(), i), end(), zeroIntegral());
 	}
 
+	// TODO: calculate how much copy-constructor was called
 	LongIntegerDecimal operator+(LongIntegerDecimal const & other) const {
-		LongIntegerDecimal res(*this);
+		return (LongIntegerDecimal(*this) += other);
+	}
+
+	LongIntegerDecimal const & operator+=(LongIntegerDecimal const & other) {
 		constexpr size_t halfBits = extra::bitsCount<TResult>() / 2;
 		constexpr TResult lessHalfOfBits = extra::setBitsFromStart<TResult>(halfBits);
 		constexpr TResult moreHalfOfBits = ~lessHalfOfBits;
@@ -127,22 +136,35 @@ public:
 		TSigned sign(1);
 		for (size_t i = 0; i < length(); i++) {
 			const TSignedResult doubleTemp = TSignedResult(
-				res.sign() * TSigned(res[i]) 
+				this->sign() * TSigned((*this)[i])
 				+ other.sign() * TSigned(other[i])
 				+ sign * TSigned(morePart)
-				);
+			);
 
 			lessPart = TResult(std::abs(doubleTemp)) & lessHalfOfBits;
 			morePart = IntegralType((TResult(std::abs(doubleTemp)) & moreHalfOfBits) >> halfBits);
 			sign = extra::sign<TSignedResult, TSigned>(doubleTemp < 0, doubleTemp);
 
-			res[i] = lessPart % modulus();
+			(*this)[i] = lessPart % modulus();
 			morePart += lessPart / modulus();
 		}
-		res.setSign(sign);
+		this->setSign(sign);
 
-		return res;
+		return *this;
 	}
+
+	// TODO: you can optimize it. When inverse operator is called then useless copy will be created.
+	LongIntegerDecimal const & operator-=(LongIntegerDecimal const & other) { return (*this) += -other; }
+
+	LongIntegerDecimal operator-(LongIntegerDecimal const & other) const { 
+		return (LongIntegerDecimal(*this) += -other);
+	}
+
+	LongIntegerDecimal operator-() const {
+		return LongIntegerDecimal(number_, !minus_);
+	}
+
+	//-------------Converter---------------//
 
 	string to_string() const {
 		// Opinion: bad readible
