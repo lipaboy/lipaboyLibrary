@@ -7,6 +7,7 @@
 #include <array>
 #include <cstdint>
 #include <string>
+#include <cmath>
 
 #include "extra_tools/extra_tools.h"
 #include "intervals/cutoffborders.h"
@@ -90,7 +91,7 @@ public:
 
 	LongIntegerDecimal(string const & numberDecimalStr) {
 		int last = numberDecimalStr.size();
-		int first = cutOffLeftBorder<int>(last - modulusDegree() + 1, 0);
+		int first = cutOffLeftBorder<int>(last - modulusDegree(), 0);
 		size_t i = 0;
 		for (; last - first > 0; i++) {
 			// for optimization you need to see the StringView (foly library)
@@ -98,8 +99,8 @@ public:
 			IntegralType part = static_cast<IntegralType>(std::stoi(sub));
 			number_[i] = part;
 
-			last -= modulusDegree() - 1;
-			first = cutOffLeftBorder<int>(first - modulusDegree() + 1, 0);
+			last -= modulusDegree();
+			first = cutOffLeftBorder<int>(first - modulusDegree(), 0);
 		}
 		std::fill(std::next(begin(), i), end(), zero());
 	}
@@ -142,7 +143,7 @@ public:
 			string part = std::to_string(number_[i]);
 			if (number_[i] != zero()) {
 				res += ((false == isFirstNonZeroMet) ? "" 
-					: string(modulusDegree() - 1 - part.size(), '0')) 
+					: string(modulusDegree() - part.size(), '0')) 
 					+ part;
 				isFirstNonZeroMet = true;
 			}
@@ -155,7 +156,10 @@ public:
 	constexpr size_t length() const { return lengthOfIntegrals; }
 
 protected:
-	constexpr IntegralType modulusDegree() const { return extra::bitsCount<IntegralType>() / 3; }
+	constexpr IntegralType modulusDegree() const { 
+		return static_cast<IntegralType>(std::floor(
+			std::log(2) / std::log(10) * double(extra::bitsCount<IntegralType>()))); 
+	}
 	constexpr IntegralType modulus() const { return powDozen<IntegralType>(modulusDegree()); }
 	constexpr IntegralType zero() const { return IntegralType(0); }
 

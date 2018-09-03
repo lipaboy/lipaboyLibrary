@@ -17,6 +17,7 @@ set(TEST_SOURCE
     hash_map/hash_map_test.h
     hash_map/hash_map_tests.cpp
 
+	extra_tools/maths_tools_tests.cpp
     extra_tools/extra_tools_tests.cpp
     extra_tools/extra_tools_tests.h
     )
