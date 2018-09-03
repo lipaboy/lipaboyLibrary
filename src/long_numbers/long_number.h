@@ -49,6 +49,12 @@ namespace extra {
 	template <class TWord>
 	inline constexpr size_t bitsCount() { return sizeof(TWord) * 8; }
 
+	template <class TWord, class TSign>
+	TSign sign(bool isNegative, TWord const & word) {
+		return (isNegative * TSign(-1) + !isNegative * TSign(1))
+			* (word != TWord(0));
+	}
+
 }
 
 // Requirements: 
@@ -60,7 +66,8 @@ class LongIntegerDecimal
 public:
 	using TIntegral = std::uint32_t;
 	using TResult = std::uint64_t;
-	using TSign = signed int;
+	using TSigned = std::int32_t;
+	using TSignedResult = std::int64_t;
 
     using IntegralType =
         std::remove_reference_t<
@@ -85,12 +92,6 @@ public:
 		number_[0] = std::abs(small);
 		std::fill(std::next(begin()), end(), TIntegral(0));
 	}
-	LongIntegerDecimal(LongIntegerDecimal const & other) 
-		: minus_(other.minus_) 
-	{
-		checkTemplateParameters();
-		std::copy(other.cbegin(), other.cend(), this->begin());
-	}
 
 	explicit
 	LongIntegerDecimal(string const & numberDecimalStr) : minus_(false) {
@@ -103,7 +104,7 @@ public:
 			int lel = std::stoi(sub);
 			if (first <= 0 && lel < 0)		// it means that this decoded part is last
 				minus_ = true;
-			IntegralType part = static_cast<IntegralType>(lel);
+			IntegralType part = static_cast<IntegralType>(std::abs(lel));
 			
 			number_[i] = part;
 
@@ -123,15 +124,22 @@ public:
 
 		IntegralType lessPart = zeroIntegral();
 		IntegralType morePart = zeroIntegral();
+		TSigned sign(1);
 		for (size_t i = 0; i < length(); i++) {
-			TResult doubleTemp = res[i] + other[i] + morePart;
+			const TSignedResult doubleTemp = TSignedResult(
+				res.sign() * TSigned(res[i]) 
+				+ other.sign() * TSigned(other[i])
+				+ sign * TSigned(morePart)
+				);
 
-			lessPart = doubleTemp & lessHalfOfBits;
-			morePart = static_cast<IntegralType>((doubleTemp & moreHalfOfBits) >> halfBits);
+			lessPart = TResult(std::abs(doubleTemp)) & lessHalfOfBits;
+			morePart = IntegralType((TResult(std::abs(doubleTemp)) & moreHalfOfBits) >> halfBits);
+			sign = extra::sign<TSignedResult, TSigned>(doubleTemp < 0, doubleTemp);
 
 			res[i] = lessPart % modulus();
 			morePart += lessPart / modulus();
 		}
+		res.setSign(sign);
 
 		return res;
 	}
@@ -145,7 +153,7 @@ public:
 					: std::to_string(elem) + acc;
 			});*/
 		// Better realization (reallocation memory criteria)
-		string res = "";
+		string res = (minus_) ? "-" : "";
 		bool isFirstNonZeroMet = false;
 		for (int i = length() - 1; i >= 0; i--) {
 			string part = std::to_string(number_[i]);
@@ -162,10 +170,10 @@ public:
 	//------------Setters, Getters----------//
 
 	constexpr size_t length() const { return lengthOfIntegrals; }
-	TSign sign() const { 
-		return (minus_ * TSign(-1) + !minus_ * TSign(1))
-			* ((*this) != LongIntegerDecimal(TIntegral(0)));
+	TSigned sign() const { 
+		return extra::sign<LongIntegerDecimal, TSigned>(minus_, *this);
 	}
+	void setSign(TSigned sign) { minus_ = sign < 0; }
 
 	//------------Comparison----------------//
 
@@ -174,7 +182,7 @@ public:
 	}
 	bool operator== (LongIntegerDecimal const & other) const { return !(*this != other); }
 	bool operator< (LongIntegerDecimal const & other) const {
-		if (sign() * other.sign() < TSign(0))
+		if (sign() * other.sign() < TSigned(0))
 			return minus_;
 		return std::lexicographical_compare(cbegin(), cend(), other.cbegin(), other.cend());
 	}

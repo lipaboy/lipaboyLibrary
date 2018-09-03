@@ -98,11 +98,30 @@ TEST(LongInteger, sum_double_rank_by_crossing_parts) {
 	ASSERT_EQ("901001000201", (num1 + num2).to_string());
 }
 
+TEST(LongInteger, sum_double_rank_by_independent_parts_negative) {
+	LongIntegerDecimal<2> num1(" 789101000201");
+	LongIntegerDecimal<2> num2("-111001000001");
+
+	ASSERT_EQ("678100000200", (num1 + num2).to_string());
+}
+
 TEST(LongInteger, sum_double_rank_by_independent_parts) {
 	LongIntegerDecimal<2> num1("789100000200");
 	LongIntegerDecimal<2> num2("111001000001");
 
 	ASSERT_EQ("900101000201", (num1 + num2).to_string());
+}
+
+TEST(LongInteger, sum_single_rank_negative) {
+	LongIntegerDecimal<1> num1("1010002");
+	LongIntegerDecimal<1> num2(" -10000");
+
+	ASSERT_EQ("1000002", (num1 + num2).to_string());
+
+	LongIntegerDecimal<1> num3("-1010002");
+	LongIntegerDecimal<1> num4("   10000");
+
+	ASSERT_EQ("-1000002", (num3 + num4).to_string());
 }
 
 TEST(LongInteger, sum_single_rank) {
@@ -122,7 +141,6 @@ TEST(LongInteger, check) {
 	res[res.size() - 1] = s[0];
 
 	ASSERT_EQ(res, (num1 + num2).to_string());
-
 }
 
 }
