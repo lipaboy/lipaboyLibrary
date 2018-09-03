@@ -22,8 +22,7 @@ namespace long_numbers_space {
 
 // PLAN
 // ----
-// TODO: write constructor which will be parse the std::string of number (Deserialization).
-// TODO: write the method to serialization the number into std::string.
+// TODO: write tests for serialization the number from string
 
 using std::array;
 using std::string;
@@ -81,30 +80,31 @@ public:
 		checkTemplateParameters();
 	}
 	explicit
-		LongIntegerDecimal(int small) : minus_(std::signbit(small)) {
+	LongIntegerDecimal(int small) : minus_(small < 0) {
 		checkTemplateParameters();
 		number_[0] = std::abs(small);
 		std::fill(std::next(begin()), end(), TIntegral(0));
 	}
-    explicit
-    LongIntegerDecimal(int32_t small) : minus_(false) {
-		checkTemplateParameters();
-        number_[0] = small;
-		std::fill(std::next(begin()), end(), TIntegral(0));
-    }
-	LongIntegerDecimal(LongIntegerDecimal const & other) : minus_(other.minus_) {
+	LongIntegerDecimal(LongIntegerDecimal const & other) 
+		: minus_(other.minus_) 
+	{
 		checkTemplateParameters();
 		std::copy(other.cbegin(), other.cend(), this->begin());
 	}
 
-	LongIntegerDecimal(string const & numberDecimalStr) {
+	explicit
+	LongIntegerDecimal(string const & numberDecimalStr) : minus_(false) {
 		int last = numberDecimalStr.size();
 		int first = cutOffLeftBorder<int>(last - modulusDegree(), 0);
 		size_t i = 0;
 		for (; last - first > 0 && i < length(); i++) {
 			// for optimization you need to see the StringView (foly library)
 			auto sub = numberDecimalStr.substr(first, last - first);
-			IntegralType part = static_cast<IntegralType>(std::stoi(sub));
+			int lel = std::stoi(sub);
+			if (first <= 0 && lel < 0)		// it means that this decoded part is last
+				minus_ = true;
+			IntegralType part = static_cast<IntegralType>(lel);
+			
 			number_[i] = part;
 
 			last -= modulusDegree();
@@ -162,7 +162,10 @@ public:
 	//------------Setters, Getters----------//
 
 	constexpr size_t length() const { return lengthOfIntegrals; }
-	//TSign sign() const { return m}
+	TSign sign() const { 
+		return (minus_ * TSign(-1) + !minus_ * TSign(1))
+			* ((*this) != LongIntegerDecimal(TIntegral(0)));
+	}
 
 	//------------Comparison----------------//
 
@@ -170,7 +173,10 @@ public:
 		return (minus_ != other.minus_ || !std::equal(cbegin(), cend(), other.cbegin()));
 	}
 	bool operator== (LongIntegerDecimal const & other) const { return !(*this != other); }
-	//bool operator<
+	/*bool operator< (LongIntegerDecimal const & other) const {
+		return minus_ 
+			std::lexicographical_compare(cbegin(), cend(), other.cbegin(), other.cend());
+	}*/
 
 protected:
 	constexpr IntegralType modulusDegree() const { 
