@@ -20,13 +20,15 @@ namespace long_numbers_space {
 	// Motivation: I wanna check the theorem in Theory of Numbers 
 	//			   (you know it or you can find it in pale red pocket book "Theory of Numbers in Cryptography")
 
-// PLAN
-// ----
-// TODO: write tests for serialization the number from string
-// THINK ABOUT: creating class LongIntegerViewer that doesn't able to change state
-//				of long number but can has different sign.
-//				It is related to constness property of such appearance. Half-const object property.
-// TODO: write requirements (see operator*)
+	// PLAN
+	// ----
+	// TODO: write tests for serialization the number from string
+	// THINK ABOUT: creating class LongIntegerViewer that doesn't able to change state
+	//				of long number but can has different sign.
+	//				It is related to constness property of such appearance. Half-const object property.
+	// TODO: write requirements (see operator*)
+	// TODO: you can write summarize of long numbers with variadic templates (expand all the integral numbers)
+	// TODO: write LongInteger with std::vector (ExtendingInteger).
 
 using std::array;
 using std::string;
