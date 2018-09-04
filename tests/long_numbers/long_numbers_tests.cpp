@@ -129,6 +129,15 @@ TEST(LongInteger, inverse_the_number) {
 
 //---------Operator+ checking-----------//
 
+TEST(LongInteger, sum_triple_rank_simple) {
+	LongIntegerDecimal<3> num1("22000000789100000200");
+	LongIntegerDecimal<3> num2("23000000111901000001");
+
+	ASSERT_EQ("45000000901001000201", (num1 + num2).to_string());
+	ASSERT_EQ("45000000901001000201", (num2 + num1).to_string());
+}
+
+
 TEST(LongInteger, sum_double_rank_by_crossing_parts) {
 	LongIntegerDecimal<2> num1("789100000200");
 	LongIntegerDecimal<2> num2("111901000001");

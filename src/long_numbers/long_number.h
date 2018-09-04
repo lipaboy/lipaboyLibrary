@@ -29,6 +29,7 @@ namespace long_numbers_space {
 	// TODO: write requirements (see operator*)
 	// TODO: you can write summarize of long numbers with variadic templates (expand all the integral numbers)
 	// TODO: write LongInteger with std::vector (ExtendingInteger).
+	// TODO: make project for doing benchmarks
 
 using std::array;
 using std::string;
@@ -135,17 +136,17 @@ public:
 	const_reference operator+=(const_reference other) {
 		// Think_About: maybe std::partial_sum can be useful?
 
-		IntegralType morePart = zeroIntegral();
+		IntegralType reminder = zeroIntegral();
 		TSigned sign(1);
 		for (size_t i = 0; i < length(); i++) {
 			const TSignedResult doubleTemp = TSignedResult(
 				this->sign() * TSigned((*this)[i])
 				+ other.sign() * TSigned(other[i])
-				+ sign * TSigned(morePart)
+				+ sign * TSigned(reminder)
 			);
 
-			(*this)[i] = std::abs(doubleTemp) % modulus();
-			morePart += std::abs(doubleTemp) / modulus();
+			(*this)[i] = IntegralType(std::abs(doubleTemp) % modulus());
+			reminder = IntegralType(std::abs(doubleTemp) / modulus());
 			sign = extra::sign<TSignedResult, TSigned>(doubleTemp < 0, doubleTemp);
 		}
 		this->setSign(sign);
@@ -174,16 +175,16 @@ public:
 		//		   2) Decimal type of this class.
 		for (size_t i = 0; i < length(); i++) 
 		{
-			IntegralType morePart = zeroIntegral();
+			IntegralType reminder = zeroIntegral();
 			for (size_t j = 0; j < other.length(); j++) 
 			{
 				if (i + j >= res.length())
 					break;
 
-				const TResult doubleTemp = TResult((*this)[i]) * other[j] + morePart;
+				const TResult doubleTemp = TResult((*this)[i]) * other[j] + reminder;
 				// Detail #2
-				res[i + j] += doubleTemp % modulus();
-				morePart += doubleTemp / modulus();
+				res[i + j] += IntegralType(doubleTemp % modulus());
+				reminder = IntegralType(doubleTemp / modulus());
 			}
 		}
 		res.setSign(sign() * other.sign());
@@ -211,11 +212,19 @@ public:
 	//------------Setters, Getters----------//
 
 	constexpr size_t length() const { return lengthOfIntegrals; }
+
 	// sign() - #much-costs operation because it compares *this with zero number
 	TSigned sign() const { 
 		return extra::sign<LongIntegerDecimal, TSigned>(minus_, *this);
 	}
+
 	void setSign(TSigned sign) { minus_ = sign < 0; }
+
+	// Question: is it normal? Two methods have the same signature and live together?? 
+	//			 Maybe operator[] is exception of rules?
+	const_reference_integral operator[] (size_t index) const { return number_[index]; }
+
+	reference_integral operator[] (size_t index) { return number_[index]; }
 
 	//------------Comparison----------------//
 
@@ -230,22 +239,20 @@ public:
 	}
 	bool operator<= (const_reference other) const { return (*this) < other || (*this) == other; }
 
-protected:
+public:
 	constexpr IntegralType modulusDegree() const { 
 		return static_cast<IntegralType>(std::floor(
 			std::log(2) / std::log(10) * double(extra::bitsCount<IntegralType>()))); 
 	}
 	constexpr IntegralType modulus() const { return powDozen<IntegralType>(modulusDegree()); }
+
+private:
 	constexpr IntegralType zeroIntegral() const { return IntegralType(0); }
 
 	iterator begin() { return number_.begin(); }
 	iterator end() { return number_.end(); }
 	const_iterator cbegin() const { return number_.cbegin(); }
 	const_iterator cend() const { return number_.cend(); }
-	// Question: is it normal? Two methods have the same signature and live together?? 
-	//			 Maybe operator[] is exception of rules?
-	const_reference_integral operator[] (size_t index) const { return number_[index]; }
-	reference_integral operator[] (size_t index) { return number_[index]; }
 
 private:
 	void checkTemplateParameters() {
@@ -255,12 +262,21 @@ private:
 private:
     array<IntegralType, lengthOfIntegrals> number_;
 	bool minus_;
-
-
-public:
-	// Class behavior
-
 };
+//
+//template <size_t length, size_t index>
+//void summarize(
+//	LongIntegerDecimal<length> &		dest,
+//	LongIntegerDecimal<length> const &	src,
+//	typename LongIntegerDecimal<length>::IntegralType reminder
+//)
+//{
+//	const typename LongIntegerDecimal<length>::TSignedResult 
+//		doubleTemp = dest[index] + src[index] + reminder;
+//	dest[index] = std::abs(doubleTemp) / dest.modulus();
+//	auto newReminder = 
+//}
+
 
 }
 
