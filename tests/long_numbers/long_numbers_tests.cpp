@@ -85,6 +85,20 @@ TEST(LongInteger, equality) {
 	ASSERT_EQ(num1, num2);
 }
 
+//---------Operator* checking-----------//
+
+TEST(LongInteger, multiplication_simple) {
+	LongIntegerDecimal<1> num1("2");
+	LongIntegerDecimal<1> num2("2");
+
+	ASSERT_EQ((num1 * num2).to_string(), "4");
+
+	LongIntegerDecimal<2> num3("200000");
+	LongIntegerDecimal<2> num4("200000");
+
+	EXPECT_EQ((num3 * num4).to_string(), "40000000000");
+}
+
 //---------Operator- checking-----------//
 
 TEST(LongInteger, inverse_the_number) {

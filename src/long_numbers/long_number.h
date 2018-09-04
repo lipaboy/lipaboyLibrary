@@ -23,6 +23,9 @@ namespace long_numbers_space {
 // PLAN
 // ----
 // TODO: write tests for serialization the number from string
+// THINK ABOUT: creating class LongIntegerViewer that doesn't able to change state
+//				of long number but can has different sign.
+//				It is related to constness property of such appearance. Half-const object property.
 
 using std::array;
 using std::string;
@@ -77,8 +80,10 @@ public:
 	using iterator = typename ContainerType::iterator;
 	using const_iterator = typename ContainerType::const_iterator;
 
-	using reference = IntegralType&;
-	using const_reference = const IntegralType&;
+	using reference = LongIntegerDecimal &;
+	using const_reference = const LongIntegerDecimal&;
+	using reference_integral = IntegralType & ;
+	using const_reference_integral = const IntegralType&;
 
 protected:
 	LongIntegerDecimal(ContainerType const & number, bool minus)
@@ -120,11 +125,11 @@ public:
 	}
 
 	// TODO: calculate how much copy-constructor was called
-	LongIntegerDecimal operator+(LongIntegerDecimal const & other) const {
+	LongIntegerDecimal operator+(const_reference other) const {
 		return (LongIntegerDecimal(*this) += other);
 	}
 
-	LongIntegerDecimal const & operator+=(LongIntegerDecimal const & other) {
+	const_reference operator+=(const_reference other) {
 		constexpr size_t halfBits = extra::bitsCount<TResult>() / 2;
 		constexpr TResult lessHalfOfBits = extra::setBitsFromStart<TResult>(halfBits);
 		constexpr TResult moreHalfOfBits = ~lessHalfOfBits;
@@ -154,33 +159,56 @@ public:
 	}
 
 	// TODO: you can optimize it. When inverse operator is called then useless copy will be created.
-	LongIntegerDecimal const & operator-=(LongIntegerDecimal const & other) { return (*this) += -other; }
+	const_reference operator-=(const_reference other) { return (*this) += -other; }
 
-	LongIntegerDecimal operator-(LongIntegerDecimal const & other) const { 
+	LongIntegerDecimal operator-(const_reference other) const {
 		return (LongIntegerDecimal(*this) += -other);
 	}
 
-	LongIntegerDecimal operator-() const {
-		return LongIntegerDecimal(number_, !minus_);
+	LongIntegerDecimal operator-() const { return LongIntegerDecimal(number_, !minus_); }
+
+	LongIntegerDecimal operator*(const_reference other) const {
+		LongIntegerDecimal res(0);
+
+		constexpr size_t halfBits = extra::bitsCount<TResult>() / 2;
+		constexpr TResult lessHalfOfBits = extra::setBitsFromStart<TResult>(halfBits);
+		constexpr TResult moreHalfOfBits = ~lessHalfOfBits;
+
+		// This chapter has two parts
+		// First part. Bisecting the result by two portions: main and overflow ones
+		// Second part. Assigning the main portion into destination 
+		//				and saving the overflow one in order to take account at next multiplication.
+		// Detail. There are two overflow portions that appear by two requirements:
+		//		   1) Type can't storage more than it's capable.
+		//		   2) Decimal type of this class.
+		for (size_t i = 0; i < length(); i++) 
+		{
+			IntegralType morePart = zeroIntegral();
+			for (size_t j = 0; j < other.length(); j++) 
+			{
+				if (i + j >= res.length())
+					break;
+
+				const TResult doubleTemp = TResult((*this)[i]) * other[j] + morePart;
+				// Detail #2
+				res[i + j] += doubleTemp % modulus();
+				morePart += doubleTemp / modulus();
+			}
+		}
+		res.setSign(sign() * other.sign());
+
+		return res;
 	}
 
 	//-------------Converter---------------//
 
 	string to_string() const {
-		// Opinion: bad readible
-		/*return std::accumulate(std::next(cbegin()), cend(),
-			std::to_string(number_[0]),
-			[](string& acc, IntegralType elem) {
-				return (elem == zeroIntegral()) ? acc 
-					: std::to_string(elem) + acc;
-			});*/
-		// Better realization (reallocation memory criteria)
 		string res = (minus_) ? "-" : "";
 		bool isFirstNonZeroMet = false;
 		for (int i = length() - 1; i >= 0; i--) {
 			string part = std::to_string(number_[i]);
-			if (number_[i] != zeroIntegral()) {
-				res += ((false == isFirstNonZeroMet) ? "" 
+			if (isFirstNonZeroMet || number_[i] != zeroIntegral()) {
+				res += ((!isFirstNonZeroMet) ? "" 
 					: string(modulusDegree() - part.size(), '0')) 
 					+ part;
 				isFirstNonZeroMet = true;
@@ -223,8 +251,8 @@ protected:
 	const_iterator cend() const { return number_.cend(); }
 	// Question: is it normal? Two methods have the same signature and live together?? 
 	//			 Maybe operator[] is exception of rules?
-	const_reference operator[] (size_t index) const { return number_[index]; }
-	reference operator[] (size_t index) { return number_[index]; }
+	const_reference_integral operator[] (size_t index) const { return number_[index]; }
+	reference_integral operator[] (size_t index) { return number_[index]; }
 
 private:
 	void checkTemplateParameters() {
