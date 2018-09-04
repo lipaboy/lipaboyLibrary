@@ -26,6 +26,7 @@ namespace long_numbers_space {
 // THINK ABOUT: creating class LongIntegerViewer that doesn't able to change state
 //				of long number but can has different sign.
 //				It is related to constness property of such appearance. Half-const object property.
+// TODO: write requirements (see operator*)
 
 using std::array;
 using std::string;
@@ -130,13 +131,8 @@ public:
 	}
 
 	const_reference operator+=(const_reference other) {
-		constexpr size_t halfBits = extra::bitsCount<TResult>() / 2;
-		constexpr TResult lessHalfOfBits = extra::setBitsFromStart<TResult>(halfBits);
-		constexpr TResult moreHalfOfBits = ~lessHalfOfBits;
-
 		// Think_About: maybe std::partial_sum can be useful?
 
-		IntegralType lessPart = zeroIntegral();
 		IntegralType morePart = zeroIntegral();
 		TSigned sign(1);
 		for (size_t i = 0; i < length(); i++) {
@@ -146,12 +142,9 @@ public:
 				+ sign * TSigned(morePart)
 			);
 
-			lessPart = TResult(std::abs(doubleTemp)) & lessHalfOfBits;
-			morePart = IntegralType((TResult(std::abs(doubleTemp)) & moreHalfOfBits) >> halfBits);
+			(*this)[i] = std::abs(doubleTemp) % modulus();
+			morePart += std::abs(doubleTemp) / modulus();
 			sign = extra::sign<TSignedResult, TSigned>(doubleTemp < 0, doubleTemp);
-
-			(*this)[i] = lessPart % modulus();
-			morePart += lessPart / modulus();
 		}
 		this->setSign(sign);
 
@@ -169,10 +162,6 @@ public:
 
 	LongIntegerDecimal operator*(const_reference other) const {
 		LongIntegerDecimal res(0);
-
-		constexpr size_t halfBits = extra::bitsCount<TResult>() / 2;
-		constexpr TResult lessHalfOfBits = extra::setBitsFromStart<TResult>(halfBits);
-		constexpr TResult moreHalfOfBits = ~lessHalfOfBits;
 
 		// This chapter has two parts
 		// First part. Bisecting the result by two portions: main and overflow ones
@@ -220,6 +209,7 @@ public:
 	//------------Setters, Getters----------//
 
 	constexpr size_t length() const { return lengthOfIntegrals; }
+	// sign() - #much-costs operation because it compares *this with zero number
 	TSigned sign() const { 
 		return extra::sign<LongIntegerDecimal, TSigned>(minus_, *this);
 	}
@@ -227,15 +217,16 @@ public:
 
 	//------------Comparison----------------//
 
-	bool operator!= (LongIntegerDecimal const & other) const {
+	bool operator!= (const_reference other) const {
 		return (minus_ != other.minus_ || !std::equal(cbegin(), cend(), other.cbegin()));
 	}
-	bool operator== (LongIntegerDecimal const & other) const { return !(*this != other); }
-	bool operator< (LongIntegerDecimal const & other) const {
-		if (sign() * other.sign() < TSigned(0))
+	bool operator== (const_reference other) const { return !(*this != other); }
+	bool operator< (const_reference other) const {
+		if (sign() * other.sign() < TSigned(0))		// #much-costs condition because see sign()
 			return minus_;
 		return std::lexicographical_compare(cbegin(), cend(), other.cbegin(), other.cend());
 	}
+	bool operator<= (const_reference other) const { return (*this) < other || (*this) == other; }
 
 protected:
 	constexpr IntegralType modulusDegree() const { 

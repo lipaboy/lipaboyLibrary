@@ -87,6 +87,26 @@ TEST(LongInteger, equality) {
 
 //---------Operator* checking-----------//
 
+TEST(LongInteger, multiplication_double_rank_by_independent_parts) {
+	LongIntegerDecimal<2> num3("200200");
+	LongIntegerDecimal<2> num4("200200");
+
+	EXPECT_EQ((num3 * num4).to_string(), "40080040000");
+}
+
+TEST(LongInteger, multiplication_different_signs) {
+	LongIntegerDecimal<1> num1("-2");
+	LongIntegerDecimal<1> num2("2");
+
+	ASSERT_EQ((num1 * num2).to_string(), "-4");
+	ASSERT_EQ((num2 * num1).to_string(), "-4");
+
+	LongIntegerDecimal<2> num3("-200000");
+	LongIntegerDecimal<2> num4("-200000");
+
+	EXPECT_EQ((num3 * num4).to_string(), "40000000000");
+}
+
 TEST(LongInteger, multiplication_simple) {
 	LongIntegerDecimal<1> num1("2");
 	LongIntegerDecimal<1> num2("2");
@@ -114,6 +134,7 @@ TEST(LongInteger, sum_double_rank_by_crossing_parts) {
 	LongIntegerDecimal<2> num2("111901000001");
 
 	ASSERT_EQ("901001000201", (num1 + num2).to_string());
+	ASSERT_EQ("901001000201", (num2 + num1).to_string());
 }
 
 TEST(LongInteger, sum_double_rank_by_independent_parts_negative) {
@@ -121,6 +142,7 @@ TEST(LongInteger, sum_double_rank_by_independent_parts_negative) {
 	LongIntegerDecimal<2> num2("-111001000001");
 
 	ASSERT_EQ("678100000200", (num1 + num2).to_string());
+	ASSERT_EQ("678100000200", (num2 + num1).to_string());
 }
 
 TEST(LongInteger, sum_double_rank_by_independent_parts) {
@@ -135,11 +157,13 @@ TEST(LongInteger, sum_single_rank_negative) {
 	LongIntegerDecimal<1> num2(" -10000");
 
 	ASSERT_EQ("1000002", (num1 + num2).to_string());
+	ASSERT_EQ("1000002", (num2 + num1).to_string());
 
 	LongIntegerDecimal<1> num3("-1010002");
 	LongIntegerDecimal<1> num4("   10000");
 
 	ASSERT_EQ("-1000002", (num3 + num4).to_string());
+	ASSERT_EQ("-1000002", (num4 + num3).to_string());
 }
 
 TEST(LongInteger, sum_single_rank) {
