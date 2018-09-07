@@ -10,8 +10,6 @@ namespace lipaboy_lib {
 
 	namespace stream_v2_space {
 
-
-
 		//-------------Different types of Stream---------------//
 
 		template <class TIterator>

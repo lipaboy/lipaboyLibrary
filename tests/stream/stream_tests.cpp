@@ -29,8 +29,9 @@ using std::string;
 using std::unique_ptr;
 
 using namespace lipaboy_lib;
-using namespace lipaboy_lib::stream_space;
-using namespace lipaboy_lib::stream_space::operators_space;
+
+using namespace lipaboy_lib::stream_v2_space;
+using namespace lipaboy_lib::stream_v2_space::operators_space;
 
 //---------------------------------Tests-------------------------------//
 
@@ -83,6 +84,7 @@ TEST_F(PrepareStreamTest, move_constructor_by_extending_the_stream) {
 
 
 TEST(Filter, sample) {
+	int i = 0;
     auto res = buildStream(1, 2, 3)
             | filter([] (auto x) { return (x == x); })
             | to_vector();

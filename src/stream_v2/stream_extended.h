@@ -147,6 +147,14 @@ namespace lipaboy_lib {
 			//-----------------------------Slider API Ends----------------------------//
 			//------------------------------------------------------------------------//
 
+			bool operator==(Stream & other) { return equals(other); }
+			bool operator!=(Stream & other) { return !((*this) == other); }
+		private:
+			bool equals(Stream & other) {
+				return (operator_ == other.operator_
+					&& superThisPtr()->equals(static_cast<SuperType&>(other))
+					);
+			}
 
 		public:
 			TOperator const & operation() const { return operator_; }

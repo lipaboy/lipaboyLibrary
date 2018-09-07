@@ -14,7 +14,8 @@ namespace lipaboy_lib {
 		namespace operators_space {
 
 			// What's stream at all?
-			// Answer: Stream is "lazy iterator". Single-pass. Save sequence of elements.
+			// Answer: Stream is not iterator (because can't return current element). 
+			//		   Single-pass. Save sequence of elements (periphrase).
 
 			// PLAN FOR STREAM:
 			//-----------------
@@ -23,18 +24,16 @@ namespace lipaboy_lib {
 			// TODO: test different lambdas (with const&T in return type, with T& in argument type)
 			// TODO: make Noisy test for reduce operation
 			// TODO: think about writing iterators for Stream 
-			//		 - it strange because Stream is a lazy iterator. It must be initialized. 
-			//		   But std::algorithms doesn't call .init() method.
-			//		 - Interesting fact: all the std::algorithms are terminated operations.
-			//		 Stream is like specific iterator (like boost::transform_iterator)
-			// TODO: instead of using std::any into group_by_vector (too many dynamic allocations)
-			//		 you can replace it on two classes: group_by_vector and group_by_vector_impl<T>
-			//		 where you store type into template parameter. Client will use ungeneric group_by_vector
-			//		 but Stream will substitute it on generic group_by_vector_impl<T>
-			//		---The same in ungroup_by_bit class!
-			// TODO: wrap the temporary values into shared_ptr (in ungroup_by_bit)
-			// TODO: write MovableStream (maybe you need move_iterators??) but if you have InitializerListIterator??
-			// TODO: think about issue to workin with InitializerList inside of Stream
+			//			- Iterator must be storage temporary current values.
+			//			- Interesting fact: all the std::algorithms are terminated operations.
+			// TODO: write advises for them who will write operators for Stream, for example:
+			//			- When you write operator and you have inner fields that must be initialized
+			//			  by Stream's elem then you should do it into hasNext<>() because
+			//			  likely it is first that called by all the terminated operations (or clients).
+			//			  And furthermore you likely will call hasNext<>() into nextElem<>() and incrementSlider<>().
+			//			  Or you can write private method init<>().
+			//			- Note: if client call the hasNext<>() then he start using Stream. 
+			//					It means that you can use all the API functions of Stream interface.
 
 
 

@@ -49,6 +49,8 @@ namespace lipaboy_lib {
 						*pCurrentElem_ = std::move(stream.nextElem());
 						hasNext(stream);
 					}
+					else
+						pCurrentElem_ = nullptr;
 					return std::move(temp);
 				}
 

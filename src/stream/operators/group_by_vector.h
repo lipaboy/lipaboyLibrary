@@ -10,7 +10,6 @@ namespace lipaboy_lib {
 
 namespace stream_space {
 
-// TODO: refactor it
 namespace operators_space {
 
 	using std::vector;

@@ -59,8 +59,8 @@ namespace lipaboy_lib {
 				Stream(std::initializer_list<T> init) 
 				: begin_(init)
 			{
-				if constexpr (isInitializerListCreation())
-						end_ = begin.endIter();
+				if constexpr (Stream::isInitializingListCreation())
+						end_ = begin_.endIter();
 			}
 			explicit
 				Stream(typename GeneratorTypePtr generator) 
@@ -75,13 +75,13 @@ namespace lipaboy_lib {
 			static constexpr bool isGeneratorProducing() {
 				return std::is_same_v<TIterator, ProducingIterator<ValueType> >;
 			}
-			static constexpr bool isInitilizerListCreation() {
+			static constexpr bool isInitializingListCreation() {
 				return std::is_same_v<TIterator, InitializerListIterator<ValueType>
 					//typename std::initializer_list<ValueType>::iterator
 				>;
 			}
 			static constexpr bool isOutsideIteratorsRefer() {
-				return !isGeneratorProducing() && !isInitilizerListCreation();
+				return !isGeneratorProducing() && !isInitializingListCreation();
 			}
 
 		public:
@@ -111,6 +111,14 @@ namespace lipaboy_lib {
 
 			//-----------------Slider API Ends--------------//
 
+		public:
+			bool operator==(Stream const & other) const { return equals(other); }
+			bool operator!=(Stream const & other) const { return !((*this) == other); }
+		private:
+			bool equals(Stream const & other) const { 
+				return begin_ == other.begin_ 
+					&& end_ == other.end_; 
+			}
 
 		private:
 			TIterator begin_;

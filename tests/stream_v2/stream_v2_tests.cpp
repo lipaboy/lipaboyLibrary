@@ -47,6 +47,13 @@ namespace stream_v2_tests {
 			| nth(1);
 
 		ASSERT_EQ(kek, 4);
+
+		vector<int> lol2 = { 1, 2, 3, 4 };
+		auto kek2 = buildStream(lol2.begin(), lol2.end())
+			| group_by_vector(2)
+			| nth(1);
+
+		ASSERT_EQ(kek2, decltype(kek2)({ 3, 4 }));
 	}
 
 }

@@ -1,15 +1,21 @@
 #pragma once
 
-//#include "terminated_operators.h"
-//#include "unterminated_operators.h"
-//#include "group_by_vector.h"
-//#include "ungroup_by_bit.h"
-
-
 #include "tools.h"
 
+// non-terminated operations
 #include "filter.h"
+#include "group_by_vector.h"
+#include "get.h"
+#include "skip.h"
+#include "ungroup_by_bit.h"
+#include "map.h"
+
+//	   terminated operations
 #include "nth.h"
+#include "print_to.h"
+#include "reduce.h"
+#include "sum.h"
+#include "to_vector.h"
 
 namespace lipaboy_lib {
 
