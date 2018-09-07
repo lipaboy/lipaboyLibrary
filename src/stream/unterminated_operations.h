@@ -111,16 +111,11 @@ namespace operations_space {
 
 		template <class TSubStream>
 		void init(TSubStream& stream)
-		{
-			hasNext<TSubStream>(stream);
-		}
+		{}
 
 		template <class TSubStream>
 		auto nextElem(TSubStream& stream) -> typename TSubStream::ResultValueType {
-			auto currElem = std::move(stream.nextElem());
-			// ! calling hasNext() of current StreamType ! in order to skip unfilter elems
-			hasNext<TSubStream>(stream);
-			return std::move(currElem);
+			return std::move(stream.nextElem());
 		}
 
 		template <class TSubStream>
@@ -129,12 +124,7 @@ namespace operations_space {
 		}
 
 		template <class TSubStream>
-		bool hasNext(TSubStream& stream) { 
-			for (; stream.hasNext(); stream.nextElem())
-				if (true == functor()(std::move(currentElem<TSubStream>(stream))))
-					return true;
-			return false;
-		}
+		bool hasNext(TSubStream& stream) { return stream.hasNext(); }
 	};
 
 	template <class Transform>
@@ -322,43 +312,18 @@ namespace operations_space {
 
 		template <class TSubStream>
 		void init(TSubStream& stream)
-		{
-			currBit_ = 0;
-			currentElem_ = stream.currentElem();
-		}
+		{}
 
 		template <class TSubStream>
 		auto nextElem(TSubStream& stream) -> typename TSubStream::ResultValueType {
-			using TResult = typename TSubStream::ResultValueType;
-			constexpr size_type bitsCountOfType = 8 * sizeof(TResult);
-			TResult & elem = *pCurrentElem<TSubStream>();
-
-			if (currBit_ % bitsCountOfType == 0)
-				currentElem_ = stream.nextElem();
-			bool res = (1 == (elem & (1 << currBit_)) >> currBit_);
-			currBit_ = (currBit_ + 1) % bitsCountOfType;	//iter++;
-
-			return res;
+			return std::move(stream.nextElem());
 		}
 
 		template <class TSubStream>
-		bool currentElem(TSubStream& stream) {
-			return ((*pCurrentElem<TSubStream>()) & (1 << currBit_)) >> currBit_;
+		auto currentElem(TSubStream& stream) -> typename TSubStream::ResultValueType {
+			return std::move(stream.currentElem());
 		}
-
-		template <class TSubStream>
-		bool hasNext(TSubStream& stream) { return currBit_ != 0 || stream.hasNext(); }
-
-	private:
-		template <class TSubStream>
-		auto pCurrentElem() -> typename TSubStream::ResultValueType* {
-			return std::any_cast<typename TSubStream::ResultValueType>(&currentElem_);
-		}
-
-		size_type currBit_;
-		std::any currentElem_;
 	};
-
 
 }	
 

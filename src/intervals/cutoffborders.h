@@ -3,7 +3,7 @@
 
 //#include <interval.h>
 
-namespace LipaboyLib {
+namespace lipaboy_lib {
 
 	template <typename T>
 	inline const T& cutOffBorder(const T& value, const T& rightBorder, const T& leftBorder) {

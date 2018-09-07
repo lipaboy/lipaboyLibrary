@@ -1,6 +1,6 @@
 #pragma once
 
-#include "unterminated_operations.h"
+#include "tools.h"
 
 #include "extra_tools/extra_tools.h"
 
@@ -19,7 +19,7 @@ namespace lipaboy_lib {
 
 namespace stream_space {
 
-namespace operations_space {
+namespace operators_space {
 
 	using std::vector;
 	using std::pair;
@@ -50,12 +50,12 @@ namespace operations_space {
 		template <class T>
 		struct result_of_else {
 		};
-		template <class F, class Arg>
-		struct result_of_else<F(Arg)> {
-			using type = typename std::result_of<F(Arg)>::type;
+		template <class F, class T>
+		struct result_of_else<F(T)> {
+			using type = typename std::result_of<F(T)>::type;
 		};
-		template <class Arg>
-		struct result_of_else<FalseType(Arg)>
+		template <class T>
+		struct result_of_else<FalseType(T)>
 			: std::false_type
 		{};
 		template <class T>
@@ -80,17 +80,17 @@ namespace operations_space {
 		FunctorHolder<IdentityFn>
 	{
 	public:
-		template <class TResult, class Arg>
-		using AccumRetType = typename std::result_of<Accumulator(TResult, Arg)>::type;
+		template <class TResult, class T>
+		using AccumRetType = typename std::result_of<Accumulator(TResult, T)>::type;
 		using IdentityFnType = IdentityFn;
 		using ArgType = typename GetFirstArgumentType_ElseArg<IdentityFnType, Accumulator>::type;
 		using IdentityRetType = lipaboy_lib::enable_if_else_t<std::is_same<IdentityFn, FalseType >::value,
 			ArgType, result_of_else_t<IdentityFnType(ArgType)> >;
 
-		template <class Arg>
+		template <class T>
 		using RetType = IdentityRetType;
 
-		static constexpr OperationMetaTypeEnum metaInfo = REDUCE;
+		static constexpr OperatorMetaTypeEnum metaInfo = REDUCE;
 		static constexpr bool isTerminated = true;
 	public:
 		reduce(IdentityFn&& identity, Accumulator&& accum)
@@ -133,17 +133,16 @@ namespace operations_space {
 	};
 
 	struct sum {
-		static constexpr OperationMetaTypeEnum metaInfo = SUM;
+		static constexpr OperatorMetaTypeEnum metaInfo = SUM;
 		static constexpr bool isTerminated = true;
 
-		template <class Arg>
-		using RetType = Arg;
+		template <class T>
+		using RetType = T;
 
 		template <class TStream>
 		auto apply(TStream & stream) -> typename TStream::ResultValueType 
 		{
 			using TResult = typename TStream::ResultValueType;
-			//stream.assertOnInfiniteStream<TStream>();
 			stream.init();
 			auto result = (stream.hasNext()) ? stream.nextElem() : TResult();
 			for (; stream.hasNext();)
@@ -154,34 +153,34 @@ namespace operations_space {
 
 	struct print_to {
 	public:
-		template <class Arg>
+		template <class T>
 		using RetType = std::ostream&;
 
 	public:
-		print_to(std::ostream& o, string delimiter = "") : ostreamObj_(o), delimiter_(delimiter) {}
-		static constexpr OperationMetaTypeEnum metaInfo = PRINT_TO;
+        print_to(std::ostream& o, string delimiter = "") : ostreamObj_(o), delimiter_(delimiter) {}
+		static constexpr OperatorMetaTypeEnum metaInfo = PRINT_TO;
 		static constexpr bool isTerminated = true;
 
 		template <class Stream_>
 		std::ostream& apply(Stream_ & obj) {
 			for (obj.init(); obj.hasNext(); )
-				ostream() << obj.nextElem() << printer.delimiter();
+                ostream() << obj.nextElem() << delimiter();
 			return ostream();
 		}
 
-		std::ostream& ostream() { return ostreamObj_; }
+        std::ostream& ostream() { return ostreamObj_; }
 		string const & delimiter() const { return delimiter_; }
 	private:
-		std::ostream& ostreamObj_;
+        std::ostream& ostreamObj_;
 		string delimiter_;
 	};
 
 	struct to_vector {
 	public:
-		template <class Arg>
-		using RetType = std::vector<Arg>;
+		template <class T>
+		using RetType = std::vector<T>;
 
-		static constexpr OperationMetaTypeEnum metaInfo = TO_VECTOR;
+		static constexpr OperatorMetaTypeEnum metaInfo = TO_VECTOR;
 		static constexpr bool isTerminated = true;
 	public:
 
@@ -199,11 +198,11 @@ namespace operations_space {
 	struct nth {
 		using size_type = size_t;
 
-		template <class Arg>
-		using RetType = Arg;
+		template <class T>
+		using RetType = T;
 
 		nth(size_type count) : count_(count) {}
-		static constexpr OperationMetaTypeEnum metaInfo = NTH;
+		static constexpr OperatorMetaTypeEnum metaInfo = NTH;
 		static constexpr bool isTerminated = true;
 
 		template <class Stream_>
@@ -211,10 +210,10 @@ namespace operations_space {
 		{
 			obj.init();
 			for (size_t i = 0; i < count() && obj.hasNext(); i++)
-				obj.nextElem();
+				obj.incrementSlider();
 			if (!obj.hasNext())
 				throw std::logic_error("Stream (nth operation) : index is out of range");
-			return obj.nextElem();
+			return std::move(obj.nextElem());
 		}
 
 		size_type count() const { return count_; }

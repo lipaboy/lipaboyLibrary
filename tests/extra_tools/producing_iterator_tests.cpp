@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 #include <iostream>
 
-#include "stream/producing_iterator.h"
+#include "extra_tools/producing_iterator.h"
 
 namespace stream_tests {
 
@@ -10,7 +10,6 @@ namespace stream_tests {
 	using std::cout;
 	using std::endl;
 
-	using stream_space::ProducingIterator;
 
 	TEST(ProducingIterator, lambda_relative_on_external_context) {
 		int x = 0;

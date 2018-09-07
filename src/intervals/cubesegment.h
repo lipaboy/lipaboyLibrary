@@ -6,7 +6,7 @@
 //
 //using namespace LipaboyLib;
 
-namespace LipaboyLib {
+namespace lipaboy_lib {
 
 class CubeSegment
 {

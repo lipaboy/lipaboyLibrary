@@ -2,8 +2,8 @@
 
 #include "stream_extended.h"
 #include "extra_tools/extra_tools.h"
-#include "producing_iterator.h"
-#include "initializer_list_iterator.h"
+#include "extra_tools/producing_iterator.h"
+#include "extra_tools/initializer_list_iterator.h"
 
 #include <vector>
 #include <functional>
@@ -45,16 +45,20 @@ public:
     template <typename, typename...> friend class Stream;
 
 	//using SuperType = void;
-	//using OperationType = TIterator;
+	//using OperatorType = TIterator;
 
 public:
     //----------------------Constructors----------------------//
 
     template <class OuterIterator>
     explicit
-    Stream(OuterIterator begin, OuterIterator end) : range_(begin, end) {}
+		Stream(OuterIterator begin, OuterIterator end) : range_(begin, end) {}
     explicit
-    Stream(std::initializer_list<T> init) : range_(init) {}
+		Stream(std::initializer_list<T> init) : range_(init) {}
+	//template <size_type size>
+	//explicit
+	//	Stream(T(&init)[size]) : range_(init) {}
+
     Stream(Stream const & obj) : range_(obj.range_)
     {
 #ifdef LOL_DEBUG_NOISY
@@ -77,21 +81,25 @@ protected:
     const Range & range() const { return range_; }
 protected:
     static constexpr bool isNoGetTypeBefore() { return true; }
-    static constexpr bool isNoGroupBefore() { return true; }
     static constexpr bool isGeneratorProducing() {
 		return std::is_same_v<TIterator, ProducingIterator<ValueType> >;
 	}
 	static constexpr bool isInitilizerListCreation() {
-		return std::is_same_v<TIterator, InitializerListIterator<ValueType> >;
+		return std::is_same_v<TIterator, InitializerListIterator<ValueType> 
+			//typename std::initializer_list<ValueType>::iterator
+		>;
 	}
 	static constexpr bool isOutsideIteratorsRefer() {
 		return !isGeneratorProducing() && !isInitilizerListCreation();
 	}
 
 public:
+	inline static constexpr bool isInfinite() {
+		return isGeneratorProducing() && isNoGetTypeBefore();
+	}
 	template <class TStream_>
-	inline static constexpr void assertOnInfiniteStream() {
-		static_assert(!TStream_::isGeneratorProducing() || !TStream_::isNoGetTypeBefore(),
+	inline static constexpr void assertOnInfinite() {
+		static_assert(!TStream_::isInfinite(),
 			"Stream error: attempt to work with infinite stream");
     }
 protected:
@@ -100,17 +108,13 @@ protected:
 	// (because all the variadic templates are friends
 	// from current Stream to first specialization) (it is not a real inheritance)
 
-    // TODO: think about this interface
-    ValueType getElem(size_type count) const {
-        return this->range().get(count);
-    }
-
     //-----------------Slider API--------------//
 public:
 	void init() { range().init(); }
     ResultValueType nextElem() { return std::move(range().nextElem()); }
     ValueType currentElem() { return std::move(range().currentElem()); }
     bool hasNext() { return range().hasNext(); }
+	void incrementSlider() { range().incrementSlider(); }
 
     //-----------------Slider API Ends--------------//
 

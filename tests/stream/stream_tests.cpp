@@ -30,7 +30,7 @@ using std::unique_ptr;
 
 using namespace lipaboy_lib;
 using namespace lipaboy_lib::stream_space;
-using namespace lipaboy_lib::stream_space::operations_space;
+using namespace lipaboy_lib::stream_space::operators_space;
 
 //---------------------------------Tests-------------------------------//
 
@@ -124,13 +124,12 @@ TEST(Get, InfiniteStream) {
     ASSERT_EQ(res, vector<int>({ 1, 5, 7, 11 }));
 }
 
-//TEST(Exception, Infinite) {
-//    int a = 1;
-//    auto stream = buildStream([&a]() { return a++; });
-//    ASSERT_ANY_THROW(stream
-//                     | map([] (int a) { return 2 * a; })
-//                     | to_vector());
-//}
+TEST(Infinite, check_is_so) {
+    int a = 1;
+    auto stream = buildStream([&a]() { return a++; })
+		| map([](int a) { return 2 * a; });
+	ASSERT_TRUE(stream.isInfinite());
+}
 
 TEST(Get, Infinite_Empty) {
     int a = 0;
@@ -191,20 +190,20 @@ TEST_F(PrepareStreamTest, Nth_last_elem) {
     ASSERT_EQ(res, pOutsideContainer->back());
 }
 
-//TEST_F(PrepareStreamTest, Nth_out_of_range) {
-//	ASSERT_ANY_THROW(buildStream(begin(), end()) | nth(pOutsideContainer->size()));
-//}
-//
-//TEST_F(PrepareStreamTest, Nth_out_of_range_by_negative_index) {
-//	ASSERT_ANY_THROW(buildStream(begin(), end()) | nth(-1));
-//}
-//
-//TEST_F(PrepareStreamTest, Nth_out_of_range_in_extended_stream) {
-//    ASSERT_ANY_THROW(buildStream(begin(), end())
-//                    | map([] (typename PrepareStreamTest::ElemType a) { return a; })
-//                    | nth(pOutsideContainer->size()));
-//	//buildStream(begin(), end()) | print_to(cout);
-//}
+TEST_F(PrepareStreamTest, Nth_out_of_range) {
+	ASSERT_ANY_THROW(buildStream(begin(), end()) | nth(pOutsideContainer->size()));
+}
+
+TEST_F(PrepareStreamTest, Nth_out_of_range_by_negative_index) {
+	ASSERT_ANY_THROW(buildStream(begin(), end()) | nth(-1));
+}
+
+TEST_F(PrepareStreamTest, Nth_out_of_range_in_extended_stream) {
+    ASSERT_ANY_THROW(buildStream(begin(), end())
+                    | map([] (typename PrepareStreamTest::ElemType a) { return a; })
+                    | nth(pOutsideContainer->size()));
+	//buildStream(begin(), end()) | print_to(cout);
+}
 
 //----------------Skip operator testing-------------------//
 
@@ -347,6 +346,21 @@ TEST(GroupByVector, filter) {
 
 using lipaboy_lib_tests::NoisyD;
 
+TEST(StreamTest, unique_ptr_test) {
+	using move_only = std::unique_ptr<int>;
+	move_only lol[] = { std::unique_ptr<int>(new int(5)) };
+	auto stream = buildStream(lol) 
+		| map([](auto&& elem) -> move_only { return std::move(elem); });
+
+	ASSERT_EQ(*(stream | nth(0)), 5);
+
+	move_only lol2[] = { std::unique_ptr<int>(new int(3)) };
+	auto stream2 = buildStream(lol2, lol2 + 1) 
+	//	| filter([](auto& elem) { return true; })
+		;
+	//ASSERT_EQ(*(stream2 | nth(0)), 3);
+}
+
 TEST(StreamTest, noisy) {
     try {
         //-------------Noisy Test---------------//
@@ -354,13 +368,18 @@ TEST(StreamTest, noisy) {
 #ifdef LOL_DEBUG_NOISY
 
         vector<NoisyD> vecNoisy(1);
-        auto streamNoisy = createStream(vecNoisy.begin(), vecNoisy.end());
+        auto streamNoisy = buildStream(std::move_iterator(vecNoisy.begin()), 
+			std::move_iterator(vecNoisy.end()));
         cout << "\tstart streaming" << endl;
         auto streamTemp2 =
                 (streamNoisy
-                    | map([] (NoisyD&& a) -> NoisyD { return std::move(a); })
-                    | map([] (NoisyD&& a) -> NoisyD { return std::move(a); })
-                    | map([] (NoisyD&& a) -> NoisyD { return std::move(a); })
+                    //| map([] (NoisyD&& a) -> NoisyD { return std::move(a); })
+                    //| map([] (NoisyD&& a) -> NoisyD { return std::move(a); })
+                    //| map([] (NoisyD&& a) -> NoisyD { return std::move(a); })
+					//---
+					| map([](NoisyD& a) -> NoisyD& { int b = 0; return a; })
+					| map([](NoisyD& a) -> NoisyD& { int b = 0; return a; })
+					//---
     //                    | get(4)
     //                    | get(4)
     //                    | filter([] (const Noisy& a) { static int i = 0; return (i++ % 2 == 0); })
@@ -375,11 +394,11 @@ TEST(StreamTest, noisy) {
         cout << "\t------------" << endl;
 
         cout << "\tstart streaming" << endl;
-        auto streamTemp =
-            (streamNoisy
+		auto streamTemp =
+			(buildStream(vecNoisy.begin(), vecNoisy.end())
                 | filter([] (const NoisyD& ) { return true; })
-                | filter([] (const NoisyD& ) { return true; })
-                | filter([] (const NoisyD& ) { return true; })
+                //| filter([] (const NoisyD& ) { return true; })
+                //| filter([] (const NoisyD& ) { return true; })
 //                    | get(4)
 //                    | get(4)
 //                    | filter([] (const Noisy& a) { static int i = 0; return (i++ % 2 == 0); })
