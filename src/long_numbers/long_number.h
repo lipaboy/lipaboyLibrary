@@ -263,19 +263,36 @@ private:
     array<IntegralType, lengthOfIntegrals> number_;
 	bool minus_;
 };
-//
-//template <size_t length, size_t index>
-//void summarize(
-//	LongIntegerDecimal<length> &		dest,
-//	LongIntegerDecimal<length> const &	src,
-//	typename LongIntegerDecimal<length>::IntegralType reminder
-//)
-//{
-//	const typename LongIntegerDecimal<length>::TSignedResult 
-//		doubleTemp = dest[index] + src[index] + reminder;
-//	dest[index] = std::abs(doubleTemp) / dest.modulus();
-//	auto newReminder = 
-//}
+
+template <size_t length, size_t index>
+struct Summarize {
+	static void sum(
+		LongIntegerDecimal<length> &		dest,
+		LongIntegerDecimal<length> const &	src,
+		typename LongIntegerDecimal<length>::IntegralType reminder
+	)
+	{
+		using TIntegral = typename LongIntegerDecimal<length>::IntegralType;
+
+		const typename LongIntegerDecimal<length>::TSignedResult
+			doubleTemp = dest[index] + src[index] + reminder;
+		dest[index] = TIntegral(std::abs(doubleTemp) % dest.modulus());
+		TIntegral newReminder = TIntegral(std::abs(doubleTemp) / dest.modulus());
+
+		Summarize<length, index + 1>::sum(dest, src, newReminder);
+	}
+};
+
+template <size_t length>
+struct Summarize<length, length>
+{
+	static void sum(
+		LongIntegerDecimal<length> &		dest,
+		LongIntegerDecimal<length> const &	src,
+		typename LongIntegerDecimal<length>::IntegralType reminder
+		)
+	{}
+};
 
 
 }

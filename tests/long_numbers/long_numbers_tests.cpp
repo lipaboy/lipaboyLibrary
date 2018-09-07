@@ -9,7 +9,7 @@ namespace long_numbers_tests {
 
 using namespace lipaboy_lib;
 
-using long_numbers_space::LongIntegerDecimal;
+using namespace long_numbers_space;
 using std::cout;
 using std::endl;
 using std::string;
@@ -144,6 +144,8 @@ TEST(LongInteger, sum_double_rank_by_crossing_parts) {
 
 	ASSERT_EQ("901001000201", (num1 + num2).to_string());
 	ASSERT_EQ("901001000201", (num2 + num1).to_string());
+	Summarize<2, 0>::sum(num1, num2, 0);
+	ASSERT_EQ("901001000201", (num1).to_string());
 }
 
 TEST(LongInteger, sum_double_rank_by_independent_parts_negative) {
@@ -191,7 +193,10 @@ TEST(LongInteger, check) {
 	string res = f;
 	res[res.size() - 1] = s[0];
 
-	ASSERT_EQ(res, (num1 + num2).to_string());
+	Summarize<4, 0>::sum(num1, num2, 0);
+	ASSERT_EQ(res, (num1).to_string());
+
+
 }
 
 }
