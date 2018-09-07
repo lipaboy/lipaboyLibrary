@@ -6,6 +6,8 @@ include_directories("${CMAKE_SOURCE_DIR}/src")
 set(TEST_SOURCE
     tests.cpp
 
+	common_interfaces/algebra_tests.cpp
+
     long_numbers/long_numbers_tests.cpp
 
 	stream_v2/stream_v2_tests.cpp
@@ -19,6 +21,7 @@ set(TEST_SOURCE
     hash_map/hash_map_test.h
     hash_map/hash_map_tests.cpp
 
+	extra_tools/maths_tools_tests.cpp
     extra_tools/extra_tools_tests.cpp
     extra_tools/extra_tools_tests.h
     )
