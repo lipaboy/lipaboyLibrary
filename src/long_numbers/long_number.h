@@ -119,7 +119,7 @@ public:
 	explicit
 	LongIntegerDecimal(string const & numberDecimalStr) : minus_(false) {
 		int last = numberDecimalStr.size();
-		int first = cutOffLeftBorder<int>(last - modulusDegree(), 0);
+        int first = cutOffLeftBorder<int>(last - integralModulusDegree(), 0);
 		size_t i = 0;
 		for (; last - first > 0 && i < length(); i++) {
 			// for optimization you need to see the StringView (foly library)
@@ -131,8 +131,8 @@ public:
 			
 			number_[i] = part;
 
-			last -= modulusDegree();
-			first = cutOffLeftBorder<int>(first - modulusDegree(), 0);
+            last -= integralModulusDegree();
+            first = cutOffLeftBorder<int>(first - integralModulusDegree(), 0);
 		}
 		std::fill(std::next(begin(), i), end(), zeroIntegral());
 	}
@@ -154,8 +154,8 @@ public:
 				+ sign * TSigned(reminder)
 			);
 
-			(*this)[i] = IntegralType(std::abs(doubleTemp) % modulus());
-			reminder = IntegralType(std::abs(doubleTemp) / modulus());
+            (*this)[i] = IntegralType(std::abs(doubleTemp) % integralModulus());
+            reminder = IntegralType(std::abs(doubleTemp) / integralModulus());
 			sign = extra::sign<TSignedResult, TSigned>(doubleTemp < 0, doubleTemp);
 		}
 		this->setSign(sign);
@@ -196,8 +196,8 @@ public:
 
                 const TIntegralResult doubleTemp = TIntegralResult((*this)[i]) * other[j] + reminder;
                 // Detail #2
-                res[i + j] += IntegralType(doubleTemp % modulus());
-                reminder = IntegralType(doubleTemp / modulus());
+                res[i + j] += IntegralType(doubleTemp % integralModulus());
+                reminder = IntegralType(doubleTemp / integralModulus());
             }
         }
         res.setSign(sign() * other.sign());
@@ -205,16 +205,36 @@ public:
         return res;
     }
 
-    const_reference operator*=(const_reference other) {
+    template <size_t length2>
+    const_reference operator*=(LongIntegerDecimal<length2> const & other) {
         (*this) = (*this) * other;
         return *this;
     }
 
-//    const_reference operator/=(const_reference other) {
-//        LongIntegerDecimal temp(other);
+    LongIntegerDecimal operator/(const_reference other) const {
+        LongIntegerDecimal temp(other);
+        LongIntegerDecimal res(0);
+        LongIntegerDecimal dividend(*this);
 
-//        return *this;
-//    }
+        LongIntegerDecimal modulus(1);
+        // TODO: remove infinite loop
+        for ( ; ; ) {
+            temp *= LongIntegerDecimal(10);
+            if (temp > dividend)
+                break;
+            other *= LongIntegerDecimal(10);
+            modulus *= LongIntegerDecimal(10);
+        }
+
+        for ( ; ; ) {
+            dividend -= other;
+            res += modulus;
+            if (dividend < other)
+                break;
+        }
+
+        return res;
+    }
 
 	//-------------Converter---------------//
 
@@ -225,7 +245,7 @@ public:
 			string part = std::to_string(number_[i]);
 			if (isFirstNonZeroMet || number_[i] != zeroIntegral()) {
 				res += ((!isFirstNonZeroMet) ? "" 
-					: string(modulusDegree() - part.size(), '0')) 
+                    : string(integralModulusDegree() - part.size(), '0'))
 					+ part;
 				isFirstNonZeroMet = true;
 			}
@@ -264,15 +284,28 @@ public:
 	bool operator<= (const_reference other) const { return (*this) < other || (*this) == other; }
 
 public:
-	constexpr IntegralType modulusDegree() const { 
+    constexpr IntegralType integralModulusDegree() const {
 		return static_cast<IntegralType>(std::floor(
 			std::log(2) / std::log(10) * double(extra::bitsCount<IntegralType>()))); 
 	}
-	constexpr IntegralType modulus() const { return powDozen<IntegralType>(modulusDegree()); }
+    constexpr IntegralType integralModulus() const { return powDozen<IntegralType>(integralModulusDegree()); }
 
 private:
 	constexpr IntegralType zeroIntegral() const { return IntegralType(0); }
 
+public:
+    void divideByDec() {
+        constexpr IntegralType DEC(10);
+        IntegralType residue(0);
+        for (int i = int(length() - 1); i >= 0; i--) {
+            IntegralType newResidue = (*this)[i] % DEC;
+            (*this)[i] /= DEC;
+            (*this)[i] += residue * powDozen<IntegralType>(integralModulusDegree() - 1);
+            residue = newResidue;
+        }
+    }
+
+private:
 	iterator begin() { return number_.begin(); }
 	iterator end() { return number_.end(); }
 	const_iterator cbegin() const { return number_.cbegin(); }
@@ -287,12 +320,6 @@ private:
     array<IntegralType, lengthOfIntegrals> number_;
 	bool minus_;
 };
-
-
-//template <size_t length>
-//void divideByDec(LongIntegerDecimal<length> & number) {
-
-//}
 
 
 /////////////////////////////////////////////////////////////////////////
@@ -313,8 +340,8 @@ struct Summarize {
 
 		const typename LongIntegerDecimal<length>::TSignedResult
 			doubleTemp = dest[index] + src[index] + reminder;
-		dest[index] = TIntegral(std::abs(doubleTemp) % dest.modulus());
-		TIntegral newReminder = TIntegral(std::abs(doubleTemp) / dest.modulus());
+        dest[index] = TIntegral(std::abs(doubleTemp) % dest.integralModulus());
+        TIntegral newReminder = TIntegral(std::abs(doubleTemp) / dest.integralModulus());
 
 		Summarize<length, index + 1>::sum(dest, src, newReminder);
 	}

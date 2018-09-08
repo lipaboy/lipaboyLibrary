@@ -85,6 +85,22 @@ TEST(LongInteger, equality) {
 	ASSERT_EQ(num1, num2);
 }
 
+//---------Operator/ checking-----------//
+
+TEST(LongInteger, division_by_dec) {
+    LongIntegerDecimal<2> num2("123456789012");
+    num2.divideByDec();
+    EXPECT_EQ(num2.to_string(), "12345678901");
+    num2.divideByDec();
+    EXPECT_EQ(num2.to_string(), "1234567890");
+    num2.divideByDec();
+    EXPECT_EQ(num2.to_string(), "123456789");
+    num2.divideByDec();
+    EXPECT_EQ(num2.to_string(), "12345678");
+    num2.divideByDec();
+    EXPECT_EQ(num2.to_string(), "1234567");
+}
+
 //---------Operator* checking-----------//
 
 TEST(LongInteger, multiplication_double_rank_by_independent_parts) {
