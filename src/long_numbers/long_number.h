@@ -30,6 +30,7 @@ namespace long_numbers_space {
 	// TODO: you can write summarize of long numbers with variadic templates (expand all the integral numbers)
 	// TODO: write LongInteger with std::vector (ExtendingInteger).
 	// TODO: make project for doing benchmarks
+    // THINK ABOUT: make the length() method by static (class behavior)
 
 using std::array;
 using std::string;
@@ -62,6 +63,14 @@ namespace extra {
 			* (word != TWord(0));
 	}
 
+    //////////////////////////////////////////////////////////////////////////////////
+    template <size_t val1, size_t val2>
+    struct Max{
+        static constexpr size_t value = (val1 < val2) ? val2 : val1;
+    };
+//    template <size_t val1, size_t val2>
+//    using max = Max<val1, val2>::value;
+
 }
 
 // Requirements: 
@@ -72,14 +81,14 @@ class LongIntegerDecimal
 {
 public:
 	using TIntegral = std::uint32_t;
-	using TResult = std::uint64_t;
+    using TIntegralResult = std::uint64_t;
 	using TSigned = std::int32_t;
 	using TSignedResult = std::int64_t;
 
     using IntegralType =
         std::remove_reference_t<
-            enable_if_else_t<2 * sizeof(TIntegral) == sizeof(TResult), TIntegral, void> >;
-    using ResultType = std::remove_reference_t<TResult>;
+            enable_if_else_t<2 * sizeof(TIntegral) == sizeof(TIntegralResult), TIntegral, void> >;
+    using ResultIntegralType = std::remove_reference_t<TIntegralResult>;
 	using ContainerType = array<IntegralType, lengthOfIntegrals>;
 	using iterator = typename ContainerType::iterator;
 	using const_iterator = typename ContainerType::const_iterator;
@@ -114,7 +123,7 @@ public:
 		size_t i = 0;
 		for (; last - first > 0 && i < length(); i++) {
 			// for optimization you need to see the StringView (foly library)
-			auto sub = numberDecimalStr.substr(first, last - first);
+            auto sub = numberDecimalStr.substr(size_t(first), size_t(last - first));
 			int lel = std::stoi(sub);
 			if (first <= 0 && lel < 0)		// it means that this decoded part is last
 				minus_ = true;
@@ -163,34 +172,49 @@ public:
 
 	LongIntegerDecimal operator-() const { return LongIntegerDecimal(number_, !minus_); }
 
-	LongIntegerDecimal operator*(const_reference other) const {
-		LongIntegerDecimal res(0);
+    template <size_t length2>
+    auto operator*(LongIntegerDecimal<length2> const & other) const
+        -> LongIntegerDecimal<extra::Max<lengthOfIntegrals, length2>::value >
+    {
+        using ResultType = LongIntegerDecimal<extra::Max<lengthOfIntegrals, length2>::value >;
+        ResultType res(0);
+        //		// This chapter has two parts
+        //		// First part. Bisecting the result by two portions: main and overflow ones
+        //		// Second part. Assigning the main portion into destination
+        //		//				and saving the overflow one in order to take account at next multiplication.
+        //		// Detail. There are two overflow portions that appear by two requirements:
+        //		//		   1) Type can't storage more than it's capable.
+        //		//		   2) Decimal type of this class.
 
-		// This chapter has two parts
-		// First part. Bisecting the result by two portions: main and overflow ones
-		// Second part. Assigning the main portion into destination 
-		//				and saving the overflow one in order to take account at next multiplication.
-		// Detail. There are two overflow portions that appear by two requirements:
-		//		   1) Type can't storage more than it's capable.
-		//		   2) Decimal type of this class.
-		for (size_t i = 0; i < length(); i++) 
-		{
-			IntegralType reminder = zeroIntegral();
-			for (size_t j = 0; j < other.length(); j++) 
-			{
-				if (i + j >= res.length())
-					break;
+        for (size_t i = 0; i < length(); i++)
+        {
+            IntegralType reminder = zeroIntegral();
+            for (size_t j = 0; j < other.length(); j++)
+            {
+                if (i + j >= res.length())
+                    break;
 
-				const TResult doubleTemp = TResult((*this)[i]) * other[j] + reminder;
-				// Detail #2
-				res[i + j] += IntegralType(doubleTemp % modulus());
-				reminder = IntegralType(doubleTemp / modulus());
-			}
-		}
-		res.setSign(sign() * other.sign());
+                const TIntegralResult doubleTemp = TIntegralResult((*this)[i]) * other[j] + reminder;
+                // Detail #2
+                res[i + j] += IntegralType(doubleTemp % modulus());
+                reminder = IntegralType(doubleTemp / modulus());
+            }
+        }
+        res.setSign(sign() * other.sign());
 
-		return res;
-	}
+        return res;
+    }
+
+    const_reference operator*=(const_reference other) {
+        (*this) = (*this) * other;
+        return *this;
+    }
+
+//    const_reference operator/=(const_reference other) {
+//        LongIntegerDecimal temp(other);
+
+//        return *this;
+//    }
 
 	//-------------Converter---------------//
 
@@ -264,6 +288,19 @@ private:
 	bool minus_;
 };
 
+
+//template <size_t length>
+//void divideByDec(LongIntegerDecimal<length> & number) {
+
+//}
+
+
+/////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+
+namespace interesting {
+
 template <size_t length, size_t index>
 struct Summarize {
 	static void sum(
@@ -287,12 +324,14 @@ template <size_t length>
 struct Summarize<length, length>
 {
 	static void sum(
-		LongIntegerDecimal<length> &		dest,
-		LongIntegerDecimal<length> const &	src,
-		typename LongIntegerDecimal<length>::IntegralType reminder
+        LongIntegerDecimal<length> &		,
+        LongIntegerDecimal<length> const &	,
+        typename LongIntegerDecimal<length>::IntegralType
 		)
 	{}
 };
+
+}
 
 
 }
