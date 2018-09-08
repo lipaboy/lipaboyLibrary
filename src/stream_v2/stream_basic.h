@@ -1,6 +1,8 @@
 #pragma once
 
 #include "stream_extended.h"
+#include "extra_tools/producing_iterator.h"
+#include "extra_tools/initializer_list_iterator.h"
 
 #include <vector>
 #include <functional>
@@ -25,7 +27,7 @@ namespace lipaboy_lib {
 
 		//--------------------------Stream Base (specialization class)----------------------//
 
-		template <class TIterator>
+                template <class TIterator>
 		class Stream<TIterator> {
 		public:
 			using T = typename std::iterator_traits<TIterator>::value_type;
@@ -63,7 +65,7 @@ namespace lipaboy_lib {
 						end_ = begin_.endIter();
 			}
 			explicit
-				Stream(typename GeneratorTypePtr generator) 
+                                Stream(GeneratorTypePtr generator)
 				: begin_(generator), 
 				end_() 
 			{}
