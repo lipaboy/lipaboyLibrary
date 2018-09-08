@@ -31,6 +31,7 @@ namespace long_numbers_space {
 	// TODO: write LongInteger with std::vector (ExtendingInteger).
 	// TODO: make project for doing benchmarks
     // THINK ABOUT: make the length() method by static (class behavior)
+    // THINK ABOUT: move semantics through translating the type of container to class
 
 using std::array;
 using std::string;
@@ -211,7 +212,8 @@ public:
         return *this;
     }
 
-    LongIntegerDecimal operator/(const_reference other) const {
+    // Yeah, I receive the argument by copy
+    LongIntegerDecimal operator/(LongIntegerDecimal other) const {
         LongIntegerDecimal temp(other);
         LongIntegerDecimal res(0);
         LongIntegerDecimal dividend(*this);
@@ -227,10 +229,22 @@ public:
         }
 
         for ( ; ; ) {
-            dividend -= other;
-            res += modulus;
-            if (dividend < other)
+            for ( ; ; ) {
+                dividend -= other;
+                res += modulus;
+                if (dividend < other)
+                    break;
+            }
+
+            if (dividend == LongIntegerDecimal(0))
                 break;
+
+            for ( ; ; ) {
+                other.divideByDec();
+                modulus.divideByDec();
+                if (dividend >= other)
+                    break;
+            }
         }
 
         return res;
