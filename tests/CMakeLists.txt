@@ -10,8 +10,6 @@ set(TEST_SOURCE
 
     long_numbers/long_numbers_tests.cpp
 
-	stream_v2/stream_v2_tests.cpp
-
     stream/stream_tests.cpp
     stream/stream_test.h
 

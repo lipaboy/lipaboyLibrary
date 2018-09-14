@@ -30,8 +30,13 @@ using std::unique_ptr;
 
 using namespace lipaboy_lib;
 
-using namespace lipaboy_lib::stream_v2_space;
-using namespace lipaboy_lib::stream_v2_space::operators_space;
+#ifdef STREAM_V1_TESTS_RUN
+using namespace lipaboy_lib::stream_v1_space;
+using namespace lipaboy_lib::stream_v1_space::operators_space;
+#else
+using namespace lipaboy_lib::stream_space;
+using namespace lipaboy_lib::stream_space::operators_space;
+#endif
 
 //---------------------------------Tests-------------------------------//
 

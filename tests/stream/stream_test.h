@@ -1,9 +1,14 @@
-#ifndef HASH_MAP_TEST_H
-#define HASH_MAP_TEST_H
+#pragma once
 
 #include <gtest/gtest.h>
 
-#include "stream_v2/stream.h"
+//#define STREAM_V1_TESTS_RUN
+
+#ifdef STREAM_V1_TESTS_RUN
+#include "stream/stream_v1/stream.h"
+#else
+#include "stream/stream.h"
+#endif
 
 #include "extra_tools/extra_tools_tests.h"
 
@@ -19,9 +24,16 @@ using std::unique_ptr;
 
 using namespace lipaboy_lib;
 
-using stream_v2_space::Stream;
-using stream_v2_space::StreamOfOutsideIterators;
-using namespace lipaboy_lib::stream_v2_space::operators_space;
+
+#ifdef STREAM_V1_TESTS_RUN
+using stream_v1_space::Stream;
+using stream_v1_space::StreamOfOutsideIterators;
+using namespace lipaboy_lib::stream_v1_space::operators_space;
+#else
+using stream_space::Stream;
+using stream_space::StreamOfOutsideIterators;
+using namespace lipaboy_lib::stream_space::operators_space;
+#endif
 
 using lipaboy_lib_tests::Noisy;
 
@@ -79,4 +91,4 @@ protected:
 
 } 
 
-#endif // HASH_MAP_TEST_H
+

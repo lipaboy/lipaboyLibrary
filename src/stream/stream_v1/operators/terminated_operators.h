@@ -17,7 +17,7 @@
 
 namespace lipaboy_lib {
 
-namespace stream_space {
+namespace stream_v1_space {
 
 namespace operators_space {
 
