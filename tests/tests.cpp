@@ -7,6 +7,7 @@
 #include <any>
 #include <list>
 #include <tuple>
+#include <functional>
 
 #include "extra_tools/extra_tools.h"
 
@@ -75,6 +76,32 @@ TEST(Check, check) {
 
 	ASSERT_EQ(get<0>(res2.front()), 2);
 	ASSERT_EQ(get<1>(res2.front()), "kek");
+
+	//std::function<bool(string)> f = [](string & r) { return false; };
+
+	string kek1 = "kek1";
+	string kek2 = "kek2";
+	string kek3 = "kek3";
+	std::unordered_set<std::reference_wrapper<const string>, 
+		std::hash<string>, std::equal_to<const string> > olo;
+	olo.insert(std::cref(kek1));
+	olo.insert(std::cref(kek2));
+
+	ASSERT_NE(olo.find(kek1), olo.end());
+	ASSERT_EQ(olo.find(kek3), olo.end());
+
+	const int & kek = 5;
+	auto lol = std::move(kek);
+
+	vector<int> kra{ 1, 1, 2, 3, 1, 1, 2, 4 };
+	std::unordered_set<std::reference_wrapper<const int>,
+		std::hash<int>, std::equal_to<const int> > set;
+	set.insert(kra.begin(), kra.end());
+	vector<int> res3;
+	for (int i = 1; i <= 4; i++)
+		if (set.find(std::cref(i)) != set.end())
+			res3.push_back(i);
+	ASSERT_EQ(res3, decltype(res3)({ 1, 2, 3, 4 }));
 }
 
 }

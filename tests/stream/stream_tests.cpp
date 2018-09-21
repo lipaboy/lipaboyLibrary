@@ -351,6 +351,26 @@ TEST(GroupByVector, filter) {
 	ASSERT_EQ(kek, decltype(kek)({ vector<int>({ 4, 5, 6 }) }));
 }
 
+//-----------------Distinct----------------//
+
+TEST(Distinct, simple) {
+	vector<int> lol { 1, 1, 2, 3, 1, 1, 2, 4 };
+	auto elem = buildStream(lol.begin(), lol.end())
+		| distinct() | to_vector();
+	EXPECT_EQ(elem, decltype(elem)({ 1, 2, 3, 4 }));
+
+	vector<string> lol2 { "lol", "kek", "lol", "kek", "kra" };
+	auto elem2 = buildStream(lol2.begin(), lol2.end())
+		| distinct() | nth(2);
+	EXPECT_EQ(elem2, "kra");
+
+	auto stream = buildStream(lol2.begin(), lol2.end())
+		| distinct();
+	auto stream2 = stream;
+	auto elem3 = stream2 | to_vector();
+	EXPECT_EQ(elem3, decltype(elem3)({ "lol", "kek", "kra" }));
+}
+
 using lipaboy_lib_tests::NoisyD;
 
 TEST(StreamTest, unique_ptr_test) {

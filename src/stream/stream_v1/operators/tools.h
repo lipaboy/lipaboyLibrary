@@ -70,23 +70,23 @@ namespace operators_space {
 
 	template <class Functor>
 	struct FunctorHolderDirectly : FunctorMetaType<Functor> {
-		using OperatorType = Functor;
-		FunctorHolderDirectly(OperatorType func) : functor_(func) {}
+		using FunctorType = Functor;
+		FunctorHolderDirectly(FunctorType func) : functor_(func) {}
 
-		OperatorType functor() const { return functor_; }
+		FunctorType functor() const { return functor_; }
 	private:
-		OperatorType functor_;
+		FunctorType functor_;
 	};
 
 	// Wrap almost all the functions by std::function (except lambda with auto arguments and etc.)
 	template <class Functor>
 	struct FunctorHolderWrapper : FunctorMetaType<WrapBySTDFunctionType<Functor> > {
-		using OperatorType = WrapBySTDFunctionType<Functor>;
-		FunctorHolderWrapper(OperatorType func) : functor_(func) {}
+		using FunctorType = WrapBySTDFunctionType<Functor>;
+		FunctorHolderWrapper(FunctorType func) : functor_(func) {}
 
-		OperatorType functor() const { return functor_; }
+		FunctorType functor() const { return functor_; }
 	private:
-		OperatorType functor_;
+		FunctorType functor_;
 	};
 
 	template <class Functor>

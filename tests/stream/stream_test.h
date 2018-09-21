@@ -47,6 +47,7 @@ public:
 protected:
     void SetUp() {
         pOutsideContainer = std::unique_ptr<Container>(new Container({ 1, 2, 3, 4, 5 }));
+
         //---------------File Stream Init------------//
 
         std::ofstream outFile;

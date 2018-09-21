@@ -9,7 +9,7 @@ namespace lipaboy_lib {
 		namespace operators_space {
 
 			template <class Transform>
-			struct map : FunctorHolder<Transform> {
+			struct map : public FunctorHolder<Transform> {
 			public:
 				template <class T>
 				using RetType = typename std::result_of<Transform(T)>::type;

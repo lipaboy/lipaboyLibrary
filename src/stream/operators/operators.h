@@ -9,6 +9,8 @@
 #include "skip.h"
 #include "ungroup_by_bit.h"
 #include "map.h"
+//new
+#include "distinct.h"
 
 //	   terminated operations
 #include "nth.h"
