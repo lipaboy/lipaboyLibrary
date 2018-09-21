@@ -8,7 +8,7 @@ namespace lipaboy_lib {
 
 		namespace operators_space {
 
-			struct get : TReturnSameType
+			struct get : public TReturnSameType
 			{
 			public:
 				using size_type = size_t;

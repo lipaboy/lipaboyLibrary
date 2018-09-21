@@ -9,7 +9,7 @@ namespace lipaboy_lib {
 		namespace operators_space {
 
 			template <class Transform>
-			struct map : FunctorHolder<Transform> {
+			struct map : public FunctorHolder<Transform> {
 			public:
 				template <class T>
 				using RetType = typename std::result_of<Transform(T)>::type;
@@ -20,7 +20,9 @@ namespace lipaboy_lib {
 				map(Transform functor) : FunctorHolder<Transform>(functor) {}
 
 				template <class TSubStream>
-				auto nextElem(TSubStream& stream) -> typename TSubStream::ResultValueType {
+				auto nextElem(TSubStream& stream) 
+					-> RetType<typename TSubStream::ResultValueType> 
+				{
 					return std::move(FunctorHolder<Transform>::functor()(stream.nextElem()));
 				}
 
