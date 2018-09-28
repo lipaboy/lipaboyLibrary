@@ -93,6 +93,14 @@ namespace lipaboy_lib {
 				);
 		}
 
+		template <class Container>
+		auto buildStream(Container const & container)
+			-> StreamOfOutsideIterators<typename Container::const_iterator>
+		{
+			return StreamOfOutsideIterators<typename Container::const_iterator>(
+				container.cbegin(), container.cend());
+		}
+
 		//--------------------------------------------------------------------------//
 		//------------------Extending stream by concating operations-----------------//
 		//--------------------------------------------------------------------------//

@@ -30,3 +30,5 @@ Think about:
 		by pattern like plenty language (set theory language). 
 		Like do smth over the whole collection accept this set (plenty).
 
+2) (Stream) Think about optimizing Stream by adding ability to doPreliminary and Postliminary actions 
+	like previous version of Stream.

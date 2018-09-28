@@ -8,11 +8,15 @@
 #include <list>
 #include <tuple>
 #include <functional>
+#include <algorithm>
+
+#include <time.h>
 
 #include "extra_tools/extra_tools.h"
 
 #include "stream/stream_test.h"
 #include "extra_tools/extra_tools_tests.h"
+#include "extra_tools/maths_tools.h"
 
 #include "maths/vector4d.h"
 
@@ -107,6 +111,59 @@ TEST(Check, check) {
 
 	double kle[4] = { 1., 2., 3., 4. };
 	lipaboy_lib::Vector4D vect(kle);
+}
+
+using lipaboy_lib::powDozen;
+using namespace lipaboy_lib::stream_space;
+
+TEST(LuckyTicket, two_lucky_ones_in_sequence)
+{
+	vector<int> ticket2(6, 0);
+	bool isLucky2 = false;
+
+	auto start2 = clock();
+	for (int i = 0; i < 1000000; i++) {
+		for (int j = 0; j < 6; j++) {
+			ticket2[j] = (i % powDozen<int>(j + 1)) / powDozen<int>(j);
+		}
+		int sum1 = ticket2[0] + ticket2[1] + ticket2[2];
+		int sum2 = ticket2[3] + ticket2[4] + ticket2[5];
+		if (sum1 == sum2) {
+			if (isLucky2)
+				(buildStream(ticket2) | print_to(cout, "")) << endl;
+			else
+				isLucky2 = true;
+		}
+		else
+			isLucky2 = false;
+	}
+	cout << clock() - start2 << endl;
+
+	vector<int> ticket(6, 0);
+	bool isLucky = false;
+
+	auto start1 = clock();
+	for (int i = 0; i < 1000000; i++) {
+		for (int j = 0; j < 6; j++) {
+			ticket[j] = (i % powDozen<int>(j + 1)) / powDozen<int>(j);
+		}
+		int sum1 = buildStream(ticket) | get(3) | sum();
+		//int sum2 = buildStream(ticket) | skip(3) | sum();
+		int sum2 = ticket[3] + ticket[4] + ticket[5];
+		if (sum1 == sum2) {
+			if (isLucky)
+				(buildStream(ticket) | print_to(cout, "")) << endl;
+			else
+				isLucky = true;
+		}
+		else
+			isLucky = false;
+	}
+	cout << clock() - start1 << endl;
+
+	
+
+	ASSERT_FALSE(true);
 }
 
 }
