@@ -30,6 +30,8 @@ namespace long_numbers_space {
 	// TODO: you can write summarize of long numbers with variadic templates (expand all the integral numbers)
 	// TODO: write LongInteger with std::vector (ExtendingInteger).
 	// TODO: make project for doing benchmarks
+    // THINK ABOUT: make the length() method by static (class behavior)
+    // THINK ABOUT: move semantics through translating the type of container to class
 
 using std::array;
 using std::string;
@@ -62,6 +64,14 @@ namespace extra {
 			* (word != TWord(0));
 	}
 
+    //////////////////////////////////////////////////////////////////////////////////
+    template <size_t val1, size_t val2>
+    struct Max{
+        static constexpr size_t value = (val1 < val2) ? val2 : val1;
+    };
+//    template <size_t val1, size_t val2>
+//    using max = Max<val1, val2>::value;
+
 }
 
 // Requirements: 
@@ -72,14 +82,14 @@ class LongIntegerDecimal
 {
 public:
 	using TIntegral = std::uint32_t;
-	using TResult = std::uint64_t;
+    using TIntegralResult = std::uint64_t;
 	using TSigned = std::int32_t;
 	using TSignedResult = std::int64_t;
 
     using IntegralType =
         std::remove_reference_t<
-            enable_if_else_t<2 * sizeof(TIntegral) == sizeof(TResult), TIntegral, void> >;
-    using ResultType = std::remove_reference_t<TResult>;
+            enable_if_else_t<2 * sizeof(TIntegral) == sizeof(TIntegralResult), TIntegral, void> >;
+    using ResultIntegralType = std::remove_reference_t<TIntegralResult>;
 	using ContainerType = array<IntegralType, lengthOfIntegrals>;
 	using iterator = typename ContainerType::iterator;
 	using const_iterator = typename ContainerType::const_iterator;
@@ -110,11 +120,11 @@ public:
 	explicit
 	LongIntegerDecimal(string const & numberDecimalStr) : minus_(false) {
 		int last = numberDecimalStr.size();
-		int first = cutOffLeftBorder<int>(last - modulusDegree(), 0);
+        int first = cutOffLeftBorder<int>(last - integralModulusDegree(), 0);
 		size_t i = 0;
 		for (; last - first > 0 && i < length(); i++) {
 			// for optimization you need to see the StringView (foly library)
-			auto sub = numberDecimalStr.substr(first, last - first);
+            auto sub = numberDecimalStr.substr(size_t(first), size_t(last - first));
 			int lel = std::stoi(sub);
 			if (first <= 0 && lel < 0)		// it means that this decoded part is last
 				minus_ = true;
@@ -122,8 +132,8 @@ public:
 			
 			number_[i] = part;
 
-			last -= modulusDegree();
-			first = cutOffLeftBorder<int>(first - modulusDegree(), 0);
+            last -= integralModulusDegree();
+            first = cutOffLeftBorder<int>(first - integralModulusDegree(), 0);
 		}
 		std::fill(std::next(begin(), i), end(), zeroIntegral());
 	}
@@ -145,8 +155,8 @@ public:
 				+ sign * TSigned(reminder)
 			);
 
-			(*this)[i] = IntegralType(std::abs(doubleTemp) % modulus());
-			reminder = IntegralType(std::abs(doubleTemp) / modulus());
+            (*this)[i] = IntegralType(std::abs(doubleTemp) % integralModulus());
+            reminder = IntegralType(std::abs(doubleTemp) / integralModulus());
 			sign = extra::sign<TSignedResult, TSigned>(doubleTemp < 0, doubleTemp);
 		}
 		this->setSign(sign);
@@ -163,34 +173,82 @@ public:
 
 	LongIntegerDecimal operator-() const { return LongIntegerDecimal(number_, !minus_); }
 
-	LongIntegerDecimal operator*(const_reference other) const {
-		LongIntegerDecimal res(0);
+    template <size_t length2>
+    auto operator*(LongIntegerDecimal<length2> const & other) const
+        -> LongIntegerDecimal<extra::Max<lengthOfIntegrals, length2>::value >
+    {
+        using ResultType = LongIntegerDecimal<extra::Max<lengthOfIntegrals, length2>::value >;
+        ResultType res(0);
+        //		// This chapter has two parts
+        //		// First part. Bisecting the result by two portions: main and overflow ones
+        //		// Second part. Assigning the main portion into destination
+        //		//				and saving the overflow one in order to take account at next multiplication.
+        //		// Detail. There are two overflow portions that appear by two requirements:
+        //		//		   1) Type can't storage more than it's capable.
+        //		//		   2) Decimal type of this class.
 
-		// This chapter has two parts
-		// First part. Bisecting the result by two portions: main and overflow ones
-		// Second part. Assigning the main portion into destination 
-		//				and saving the overflow one in order to take account at next multiplication.
-		// Detail. There are two overflow portions that appear by two requirements:
-		//		   1) Type can't storage more than it's capable.
-		//		   2) Decimal type of this class.
-		for (size_t i = 0; i < length(); i++) 
-		{
-			IntegralType reminder = zeroIntegral();
-			for (size_t j = 0; j < other.length(); j++) 
-			{
-				if (i + j >= res.length())
-					break;
+        for (size_t i = 0; i < length(); i++)
+        {
+            IntegralType reminder = zeroIntegral();
+            for (size_t j = 0; j < other.length(); j++)
+            {
+                if (i + j >= res.length())
+                    break;
 
-				const TResult doubleTemp = TResult((*this)[i]) * other[j] + reminder;
-				// Detail #2
-				res[i + j] += IntegralType(doubleTemp % modulus());
-				reminder = IntegralType(doubleTemp / modulus());
-			}
-		}
-		res.setSign(sign() * other.sign());
+                const TIntegralResult doubleTemp = TIntegralResult((*this)[i]) * other[j] + reminder;
+                // Detail #2
+                res[i + j] += IntegralType(doubleTemp % integralModulus());
+                reminder = IntegralType(doubleTemp / integralModulus());
+            }
+        }
+        res.setSign(sign() * other.sign());
 
-		return res;
-	}
+        return res;
+    }
+
+    template <size_t length2>
+    const_reference operator*=(LongIntegerDecimal<length2> const & other) {
+        (*this) = (*this) * other;
+        return *this;
+    }
+
+    // Yeah, I receive the argument by copy
+    LongIntegerDecimal operator/(LongIntegerDecimal other) const {
+        LongIntegerDecimal temp(other);
+        LongIntegerDecimal res(0);
+        LongIntegerDecimal dividend(*this);
+
+        LongIntegerDecimal modulus(1);
+        // TODO: remove infinite loop
+        for ( ; ; ) {
+            temp *= LongIntegerDecimal(10);
+            if (temp > dividend)
+                break;
+            other *= LongIntegerDecimal(10);
+            modulus *= LongIntegerDecimal(10);
+        }
+
+        for ( ; ; ) {
+            for ( ; ; ) {
+                dividend -= other;
+                res += modulus;
+                if (dividend < other)
+                    break;
+            }
+
+            if (dividend == LongIntegerDecimal(0))
+                break;
+
+            for ( ; ; ) {
+                other.divideByDec();
+                modulus.divideByDec();
+                if (dividend >= other)
+                    break;
+            }
+        }
+
+        return res;
+    }
 
 	//-------------Converter---------------//
 
@@ -201,7 +259,7 @@ public:
 			string part = std::to_string(number_[i]);
 			if (isFirstNonZeroMet || number_[i] != zeroIntegral()) {
 				res += ((!isFirstNonZeroMet) ? "" 
-					: string(modulusDegree() - part.size(), '0')) 
+                    : string(integralModulusDegree() - part.size(), '0'))
 					+ part;
 				isFirstNonZeroMet = true;
 			}
@@ -240,15 +298,28 @@ public:
 	bool operator<= (const_reference other) const { return (*this) < other || (*this) == other; }
 
 public:
-	constexpr IntegralType modulusDegree() const { 
+    constexpr IntegralType integralModulusDegree() const {
 		return static_cast<IntegralType>(std::floor(
 			std::log(2) / std::log(10) * double(extra::bitsCount<IntegralType>()))); 
 	}
-	constexpr IntegralType modulus() const { return powDozen<IntegralType>(modulusDegree()); }
+    constexpr IntegralType integralModulus() const { return powDozen<IntegralType>(integralModulusDegree()); }
 
 private:
 	constexpr IntegralType zeroIntegral() const { return IntegralType(0); }
 
+public:
+    void divideByDec() {
+        constexpr IntegralType DEC(10);
+        IntegralType residue(0);
+        for (int i = int(length() - 1); i >= 0; i--) {
+            IntegralType newResidue = (*this)[i] % DEC;
+            (*this)[i] /= DEC;
+            (*this)[i] += residue * powDozen<IntegralType>(integralModulusDegree() - 1);
+            residue = newResidue;
+        }
+    }
+
+private:
 	iterator begin() { return number_.begin(); }
 	iterator end() { return number_.end(); }
 	const_iterator cbegin() const { return number_.cbegin(); }
@@ -264,6 +335,13 @@ private:
 	bool minus_;
 };
 
+
+/////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+
+namespace interesting {
+
 template <size_t length, size_t index>
 struct Summarize {
 	static void sum(
@@ -276,8 +354,8 @@ struct Summarize {
 
 		const typename LongIntegerDecimal<length>::TSignedResult
 			doubleTemp = dest[index] + src[index] + reminder;
-		dest[index] = TIntegral(std::abs(doubleTemp) % dest.modulus());
-		TIntegral newReminder = TIntegral(std::abs(doubleTemp) / dest.modulus());
+        dest[index] = TIntegral(std::abs(doubleTemp) % dest.integralModulus());
+        TIntegral newReminder = TIntegral(std::abs(doubleTemp) / dest.integralModulus());
 
 		Summarize<length, index + 1>::sum(dest, src, newReminder);
 	}
@@ -287,12 +365,14 @@ template <size_t length>
 struct Summarize<length, length>
 {
 	static void sum(
-		LongIntegerDecimal<length> &		dest,
-		LongIntegerDecimal<length> const &	src,
-		typename LongIntegerDecimal<length>::IntegralType reminder
+        LongIntegerDecimal<length> &		,
+        LongIntegerDecimal<length> const &	,
+        typename LongIntegerDecimal<length>::IntegralType
 		)
 	{}
 };
+
+}
 
 
 }
