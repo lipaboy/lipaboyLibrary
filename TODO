@@ -1,7 +1,32 @@
-Global:
+Ideas:
 
 1) Create container like ListOfVectors with iterators and so that.
+	- But maybe list< vector<bool> > is enough. Necessary to think this moment.
+	- Year, you only need to write wrapper around it with iterators.
+	- You need it in PseudoRandomSequences project (to storage big sequence)
 
-But maybe list< vector<bool> > is enough. Necessary to think this moment.
+2) (Stream) Write SelectMany(v -> v.ToWords).GroupBy(v -> v).ToDictionary(v -> v.count)
+	to count the frequency of words in any text.
 
-Year, you only need to write wrapper around it with iterators.
+Global TODOs:
+
+1) (Interval), (Comparable) write TODOs for them.
+
+Local TODOs:
+
+1) (LongNumber) Write division properly.
+
+2) (FixedPrecisionNumber) write tests for comparing numbers
+
+Think about:
+
+1) I would like to add union interval and segment like the entire object (e.g. [-2, 3) U (5, +inf) ).
+	- May be work with "<", "<=" symbols (from C++ STL). like container.add(5, "<=");
+	- Answer: I think you need to create wrapper around Set<T> 
+		because it cannot contain the function (contain), 
+		or if so then wrapper will inherit from Interface IPlenty
+	- What do I need the interface IPlenty for? 
+		May be combine such actions like do smth over collection 
+		by pattern like plenty language (set theory language). 
+		Like do smth over the whole collection accept this set (plenty).
+
