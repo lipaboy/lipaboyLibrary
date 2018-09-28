@@ -17,15 +17,15 @@ namespace lipaboy_lib_tests {
 	using std::string;
 	using std::unique_ptr;
 
-	using lipaboy_lib::FixedPrecisionNumber;
+	using lipaboy_lib::FixedPrecisionNumberBase;
 	using lipaboy_lib::Interval;
 
 
 	TEST(Algebra, check) {
-		FixedPrecisionNumber<double, int, 1, -5>
+		FixedPrecisionNumberBase<double, int, 1, -5>
 			kek1(2),
 			kek2(3);
-		FixedPrecisionNumber<double, int, 1, -8>
+		FixedPrecisionNumberBase<double, int, 1, -8>
 			kuk(-4);
 
 		ASSERT_EQ(kek1 + kek2, 5);
@@ -47,7 +47,7 @@ namespace lipaboy_lib_tests {
 	}
 
 	TEST(EitherComparable, comparison) {
-		FixedPrecisionNumber<double, int, 1, -5>
+		FixedPrecisionNumberBase<double, int, 1, -5>
 			kek1(2);
 		// not work
 		//    ASSERT_NE(kek1, 2.00002);
