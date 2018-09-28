@@ -29,8 +29,14 @@ using std::string;
 using std::unique_ptr;
 
 using namespace lipaboy_lib;
+
+#ifdef STREAM_V1_TESTS_RUN
+using namespace lipaboy_lib::stream_v1_space;
+using namespace lipaboy_lib::stream_v1_space::operators_space;
+#else
 using namespace lipaboy_lib::stream_space;
 using namespace lipaboy_lib::stream_space::operators_space;
+#endif
 
 //---------------------------------Tests-------------------------------//
 
@@ -83,6 +89,7 @@ TEST_F(PrepareStreamTest, move_constructor_by_extending_the_stream) {
 
 
 TEST(Filter, sample) {
+	int i = 0;
     auto res = buildStream(1, 2, 3)
             | filter([] (auto x) { return (x == x); })
             | to_vector();
@@ -342,6 +349,37 @@ TEST(GroupByVector, filter) {
 		| to_vector();
 
 	ASSERT_EQ(kek, decltype(kek)({ vector<int>({ 4, 5, 6 }) }));
+}
+
+//-----------------Distinct----------------//
+
+TEST(Distinct, simple) {
+	vector<int> lol { 1, 1, 2, 3, 1, 1, 2, 4 };
+	auto elem = buildStream(lol.begin(), lol.end())
+		| distinct() | to_vector();
+	EXPECT_EQ(elem, decltype(elem)({ 1, 2, 3, 4 }));
+
+	vector<string> lol2 { "lol", "kek", "lol", "kek", "kra" };
+	auto elem2 = buildStream(lol2.begin(), lol2.end())
+		| distinct() | nth(2);
+	EXPECT_EQ(elem2, "kra");
+
+	auto stream = buildStream(lol2.begin(), lol2.end())
+		| distinct();
+	auto stream2 = stream;
+	auto elem3 = stream2 | to_vector();
+	EXPECT_EQ(elem3, decltype(elem3)({ "lol", "kek", "kra" }));
+}
+
+TEST(Distinct, map_test) {
+	vector<int> lol{ 1, 1, 2, 3, 1, 1, 2, 4 };
+	auto elem = buildStream(lol.begin(), lol.end())
+		| map([](int i) { return std::to_string(i); }) 
+		| map([](string str) { return std::make_unique<string>(str); })
+		| map([](unique_ptr<string> p) { return *p; }) 
+		| distinct()
+		| to_vector();
+	ASSERT_EQ(elem, decltype(elem)({ "1", "2", "3", "4" }));
 }
 
 using lipaboy_lib_tests::NoisyD;

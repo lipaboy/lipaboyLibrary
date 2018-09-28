@@ -9,7 +9,7 @@ typedef long long int llint;
 
 //#include <windows.h>
 
-namespace LipaboyLib {
+namespace lipaboy_lib {
 
 	void bitContainerTests();
 

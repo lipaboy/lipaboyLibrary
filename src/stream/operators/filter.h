@@ -6,18 +6,22 @@
 
 namespace lipaboy_lib {
 
-	namespace stream_v2_space {
+	namespace stream_space {
 
 		namespace operators_space {
 
 			using std::shared_ptr;
+
+			// INFO: you can remove intermediate type (filter) because you can deduce type of elems from Predicate's
+			//		 argument.
 
 			//-------------------------------------------------------------------------------------//
 			//--------------------------------Unterminated operation------------------------------//
 			//-------------------------------------------------------------------------------------//
 
 			template <class Predicate>
-			struct filter : FunctorHolder<Predicate>, TReturnSameType
+			struct filter : public FunctorHolder<Predicate>, 
+				public TReturnSameType
 			{
 				static constexpr OperatorMetaTypeEnum metaInfo = FILTER;
 				static constexpr bool isTerminated = false;
@@ -26,7 +30,8 @@ namespace lipaboy_lib {
 			};
 
 			template <class Predicate, class T>
-			struct filter_impl : FunctorHolder<Predicate>, TReturnSameType
+			struct filter_impl : public FunctorHolder<Predicate>, 
+				public TReturnSameType
 			{
 				static constexpr OperatorMetaTypeEnum metaInfo = FILTER;
 				static constexpr bool isTerminated = false;
@@ -44,11 +49,14 @@ namespace lipaboy_lib {
 
 					// ! calling hasNext() of current StreamType ! in order to skip unfilter elems
 					hasNext(stream);
+					resetSaves();
 					auto temp = std::move(*pCurrentElem_);
 					if (stream.hasNext()) {
 						*pCurrentElem_ = std::move(stream.nextElem());
 						hasNext(stream);
 					}
+					else
+						pCurrentElem_ = nullptr;
 					return std::move(temp);
 				}
 
@@ -57,32 +65,55 @@ namespace lipaboy_lib {
 					hasNext(stream);
 					if (stream.hasNext()) {
 						*pCurrentElem_ = std::move(stream.nextElem());
+						resetSaves();
 						hasNext(stream);
 					}
 				}
 
 				template <class TSubStream>
 				bool hasNext(TSubStream& stream) {
+					if (isSavesActual_)
+						return curr_;
+
 					if (pCurrentElem_ == nullptr) {
-						if (!stream.hasNext())
+						if (!stream.hasNext()) {
+							saveResult(false);
 							return false;
+						}
 						pCurrentElem_ = std::make_shared<T>(std::move(stream.nextElem()));
+						resetSaves();
 					}
 
 					bool isHasNext = false;
 					do {
-						// Info: We don't have right to std::move the content of pCurrentElem_
-						if (true == FunctorHolder<Predicate>::functor()(*pCurrentElem_))
+						// Info: We don't have the right to std::move the content of pCurrentElem_
+						if (true == FunctorHolder<Predicate>::functor()(*pCurrentElem_)) {
+							saveResult(true);
 							return true;
-						if (isHasNext = stream.hasNext())
+						}
+						if (isHasNext = stream.hasNext()) {
 							*pCurrentElem_ = std::move(stream.nextElem());
+							resetSaves();
+						}
 					} while (isHasNext);
 
+					saveResult(false);
 					return false;
 				}
 
 			private:
+				void saveResult(bool result) {
+					isSavesActual_ = true;
+					curr_ = result;
+				}
+				void resetSaves() {
+					isSavesActual_ = false;
+				}
+
+			private:
 				shared_ptr<T> pCurrentElem_ = nullptr;
+				bool curr_;
+				bool isSavesActual_ = false;
 			};
 
 		}

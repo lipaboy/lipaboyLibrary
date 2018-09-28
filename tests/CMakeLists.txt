@@ -10,8 +10,6 @@ set(TEST_SOURCE
 
     long_numbers/long_numbers_tests.cpp
 
-	stream_v2/stream_v2_tests.cpp
-
     stream/stream_tests.cpp
     stream/stream_test.h
 
@@ -27,7 +25,10 @@ set(TEST_SOURCE
     )
 
 add_executable(${MODULE_NAME}_tests ${TEST_SOURCE})
-target_link_libraries(${MODULE_NAME}_tests gtest gmock_main)
+target_link_libraries(${MODULE_NAME}_tests 
+	LIPABOY_LIB 
+	gtest 
+	gmock_main)
 
 set_property(TARGET ${MODULE_NAME}_tests PROPERTY CXX_STANDARD 17)
 set_property(TARGET ${MODULE_NAME}_tests PROPERTY CXX_STANDARD_REQUIRED ON)

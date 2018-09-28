@@ -7,7 +7,7 @@
 #endif
 #include <cmath>
 
-namespace LipaboyLib {
+namespace lipaboy_lib {
 
 	class Point2D
 	{

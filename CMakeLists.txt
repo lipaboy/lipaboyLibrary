@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.2)
+cmake_minimum_required(VERSION 3.5)
 project(Lipaboy_Library)
 
 #----------------START GTEST INCLUDING-----------------#
@@ -23,6 +23,8 @@ download_project(PROJ                googletest
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/")
 
 # When using CMake 2.8.11 or later, header path dependencies
 # are automatically added to the gtest and gmock targets.

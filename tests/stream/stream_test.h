@@ -1,8 +1,14 @@
-#ifndef HASH_MAP_TEST_H
-#define HASH_MAP_TEST_H
+#pragma once
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
+
+//#define STREAM_V1_TESTS_RUN
+
+#ifdef STREAM_V1_TESTS_RUN
+#include "stream/stream_v1/stream.h"
+#else
 #include "stream/stream.h"
+#endif
 
 #include "extra_tools/extra_tools_tests.h"
 
@@ -18,7 +24,16 @@ using std::unique_ptr;
 
 using namespace lipaboy_lib;
 
+
+#ifdef STREAM_V1_TESTS_RUN
+using stream_v1_space::Stream;
+using stream_v1_space::StreamOfOutsideIterators;
+using namespace lipaboy_lib::stream_v1_space::operators_space;
+#else
 using stream_space::Stream;
+using stream_space::StreamOfOutsideIterators;
+using namespace lipaboy_lib::stream_space::operators_space;
+#endif
 
 using lipaboy_lib_tests::Noisy;
 
@@ -26,12 +41,13 @@ class PrepareStreamTest : public ::testing::Test  {
 public:
     using ElemType = int;
     using Container = vector<ElemType>;
-    using StreamType = stream_space::StreamOfOutsideIterators<typename Container::iterator>;
+    using StreamType = StreamOfOutsideIterators<typename Container::iterator>;
     using StreamTypePtr = unique_ptr<StreamType>;
 
 protected:
     void SetUp() {
         pOutsideContainer = std::unique_ptr<Container>(new Container({ 1, 2, 3, 4, 5 }));
+
         //---------------File Stream Init------------//
 
         std::ofstream outFile;
@@ -76,4 +92,4 @@ protected:
 
 } 
 
-#endif // HASH_MAP_TEST_H
+

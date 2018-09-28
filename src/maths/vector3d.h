@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <algorithm>
 
-namespace LipaboyLib {
+namespace lipaboy_lib {
 
 static const double epsilon = 1e-5;
 
