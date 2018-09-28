@@ -11,8 +11,8 @@ class RectSegment
 {
 public:
     RectSegment(Segment<double> X, Segment<double> Y) : x(X), y(Y) {}
-    bool in(LipaboyLib::Point2D vec) const { return (x.in(vec.x()) && y.in(vec.y())); }
-    bool out(LipaboyLib::Point2D vec) const { return !in(vec); }
+    bool in(lipaboy_lib::Point2D vec) const { return (x.in(vec.x()) && y.in(vec.y())); }
+    bool out(lipaboy_lib::Point2D vec) const { return !in(vec); }
 
     Segment<double> xSegment() const { return x; }
     Segment<double> ySegment() const { return y; }

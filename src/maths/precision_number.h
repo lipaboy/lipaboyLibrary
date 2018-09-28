@@ -16,7 +16,7 @@ namespace lipaboy_lib {
 
 	template <class T>
 	class PrecisionNumber : 
-		public EitherComparable<T>, 
+		//public EitherComparable<T>, 
         public ComparatorExtender<PrecisionNumber<T> >,
         public Algebra<T, PrecisionNumber<T> >,
 		public NumberSettable<T>

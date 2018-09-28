@@ -6,7 +6,7 @@
 #include "vector3d.h"
 #include "point2d.h"
 
-namespace LipaboyLib {
+namespace lipaboy_lib {
 
 
 class Vector4D

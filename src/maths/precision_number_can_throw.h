@@ -6,7 +6,7 @@
 
 #include <ostream>
 
-namespace LipaboyLib {
+namespace lipaboy_lib {
 
 	//That class distinguishes from PrecisionNumber at lack of noexcept
 

@@ -9,6 +9,8 @@
 
 //Unfortunately, I invented the bicycle: std::bitset<size_t N>
 
+// TODO: make brenchmark tests to compare with std::vector<bool>, boost::dynamic_bitset
+
 namespace lipaboy_lib {
 
 	typedef boost::any_range<

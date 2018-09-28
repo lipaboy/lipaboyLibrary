@@ -14,6 +14,8 @@
 #include "stream/stream_test.h"
 #include "extra_tools/extra_tools_tests.h"
 
+#include "maths/vector4d.h"
+
 namespace lipaboy_lib_tests {
 
 using std::cout;
@@ -102,6 +104,9 @@ TEST(Check, check) {
 		if (set.find(std::cref(i)) != set.end())
 			res3.push_back(i);
 	ASSERT_EQ(res3, decltype(res3)({ 1, 2, 3, 4 }));
+
+	double kle[4] = { 1., 2., 3., 4. };
+	lipaboy_lib::Vector4D vect(kle);
 }
 
 }

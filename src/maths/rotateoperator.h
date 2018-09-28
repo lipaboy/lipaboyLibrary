@@ -4,7 +4,7 @@
 #include "vector3d.h"
 #include "matrix4x4.h"
 
-namespace LipaboyLib {
+namespace lipaboy_lib {
 
 class RotateOperator
 {

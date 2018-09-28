@@ -1,6 +1,6 @@
 #include "vector4d.h"
 
-namespace LipaboyLib {
+namespace lipaboy_lib {
 
 Vector4D::Vector4D(double vect1[4])
 {

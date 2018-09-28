@@ -7,7 +7,7 @@
 #include <cmath>
 #include "point2d.h"
 
-namespace LipaboyLib {
+namespace lipaboy_lib {
 
 class Vector2D
 {

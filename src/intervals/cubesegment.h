@@ -4,7 +4,7 @@
 #include "segment.h"
 #include "../maths/vector3d.h"
 //
-//using namespace LipaboyLib;
+//using namespace lipaboy_lib;
 
 namespace lipaboy_lib {
 
@@ -12,8 +12,8 @@ class CubeSegment
 {
 public:
     CubeSegment(Segment<double> X, Segment<double> Y, Segment<double> Z) : x(X), y(Y), z(Z) {}
-    bool in(LipaboyLib::Vector3D vec) const { return (x.in(vec.x()) && y.in(vec.y()) && z.in(vec.z())); }
-    bool out(LipaboyLib::Vector3D vec) const { return !in(vec); }
+    bool in(lipaboy_lib::Vector3D vec) const { return (x.in(vec.x()) && y.in(vec.y()) && z.in(vec.z())); }
+    bool out(lipaboy_lib::Vector3D vec) const { return !in(vec); }
 
     Segment<double> xSegment() const { return x; }
     Segment<double> ySegment() const { return y; }
