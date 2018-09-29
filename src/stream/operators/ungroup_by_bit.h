@@ -8,10 +8,10 @@
 
 namespace lipaboy_lib {
 
-	namespace stream_space {
+	namespace stream {
 
 		// TODO: refactor it
-		namespace operators_space {
+		namespace operators {
 
 			using std::vector;
 			using std::shared_ptr;
@@ -99,8 +99,8 @@ namespace lipaboy_lib {
 		}
 
 
-		using operators_space::ungroup_by_bit;
-		using operators_space::ungroup_by_bit_impl;
+		using operators::ungroup_by_bit;
+		using operators::ungroup_by_bit_impl;
 
 		template <class TStream>
 		struct shortening::StreamTypeExtender<TStream, ungroup_by_bit> {

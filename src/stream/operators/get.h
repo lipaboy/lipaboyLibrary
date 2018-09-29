@@ -4,9 +4,9 @@
 
 namespace lipaboy_lib {
 
-	namespace stream_space {
+	namespace stream {
 
-		namespace operators_space {
+		namespace operators {
 
 			struct get : public TReturnSameType
 			{
@@ -40,6 +40,26 @@ namespace lipaboy_lib {
 
 			private:
 				size_type size_;
+			};
+
+		}
+
+	}
+
+	namespace fast_stream {
+
+		namespace operators {
+
+			struct get : 
+				public stream::operators::get
+			{
+			public:
+				get(size_type size) : stream::operators::get(size) {}
+
+				template <class TSubStream>
+				void initialize(TSubStream& stream) {
+					stream.initialize();
+				}
 			};
 
 		}

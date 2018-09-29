@@ -12,11 +12,17 @@ Global TODOs:
 
 1) (Interval), (Comparable) write TODOs for them.
 
+2) (FastStream) think how union common methods and types of different Stream (main and fast ones).
+
+3) (FastStream) use Stream's tests to test the fast_stream::Stream.
+
 Local TODOs:
 
 1) (LongNumber) Write division properly.
 
 2) (FixedPrecisionNumber) write tests for comparing numbers
+
+3) (Stream) rename shortening namespace to shortenings (or better shorteners)
 
 Think about:
 
@@ -32,3 +38,11 @@ Think about:
 
 2) (Stream) Think about optimizing Stream by adding ability to doPreliminary and Postliminary actions 
 	like previous version of Stream.
+	- For example, you have terminated operator sum(). You don't want to write the same code
+		with adding the only line (doPreliminaryActions();). You want to write wrapper 
+		around first sum(). 
+	- It is similar that your Stream have different levels of abstraction. 
+		First: nextElem(), hasNext(), incrementSlider().
+		Second: First + [ doPreliminaryActions() or init() ].
+	- maybe divide the nextElem(), hasNext(), initialize() methods by different classes 
+		that have responsibility to call them 

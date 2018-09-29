@@ -6,9 +6,9 @@
 
 namespace lipaboy_lib {
 
-	namespace stream_space {
+	namespace stream {
 
-		namespace operators_space {
+		namespace operators {
 
 			using std::shared_ptr;
 
@@ -118,8 +118,8 @@ namespace lipaboy_lib {
 
 		}
 
-		using operators_space::filter;
-		using operators_space::filter_impl;
+		using operators::filter;
+		using operators::filter_impl;
 
 		template <class TStream, class Predicate>
 		struct shortening::StreamTypeExtender<TStream, filter<Predicate> > {

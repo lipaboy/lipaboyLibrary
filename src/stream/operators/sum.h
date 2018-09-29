@@ -4,16 +4,13 @@
 
 namespace lipaboy_lib {
 
-	namespace stream_space {
+	namespace stream {
 
-		namespace operators_space {
+		namespace operators {
 
-			struct sum {
+			struct sum : TReturnSameType {
 				static constexpr OperatorMetaTypeEnum metaInfo = SUM;
 				static constexpr bool isTerminated = true;
-
-				template <class T>
-				using RetType = T;
 
 				template <class TStream>
 				auto apply(TStream & stream) -> typename TStream::ResultValueType
@@ -23,6 +20,29 @@ namespace lipaboy_lib {
 					for (; stream.hasNext();)
 						result += stream.nextElem();
 					return std::move(result);
+				}
+			};
+
+		}
+
+	}
+
+	namespace fast_stream {
+
+		namespace operators {
+
+			using stream::operators::OperatorMetaTypeEnum;
+
+			struct sum : 
+				public stream::operators::sum
+			{
+				static constexpr bool isTerminated = true;
+
+				template <class TStream>
+				auto apply(TStream & stream) -> typename TStream::ResultValueType
+				{
+					stream.initialize();
+					return static_cast<stream::operators::sum *>(this)->apply(stream);
 				}
 			};
 

@@ -8,10 +8,10 @@
 
 namespace lipaboy_lib {
 
-	namespace stream_space {
+	namespace stream {
 
 		// TODO: refactor it
-		namespace operators_space {
+		namespace operators {
 
 			using std::vector;
 			using std::shared_ptr;
@@ -96,8 +96,8 @@ namespace lipaboy_lib {
 
 		}
 
-		using operators_space::group_by_vector;
-		using operators_space::group_by_vector_impl;
+		using operators::group_by_vector;
+		using operators::group_by_vector_impl;
 
 		template <class TStream>
 		struct shortening::StreamTypeExtender<TStream, group_by_vector> {

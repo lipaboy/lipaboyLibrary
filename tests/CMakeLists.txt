@@ -12,6 +12,7 @@ set(TEST_SOURCE
 
     stream/stream_tests.cpp
     stream/stream_test.h
+	stream/benchmarks/stream_vs_fast_stream.cpp
 
     hash_map/forward_list_tests.cpp
     hash_map/hash_map_test.h

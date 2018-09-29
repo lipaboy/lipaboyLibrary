@@ -44,7 +44,7 @@ public:
 
     template <typename, typename...> friend class Stream;
 
-	//using SuperType = void;
+	//using SubType = void;
 	//using OperatorType = TIterator;
 
 public:

@@ -9,9 +9,9 @@
 
 namespace lipaboy_lib {
 
-	namespace stream_space {
+	namespace stream {
 
-		namespace operators_space {
+		namespace operators {
 
 			// What's stream at all?
 			// Answer: Stream is not iterator (because can't return current element). 

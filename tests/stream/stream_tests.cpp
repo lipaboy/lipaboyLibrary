@@ -34,8 +34,8 @@ using namespace lipaboy_lib;
 using namespace lipaboy_lib::stream_v1_space;
 using namespace lipaboy_lib::stream_v1_space::operators_space;
 #else
-using namespace lipaboy_lib::stream_space;
-using namespace lipaboy_lib::stream_space::operators_space;
+using namespace lipaboy_lib::stream;
+using namespace lipaboy_lib::stream::operators;
 #endif
 
 //---------------------------------Tests-------------------------------//

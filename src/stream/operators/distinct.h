@@ -9,9 +9,9 @@
 
 namespace lipaboy_lib {
 
-	namespace stream_space {
+	namespace stream {
 
-		namespace operators_space {
+		namespace operators {
 
 			using std::shared_ptr;
 
@@ -60,8 +60,8 @@ namespace lipaboy_lib {
 
 		}
 
-		using operators_space::distinct;
-		using operators_space::distinct_impl;
+		using operators::distinct;
+		using operators::distinct_impl;
 
 		template <class TStream>
 		struct shortening::StreamTypeExtender<TStream, distinct> {
