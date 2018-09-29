@@ -16,6 +16,8 @@ Global TODOs:
 
 3) (FastStream) use Stream's tests to test the fast_stream::Stream.
 
+4) (Stream) write group_by(to any container like vector, list, string and so on (IIterable))
+
 Local TODOs:
 
 1) (LongNumber) Write division properly.

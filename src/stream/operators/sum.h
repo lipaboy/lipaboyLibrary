@@ -16,9 +16,9 @@ namespace lipaboy_lib {
 				auto apply(TStream & stream) -> typename TStream::ResultValueType
 				{
 					using TResult = typename TStream::ResultValueType;
-					auto result = (stream.hasNext()) ? stream.nextElem() : TResult();
-					for (; stream.hasNext();)
-						result += stream.nextElem();
+					auto result = (stream.hasNext()) ? std::move(stream.nextElem()) : TResult();
+					while (stream.hasNext())
+						result += std::move(stream.nextElem());
 					return std::move(result);
 				}
 			};

@@ -159,7 +159,8 @@ namespace lipaboy_lib {
 		>;
 
 		template <class Generator>
-		using StreamOfGenerator = Stream<ProducingIterator<typename std::result_of<Generator(void)>::type> >;
+		using StreamOfGenerator = Stream<
+			lipaboy_lib::ProducingIterator2<typename std::result_of<Generator(void)>::type> >;
 
 
 		//-------------------Wrappers-----------------------//
@@ -221,7 +222,7 @@ namespace lipaboy_lib {
 		auto operator| (Stream<Args...>& stream, TOperator operation)
 			-> lipaboy_lib::enable_if_else_t<TOperator::isTerminated,
 			typename TOperator::template RetType<typename Stream<Args...>::ResultValueType>,
-			stream::shortening::StreamTypeExtender_t<Stream<Args...>, TOperator> >
+			shortening::StreamTypeExtender_t<Stream<Args...>, TOperator> >
 		{
 			using StreamType = Stream<Args...>;
 
@@ -231,7 +232,7 @@ namespace lipaboy_lib {
 			}
 			else {
 				//static_assert(TOperator::isTerminated , "lol1");
-				return stream::shortening::StreamTypeExtender_t<StreamType, TOperator>
+				return shortening::StreamTypeExtender_t<StreamType, TOperator>
 					(operation, stream);
 			}
 		}
@@ -240,7 +241,7 @@ namespace lipaboy_lib {
 		auto operator| (Stream<Args...>&& stream, TOperator operation)
 			-> lipaboy_lib::enable_if_else_t<TOperator::isTerminated,
 			typename TOperator::template RetType<typename Stream<Args...>::ResultValueType>,
-			stream::shortening::StreamTypeExtender_t<Stream<Args...>, TOperator> >
+			shortening::StreamTypeExtender_t<Stream<Args...>, TOperator> >
 		{
 			using StreamType = Stream<Args...>;
 
@@ -249,7 +250,7 @@ namespace lipaboy_lib {
 				return operation.apply(stream);
 			}
 			else
-				return stream::shortening::StreamTypeExtender_t<StreamType, TOperator>
+				return shortening::StreamTypeExtender_t<StreamType, TOperator>
 				(operation, std::move(stream));
 		}
 

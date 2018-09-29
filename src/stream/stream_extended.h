@@ -199,8 +199,6 @@ namespace lipaboy_lib {
 			using SubTypePtr = SubType * ;
 			using ConstSubTypePtr = const SubType *;
 			using ValueType = typename SubType::ValueType;
-			using ActionSignature = void(Stream*);
-			using ActionType = std::function<ActionSignature>;
 
 		public:
 			template <class Functor>
