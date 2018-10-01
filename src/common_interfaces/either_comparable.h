@@ -28,7 +28,7 @@ namespace lipaboy_lib {
 
 		bool operator> (const T& other) const { return !((*this) <= other); }
 		bool operator>= (const T& other) const { return !((*this) < other); }
-//        bool operator!= (const ValueType& other) const { return !((*this) == other); }
+        bool operator!= (const ValueType& other) const { return !((*this) == other); }
 	};
 
     template <class T, class TDerived>
@@ -41,8 +41,8 @@ namespace lipaboy_lib {
     bool operator> (const T& other, const EitherComparable<T, TDerived>& obj) { return (obj < other); }
     template <class T, class TDerived>
     bool operator>= (const T& other, const EitherComparable<T, TDerived>& obj) { return (obj <= other); }
-//    template <class T, class TDerived>
-//    bool operator!= (const T& other, const EitherComparable<T, TDerived>& obj) { return (obj != other); }
+    template <class T, class TDerived>
+    bool operator!= (const T& other, const EitherComparable<T, TDerived>& obj) { return (obj != other); }
 
 }
 

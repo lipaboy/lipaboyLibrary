@@ -17,15 +17,15 @@ namespace lipaboy_lib_tests {
 	using std::string;
 	using std::unique_ptr;
 
-	using lipaboy_lib::FixedPrecisionNumberBase;
+	using lipaboy_lib::FixedPrecisionNumber;
 	using lipaboy_lib::Interval;
 
 
 	TEST(Algebra, check) {
-		FixedPrecisionNumberBase<double, int, 1, -5>
+		FixedPrecisionNumber<double, 1, -5>
 			kek1(2),
 			kek2(3);
-		FixedPrecisionNumberBase<double, int, 1, -8>
+		FixedPrecisionNumber<double, 1, -8>
 			kuk(-4);
 
 		ASSERT_EQ(kek1 + kek2, 5);
@@ -47,11 +47,26 @@ namespace lipaboy_lib_tests {
 	}
 
 	TEST(EitherComparable, comparison) {
-		FixedPrecisionNumberBase<double, int, 1, -5>
+		FixedPrecisionNumber<double, 1, -5>
 			kek1(2);
 		// not work
-		//    ASSERT_NE(kek1, 2.00002);
+		ASSERT_NE(kek1, 2.00002);
 		ASSERT_EQ(kek1, 2.00001);
+		//ASSERT_FALSE(true);
+
+		ASSERT_TRUE(kek1 < 2.00002);
+		ASSERT_TRUE(kek1 <= 2.00002);
+		ASSERT_FALSE(kek1 < 2.00001);
+		ASSERT_TRUE(kek1 <= 2.00001);
+		ASSERT_TRUE(kek1 >= 2.00001);
+		ASSERT_FALSE(kek1 > 2.00001);
+
+		ASSERT_TRUE(2.00002 > kek1);
+		ASSERT_TRUE(2.00002 >= kek1);
+		ASSERT_FALSE(2.00001 > kek1);
+		ASSERT_TRUE(2.00001 >= kek1);
+		ASSERT_TRUE(2.00001 <= kek1);
+		ASSERT_FALSE(2.00001 < kek1);
 	}
 
 	TEST(Interval, contains) {

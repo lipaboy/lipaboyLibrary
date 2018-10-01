@@ -26,8 +26,8 @@ namespace lipaboy_lib {
 				: number(_number) {}
 
         bool operator<(const T& val) const noexcept { return (getNumber() < val - epsilon()); }
-//        bool operator<=(const T& val) const noexcept { return (getNumber() <= val
-//			+ static_cast<T>(fraction * powDozen<T, IntegerPrecisionType>(dozenPower))); }
+        bool operator<=(const T& val) const noexcept { return (getNumber() <= val
+			+ static_cast<T>(fraction * powDozen<T, IntegerPrecisionType>(dozenPower))); }
         bool operator==(const ValueType& val) const noexcept {
             return (getNumber() >= val - epsilon())
 					&& (getNumber() <= val + epsilon());
