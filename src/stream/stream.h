@@ -160,7 +160,7 @@ namespace lipaboy_lib {
 
 		template <class Generator>
 		using StreamOfGenerator = Stream<
-			lipaboy_lib::ProducingIterator2<typename std::result_of<Generator(void)>::type> >;
+			lipaboy_lib::ProducingIterator<typename std::result_of<Generator(void)>::type> >;
 
 
 		//-------------------Wrappers-----------------------//

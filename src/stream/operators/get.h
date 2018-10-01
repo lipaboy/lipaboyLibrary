@@ -21,7 +21,7 @@ namespace lipaboy_lib {
 				template <class TSubStream>
 				auto nextElem(TSubStream& stream) -> typename TSubStream::ResultValueType {
 					--size_;
-					return std::move(stream.nextElem());
+					return stream.nextElem();
 				}
 
 				template <class TSubStream>

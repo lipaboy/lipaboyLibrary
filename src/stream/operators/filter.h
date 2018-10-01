@@ -52,12 +52,12 @@ namespace lipaboy_lib {
 					resetSaves();
 					auto temp = std::move(*pCurrentElem_);
 					if (stream.hasNext()) {
-						*pCurrentElem_ = std::move(stream.nextElem());
+						*pCurrentElem_ = stream.nextElem();
 						hasNext(stream);
 					}
 					else
 						pCurrentElem_ = nullptr;
-					return std::move(temp);
+					return temp;
 				}
 
 				template <class TSubStream>
@@ -211,7 +211,7 @@ namespace lipaboy_lib {
 						return false;
 					while (false == functor()(*elem_)) {
 						if (stream.hasNext())
-							*elem_ = std::move(stream.nextElem());
+							*elem_ = stream.nextElem();
 						else {
 							elem_ = nullptr;
 							break;
@@ -224,7 +224,7 @@ namespace lipaboy_lib {
 				void next(TSubStream& stream) {
 					//elem_ = stream.hasNext() ? std::move(stream.nextElem()) : T();
 					if (stream.hasNext())
-						*elem_ = std::move(stream.nextElem());
+						*elem_ = stream.nextElem();
 					else
 						elem_ = nullptr;
 				}

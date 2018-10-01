@@ -73,6 +73,7 @@ namespace lipaboy_lib {
 
 	// fast one
 
+	// WRONG: bug with comparing end()
 	template <class T>
 	class ProducingIterator2 {
 	public:
@@ -103,7 +104,7 @@ namespace lipaboy_lib {
 		{}
 
 		//const_reference
-		value_type operator*() { return std::move(elem_); }
+		value_type operator*() { return elem_; }
 		const_pointer operator->() { return &elem_; }
 
 		// Note: not strong condition (maybe add counter to distinguishing the different iterators)

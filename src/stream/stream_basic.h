@@ -103,7 +103,7 @@ namespace lipaboy_lib {
 			ResultValueType nextElem() { 
 				auto elem = *begin_;
 				begin_++;
-				return std::move(elem); 
+				return elem; 
 			}
 			bool hasNext() { return begin_ != end_; }
 			void incrementSlider() { begin_++; }
@@ -215,7 +215,7 @@ namespace lipaboy_lib {
 			ResultValueType nextElem() {
 				auto elem = *begin_;
 				begin_++;
-				return std::move(elem);
+				return elem;
 			}
 			bool hasNext() { return begin_ != end_; }
 			void incrementSlider() { begin_++; }

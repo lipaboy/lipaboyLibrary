@@ -123,9 +123,9 @@ namespace lipaboy_lib {
 
 			ResultValueType nextElem() {
 #ifdef WIN32
-				return std::move(operator_.nextElem<SubType>(*superThisPtr()));
+				return operator_.nextElem<SubType>(*superThisPtr());
 #else
-				return std::move(operator_.template nextElem<SuperType>(*superThisPtr()));
+				return operator_.template nextElem<SuperType>(*superThisPtr());
 #endif
 			}
 
@@ -263,7 +263,7 @@ namespace lipaboy_lib {
 		public:
 
 			ResultValueType nextElem() {
-				return std::move(operator_.template nextElem<SubType>(*subThisPtr()));
+				return operator_.template nextElem<SubType>(*subThisPtr());
 			}
 			bool hasNext() {
 				return operator_.template hasNext<SubType>(*subThisPtr());

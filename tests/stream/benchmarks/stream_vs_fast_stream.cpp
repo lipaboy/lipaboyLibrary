@@ -22,11 +22,13 @@ namespace stream_benchmarks {
 	// 7% boost and that's all
 	TEST(Benchmark_stream_vs_fast_stream, DISABLED_skip) {
 		const size_t SIZE = static_cast<size_t>(1e7);
+		int sum1 = 0;
+		int sum3 = 0;
 		{
 			auto start = getCurrentTime();
-			int sum = 0;
 			for (size_t i = 0; i < SIZE; i++)
-				sum += i;
+				if (i >= 100)
+					sum1 += i;
 			cout << "Time: " << diffFromNow(start) << " Simple" << endl;
 		}
 
@@ -36,7 +38,10 @@ namespace stream_benchmarks {
 
 			auto start = getCurrentTime();
 			int a = 0;
-			buildStream([&a]() { return a++; }) | skip(100) | get(SIZE) | sum();
+			buildStream([&a]() { return a++; }) 
+				| get(SIZE) 
+				| skip(100) 
+				| sum();
 			cout << "Time: " << diffFromNow(start) << " Stream" << endl;
 		}
 
@@ -46,15 +51,21 @@ namespace stream_benchmarks {
 
 			auto start = getCurrentTime();
 			int a = 0;
-			buildStream([&a]() { return a++; }) | skip(100)
-				| get(SIZE) | sum();
+			sum3 = buildStream([&a]() { return a++; }) 
+				| get(SIZE) 
+				| skip(100) 
+				| sum();
 			cout << "Time: " << diffFromNow(start) << " Fast Stream" << endl;
 		}
+
+
+		ASSERT_EQ(sum1, sum3);
+		system("pause");
 
 		ASSERT_FALSE(true);
 	}
 
-	TEST(Benchmark_stream_vs_fast_stream, skip_string) {
+	TEST(Benchmark_stream_vs_fast_stream, DISABLED_skip_string) {
 		const size_t SIZE = static_cast<size_t>(8e5);
 		string sum1 = "";
 		string sum2 = "";
@@ -83,8 +94,8 @@ namespace stream_benchmarks {
 			int a = 0;
 			sum2 = std::move(buildStream([&a]() { return std::to_string(a++); }) 
 				| get(SIZE) 
-				//| get(SIZE)
-				//| get(SIZE)
+				| get(SIZE)
+				| get(SIZE)
 				| skip(100) 
 				| skip(100)
 				| skip(100)
@@ -100,8 +111,8 @@ namespace stream_benchmarks {
 			int a = 0;
 			sum3 = std::move(buildStream([&a]() { return std::to_string(a++); })
 				| get(SIZE) 
-				//| get(SIZE)
-				//| get(SIZE)
+				| get(SIZE)
+				| get(SIZE)
 				| skip(100) 
 				| skip(100)
 				| skip(100)
@@ -109,13 +120,15 @@ namespace stream_benchmarks {
 			cout << "Time: " << diffFromNow(start) << " Fast Stream" << endl;
 		}
 
+		system("pause");
+
 		//ASSERT_EQ(sum1, sum2);
 		//ASSERT_EQ(sum3, sum2);
 		ASSERT_FALSE(true);
 	}
 
 	// Results: (Windows)
-	// 6% deceleration (by fast_stream)
+	// 
 	TEST(Benchmark_stream_vs_fast_stream, DISABLED_filter) {
 		const size_t SIZE = static_cast<size_t>(1e7);
 
@@ -154,6 +167,54 @@ namespace stream_benchmarks {
 				| filter([](auto l) { return l % 2 == 0; }) | sum();
 			cout << "Time: " << diffFromNow(start) << " Fast Stream" << endl;
 		}
+
+		system("pause");
+
+		ASSERT_FALSE(true);
+	}
+
+	// Results: (Windows)
+	// 
+	TEST(Benchmark_stream_vs_fast_stream, DISABLED_filter_string) {
+		const size_t SIZE = static_cast<size_t>(8e5);
+
+		{
+			auto start = getCurrentTime();
+			string sum = "";
+			for (size_t i = 0; i < SIZE; i++)
+				if (std::stoi(std::to_string(i)) % 2 == 0)
+					sum += std::to_string(i);
+			cout << "Time: " << diffFromNow(start) << " Simple" << endl;
+		}
+
+		{
+			using namespace stream;
+			using namespace stream::operators;
+
+			auto start = getCurrentTime();
+			int a = 0;
+			buildStream([&a]() { return std::to_string(a++); }) | get(SIZE)
+				| filter([](auto& l) { return std::stoi(l) % 2 == 0; }) | sum();
+			cout << "Time: " << diffFromNow(start) << " Stream" << endl;
+		}
+
+		{
+			using namespace fast_stream;
+			using namespace fast_stream::operators;
+
+			auto sum1 =
+				buildStream(1, 2, 3, 4, 5, 6)
+				| filter([](auto l) { return l % 2 == 0; }) | sum();
+			ASSERT_EQ(sum1, 12);
+
+			auto start = getCurrentTime();
+			int a = 0;
+			buildStream([&a]() { return std::to_string(a++); }) | get(SIZE)
+				| filter([](auto& l) { return std::stoi(l) % 2 == 0; }) | sum();
+			cout << "Time: " << diffFromNow(start) << " Fast Stream" << endl;
+		}
+
+		system("pause");
 
 		ASSERT_FALSE(true);
 	}
