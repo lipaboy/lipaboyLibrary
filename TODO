@@ -12,7 +12,9 @@ Global TODOs:
 
 1) (Interval), (Comparable) write TODOs for them.
 
-2) (FastStream) think how union common methods and types of different Stream (main and fast ones).
+2) (Stream & FastStream) think how union common methods and types of different Stream (main and fast ones).
+	- Write static "interface" (static polymorphism) with these common methods (next, hasNext, increment) and 
+		transfer it to operators ones in argument.
 
 3) (FastStream) use Stream's tests to test the fast_stream::Stream.
 
@@ -25,6 +27,8 @@ Local TODOs:
 2) (FixedPrecisionNumber) write tests for comparing numbers
 
 3) (Stream) rename shortening namespace to shortenings (or better shorteners)
+
+4) (Stream) Edit distinct operator by replacing the std::refs on value_type values.
 
 Think about:
 
