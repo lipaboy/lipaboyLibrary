@@ -34,3 +34,6 @@ Think about:
 	- Disadvantage: you take freedom from clients to use empty sets. Maybe
 
 3) (Interval) Must make the Infinity classes as singleton?
+
+4) (Interval) Think about constraining the NumericalInterval with Direction of comparators (<, <= - one direction,
+		>, >= - another direction).

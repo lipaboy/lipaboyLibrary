@@ -3,20 +3,14 @@
 #include <iostream>
 
 #include "intervals/interval.h"
+#include "intervals/numerical_interval.h"
 
 namespace lipaboy_lib_tests {
 
 	using std::cout;
 	using std::endl;
 
-	using lipaboy_lib::Interval;
-	using lipaboy_lib::CloseInterval;
-	using lipaboy_lib::OpenInterval;
-	using lipaboy_lib::PositiveRay;
-	using lipaboy_lib::NegativeRay;
-	using lipaboy_lib::PositiveInfinity;
-	using lipaboy_lib::UniversumInterval;
-	
+	using namespace lipaboy_lib;
 
 	TEST(Interval, contains) {
 		OpenInterval<int> interval(1, 5);
@@ -40,6 +34,16 @@ namespace lipaboy_lib_tests {
 		UniversumInterval<int> universum;
 
 		ASSERT_TRUE(universum.containsAll(-3, 5, 0, INT_MAX, INT_MIN, 1, -1));
+	}
+
+	TEST(NumericalInterval, length) {
+		NumericalInterval<int, std::less<>, std::less_equal<> > interval(-5, 5);
+
+		ASSERT_EQ(interval.length(), 10);
+
+		CloseNumericalInterval<int> interval2(5, 5);
+
+		ASSERT_EQ(interval2.length(), 0);
 	}
 
 }

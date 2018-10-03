@@ -55,7 +55,8 @@ namespace lipaboy_lib {
 		class LeftComparator, 
 		class RightComparator,
 		class TLeftBorder = T,
-		class TRightBorder = T>
+		class TRightBorder = T
+	>
     class IntervalBase : 
 		public ContainAPIExtender<T, 
 			IntervalBase<T, LeftComparator, RightComparator, TLeftBorder, TRightBorder> 
@@ -66,9 +67,9 @@ namespace lipaboy_lib {
 			: leftBorder_(leftBorder), rightBorder_(rightBorder) {}
 		bool in(const T& element) const { return contains(element); }
 		bool out(const T& element) const { return !in(element); }
-		//TODO: think about advantages of these methods. If you include them then will override these ones into PositiveRay
+		//TODO: make it as friend methods
 		bool outLeft(const T& element) const { return !isLeftCompare(element); }
-		bool outRight(const T& element) const { return !isLeftCompare(element); }
+		bool outRight(const T& element) const { return !isRightCompare(element); }
 
 		bool contains(const T& element) const {
 			return isLeftCompare(element) && isRightCompare(element);
@@ -82,9 +83,6 @@ namespace lipaboy_lib {
 				&& (rightBorder_ == other.rightBorder);
 		}
 		bool operator!=(const IntervalBase& other) const { return !((*this) == other); }
-
-		//You can't write method length() because your class Interval will become less general
-		//Solution: but you can inherit from Interval class NumericInterval where add this method (and maybe Infinity)
 
 	protected:
 		bool isLeftCompare(const T& element) const { return LeftComparator()(leftBorder_, element); }
@@ -148,9 +146,8 @@ namespace lipaboy_lib {
 		UniversumInterval() : IntervalBase(NegativeInfinity<T>(), PositiveInfinity<T>()) {}
 	};
 
-	//-----------------------------------------//
+	//--------------------Interval API---------------------//
 
-	
 
 }
 
