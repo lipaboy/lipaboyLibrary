@@ -1,29 +1,16 @@
 #include "gtest/gtest.h"
 
 #include <iostream>
-#include <vector>
-#include <string>
-#include <memory>
 
 #include "common_interfaces/algebra.h"
 #include "maths/fixed_precision_number.h"
-#include "intervals/interval.h"
 
 namespace lipaboy_lib_tests {
 
 	using std::cout;
 	using std::endl;
-	using std::vector;
-	using std::string;
-	using std::unique_ptr;
 
 	using lipaboy_lib::FixedPrecisionNumber;
-	using lipaboy_lib::Interval;
-	using lipaboy_lib::CloseInterval;
-	using lipaboy_lib::OpenInterval;
-	using lipaboy_lib::PositiveRay;
-	using lipaboy_lib::NegativeRay;
-	using lipaboy_lib::PositiveInfinity;
 
 
 	TEST(Algebra, check) {
@@ -72,21 +59,6 @@ namespace lipaboy_lib_tests {
 		ASSERT_TRUE(2.00001 >= kek1);
 		ASSERT_TRUE(2.00001 <= kek1);
 		ASSERT_FALSE(2.00001 < kek1);
-	}
-
-	
-	TEST(Interval, contains) {
-		OpenInterval<int> interval(1, 5);
-		ASSERT_TRUE(interval.containsAll(2, 3, 4));
-		ASSERT_TRUE(interval.containsNone(0, 1, 5));
-
-		PositiveRay<int, std::less<> > ray(5);
-		ASSERT_TRUE(ray.containsNone(0, 1, 5));
-		ASSERT_TRUE(ray.containsAll(6, 7, 8, 9, INT_MAX));
-
-		NegativeRay<int, std::less<> > ray2(5);
-		ASSERT_TRUE(ray2.containsNone(5, 6, 7, INT_MAX));
-		ASSERT_TRUE(ray2.containsAll(-2, 0, 1, 4, INT_MIN));
 	}
 
 }

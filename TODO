@@ -30,3 +30,7 @@ Think about:
 		by pattern like plenty language (set theory language). 
 		Like do smth over the whole collection accept this set (plenty).
 
+2) (Interval) Must add check on leftBorder "<=" rightBorder?
+	- Disadvantage: you take freedom from clients to use empty sets. Maybe
+
+3) (Interval) Must make the Infinity classes as singleton?

@@ -4,7 +4,6 @@
 #include "../common_interfaces/either_comparable.h"
 
 #include <functional>
-#include <unordered_set>
 
 namespace lipaboy_lib {
 
@@ -135,27 +134,23 @@ namespace lipaboy_lib {
 		T& rRight() { return rightBorder_; }
 	};
 
+	template <class T>
+	class UniversumInterval :
+		public IntervalBase<
+			T, 
+			typename NegativeInfinity<T>::less, 
+			typename PositiveInfinity<T>::less, 
+			NegativeInfinity<T>, 
+			PositiveInfinity<T>
+		>
+	{
+	public:
+		UniversumInterval() : IntervalBase(NegativeInfinity<T>(), PositiveInfinity<T>()) {}
+	};
+
 	//-----------------------------------------//
 
-	using std::unordered_set;
-
-	template <class T,
-		class LeftComparator,
-		class RightComparator,
-		class TLeftBorder = T,
-		class TRightBorder = T
-	>
-	class IntervalSet {
-	public:
-		using ValueType = IntervalBase<T, LeftComparator, RightComparator, TLeftBorder, TRightBorder>;
-		using ContainerType = unordered_set<ValueType>;
-
-	public:
-
-
-	private:
-		ContainerType set_;
-	};
+	
 
 }
 

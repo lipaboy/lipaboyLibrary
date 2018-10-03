@@ -10,6 +10,8 @@ set(TEST_SOURCE
 
     long_numbers/long_numbers_tests.cpp
 
+	intervals/interval_tests.cpp
+
     stream/stream_tests.cpp
     stream/stream_test.h
 
