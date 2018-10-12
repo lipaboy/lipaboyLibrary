@@ -15,7 +15,8 @@ public:
 #ifdef QT_H
     Vector2D(QPoint point) : x(point.x()), y(point.y()) {}
 #endif
-	Vector2D(Point2D point) : x(point.x()), y(point.y()) {}
+    Vector2D(Point2D point) : x(point.x()), y(point.y()) {}
+    Vector2D(double X, double Y) : x(X), y(Y) {}
 
     double length() const { return std::sqrt(x * x + y * y); }
     double squaredLength() const { return (x * x + y * y); }
