@@ -1,4 +1,4 @@
-Ideas:
+----Ideas:
 
 1) Create container like ListOfVectors with iterators and so that.
 	- But maybe list< vector<bool> > is enough. Necessary to think this moment.
@@ -8,7 +8,7 @@ Ideas:
 2) (Stream) Write SelectMany(v -> v.ToWords).GroupBy(v -> v).ToDictionary(v -> v.count)
 	to count the frequency of words in any text.
 
-Global TODOs:
+----Global TODOs:
 
 1) (Interval), (Comparable) write TODOs for them.
 
@@ -20,7 +20,7 @@ Global TODOs:
 
 4) (Stream) write group_by(to any container like vector, list, string and so on (IIterable))
 
-Local TODOs:
+----Local TODOs:
 
 1) (LongNumber) Write division properly.
 
@@ -30,7 +30,9 @@ Local TODOs:
 
 4) (Stream) Edit distinct operator by replacing the std::refs on value_type values.
 
-Think about:
+5) (Stream) Put off the short_stream and fast_stream to it own files.
+
+----Think about:
 
 1) I would like to add union interval and segment like the entire object (e.g. [-2, 3) U (5, +inf) ).
 	- May be work with "<", "<=" symbols (from C++ STL). like container.add(5, "<=");
