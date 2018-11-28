@@ -1,5 +1,8 @@
 #pragma once
 
+#include <iterator>
+#include <algorithm>
+
 namespace lipaboy_lib {
 
 	template <class TNestedContainer>
@@ -10,12 +13,14 @@ namespace lipaboy_lib {
 		using InnerContainerType = typename ExternalContainerType::value_type;
 		using ElemType = typename InnerContainerType::value_type;
 		using ExternalIterator = typename ExternalContainerType::iterator;
-		using InnerIterator = typename InnerContainerType::iterator;
+		using InternalIterator = typename InnerContainerType::iterator;
+
+		using difference_type = int64_t;
 
 	public:
 
 	protected:
-		NestedIterator(ExternalIterator externalIter, InnerIterator innerIter, ExternalIterator externalEnd)
+		NestedIterator(ExternalIterator externalIter, InternalIterator innerIter, ExternalIterator externalEnd)
 			: externalIter_(externalIter), 
 			internalIter_(innerIter),
 			externalEnd_(externalEnd)
@@ -29,7 +34,7 @@ namespace lipaboy_lib {
 
 		static NestedIterator end(NestedContainerType & container) {
 			auto iter = container.begin();
-			return NestedIterator(container.end(), InnerIterator(), container.end());
+			return NestedIterator(container.end(), InternalIterator(), container.end());
 		}
 
 		bool operator==(NestedIterator const & other) {
@@ -44,7 +49,7 @@ namespace lipaboy_lib {
 			internalIter_++;
 			if (internalIter_ == externalIter_->end()) {
 				externalIter_++;
-				internalIter_ = externalIter_ != externalEnd_ ? externalIter_->begin() : InnerIterator();
+				internalIter_ = !isEnd() ? externalIter_->begin() : InternalIterator();
 			}
 
 			return prevIter;
@@ -58,9 +63,31 @@ namespace lipaboy_lib {
 			return *internalIter_;
 		}
 
+		// INFO: wouldn't be work with filestream's iterator (because single-pass)
+		void advance(difference_type diff) {
+			// BAD: infinite loops work bad in C++ because compiler can decide on it own when it can terminate the loop.
+			for (; ; ) {
+				auto distance = std::distance(internalIter_, externalIter_->end());
+				if (diff < distance)
+					break;
+				diff -= distance;
+				externalIter_++;
+				if (isEnd())
+					break;
+				internalIter_ = externalIter_->begin();
+			}
+
+			if (isEnd())
+				internalIter_ = InternalIterator();
+			else
+				std::advance(internalIter_, diff);
+		}
+
+		bool isEnd() { return externalIter_ == externalEnd_; }
+
 	private:
 		ExternalIterator externalIter_;
-		InnerIterator internalIter_;
+		InternalIterator internalIter_;
 		ExternalIterator externalEnd_;
 	};
 

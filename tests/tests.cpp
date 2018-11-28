@@ -126,6 +126,10 @@ TEST(Check, check2) {
 		ASSERT_EQ(*iter, i);
 	}
 	//ASSERT_FALSE(true);
+
+	iter = NestedIterator<ContainerType>::begin(listOfVectors);
+	iter.advance(4);
+	ASSERT_EQ(*iter, 5);
 }
 
 }

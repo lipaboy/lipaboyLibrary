@@ -18,6 +18,8 @@ Local TODOs:
 
 2) (FixedPrecisionNumber) write tests for comparing numbers
 
+3) (NestedIterators) write tests for them and realize TPolicy for different traversals
+
 Think about:
 
 1) I would like to add union interval and segment like the entire object (e.g. [-2, 3) U (5, +inf) ).
