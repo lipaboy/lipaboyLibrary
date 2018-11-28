@@ -16,6 +16,8 @@
 
 #include "maths/vector4d.h"
 
+#include "containers/nested_containers.h"
+
 namespace lipaboy_lib_tests {
 
 using std::cout;
@@ -107,6 +109,11 @@ TEST(Check, check) {
 
 	double kle[4] = { 1., 2., 3., 4. };
 	lipaboy_lib::Vector4D vect(kle);
+}
+
+TEST(Check, check2) {
+	using lipaboy_lib::NestedIterator;
+	NestedIterator<std::list<vector<int> > > iter;
 }
 
 }
