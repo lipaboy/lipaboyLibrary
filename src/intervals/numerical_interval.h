@@ -8,7 +8,7 @@ namespace lipaboy_lib {
 		class T, 
 		class LeftComparator, 
 		class RightComparator,
-		class TDifference = std::minus<T>
+		class DifferenceFunc = std::minus<T>
 	>
 	class NumericalInterval : public Interval<T, LeftComparator, RightComparator>
 	{
@@ -16,9 +16,8 @@ namespace lipaboy_lib {
 		NumericalInterval(const T& leftBorder, const T& rightBorder)
 			: Interval<T, LeftComparator, RightComparator>(leftBorder, rightBorder) {}
 
-		T length() { return TDifference()(right(), left()); }
+		T length() { return DifferenceFunc()(right(), left()); }
 
-		
 	};
 
 	template <class T>

@@ -7,7 +7,8 @@
 
 namespace lipaboy_lib {
 
-	//TODO: write comparison with Infinity (Infinity == Infinity)
+	// TODO: write comparison with Infinity (Infinity == Infinity)
+	// TODO: put off Infinity into own file
 
     template <class T>
     class Infinity : public EitherComparable<T, Infinity<T> > {};

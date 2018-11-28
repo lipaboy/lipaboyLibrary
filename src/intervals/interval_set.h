@@ -1,6 +1,7 @@
 #pragma once
 
-#include "interval.h"
+//#include "interval.h"
+#include "numerical_interval.h"
 
 #include <unordered_set>
 
@@ -13,8 +14,8 @@ namespace lipaboy_lib {
 		class RightComparator
 	>
 	auto unionIntervals(
-		Interval<T, LeftComparator, RightComparator> const & first, 
-		Interval<T, LeftComparator, RightComparator> const & second
+		NumericalInterval<T, LeftComparator, RightComparator> const & first, 
+		NumericalInterval<T, LeftComparator, RightComparator> const & second
 	)
 		-> Interval<T, LeftComparator, RightComparator>
 	{
@@ -28,12 +29,11 @@ namespace lipaboy_lib {
 	template <class T,
 		class LeftComparator,
 		class RightComparator,
-		class TLeftBorder = T,
-		class TRightBorder = T
+		class DifferenceFunc = std::minus<T>
 	>
-		class IntervalSet {
+		class NumericalIntervalSet {
 		public:
-			using ValueType = IntervalBase<T, LeftComparator, RightComparator, TLeftBorder, TRightBorder>;
+			using ValueType = NumericalInterval<T, LeftComparator, RightComparator, DifferenceFunc>;
 			using ContainerType = unordered_set<ValueType>;
 
 		public:
