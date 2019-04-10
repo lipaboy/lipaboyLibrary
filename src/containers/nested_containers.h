@@ -5,6 +5,9 @@
 
 namespace lipaboy_lib {
 
+	// PLAN TODO
+	// 1) Realize operator+= for working std::advance for this iterator
+
 	template <class TNestedContainer>
 	class NestedIterator {
 	public:
