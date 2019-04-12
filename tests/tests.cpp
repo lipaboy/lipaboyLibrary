@@ -112,24 +112,7 @@ TEST(Check, check) {
 }
 
 TEST(Check, check2) {
-	using lipaboy_lib::NestedIterator;
-	using ContainerType = std::list<vector<int> >;
-
-	ContainerType listOfVectors;
-	listOfVectors.push_back(vector<int>({ 1, 2, 3 }));
-	listOfVectors.push_back(vector<int>({ 4, 5, 6 }));
-	listOfVectors.push_back(vector<int>({ 7, 8, 9 }));
-	auto iter = NestedIterator<ContainerType>::begin(listOfVectors);
-	auto endIter = NestedIterator<ContainerType>::end(listOfVectors);
-
-	for (int i = 1; iter != endIter; iter++, i++) {
-		ASSERT_EQ(*iter, i);
-	}
-	//ASSERT_FALSE(true);
-
-	iter = NestedIterator<ContainerType>::begin(listOfVectors);
-	iter.advance(4);
-	ASSERT_EQ(*iter, 5);
+	
 }
 
 }
