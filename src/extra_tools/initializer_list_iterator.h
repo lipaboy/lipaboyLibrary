@@ -12,7 +12,7 @@
 namespace lipaboy_lib {
 
 
-	// unreal iterator because we can't make make_iterator from it
+	// INFO: It is unreal iterator because we can't make make_iterator from it
 template <class T>
 class InitializerListIterator {
 public:

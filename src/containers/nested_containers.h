@@ -20,6 +20,13 @@ namespace lipaboy_lib {
 		using ExternalIterator = typename ExternalContainerType::iterator;
 		using InternalIterator = typename InnerContainerType::iterator;
 
+		using value_type = ElemType;
+		using reference = value_type & ;
+		using const_reference = const reference;
+		using pointer = value_type * ;
+		using const_pointer = const pointer;
+		using iterator_category = std::random_access_iterator_tag;
+		// Are you sure??
 		using difference_type = int64_t;
 
 	public:
@@ -64,26 +71,50 @@ namespace lipaboy_lib {
 			return *this;
 		}
 
+		NestedIterator operator+=(difference_type diff) {
+			this->advance(diff);
+			return *this;
+		}
+
 		ElemType & operator*() {
 			return *internalIter_;
 		}
 
 		// INFO: wouldn't be work with filestream's iterator (because single-pass)
 		void advance(difference_type diff) {
+			difference_type sign = (diff < 0) ? -1 : 1;
+			typedef InternalIterator(InnerContainerType::*MemFunc)();
+			MemFunc edgeFromFn,
+				edgeToFn;
+
+			if (diff < 0) {
+				edgeFromFn = (&InnerContainerType::end);
+				edgeToFn = (&InnerContainerType::begin);
+			}
+			else {
+				edgeFromFn = (&InnerContainerType::begin);
+				edgeToFn = (&InnerContainerType::end);
+			}
+
 			// BAD: infinite loops work bad in C++ because compiler can decide on it own when it can terminate the loop.
 			//		You need to imagine situation where using NestedIterator with filestream is necessary.
 			for (; ; ) {
-				auto distance = std::distance(internalIter_, externalIter_->end());
-				if (diff < distance)
+				auto distance = std::distance(internalIter_, (*externalIter_.*edgeToFn)());
+				if (diff > 0 && std::abs(diff) < std::abs(distance)
+					|| diff < 0 && std::abs(diff) <= std::abs(distance)
+					)
 					break;
 				diff -= distance;
-				externalIter_++;
+				if (diff < 0)
+					externalIter_--;
+				else
+					externalIter_++;
 				if (isEnd())
 					break;
-				internalIter_ = externalIter_->begin();
+				internalIter_ = (*externalIter_.*edgeFromFn)();
 			}
 
-			if (isEnd())
+			if (isEnd())	// it is correct and necessary condition
 				internalIter_ = InternalIterator();
 			else
 				std::advance(internalIter_, diff);
