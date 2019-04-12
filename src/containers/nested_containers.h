@@ -2,6 +2,8 @@
 
 #include <iterator>
 #include <algorithm>
+#include <fstream>
+#include <vector>
 
 namespace lipaboy_lib {
 
@@ -69,6 +71,7 @@ namespace lipaboy_lib {
 		// INFO: wouldn't be work with filestream's iterator (because single-pass)
 		void advance(difference_type diff) {
 			// BAD: infinite loops work bad in C++ because compiler can decide on it own when it can terminate the loop.
+			//		You need to imagine situation where using NestedIterator with filestream is necessary.
 			for (; ; ) {
 				auto distance = std::distance(internalIter_, externalIter_->end());
 				if (diff < distance)
