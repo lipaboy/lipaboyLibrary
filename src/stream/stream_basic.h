@@ -93,11 +93,13 @@ namespace lipaboy_lib {
 				static_assert(!TStream_::isInfinite(),
 					"Stream error: attempt to work with infinite stream");
 			}
+
 		protected:
 			// Info:
 			// illusion of protected (it means that can be replace on private)
 			// (because all the variadic templates are friends
 			// from current Stream to first specialization) (it is not a real inheritance)
+			
 
 			//-----------------Slider API--------------//
 		public:

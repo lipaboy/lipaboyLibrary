@@ -40,19 +40,36 @@ namespace lipaboy_lib {
 				using ContainerTypePtr = shared_ptr<ContainerType>;
 			public:
 				distinct_impl(distinct obj)	
+					// init by stopper, not more
 					: filter_impl(std::function<bool(T&)>([](T& elem) { return true; }))
 				{
 					pDistinctSet_ = std::make_shared<ContainerType>();
 					ContainerTypePtr lol = pDistinctSet_;
+#ifdef LOL_DEBUG_NOISY
+					std::cout << "\tset is created" << endl;
+#endif
+					// set by real functor of filtering
 					this->setFunctor(std::function<bool(T&)>(
 						[set = lol](T & elem) -> bool 
 						{
+#ifdef LOL_DEBUG_NOISY
+							std::cout << "\t  start inserting " << endl;
+#endif
 							bool isInserted = set->insert(std::ref(elem)).second;
+#ifdef LOL_DEBUG_NOISY
+							std::cout << "\t  end inserting " << endl;
+#endif
 							if (isInserted) 
 								return true;
 							return false;
 						}));
 				}
+
+#ifdef LOL_DEBUG_NOISY
+				~distinct_impl() {
+					std::cout << "\tdestruct distinct" << endl;
+				}
+#endif
 
 			private:
 				ContainerTypePtr pDistinctSet_;

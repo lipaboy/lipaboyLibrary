@@ -405,48 +405,59 @@ TEST(StreamTest, noisy) {
 
 #ifdef LOL_DEBUG_NOISY
 
-        vector<NoisyD> vecNoisy(1);
-        auto streamNoisy = buildStream(std::move_iterator(vecNoisy.begin()), 
-			std::move_iterator(vecNoisy.end()));
-        cout << "\tstart streaming" << endl;
-        auto streamTemp2 =
-                (streamNoisy
-                    //| map([] (NoisyD&& a) -> NoisyD { return std::move(a); })
-                    //| map([] (NoisyD&& a) -> NoisyD { return std::move(a); })
-                    //| map([] (NoisyD&& a) -> NoisyD { return std::move(a); })
-					//---
-					| map([](NoisyD& a) -> NoisyD& { int b = 0; return a; })
-					| map([](NoisyD& a) -> NoisyD& { int b = 0; return a; })
-					//---
-    //                    | get(4)
-    //                    | get(4)
-    //                    | filter([] (const Noisy& a) { static int i = 0; return (i++ % 2 == 0); })
-    //                    | get(4)
-    //                | nth(0)
-                );
-
-        cout << "\tend streaming" << endl;
-        if (!vecNoisy.empty())
-            streamTemp2 | nth(0);
-        cout << "\tend nth" << endl;
-        cout << "\t------------" << endl;
-
-        cout << "\tstart streaming" << endl;
-		auto streamTemp =
-			(buildStream(vecNoisy.begin(), vecNoisy.end())
-                | filter([] (const NoisyD& ) { return true; })
-                //| filter([] (const NoisyD& ) { return true; })
-                //| filter([] (const NoisyD& ) { return true; })
-//                    | get(4)
-//                    | get(4)
-//                    | filter([] (const Noisy& a) { static int i = 0; return (i++ % 2 == 0); })
-//                    | get(4)
-//                | nth(0)
-            );
-        cout << "\tend streaming" << endl;
-        if (!vecNoisy.empty())
-            streamTemp | nth(0);
-        cout << "\tend nth" << endl;
+		vector<Noisy> vec(1);
+		cout << "\tstart streaming" << endl;
+		//auto elem = 
+			buildStream(std::move_iterator(vec.begin()),
+						std::move_iterator(vec.end())) | distinct() 
+				| nth(0)
+				;
+		cout << "\tend streaming" << endl;
+		
+		ASSERT_TRUE(false);
+//
+//        vector<NoisyD> vecNoisy(1);
+//        auto streamNoisy = buildStream(std::move_iterator(vecNoisy.begin()), 
+//			std::move_iterator(vecNoisy.end()));
+//        cout << "\tstart streaming" << endl;
+//        auto streamTemp2 =
+//                (streamNoisy
+//                    //| map([] (NoisyD&& a) -> NoisyD { return std::move(a); })
+//                    //| map([] (NoisyD&& a) -> NoisyD { return std::move(a); })
+//                    //| map([] (NoisyD&& a) -> NoisyD { return std::move(a); })
+//					//---
+//					| map([](NoisyD& a) -> NoisyD& { int b = 0; return a; })
+//					| map([](NoisyD& a) -> NoisyD& { int b = 0; return a; })
+//					//---
+//    //                    | get(4)
+//    //                    | get(4)
+//    //                    | filter([] (const Noisy& a) { static int i = 0; return (i++ % 2 == 0); })
+//    //                    | get(4)
+//    //                | nth(0)
+//                );
+//
+//        cout << "\tend streaming" << endl;
+//        if (!vecNoisy.empty())
+//            streamTemp2 | nth(0);
+//        cout << "\tend nth" << endl;
+//        cout << "\t------------" << endl;
+//
+//        cout << "\tstart streaming" << endl;
+//		auto streamTemp =
+//			(buildStream(vecNoisy.begin(), vecNoisy.end())
+//                | filter([] (const NoisyD& ) { return true; })
+//                //| filter([] (const NoisyD& ) { return true; })
+//                //| filter([] (const NoisyD& ) { return true; })
+////                    | get(4)
+////                    | get(4)
+////                    | filter([] (const Noisy& a) { static int i = 0; return (i++ % 2 == 0); })
+////                    | get(4)
+////                | nth(0)
+//            );
+//        cout << "\tend streaming" << endl;
+//        if (!vecNoisy.empty())
+//            streamTemp | nth(0);
+//        cout << "\tend nth" << endl;
 
 #endif
     } catch (std::bad_alloc & exp) {

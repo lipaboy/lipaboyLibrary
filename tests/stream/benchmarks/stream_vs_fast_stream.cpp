@@ -192,7 +192,7 @@ namespace stream_benchmarks {
 
 	// Results: (Windows)
 	// 
-	TEST(Benchmark_stream_vs_fast_stream, filter_string) {
+	TEST(Benchmark_stream_vs_fast_stream, DISABLED_filter_string) {
 		const size_t SIZE = static_cast<size_t>(8e5);
 
 		{
