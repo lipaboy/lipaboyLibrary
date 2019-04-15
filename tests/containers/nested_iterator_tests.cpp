@@ -68,6 +68,12 @@ namespace stream_tests {
 		ASSERT_EQ(*iter, 5);
 		iter.advance(-4);
 		ASSERT_EQ(*iter, 1);
+		iter.advance(5);
+		ASSERT_EQ(*iter, 6);
+		iter.advance(-2);
+		ASSERT_EQ(*iter, 4);
+		iter.advance(-1);
+		ASSERT_EQ(*iter, 3);
 	}
 
 
