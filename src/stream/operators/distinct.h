@@ -39,8 +39,8 @@ namespace lipaboy_lib {
 					std::hash<std::remove_const_t<type> >, std::equal_to<type> >;
 				using ContainerTypePtr = shared_ptr<ContainerType>;
 			public:
-				distinct_impl(distinct obj)	
-					: filter_impl(std::function<bool(T&)>([](T& elem) { return true; }))
+                distinct_impl(distinct)
+                    : filter_impl<std::function<bool(T&)>, T>(std::function<bool(T&)>([](T&) { return true; }))
 				{
 					pDistinctSet_ = std::make_shared<ContainerType>();
 					ContainerTypePtr lol = pDistinctSet_;
