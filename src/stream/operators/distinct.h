@@ -16,6 +16,7 @@ namespace lipaboy_lib {
 			using std::shared_ptr;
 
 			// TODO: test unordered_set<ref> with Noisy objects
+			// BUG: don't work on Linux with gcc-7
 
 			//-------------------------------------------------------------------------------------//
 			//--------------------------------Unterminated operation------------------------------//
@@ -41,6 +42,7 @@ namespace lipaboy_lib {
                     std::hash<std::remove_const_t<type> >,
                     std::equal_to<type> >;
 				using ContainerTypePtr = shared_ptr<ContainerType>;
+
 			public:
                 distinct_impl(distinct)
                     : filter_impl<std::function<bool(T&)>, T>(std::function<bool(T&)>([](T&) { return true; }))
@@ -51,9 +53,9 @@ namespace lipaboy_lib {
 						[set = lol](T & elem) -> bool 
 						{
                             bool isInserted = set->insert(elem).second;
-                            for (auto it = set->begin(); it != set->end(); it++) {
-                                auto temp = *it;
-                            }
+                            //for (auto it = set->begin(); it != set->end(); it++) {
+                            //    auto temp = *it;
+                            //}
                             if (isInserted)
 								return true;
 							return false;

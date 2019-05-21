@@ -109,12 +109,13 @@ TEST(Check, check) {
 	double kle[4] = { 1., 2., 3., 4. };
 	lipaboy_lib::Vector4D vect(kle);
 
-    ///------------------------
+    //------------------------Sum-------------------------//
+
     using namespace lipaboy_lib::stream_space;
     using namespace lipaboy_lib::stream_space::operators_space;
     using lipaboy_lib::FixedPrecisionNumber;
 
-    for (int i = 5; i <= 5; i++) {
+	/* for (int i = 5; i <= 25; i++) {
         int a = 1;
         double sum1 = buildStream(
             [&a]() -> int {
@@ -123,11 +124,55 @@ TEST(Check, check) {
                 return 1 / (elem + 1.) / (elem + 2.) / (elem + 3.);
             }) | operators_space::get(size_t(i)) | sum();
         FixedPrecisionNumber<double, int, 1, -8> lol(sum1);
-        double lol2 = (1. / 12 - 1 / (i + 1.) / (i + 2.) / 2.);
+        double lol2 = (1. / 12 - 1 / (i + 2.) / (i + 3.) / 2.);
         cout << sum1 << endl;
         cout << lol2 << endl;
         EXPECT_TRUE(lol == lol2);
     }
+
+	for (int i = 5; i <= 5; i++) {
+		int a = 1;
+		double sum1 = buildStream(
+			[&a]() -> int {
+			return a++;
+		}) | map([](auto elem) -> double {
+			return 1 / (elem + 1.) / (elem + 2.);
+		}) | operators_space::get(size_t(i)) | sum();
+		FixedPrecisionNumber<double, int, 1, -8> lol(sum1);
+		double lol2 = (1. / 2 - 1. / (i + 2.));
+		cout << sum1 << endl;
+		cout << lol2 << endl;
+		EXPECT_TRUE(lol == lol2);
+	}*/
+
+	for (int n = 7; n <= 7; n++) {
+		for (int l = 5; l <= 5; l++) {
+			for (int m = 6; m <= 6; m++) {
+				int a = 1;
+				double sum1 = buildStream(
+					[&a]() -> int {
+					return a++;
+				}) | map([l, m, n](auto elem) -> double {
+					return 1. / (elem + l) / (elem + m);
+				}) | operators_space::get(size_t(n)) | sum();
+				FixedPrecisionNumber<double, int, 1, -8> lol(sum1);
+
+				a = 1;
+				double sum2 = buildStream(
+					[&a]() -> int {
+					return a++;
+				}) | map([l, m, n](auto elem) -> double {
+					return 1. / (elem + l) / (elem + l + n);
+				}) | operators_space::get(size_t(m - l)) | sum();
+				FixedPrecisionNumber<double, int, 1, -8> lol2(sum2);
+
+				lol2 = n / (m - l) * lol2;
+				cout << lol.getNumber() << endl;
+				cout << lol2.getNumber() << endl;
+				EXPECT_TRUE(lol == lol2);
+			}
+		}
+	}
 }
 
 }
