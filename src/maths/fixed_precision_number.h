@@ -29,14 +29,12 @@ namespace lipaboy_lib {
 				: number(_number) {}
 
         bool operator<(const T& val) const noexcept { return (getNumber() < val
-			- static_cast<T>(fraction * powDozen<T, IntegerPrecisionType>(dozenPower))); }
+			- static_cast<T>(epsilonPrecision())); }
 //        bool operator<=(const T& val) const noexcept { return (getNumber() <= val
-//			+ static_cast<T>(fraction * powDozen<T, IntegerPrecisionType>(dozenPower))); }
+//			+ static_cast<T>(epsilonPrecision())); }
         bool operator==(const ValueType& val) const noexcept {
-            return (getNumber() >= val
-                    - static_cast<ValueType>(fraction * powDozen<T, IntegerPrecisionType>(dozenPower)))
-                && (getNumber() <= val
-                    + static_cast<ValueType>(fraction * powDozen<T, IntegerPrecisionType>(dozenPower)));
+            return (getNumber() >= val - static_cast<ValueType>(epsilonPrecision()))
+                && (getNumber() <= val + static_cast<ValueType>(epsilonPrecision()));
 		}
 
         bool operator<(const FixedPrecisionNumber& obj) const noexcept {
@@ -52,6 +50,9 @@ namespace lipaboy_lib {
 //        operator T() noexcept { return number; }
 
 		//friend std::ostream& operator<< (std::ostream& o, FixedPrecisionNumber const & number);
+
+	public:
+		constexpr ValueType epsilonPrecision() const { return fraction * powDozen<T, IntegerPrecisionType>(dozenPower); }
 	private:
 		T number;
 	};

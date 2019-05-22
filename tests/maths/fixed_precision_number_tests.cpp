@@ -17,7 +17,7 @@ namespace lipaboy_lib_tests {
 		ASSERT_NE(5.2, kek);
 		ASSERT_NE(5.0002, kek);
 		ASSERT_NE(5.00002, kek);
-		ASSERT_EQ (5.000002, kek);
+		ASSERT_EQ(5.000002, kek);
 	}
 
 }
