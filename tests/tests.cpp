@@ -13,6 +13,7 @@
 
 #include "stream/stream_test.h"
 #include "extra_tools/extra_tools_tests.h"
+#include "maths/fixed_precision_number.h"
 
 #include "maths/vector4d.h"
 
@@ -107,6 +108,26 @@ TEST(Check, check) {
 
 	double kle[4] = { 1., 2., 3., 4. };
 	lipaboy_lib::Vector4D vect(kle);
+
+    ///------------------------
+    using namespace lipaboy_lib::stream_space;
+    using namespace lipaboy_lib::stream_space::operators_space;
+    using lipaboy_lib::FixedPrecisionNumber;
+
+    for (int i = 5; i <= 5; i++) {
+        int a = 1;
+        double sum1 = buildStream(
+            [&a]() -> int {
+                return a++;
+            }) | map([] (auto elem) -> double {
+                return 1 / (elem + 1.) / (elem + 2.) / (elem + 3.);
+            }) | operators_space::get(size_t(i)) | sum();
+        FixedPrecisionNumber<double, int, 1, -8> lol(sum1);
+        double lol2 = (1. / 12 - 1 / (i + 1.) / (i + 2.) / 2.);
+        cout << sum1 << endl;
+        cout << lol2 << endl;
+        EXPECT_TRUE(lol == lol2);
+    }
 }
 
 }

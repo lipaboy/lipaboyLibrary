@@ -35,8 +35,11 @@ namespace lipaboy_lib {
 				
 				using type = T;
 				using reference = std::reference_wrapper<type>;
-				using ContainerType = std::unordered_set<reference, 
-					std::hash<std::remove_const_t<type> >, std::equal_to<type> >;
+                using ContainerType = std::unordered_set<
+                    //reference,
+                    type,
+                    std::hash<std::remove_const_t<type> >,
+                    std::equal_to<type> >;
 				using ContainerTypePtr = shared_ptr<ContainerType>;
 			public:
                 distinct_impl(distinct)
@@ -47,8 +50,11 @@ namespace lipaboy_lib {
 					this->setFunctor(std::function<bool(T&)>(
 						[set = lol](T & elem) -> bool 
 						{
-							bool isInserted = set->insert(std::ref(elem)).second;
-							if (isInserted) 
+                            bool isInserted = set->insert(elem).second;
+                            for (auto it = set->begin(); it != set->end(); it++) {
+                                auto temp = *it;
+                            }
+                            if (isInserted)
 								return true;
 							return false;
 						}));
