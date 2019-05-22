@@ -30,13 +30,15 @@ namespace lipaboy_lib {
         }
 	};
     template <class T, class TDerived>
-    typename NumberSummable<T, TDerived>::DerivedType
-    operator+(const NumberSummable<T, TDerived>& obj, const T& val) noexcept {
+    auto operator+(const NumberSummable<T, TDerived>& obj, const T& val) noexcept 
+		-> typename NumberSummable<T, TDerived>::DerivedType
+	{
         return TDerived(obj.getNumber() + val);
     }
     template <class T, class TDerived>
-    typename NumberSummable<T, TDerived>::DerivedType
-    operator+(const T& val, const NumberSummable<T, TDerived>& obj) noexcept {
+    auto operator+(const T& val, const NumberSummable<T, TDerived>& obj) noexcept 
+		-> typename NumberSummable<T, TDerived>::DerivedType
+	{
         return TDerived(val + obj.getNumber());
     }
 
@@ -59,15 +61,17 @@ namespace lipaboy_lib {
         }
 	};
     template <class T, class TDerived>
-    typename NumberSubtrative<T, TDerived>::ValueType
-    operator-(const NumberSubtrative<T, TDerived>& obj,
-              const typename NumberSubtrative<T, TDerived>::ValueType & val) noexcept {
-        return obj.getNumber() - val;
+    auto operator-(const NumberSubtrative<T, TDerived>& obj, T const & val) noexcept 
+		-> typename NumberSubtrative<T, TDerived>::DerivedType
+	{
+        return TDerived(obj.getNumber() - val);
     }
     template <class T, class TDerived>
-    typename NumberSubtrative<T, TDerived>::ValueType
-    operator-(const typename NumberSubtrative<T, TDerived>::ValueType & val,
-              const NumberSubtrative<T, TDerived>& obj) noexcept { return val - obj.getNumber(); }
+    auto operator-(T const & val, const NumberSubtrative<T, TDerived>& obj) noexcept 
+		-> typename NumberSubtrative<T, TDerived>::DerivedType
+	{ 
+		return TDerived(val - obj.getNumber()); 
+	}
 
     template <class T, class TDerived>
     class NumberMultiplicative {
@@ -88,15 +92,17 @@ namespace lipaboy_lib {
         }
 	};
     template <class T, class TDerived>
-    typename NumberMultiplicative<T, TDerived>::ValueType
-    operator*(const NumberMultiplicative<T, TDerived>& obj,
-              const typename NumberMultiplicative<T, TDerived>::ValueType & val) noexcept {
-        return obj.getNumber() * val;
+    auto operator*(const NumberMultiplicative<T, TDerived>& obj, T const & val) noexcept 
+		-> typename NumberMultiplicative<T, TDerived>::DerivedType
+	{
+        return TDerived(obj.getNumber() * val);
     }
     template <class T, class TDerived>
-    typename NumberMultiplicative<T, TDerived>::ValueType
-    operator*(const typename NumberMultiplicative<T, TDerived>::ValueType & val,
-              const NumberMultiplicative<T, TDerived>& obj) noexcept { return val * obj.getNumber(); }
+    auto operator*(T const & val, const NumberMultiplicative<T, TDerived>& obj) noexcept 
+		-> typename NumberMultiplicative<T, TDerived>::DerivedType
+	{ 
+		return TDerived(val * obj.getNumber()); 
+	}
 
     template <class T, class TDerived>
     class NumberDivisible {
@@ -117,24 +123,61 @@ namespace lipaboy_lib {
         }
 	};
     template <class T, class TDerived>
-    typename NumberDivisible<T, TDerived>::ValueType
-    operator/ (const NumberDivisible<T, TDerived>& obj,
-               const typename NumberDivisible<T, TDerived>::ValueType& val) noexcept {
-        return obj.getNumber() / val;
+    auto operator/ (const NumberDivisible<T, TDerived>& obj, T const & val) noexcept 
+		-> typename NumberDivisible<T, TDerived>::DerivedType
+	{
+        return TDerived(obj.getNumber() / val);
     }
-    template <class T, class TDerived>
-    typename NumberDivisible<T, TDerived>::ValueType
-    operator/(const typename NumberDivisible<T, TDerived>::ValueType& val,
-              const NumberDivisible<T, TDerived>& obj) noexcept { return val / obj.getNumber(); }
+	template <class T, class TDerived>
+	auto operator/ (T const & val, const NumberDivisible<T, TDerived>& obj) noexcept
+		-> typename NumberDivisible<T, TDerived>::DerivedType
+	{
+		return TDerived(obj.getNumber() / val);
+	}
 
     template <class T, class Derived>
     class Algebra :
             public NumberSummable<T, Derived>,
             public NumberSubtrative<T, Derived>,
             public NumberMultiplicative<T, Derived>,
-            public NumberDivisible<T, Derived> {
-    public:
+            public NumberDivisible<T, Derived> 
+	{
 	};
+
+	//---------------Self-operations----------------//
+
+	template <class T, class TDerived>
+	class NumberSelfSummable {
+	public:
+		using ValueType = T;
+		using DerivedType = TDerived;
+	public:
+		ValueType const& getNumber() const noexcept {
+			return static_cast<DerivedType const *>(this)->getNumber();
+		}
+		void setNumber(T const & value) {
+			return static_cast<DerivedType *>(this)->setNumber(value);
+		}
+		//-----Return value has T type (because I can't return EitherSummable var)----
+		TDerived const & operator+=(const NumberSelfSummable& other) noexcept {
+			setNumber(getNumber() + other.getNumber());
+			return static_cast<TDerived const &>(*this);
+		}
+		template <class Other>
+		TDerived const & operator+=(const NumberSelfSummable<T, Other>& other) noexcept {
+			setNumber(getNumber() + other.getNumber());
+			return static_cast<TDerived const &>(*this);
+		}
+	};
+	template <class T, class TDerived>
+	auto operator+=(NumberSelfSummable<T, TDerived> & obj, T const & val) noexcept
+		-> typename NumberSelfSummable<T, TDerived>::DerivedType const &
+	{
+		obj.setNumber(obj.getNumber() + val);
+		return static_cast<typename NumberSelfSummable<T, TDerived>::DerivedType const &>(obj);
+	}
+
+
 }
 
 #endif //ALGEBRA_H

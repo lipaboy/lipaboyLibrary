@@ -19,7 +19,8 @@ namespace lipaboy_lib {
         public ComparatorExtender<FixedPrecisionNumber<T, IntegerPrecisionType, fraction, dozenPower> >,
         public EitherComparable<T, FixedPrecisionNumber<T, IntegerPrecisionType, fraction, dozenPower> >,
         public Algebra<T, FixedPrecisionNumber<T, IntegerPrecisionType, fraction, dozenPower> >,
-		public NumberSettable<T>
+		//public NumberSettable<T>,
+		public NumberSelfSummable<T, FixedPrecisionNumber<T, IntegerPrecisionType, fraction, dozenPower> >
 	{
     public:
         using ValueType = T;
