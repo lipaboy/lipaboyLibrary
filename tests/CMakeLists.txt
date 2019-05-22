@@ -22,6 +22,8 @@ set(TEST_SOURCE
     extra_tools/maths_tools_tests.cpp
     extra_tools/extra_tools_tests.cpp
     extra_tools/extra_tools_tests.h
+
+	maths/fixed_precision_number_tests.cpp
     )
 
 add_executable(${MODULE_NAME}_tests ${TEST_SOURCE})

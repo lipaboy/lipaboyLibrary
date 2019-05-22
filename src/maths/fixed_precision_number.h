@@ -56,6 +56,10 @@ namespace lipaboy_lib {
 		T number;
 	};
 
+	// Number of fixed integer precision
+	template <typename T, int fraction, int dozenPower>
+	using FixedIntPrecisionNumber = FixedPrecisionNumber<T, int, fraction, dozenPower>;
+
 	/*template <typename T, typename IntegerPrecisionType,
 		IntegerPrecisionType fraction, IntegerPrecisionType dozenPower>
 	inline std::ostream& operator<< (std::ostream& o, 
