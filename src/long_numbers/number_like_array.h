@@ -20,9 +20,10 @@ namespace lipaboy_lib {
 		public:
 
 			// Type for the index of a block in the array
-			typedef unsigned int Index;
+			using Index = unsigned int;
 			// The number of bits in a block, defined below.
 			static const unsigned int N;
+			using BlockType = Blk;
 
 			// The current allocated capacity of this NumberlikeArray (in blocks)
 			Index cap;

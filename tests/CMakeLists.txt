@@ -12,6 +12,7 @@ set(TEST_SOURCE
 	# Long Numbers
     long_numbers/long_numbers_tests.cpp
 	long_numbers/big_integer_tests.cpp
+	long_numbers/long_numbers_benchmark_tests.cpp
 
 	# Stream
     stream/stream_tests.cpp

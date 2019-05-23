@@ -290,18 +290,18 @@ namespace big_integer_tests {
 
 	//	// === Test some previous bugs === // //
 
-	TEST(BigInteger, set_sign_to_zero) {
-		{
-			/* Test that BigInteger division sets the sign to zero.
-				* Bug reported by David Allen. */
-			BigInteger num(3), denom(5), quotient;
-			num.divideWithRemainder(denom, quotient);
-			ASSERT_EQ(quotient, 3);
-			num = 5;
-			num.divideWithRemainder(denom, quotient);
-			ASSERT_EQ(num, 0);
-		}
-	}
+	//TEST(BigInteger, set_sign_to_zero) {
+	//	{
+	//		/* Test that BigInteger division sets the sign to zero.
+	//			* Bug reported by David Allen. */
+	//		BigInteger num(3), denom(5), quotient;
+	//		num.divideWithRemainder(denom, quotient);
+	//		ASSERT_EQ(quotient, 3);
+	//		num = 5;
+	//		num.divideWithRemainder(denom, quotient);
+	//		ASSERT_EQ(num, 0);
+	//	}
+	//}
 
 	int main2() {
 

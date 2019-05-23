@@ -33,13 +33,16 @@ namespace lipaboy_lib {
 		 * equality test.  Use BigUnsigned for arithmetic.
 		 */
 
-		class BigUnsignedInABase : protected NumberlikeArray<unsigned short> {
-
+		class BigUnsignedInABase : protected NumberlikeArray<
+			unsigned char
+			//unsigned short
+		> 
+		{
 		public:
 			// The digits of a BigUnsignedInABase are unsigned shorts.
-			typedef unsigned short Digit;
+			using Digit = BlockType;
 			// That's also the type of a base.
-			typedef Digit Base;
+			using Base = Digit;
 
 		protected:
 			// The base in which this BigUnsignedInABase is expressed
