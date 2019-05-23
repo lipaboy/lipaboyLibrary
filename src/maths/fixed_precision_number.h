@@ -9,8 +9,7 @@
 #include <ostream>
 
 namespace lipaboy_lib {
-
-	// TODO: write operators +=, *= and etc.
+	
 	// TODO: overload operator<< for ostream
 
 	template <typename T, typename IntegerPrecisionType, 
