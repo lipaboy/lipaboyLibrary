@@ -1,59 +1,57 @@
 cmake_minimum_required(VERSION 2.8.2)
 project(Lipaboy_Library_Source)
 
-set (CMAKE_CXX_STANDARD 17)
-
 set(LIB_LIPABOY_LIB_SOURCE_FILES
     #lipaboy_test.cpp
     #lipaboy_test.h
 
-	# Common Intefaces
-	common_interfaces/algebra.h
-	common_interfaces/comparable.h
-	common_interfaces/containable.h
-	common_interfaces/either_comparable.h 
+    # Common Intefaces
+    common_interfaces/algebra.h
+    common_interfaces/comparable.h
+    common_interfaces/containable.h
+    common_interfaces/either_comparable.h
 
-	# Containers
-	containers/bit_vector.h
+    # Containers
+    containers/bit_vector.h
 
     # Extra tools
     extra_tools/extra_tools.h
-	extra_tools/initializer_list_iterator.h
-	extra_tools/maths_tools.h
-	extra_tools/producing_iterator.h
+    extra_tools/initializer_list_iterator.h
+    extra_tools/maths_tools.h
+    extra_tools/producing_iterator.h
 
-	# HashMap
-	hash_map/forward_list_storaged_size.h
-	hash_map/hash_map.h
+    # HashMap
+    hash_map/forward_list_storaged_size.h
+    hash_map/hash_map.h
 
-	# Intervals
-	intervals/cubesegment.h
-	intervals/cutoffborders.h
-	intervals/interval.h
-	intervals/rectsegment.h
-	intervals/segment.h
+    # Intervals
+    intervals/cubesegment.h
+    intervals/cutoffborders.h
+    intervals/interval.h
+    intervals/rectsegment.h
+    intervals/segment.h
 
-	# Long Numbers
-	long_numbers/long_number.h
+    # Long Numbers
+    long_numbers/long_number.h
 
     # Stream
     stream/stream_extended.h
     stream/stream_basic.h
     stream/stream.h
-	stream/operators/distinct.h
-	stream/operators/filter.h
-	stream/operators/get.h
-	stream/operators/group_by_vector.h
-	stream/operators/map.h
-	stream/operators/nth.h
-	stream/operators/operators.h
-	stream/operators/print_to.h
-	stream/operators/reduce.h
-	stream/operators/skip.h
-	stream/operators/sum.h
-	stream/operators/to_vector.h
-	stream/operators/tools.h
-	stream/operators/ungroup_by_bit.h
+    stream/operators/distinct.h
+    stream/operators/filter.h
+    stream/operators/get.h
+    stream/operators/group_by_vector.h
+    stream/operators/map.h
+    stream/operators/nth.h
+    stream/operators/operators.h
+    stream/operators/print_to.h
+    stream/operators/reduce.h
+    stream/operators/skip.h
+    stream/operators/sum.h
+    stream/operators/to_vector.h
+    stream/operators/tools.h
+    stream/operators/ungroup_by_bit.h
 
     # Precision Number
     maths/fixed_precision_number.h
