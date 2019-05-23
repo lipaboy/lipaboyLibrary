@@ -1,25 +1,30 @@
-#ifndef BIGINTEGERALGORITHMS_H
-#define BIGINTEGERALGORITHMS_H
+#pragma once
 
 #include "big_integer.h"
 
-/* Some mathematical algorithms for big integers.
- * This code is new and, as such, experimental. */
+namespace lipaboy_lib {
 
-// Returns the greatest common divisor of a and b.
-BigUnsigned gcd(BigUnsigned a, BigUnsigned b);
+	namespace long_numbers_space {
 
-/* Extended Euclidean algorithm.
- * Given m and n, finds gcd g and numbers r, s such that r*m + s*n == g. */
-void extendedEuclidean(BigInteger m, BigInteger n,
-		BigInteger &g, BigInteger &r, BigInteger &s);
+		/* Some mathematical algorithms for big integers.
+		 * This code is new and, as such, experimental. */
 
-/* Returns the multiplicative inverse of x modulo n, or throws an exception if
- * they have a common factor. */
-BigUnsigned modinv(const BigInteger &x, const BigUnsigned &n);
+		 // Returns the greatest common divisor of a and b.
+		BigUnsigned gcd(BigUnsigned a, BigUnsigned b);
 
-// Returns (base ^ exponent) % modulus.
-BigUnsigned modexp(const BigInteger &base, const BigUnsigned &exponent,
-		const BigUnsigned &modulus);
+		/* Extended Euclidean algorithm.
+		 * Given m and n, finds gcd g and numbers r, s such that r*m + s*n == g. */
+		void extendedEuclidean(BigInteger m, BigInteger n,
+			BigInteger &g, BigInteger &r, BigInteger &s);
 
-#endif
+		/* Returns the multiplicative inverse of x modulo n, or throws an exception if
+		 * they have a common factor. */
+		BigUnsigned modinv(const BigInteger &x, const BigUnsigned &n);
+
+		// Returns (base ^ exponent) % modulus.
+		BigUnsigned modexp(const BigInteger &base, const BigUnsigned &exponent,
+			const BigUnsigned &modulus);
+
+	}
+
+}

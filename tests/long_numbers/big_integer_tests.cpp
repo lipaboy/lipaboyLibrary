@@ -13,6 +13,8 @@ namespace big_integer_tests {
 	using std::endl;
 	using std::numeric_limits;
 
+	using namespace lipaboy_lib::long_numbers_space;
+
 	//// Evaluate expr and print the result or "error" as appropriate.
 	//#define TEST(expr) do {\
 	//	cout << "Line " << __LINE__ << ": ";\
