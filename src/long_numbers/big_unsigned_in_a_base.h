@@ -49,7 +49,7 @@ namespace lipaboy_lib {
 			Base base;
 
 			// Creates a BigUnsignedInABase with a capacity; for internal use.
-			BigUnsignedInABase(int, Index c) : NumberlikeArray<Digit>(0, c) {}
+            BigUnsignedInABase(int, Index c) : NumberlikeArray<Digit>(nullptr, c) {}
 
 			// Decreases len to eliminate any leading zero digits.
 			void zapLeadingZeros() {
@@ -107,8 +107,8 @@ namespace lipaboy_lib {
 			Base getBase() const { return base; }
 
 			// Expose these from NumberlikeArray directly.
-			NumberlikeArray<Digit>::getCapacity;
-			NumberlikeArray<Digit>::getLength;
+            using NumberlikeArray<Digit>::getCapacity;
+            using NumberlikeArray<Digit>::getLength;
 
 			/* Returns the requested digit, or 0 if it is beyond the length (as if
 			 * the number had 0s infinitely to the left). */

@@ -100,7 +100,7 @@ namespace big_integer_tests {
 
 		ASSERT_EQ(BigUnsigned(0).toLong(), 0); //0
 		ASSERT_EQ(BigUnsigned(numeric_limits<long>::max()).toLong(), numeric_limits<long>::max()); //
-		ASSERT_ANY_THROW(BigUnsigned(2u + numeric_limits<long>::max()).toLong()); //error
+        ASSERT_ANY_THROW(BigUnsigned(2u + numeric_limits<long>::max()).toLong()); //error
 
 		// int is the same as long on a 32-bit system
 
