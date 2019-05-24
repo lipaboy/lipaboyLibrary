@@ -15,40 +15,6 @@ namespace big_integer_tests {
 
 	using namespace lipaboy_lib::long_numbers_space;
 
-	//// Evaluate expr and print the result or "error" as appropriate.
-	//#define TEST(expr) do {\
-	//	cout << "Line " << __LINE__ << ": ";\
-	//	try {\
-	//		cout << (expr);\
-	//	} catch (const char *err) {\
-	//		cout << "error";\
-	//	}\
-	//	cout << endl;\
-	//} while (0)
-
-	//const BigUnsigned & check(const BigUnsigned &x) {
-	//	unsigned int l = x.getLength();
-	//	if (l != 0 && x.getBlock(l - 1) == 0)
-	//		cout << "check: Unzapped number!" << endl;
-	//	if (l > x.getCapacity())
-	//		cout << "check: Capacity inconsistent with length!" << endl;
-	//	return x;
-	//}
-	//
-	//const BigInteger & check(const BigInteger &x) {
-	//	if (x.getSign() == 0 && !x.getMagnitude().isZero())
-	//		cout << "check: Sign should not be zero!" << endl;
-	//	if (x.getSign() != 0 && x.getMagnitude().isZero())
-	//		cout << "check: Sign should be zero!" << endl;
-	//	check(x.getMagnitude());
-	//	return x;
-	//}
-	//
-
-	constexpr short pathologicalShort = ~((unsigned short)(~0) >> 1);
-	constexpr int pathologicalInt = ~((unsigned int)(~0) >> 1);
-	constexpr long pathologicalLong = ~((unsigned long)(~0) >> 1);
-
 	TEST(BigUnsigned, constructor) {
 		ASSERT_TRUE(BigUnsigned().isZero());
 	}
@@ -171,6 +137,10 @@ namespace big_integer_tests {
 		ASSERT_EQ(BigInteger(numeric_limits<short>::max()).toShort(), numeric_limits<short>::max()); //32767
 		ASSERT_ANY_THROW(BigInteger(2u + numeric_limits<short>::max()).toShort()); //error
 	}
+
+	constexpr short pathologicalShort = ~((unsigned short)(~0) >> 1);
+	constexpr int pathologicalInt = ~((unsigned int)(~0) >> 1);
+	constexpr long pathologicalLong = ~((unsigned long)(~0) >> 1);
 
 	TEST(BigUnsigned, conversion_limits_negative) {
 		//	// ...during construction

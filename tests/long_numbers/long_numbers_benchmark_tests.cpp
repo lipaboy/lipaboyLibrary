@@ -7,7 +7,7 @@
 
 #include "long_numbers/big_integer_library.h"
 
-#define BENCHMARK_TEST_RUN
+//#define BENCHMARK_TEST_RUN
 
 namespace long_numbers_benchmark_tests_space {
 
@@ -17,9 +17,11 @@ namespace long_numbers_benchmark_tests_space {
 	using namespace lipaboy_lib::long_numbers_space;
 
 	TEST(BigInteger, division_speed) {
+
+#ifdef BENCHMARK_TEST_RUN
 		BigInteger number(2);
 
-		for (int i = 0; i < 13; i++) {
+		for (int i = 0; i < 10; i++) {
 			number *= number;
 		}
 
@@ -32,7 +34,7 @@ namespace long_numbers_benchmark_tests_space {
 		}
 		cout << "Time: " << (steady_clock::now() - start).count() / int(1e6) << endl;
 
-#ifdef BENCHMARK_TEST_RUN
+
 		system("pause");
 		ASSERT_FALSE(true);
 #endif
