@@ -2,9 +2,13 @@
 
 #include "number_like_array.h"
 
+#include <vector>
+
 namespace lipaboy_lib {
 
 	namespace long_numbers_space {
+
+		using std::vector;
 
 		// PLAN
 		//
@@ -17,42 +21,52 @@ namespace lipaboy_lib {
 		 * The number is stored as a NumberlikeArray of unsigned longs as if it were
 		 * written in base 256^sizeof(unsigned long).  The least significant block is
 		 * first, and the length is such that the most significant block is nonzero. */
-		class BigUnsigned : protected NumberlikeArray<unsigned long> {
+		class BigUnsigned //: protected NumberlikeArray<unsigned long> 
+		{
+		public:
+			// BigUnsigneds are built with a Blk type of unsigned long.
+			using BlockType = unsigned long;
+			using size_type = size_t;
+
+		private:
+			vector<BlockType> blocks;
 
 		public:
 			// Enumeration for the result of a comparison.
 			enum CmpRes { less = -1, equal = 0, greater = 1 };
 
-			// BigUnsigneds are built with a Blk type of unsigned long.
-			typedef unsigned long Blk;
-
-			typedef NumberlikeArray<Blk>::Index Index;
-			NumberlikeArray<Blk>::N;
+			using IndexType = unsigned int;
+			// The number of bits in a block, defined below.
+			static constexpr unsigned int BITS_PER_BLOCK = sizeof(BlockType) * 8;
 
 		protected:
 			// Creates a BigUnsigned with a capacity; for internal use.
-			BigUnsigned(int, Index c) : NumberlikeArray<Blk>(0, c) {}
+			BigUnsigned(int, IndexType c) : blocks(1, c) {}
 
 			// Decreases len to eliminate any leading zero blocks.
 			void zapLeadingZeros() {
-				while (len > 0 && blk[len - 1] == 0)
+				int len = blocks.size();
+				while (len > 0 && blocks[len - 1] == 0)
 					len--;
+				blocks.resize(len > 0 ? len : 1);
 			}
 
 		public:
 			// Constructs zero.
-			BigUnsigned() : NumberlikeArray<Blk>() {}
+			BigUnsigned() : blocks(1, 0) {}
 
 			// Copy constructor
-			BigUnsigned(const BigUnsigned &x) : NumberlikeArray<Blk>(x) {}
+			BigUnsigned(const BigUnsigned &other) : blocks(other.blocks) {}
+			BigUnsigned(BigUnsigned &&other) : blocks(std::move(other.blocks)) {}
 
 			// Assignment operator
-			void operator=(const BigUnsigned &x) {
-				NumberlikeArray<Blk>::operator =(x);
+			BigUnsigned const & operator=(BigUnsigned other) {
+				std::swap(blocks, other.blocks);
+				return *this;
 			}
 
 			// Constructor that copies from a given array of blocks.
-			BigUnsigned(const Blk *b, Index blen) : NumberlikeArray<Blk>(b, blen) {
+			BigUnsigned(const BlockType *b, IndexType blen) : blocks(b, &b[blen]) {
 				// Eliminate any leading zeros we may have been passed.
 				zapLeadingZeros();
 			}
@@ -91,32 +105,40 @@ namespace lipaboy_lib {
 			// BIT/BLOCK ACCESSORS
 
 			// Expose these from NumberlikeArray directly.
-			NumberlikeArray<Blk>::getCapacity;
-			NumberlikeArray<Blk>::getLength;
+			size_type getCapacity() const { return blocks.capacity(); }
+			size_type getLength() const { return blocks.size(); }
 
 			// Too bad: very slow -> conveyor corruption
 
 			/* Returns the requested block, or 0 if it is beyond the length (as if
 			 * the number had 0s infinitely to the left). */
-			Blk getBlock(Index i) const { return i >= len ? 0 : blk[i]; }
+			BlockType getBlock(IndexType i) const { return blocks[i]; }
 			/* Sets the requested block.  The number grows or shrinks as necessary. */
-			void setBlock(Index i, Blk newBlock);
+			void setBlock(IndexType i, BlockType newBlock);
 
 			// The number is zero if and only if the canonical length is zero.
-			bool isZero() const { return NumberlikeArray<Blk>::isEmpty(); }
+			bool isZero() const { return getLength() <= 1 && blocks[0] == 0; }
 
 			/* Returns the length of the number in bits, i.e., zero if the number
 			 * is zero and otherwise one more than the largest value of bi for
 			 * which getBit(bi) returns true. */
-			Index bitLength() const;
+			IndexType bitLength() const;
 			/* Get the state of bit bi, which has value 2^bi.  Bits beyond the
 			 * number's length are considered to be 0. */
-			bool getBit(Index bi) const {
-				return (getBlock(bi / N) & (Blk(1) << (bi % N))) != 0;
+			bool getBit(IndexType bi) const {
+				return (getBlock(bi / BITS_PER_BLOCK) & (BlockType(1) << (bi % BITS_PER_BLOCK))) != 0;
 			}
 			/* Sets the state of bit bi to newBit.  The number grows or shrinks as
 			 * necessary. */
-			void setBit(Index bi, bool newBit);
+			void setBit(IndexType bi, bool newBit);
+
+		public:
+			void setToZero() { 
+				blocks.resize(1); 
+				blocks[0] = 0; 
+			}
+
+		public:
 
 			// COMPARISONS
 
@@ -124,12 +146,19 @@ namespace lipaboy_lib {
 			CmpRes compareTo(const BigUnsigned &x) const;
 
 			// Ordinary comparison operators
-			bool operator ==(const BigUnsigned &x) const {
-				return NumberlikeArray<Blk>::operator ==(x);
+			bool operator ==(const BigUnsigned &other) const {
+				// Definitely unequal.
+				if (getLength() != other.getLength())
+					return false;
+
+				// Compare corresponding blocks one by one.
+				for (IndexType i = 0; i < getLength(); i++)
+					if (blocks[i] != other.blocks[i])
+						return false;
+				// No blocks differed, so the objects are equal.
+				return true;
 			}
-			bool operator !=(const BigUnsigned &x) const {
-				return NumberlikeArray<Blk>::operator !=(x);
-			}
+			bool operator !=(const BigUnsigned &x) const { return !((*this) == x); }
 			bool operator < (const BigUnsigned &x) const { return compareTo(x) == less; }
 			bool operator <=(const BigUnsigned &x) const { return compareTo(x) != greater; }
 			bool operator >=(const BigUnsigned &x) const { return compareTo(x) != less; }
@@ -241,7 +270,7 @@ namespace lipaboy_lib {
 			void operator --(int);
 
 			// Helper function that needs access to BigUnsigned internals
-			friend Blk getShiftedBlock(const BigUnsigned &num, Index x,
+			friend BlockType getShiftedBlock(const BigUnsigned &num, IndexType x,
 				unsigned int y);
 
 			// See BigInteger.cc.
@@ -363,15 +392,9 @@ namespace lipaboy_lib {
 		  * known to be nonnegative. */
 		template <class X>
 		void BigUnsigned::initFromPrimitive(X x) {
-			if (x == 0)
-				; // NumberlikeArray already initialized us to zero.
-			else {
-				// Create a single block.  blk is nullptr; no need to delete it.
-				cap = 1;
-				blk = new Blk[1];
-				len = 1;
-				blk[0] = Blk(x);
-			}
+			// Create a single block.  blk is nullptr; no need to delete it.
+			blocks.resize(1);
+			blocks[0] = BlockType(x);
 		}
 
 		/* Ditto, but first check that x is nonnegative.  I could have put the check in
@@ -394,14 +417,14 @@ namespace lipaboy_lib {
 		 * clearer, which is the library's stated goal. */
 		template <class X>
 		X BigUnsigned::convertToPrimitive() const {
-			if (len == 0)
+			if (isZero())
 				// The number is zero; return zero.
 				return 0;
-			else if (len == 1) {
+			else if (getLength() == 1) {
 				// The single block might fit in an X.  Try the conversion.
-				X x = X(blk[0]);
+				X x = X(blocks[0]);
 				// Make sure the result accurately represents the block.
-				if (Blk(x) == blk[0])
+				if (BlockType(x) == blocks[0])
 					// Successful conversion.
 					return x;
 				// Otherwise fall through.

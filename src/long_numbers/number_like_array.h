@@ -1,8 +1,12 @@
 #pragma once
 
+#include <vector>
+
 namespace lipaboy_lib {
 
 	namespace long_numbers_space {
+
+		using std::vector;
 
 		/* A NumberlikeArray<Blk> object holds a heap-allocated array of Blk with a
 		 * length and a capacity and provides basic memory management features.
@@ -15,6 +19,7 @@ namespace lipaboy_lib {
 		 * public:
 		 *     NumberlikeArray< the-type-argument >::getLength;
 		 */
+
 		template <class Blk>
 		class NumberlikeArray {
 		public:

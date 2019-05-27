@@ -21,8 +21,8 @@ namespace lipaboy_lib {
 		class BigInteger {
 
 		public:
-			typedef BigUnsigned::Blk Blk;
-			typedef BigUnsigned::Index Index;
+			typedef BigUnsigned::BlockType Blk;
+			typedef BigUnsigned::IndexType Index;
 			typedef BigUnsigned::CmpRes CmpRes;
 			static const CmpRes
 				less = BigUnsigned::less,

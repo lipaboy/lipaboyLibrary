@@ -4,6 +4,7 @@
 #include "number_like_array.h"
 #include "big_unsigned.h"
 #include <string>
+#include <vector>
 
 namespace lipaboy_lib {
 
@@ -33,45 +34,52 @@ namespace lipaboy_lib {
 		 * equality test.  Use BigUnsigned for arithmetic.
 		 */
 
-		class BigUnsignedInABase : protected NumberlikeArray<
-			unsigned char
-			//unsigned short
-		> 
+		using std::vector;
+
+		class BigUnsignedInABase
 		{
 		public:
 			// The digits of a BigUnsignedInABase are unsigned shorts.
-			using Digit = BlockType;
+			using Digit = typename BigUnsigned::BlockType;
+			using IndexType = typename BigUnsigned::IndexType;
 			// That's also the type of a base.
 			using Base = Digit;
+
+			using size_type = size_t;
+
+		private:
+			vector<Digit> digits;
 
 		protected:
 			// The base in which this BigUnsignedInABase is expressed
 			Base base;
 
 			// Creates a BigUnsignedInABase with a capacity; for internal use.
-			BigUnsignedInABase(int, Index c) : NumberlikeArray<Digit>(0, c) {}
+			BigUnsignedInABase(int, IndexType c) : digits(1, c) {}
 
 			// Decreases len to eliminate any leading zero digits.
 			void zapLeadingZeros() {
-				while (len > 0 && blk[len - 1] == 0)
+				int len = getLength();
+				while (len > 0 && digits[len - 1] == 0)
 					len--;
+				digits.resize(len > 0 ? len : 1);
 			}
 
 		public:
 			// Constructs zero in base 2.
-			BigUnsignedInABase() : NumberlikeArray<Digit>(), base(2) {}
+			BigUnsignedInABase() : digits(1, 0), base(2) {}
 
 			// Copy constructor
-			BigUnsignedInABase(const BigUnsignedInABase &x) : NumberlikeArray<Digit>(x), base(x.base) {}
+			BigUnsignedInABase(const BigUnsignedInABase &x) : digits(x.digits), base(x.base) {}
 
 			// Assignment operator
 			void operator =(const BigUnsignedInABase &x) {
-				NumberlikeArray<Digit>::operator =(x);
+				digits = x.digits;
 				base = x.base;
 			}
 
 			// Constructor that copies from a given array of digits.
-			BigUnsignedInABase(const Digit *d, Index l, Base base);
+			BigUnsignedInABase(const Digit *d, IndexType l, Base base);
 
 			// Destructor.  NumberlikeArray does the delete for us.
 			~BigUnsignedInABase() {}
@@ -107,20 +115,34 @@ namespace lipaboy_lib {
 			Base getBase() const { return base; }
 
 			// Expose these from NumberlikeArray directly.
-			NumberlikeArray<Digit>::getCapacity;
-			NumberlikeArray<Digit>::getLength;
+			size_type getCapacity() const { return digits.capacity(); }
+			size_type getLength() const { return digits.size(); }
 
 			/* Returns the requested digit, or 0 if it is beyond the length (as if
 			 * the number had 0s infinitely to the left). */
-			Digit getDigit(Index i) const { return i >= len ? 0 : blk[i]; }
+			Digit getDigit(IndexType i) const { return digits[i]; }
 
 			// The number is zero if and only if the canonical length is zero.
-			bool isZero() const { return NumberlikeArray<Digit>::isEmpty(); }
+			bool isZero() const { return getLength() <= 1 && digits[0] == 0; }
+
+			void setToZero() {
+				digits.resize(1);
+				digits[0] = 0;
+			}
 
 			/* Equality test.  For the purposes of this test, two BigUnsignedInABase
 			 * values must have the same base to be equal. */
-			bool operator ==(const BigUnsignedInABase &x) const {
-				return base == x.base && NumberlikeArray<Digit>::operator ==(x);
+			bool operator ==(const BigUnsignedInABase &other) const {
+				// Definitely unequal.
+				if (getLength() != other.getLength() || base != other.base)
+					return false;
+
+				// Compare corresponding blocks one by one.
+				for (IndexType i = 0; i < getLength(); i++)
+					if (digits[i] != other.digits[i])
+						return false;
+				// No blocks differed, so the objects are equal.
+				return true;
 			}
 			bool operator !=(const BigUnsignedInABase &x) const { return !operator ==(x); }
 

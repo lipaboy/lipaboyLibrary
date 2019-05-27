@@ -31,7 +31,7 @@ namespace big_integer_tests {
 	}
 
 	TEST(BigUnsigned, Blk_check) {
-		BigUnsigned::Blk myBlocks[3];
+		typename BigUnsigned::BlockType myBlocks[3];
 		myBlocks[0] = 3;
 		myBlocks[1] = 4;
 		myBlocks[2] = 0;
@@ -49,7 +49,7 @@ namespace big_integer_tests {
 	}
 
 	TEST(BigInteger, forcing_sign_to_zero_without_error) {
-		BigUnsigned::Blk myZeroBlocks[1];
+		typename BigUnsigned::BlockType myZeroBlocks[1];
 		myZeroBlocks[0] = 0;
 
 		ASSERT_EQ(bigIntegerToString(BigInteger(myZeroBlocks, 1, BigInteger::positive)), "0"); //0
@@ -213,9 +213,7 @@ namespace big_integer_tests {
 		// within the capacity.
 		bb.add(1, 2);
 		ASSERT_EQ(bb.getBlock(0), 3); //3
-		ASSERT_EQ(bb.getBlock(1), 0); //0
-		ASSERT_EQ(bb.getBlock(2), 0); //0
-		ASSERT_EQ(bb.getBlock(314159), 0); //0
+		ASSERT_EQ(bb.getLength(), 1);
 	}
 
 	TEST(BigUnsigned, bit_accessors) {
