@@ -1,7 +1,5 @@
 #pragma once
 
-#include "number_like_array.h"
-
 #include <vector>
 
 namespace lipaboy_lib {
