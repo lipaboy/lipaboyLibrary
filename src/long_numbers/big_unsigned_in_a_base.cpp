@@ -62,7 +62,10 @@ namespace lipaboy_lib {
 			}
 
 			// Save the actual length.
-			digits.resize(digitNum);
+			if (digitNum <= 0)
+				setToZero();
+			else
+				digits.resize(digitNum);
 		}
 
 		BigUnsignedInABase::operator BigUnsigned() const {

@@ -61,7 +61,10 @@ namespace lipaboy_lib {
 				int len = getLength();
 				while (len > 0 && digits[len - 1] == 0)
 					len--;
-				digits.resize(len > 0 ? len : 1);
+				if (len == 0)
+					setToZero();
+				else
+					digits.resize(len);
 			}
 
 		public:

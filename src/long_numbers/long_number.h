@@ -49,13 +49,6 @@ using lipaboy_lib::powDozen;
 namespace extra {
 
 	template <class TWord>
-	inline constexpr TWord setBitsFromStart(size_t bitsCount) {
-		return (bitsCount <= 0) ? TWord(0) 
-			: (bitsCount <= 1) ? TWord(1) 
-			: (TWord(1) << (bitsCount - 1)) | setBitsFromStart<TWord>(bitsCount - 1);
-	}
-
-	template <class TWord>
 	inline constexpr size_t bitsCount() { return sizeof(TWord) * 8; }
 
 	template <class TWord, class TSign>

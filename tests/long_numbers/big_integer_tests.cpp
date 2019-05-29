@@ -12,6 +12,8 @@ namespace big_integer_tests {
 	using std::cout;
 	using std::endl;
 	using std::numeric_limits;
+	using std::to_string;
+	using std::string;
 
 	using namespace lipaboy_lib::long_numbers_space;
 
@@ -264,12 +266,39 @@ namespace big_integer_tests {
 	//			* Bug reported by David Allen. */
 	//		BigInteger num(3), denom(5), quotient;
 	//		num.divideWithRemainder(denom, quotient);
-	//		ASSERT_EQ(quotient, 3);
+	//		ASSERT_EQ(quotient, 0);
 	//		num = 5;
 	//		num.divideWithRemainder(denom, quotient);
 	//		ASSERT_EQ(num, 0);
 	//	}
-	//}
+	//} 
+
+	TEST(BigUnsigned, multiplication_by_karacuba) {
+		BigUnsigned first(int(1e8)), second(int(1e9)), res;
+
+		res.multiplyByKaracuba(first, second);
+
+		EXPECT_EQ(bigUnsignedToString(res), to_string(long long(1e17)));
+
+		first = stringToBigUnsigned(to_string(long long(1e12)));
+		second = stringToBigUnsigned(to_string(long long(1e5)));
+		res.multiplyByKaracuba(first, second);
+		EXPECT_EQ(bigUnsignedToString(res), to_string(long long(1e17)));
+
+		first = stringToBigUnsigned(to_string(long long(1e12)));
+		res.multiplyByKaracuba(first, first);
+
+		EXPECT_EQ(bigUnsignedToString(first), "1000000000000");
+		EXPECT_EQ(bigUnsignedToString(res), "1000000000000000000000000");
+
+		first = stringToBigUnsigned("1234567890123");
+		res.multiplyByKaracuba(first, first);
+
+		EXPECT_EQ(bigUnsignedToString(res), "1524157875322755800955129");
+
+	}
+
+
 
 	int main2() {
 

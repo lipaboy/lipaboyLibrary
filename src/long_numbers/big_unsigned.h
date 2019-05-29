@@ -10,7 +10,13 @@ namespace lipaboy_lib {
 
 		// PLAN
 		//
-		// TODO: remove check from getBlock() method
+		// TODO: add move-semantics
+
+		// THINK ABOUT
+		// 1) Necessary or not do check in getBlock() for out of range 
+		//	because logically that you must get zero when you point to 
+		//	forward of number.
+
 
 		/* A BigUnsigned object represents a nonnegative integer of size limited only by
 		 * available memory.  BigUnsigneds support most mathematical operators and can
@@ -25,9 +31,11 @@ namespace lipaboy_lib {
 			// BigUnsigneds are built with a Blk type of unsigned long.
 			using BlockType = unsigned long;
 			using size_type = size_t;
+			using BlockContainer = std::vector<BlockType>;
+
 
 		private:
-			vector<BlockType> blocks;
+			BlockContainer blocks_;
 
 		public:
 			// Enumeration for the result of a comparison.
@@ -39,32 +47,39 @@ namespace lipaboy_lib {
 
 		protected:
 			// Creates a BigUnsigned with a capacity; for internal use.
-			BigUnsigned(int, IndexType c) : blocks(1, c) {}
+			BigUnsigned(int, IndexType c) : blocks_(1, c) {}
 
 			// Decreases len to eliminate any leading zero blocks.
 			void zapLeadingZeros() {
-				int len = blocks.size();
-				while (len > 0 && blocks[len - 1] == 0)
+				int len = blocks_.size();
+				while (len > 0 && blocks_[len - 1] == 0)
 					len--;
-				blocks.resize(len > 0 ? len : 1);
+				if (len == 0)
+					setToZero();
+				else
+					blocks_.resize(len);
 			}
 
 		public:
 			// Constructs zero.
-			BigUnsigned() : blocks(1, 0) {}
+			BigUnsigned() : blocks_(1, 0) {}
 
 			// Copy constructor
-			BigUnsigned(const BigUnsigned &other) : blocks(other.blocks) {}
-			BigUnsigned(BigUnsigned &&other) : blocks(std::move(other.blocks)) {}
+			BigUnsigned(const BigUnsigned &other) : blocks_(other.blocks_) {}
+			BigUnsigned(BigUnsigned &&other) : blocks_(std::move(other.blocks_)) {}
 
 			// Assignment operator
 			BigUnsigned const & operator=(BigUnsigned other) {
-				std::swap(blocks, other.blocks);
+				std::swap(blocks_, other.blocks_);
 				return *this;
 			}
 
 			// Constructor that copies from a given array of blocks.
-			BigUnsigned(const BlockType *b, IndexType blen) : blocks(b, &b[blen]) {
+			BigUnsigned(const BlockType *b, IndexType blen) : blocks_(b, &b[blen]) {
+				// Eliminate any leading zeros we may have been passed.
+				zapLeadingZeros();
+			}
+			BigUnsigned(BlockContainer const & blocks) : blocks_(blocks) {
 				// Eliminate any leading zeros we may have been passed.
 				zapLeadingZeros();
 			}
@@ -103,19 +118,23 @@ namespace lipaboy_lib {
 			// BIT/BLOCK ACCESSORS
 
 			// Expose these from NumberlikeArray directly.
-			size_type getCapacity() const { return blocks.capacity(); }
-			size_type getLength() const { return blocks.size(); }
+			size_type getCapacity() const { return blocks_.capacity(); }
+			size_type getLength() const { return blocks_.size(); }
 
 			// Too bad: very slow -> conveyor corruption
 
 			/* Returns the requested block, or 0 if it is beyond the length (as if
 			 * the number had 0s infinitely to the left). */
-			BlockType getBlock(IndexType i) const { return blocks[i]; }
+			BlockType getBlockDirty(IndexType i) const { return blocks_[i]; }
+			BlockType getBlock(IndexType i) const { return (i >= getLength()) ? 0 : blocks_[i]; }
+
+			BlockContainer& getBlocksAccess() { return blocks_; }
+			BlockContainer const & getBlocks() const { return blocks_; }
 			/* Sets the requested block.  The number grows or shrinks as necessary. */
 			void setBlock(IndexType i, BlockType newBlock);
 
 			// The number is zero if and only if the canonical length is zero.
-			bool isZero() const { return getLength() <= 1 && blocks[0] == 0; }
+			bool isZero() const { return getLength() <= 1 && blocks_[0] == 0; }
 
 			/* Returns the length of the number in bits, i.e., zero if the number
 			 * is zero and otherwise one more than the largest value of bi for
@@ -124,7 +143,7 @@ namespace lipaboy_lib {
 			/* Get the state of bit bi, which has value 2^bi.  Bits beyond the
 			 * number's length are considered to be 0. */
 			bool getBit(IndexType bi) const {
-				return (getBlock(bi / BITS_PER_BLOCK) & (BlockType(1) << (bi % BITS_PER_BLOCK))) != 0;
+				return (getBlockDirty(bi / BITS_PER_BLOCK) & (BlockType(1) << (bi % BITS_PER_BLOCK))) != 0;
 			}
 			/* Sets the state of bit bi to newBit.  The number grows or shrinks as
 			 * necessary. */
@@ -132,8 +151,8 @@ namespace lipaboy_lib {
 
 		public:
 			void setToZero() { 
-				blocks.resize(1); 
-				blocks[0] = 0; 
+				blocks_.resize(1); 
+				blocks_[0] = 0; 
 			}
 
 		public:
@@ -151,7 +170,7 @@ namespace lipaboy_lib {
 
 				// Compare corresponding blocks one by one.
 				for (IndexType i = 0; i < getLength(); i++)
-					if (blocks[i] != other.blocks[i])
+					if (blocks_[i] != other.blocks_[i])
 						return false;
 				// No blocks differed, so the objects are equal.
 				return true;
@@ -214,6 +233,7 @@ namespace lipaboy_lib {
 			void add(const BigUnsigned &a, const BigUnsigned &b);
 			void subtract(const BigUnsigned &a, const BigUnsigned &b);
 			void multiply(const BigUnsigned &a, const BigUnsigned &b);
+			void multiplyByKaracuba(const BigUnsigned &a, const BigUnsigned &b);
 			void bitAnd(const BigUnsigned &a, const BigUnsigned &b);
 			void bitOr(const BigUnsigned &a, const BigUnsigned &b);
 			void bitXor(const BigUnsigned &a, const BigUnsigned &b);
@@ -391,8 +411,8 @@ namespace lipaboy_lib {
 		template <class X>
 		void BigUnsigned::initFromPrimitive(X x) {
 			// Create a single block.  blk is nullptr; no need to delete it.
-			blocks.resize(1);
-			blocks[0] = BlockType(x);
+			blocks_.resize(1);
+			blocks_[0] = BlockType(x);
 		}
 
 		/* Ditto, but first check that x is nonnegative.  I could have put the check in
@@ -420,9 +440,9 @@ namespace lipaboy_lib {
 				return 0;
 			else if (getLength() == 1) {
 				// The single block might fit in an X.  Try the conversion.
-				X x = X(blocks[0]);
+				X x = X(blocks_[0]);
 				// Make sure the result accurately represents the block.
-				if (BlockType(x) == blocks[0])
+				if (BlockType(x) == blocks_[0])
 					// Successful conversion.
 					return x;
 				// Otherwise fall through.

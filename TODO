@@ -20,6 +20,10 @@ Local TODOs:
 
 2) (FixedPrecisionNumber) write tests for comparing numbers
 
+3) (BigNumber) Write BigUnsignedView - wrapper around iterators over Container.
+
+4) (BigUnsigned) Rewrite with move-semantics
+
 Think about:
 
 1) I would like to add union interval and segment like the entire object (e.g. [-2, 3) U (5, +inf) ).

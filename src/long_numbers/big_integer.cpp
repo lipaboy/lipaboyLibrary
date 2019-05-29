@@ -110,7 +110,7 @@ namespace lipaboy_lib {
 				return 0;
 			else if (mag.getLength() == 1) {
 				// The single block might fit in an X.  Try the conversion.
-				Blk b = mag.getBlock(0);
+				Blk b = mag.getBlockDirty(0);
 				if (sign == positive) {
 					X x = X(b);
 					if (x >= 0 && Blk(x) == b)

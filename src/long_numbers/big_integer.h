@@ -93,7 +93,7 @@ namespace lipaboy_lib {
 			// Some accessors that go through to the magnitude
 			Index getLength() const { return mag.getLength(); }
 			Index getCapacity() const { return mag.getCapacity(); }
-			Blk getBlock(Index i) const { return mag.getBlock(i); }
+			Blk getBlock(Index i) const { return mag.getBlockDirty(i); }
 			bool isZero() const { return sign == zero; } // A bit special
 
 			// COMPARISONS
