@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <numeric>
 #include <stdexcept>
+#include <memory>
 
 namespace lipaboy_lib {
 
@@ -316,68 +317,123 @@ namespace lipaboy_lib {
 			}
 		}*/
 
-		BigUnsigned multiplyByKaracuba(BigUnsignedView first, BigUnsignedView second) {
+		using std::shared_ptr;
+		using std::vector;
+		using NumberTypePointer = shared_ptr<BigUnsigned>;
+		using StorageType = vector<NumberTypePointer>;
+
+		static StorageType storage;
+		static size_t storageEndPos = 0;
+
+		NumberTypePointer allocFromStorage(StorageType & storage, size_t & storageEndPos) {
+			if (storageEndPos >= storage.size()) {
+				storage.push_back(std::make_shared<BigUnsigned>());
+				storageEndPos++;
+				return storage.back();
+			}
+			// Else
+			storageEndPos++;
+			return storage[storageEndPos - 1];
+		}
+
+		void deallocFromStorage(size_t & storageEndPos) {
+			storageEndPos--;
+		}
+
+		NumberTypePointer multiplyByKaracuba2(BigUnsignedView first, BigUnsignedView second, long long& a) {
 			using IntegralType = typename BigUnsigned::BlockType;
 			using DoubleType = unsigned long long int;
-			using ContainerType = typename BigUnsigned::BlockContainer;
-			using NumberTypePointer = const ContainerType *;
-			using ConstIteratorType = typename ContainerType::const_iterator;
 
-			BigUnsigned result;
+			NumberTypePointer result = allocFromStorage(storage, storageEndPos);
 
-			if (first.length() * second.length() <= 0) {
-				return ContainerType(1, 0);
-			}
-			else if (first.length() == 1 && second.length() == 1) {
+			int init = storageEndPos;
+
+			if (first.length() == 1 && second.length() == 1) {\
 				DoubleType mult = static_cast<DoubleType>(first.getBlockDirty(0)) * second.getBlockDirty(0);
-				result.blocks_.resize(2);
-				result.blocks_[0] = static_cast<IntegralType>(mult & setBitsFromStart<DoubleType>(sizeof(IntegralType) * 8));
-				result.blocks_[1] = static_cast<IntegralType>((mult >> (sizeof(IntegralType) * 8))
+				result->blocks_.resize(2);
+				result->blocks_[0] = static_cast<IntegralType>(
+					mult & setBitsFromStart<DoubleType>(sizeof(IntegralType) * 8));
+				result->blocks_[1] = static_cast<IntegralType>((mult >> (sizeof(IntegralType) * 8))
 					& setBitsFromStart<DoubleType>(sizeof(IntegralType) * 8));
-				result.zapLeadingZeros();
+				result->zapLeadingZeros();
 			}
 			else {
 				BigUnsignedView longNumber = (first.length() >= second.length()) ? first : second;
 				BigUnsignedView shortNumber = (first.length() < second.length()) ? first : second;
 				auto halfSize = longNumber.length() / 2;
 
-				BigUnsignedView minorLong(longNumber.begin(), std::next(longNumber.begin(), halfSize));
-				BigUnsignedView minorShort(shortNumber.begin(), 
-					shortNumber.length() > halfSize ? std::next(shortNumber.begin(), halfSize)
-					: shortNumber.end());
-
-				BigUnsigned minorMult = multiplyByKaracuba(minorLong, minorShort);
-
 				if (shortNumber.length() > halfSize) {
+					BigUnsignedView minorLong(longNumber.begin(), std::next(longNumber.begin(), halfSize));
+					BigUnsignedView minorShort(shortNumber.begin(),
+						shortNumber.length() > halfSize ? std::next(shortNumber.begin(), halfSize)
+						: shortNumber.end());
+
+					// Recursive descent
+					NumberTypePointer minorMult = multiplyByKaracuba2(minorLong, minorShort, a);
+
 					BigUnsignedView majorLong(std::next(longNumber.begin(), halfSize), longNumber.end());
 					BigUnsignedView majorShort(std::next(shortNumber.begin(), halfSize), shortNumber.end());
 
-					BigUnsigned majorMult = multiplyByKaracuba(majorLong, majorShort);
+					// Recursive descent
+					NumberTypePointer majorMult = multiplyByKaracuba2(majorLong, majorShort, a);
 
-					BigUnsigned multOfSums = multiplyByKaracuba(majorLong + minorLong, majorShort + minorShort);
-					BigUnsigned differ = (multOfSums - majorMult - minorMult);
+					// Recursive descent
+					NumberTypePointer multOfSums = multiplyByKaracuba2(majorLong + minorLong, majorShort + minorShort, a);
+					NumberTypePointer differ = allocFromStorage(storage, storageEndPos);
+					*differ = (*multOfSums - *majorMult - *minorMult);
 
 					auto differShiftSize = sizeof(IntegralType) * 8 * halfSize;
-					auto a = differ << (differShiftSize);
-					auto b = majorMult << (2 * differShiftSize);
-					result = minorMult + a + b;
+					*result = *minorMult + (*differ << (differShiftSize)) + (*majorMult << (2 * differShiftSize));
+
+					//minor mult
+					deallocFromStorage(storageEndPos);
+					//major mult
+					deallocFromStorage(storageEndPos);
+					//mult of sums
+					deallocFromStorage(storageEndPos);
+					//differ
+					deallocFromStorage(storageEndPos);
 				}
 				else {
-					ConstIteratorType majorLongBegin = std::next(longNumber.begin(), halfSize);
-					ConstIteratorType majorLongEnd = longNumber.end();
-					BigUnsignedView majorLong(majorLongBegin, majorLongEnd);
+					BigUnsignedView minorLong(longNumber.begin(), std::next(longNumber.begin(), halfSize));
+					BigUnsignedView minorShort(shortNumber.begin(),
+						shortNumber.length() > halfSize ? std::next(shortNumber.begin(), halfSize)
+						: shortNumber.end());
 
-					BigUnsigned multOfSums = multiplyByKaracuba(majorLong + minorLong, minorShort);
-					BigUnsigned differ = (multOfSums - minorMult);
+					// Recursive descent
+					NumberTypePointer minorMult = multiplyByKaracuba2(minorLong, minorShort, a);
+
+					BigUnsignedView majorLong(std::next(longNumber.begin(), halfSize), longNumber.end());
+
+					// Recursive descent
+					NumberTypePointer multOfSums = multiplyByKaracuba2(majorLong + minorLong, minorShort, a);
+					NumberTypePointer differ = allocFromStorage(storage, storageEndPos);
+					*differ = (*multOfSums - *minorMult);
 
 					auto differShiftSize = sizeof(IntegralType) * 8 * halfSize;
-					auto a = BigUnsigned(differ) << (differShiftSize);
-					result = minorMult + a;
+					*result = *minorMult + (*differ << (differShiftSize));
+
+					//minor mult
+					deallocFromStorage(storageEndPos);
+					//differ
+					deallocFromStorage(storageEndPos);
+					//mult of sums
+					deallocFromStorage(storageEndPos);
 				}
 
 			}
 
+			a = std::max<int>(a, storageEndPos);
+
 			return result;
+		}
+
+		BigUnsigned multiplyByKaracuba(BigUnsignedView first, BigUnsignedView second) {
+			long long a = 0;
+			auto res = *multiplyByKaracuba2(first, second, a);
+			deallocFromStorage(storageEndPos);
+			cout << "Descents count: " << a << ", storage size: " << storage.size() << endl;
+			return res;
 		}
 
 		// TODO: Replace this macros on smth else

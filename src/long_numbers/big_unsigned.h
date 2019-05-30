@@ -1,7 +1,9 @@
 #pragma once
 
 #include "big_unsigned_view.h"
+
 #include <vector>
+#include <memory>
 
 namespace lipaboy_lib {
 
@@ -310,11 +312,12 @@ namespace lipaboy_lib {
 
 			friend BigUnsigned operator +(BigUnsignedView first, BigUnsignedView second);
 			friend BigUnsigned operator -(BigUnsignedView first, BigUnsignedView second);
-			friend BigUnsigned multiplyByKaracuba(BigUnsignedView first, BigUnsignedView second);
+			friend std::shared_ptr<BigUnsigned> multiplyByKaracuba2(BigUnsignedView first, BigUnsignedView second, long long &);
 		};
 
 		BigUnsigned operator +(BigUnsignedView first, BigUnsignedView second);
 		BigUnsigned operator -(BigUnsignedView first, BigUnsignedView second);
+		std::shared_ptr<BigUnsigned> multiplyByKaracuba2(BigUnsignedView first, BigUnsignedView second, long long&);
 		BigUnsigned multiplyByKaracuba(BigUnsignedView first, BigUnsignedView second);
 		/*BigUnsigned multiplyByKaracuba(const BigUnsigned &first, const BigUnsigned &second) {
 			return multiplyByKaracuba(BigUnsignedView(first), BigUnsignedView(second));

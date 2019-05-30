@@ -7,7 +7,7 @@
 
 #include "long_numbers/big_integer_library.h"
 
-//#define BENCHMARK_TEST_RUN
+#define BENCHMARK_TEST_RUN
 
 namespace long_numbers_benchmark_tests_space {
 
@@ -60,9 +60,10 @@ namespace long_numbers_benchmark_tests_space {
 		{
 			BigUnsigned & number = number2;
 			auto start = steady_clock::now();
-			for (int i = 0; i < N; i++) {
+			for (int i = 0; i < N - 1; i++) {
 				number = multiplyByKaracuba(number, number);
 			}
+			number = multiplyByKaracuba(number, number);
 			cout << "Time #K: " << (steady_clock::now() - start).count() / int(1e6) << endl;
 			cout << "Number length = " << number.length() << endl;
 		}
