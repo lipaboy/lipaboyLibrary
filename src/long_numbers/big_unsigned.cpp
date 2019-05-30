@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include <numeric>
+#include <stdexcept>
 
 namespace lipaboy_lib {
 
@@ -195,8 +196,8 @@ namespace lipaboy_lib {
 
 			if (first.length() < second.length())
 				// If a is shorter than b, the result is negative.
-				throw "BigUnsigned::subtract: "
-				"Negative result in unsigned calculation";
+				throw std::logic_error("BigUnsigned::subtract: "
+					"Negative result in unsigned calculation");
 			// Some variables...
 			bool borrowIn, borrowOut;
 			BlockType temp;
@@ -306,96 +307,77 @@ namespace lipaboy_lib {
 			return part1 | part2;
 		}
 
-		namespace {
+		/*namespace {
 			using ContainerType = typename BigUnsigned::BlockContainer;
 
 			ContainerType multiplyByKaracuba2(ContainerType const & first, ContainerType const & second)
 			{
-				using IntegralType = typename BigUnsigned::BlockType;
-				using DoubleType = unsigned long long int;
-				using NumberTypePointer = const ContainerType *;
-				using ConstIteratorType = typename ContainerType::const_iterator;
 
-				ContainerType result;
+			}
+		}*/
 
-				if (first.size() * second.size() <= 0) {
-					return ContainerType(1, 0);
-				}
-				else if (first.size() == 1 && second.size() == 1) {
-					DoubleType mult = static_cast<DoubleType>(first[0]) * second[0];
-					result.resize(2);
-					result[0] = static_cast<IntegralType>(mult & setBitsFromStart<DoubleType>(sizeof(IntegralType) * 8));
-					result[1] = static_cast<IntegralType>((mult >> (sizeof(IntegralType) * 8))
-						& setBitsFromStart<DoubleType>(sizeof(IntegralType) * 8));
+		BigUnsigned multiplyByKaracuba(BigUnsignedView first, BigUnsignedView second) {
+			using IntegralType = typename BigUnsigned::BlockType;
+			using DoubleType = unsigned long long int;
+			using ContainerType = typename BigUnsigned::BlockContainer;
+			using NumberTypePointer = const ContainerType *;
+			using ConstIteratorType = typename ContainerType::const_iterator;
+
+			BigUnsigned result;
+
+			if (first.length() * second.length() <= 0) {
+				return ContainerType(1, 0);
+			}
+			else if (first.length() == 1 && second.length() == 1) {
+				DoubleType mult = static_cast<DoubleType>(first.getBlockDirty(0)) * second.getBlockDirty(0);
+				result.blocks_.resize(2);
+				result.blocks_[0] = static_cast<IntegralType>(mult & setBitsFromStart<DoubleType>(sizeof(IntegralType) * 8));
+				result.blocks_[1] = static_cast<IntegralType>((mult >> (sizeof(IntegralType) * 8))
+					& setBitsFromStart<DoubleType>(sizeof(IntegralType) * 8));
+				result.zapLeadingZeros();
+			}
+			else {
+				BigUnsignedView longNumber = (first.length() >= second.length()) ? first : second;
+				BigUnsignedView shortNumber = (first.length() < second.length()) ? first : second;
+				auto halfSize = longNumber.length() / 2;
+
+				BigUnsignedView minorLong(longNumber.begin(), std::next(longNumber.begin(), halfSize));
+				BigUnsignedView minorShort(shortNumber.begin(), 
+					shortNumber.length() > halfSize ? std::next(shortNumber.begin(), halfSize)
+					: shortNumber.end());
+
+				BigUnsigned minorMult = multiplyByKaracuba(minorLong, minorShort);
+
+				if (shortNumber.length() > halfSize) {
+					BigUnsignedView majorLong(std::next(longNumber.begin(), halfSize), longNumber.end());
+					BigUnsignedView majorShort(std::next(shortNumber.begin(), halfSize), shortNumber.end());
+
+					BigUnsigned majorMult = multiplyByKaracuba(majorLong, majorShort);
+
+					BigUnsigned multOfSums = multiplyByKaracuba(majorLong + minorLong, majorShort + minorShort);
+					BigUnsigned differ = (multOfSums - majorMult - minorMult);
+
+					auto differShiftSize = sizeof(IntegralType) * 8 * halfSize;
+					auto a = differ << (differShiftSize);
+					auto b = majorMult << (2 * differShiftSize);
+					result = minorMult + a + b;
 				}
 				else {
-					const ContainerType & longNumber = (first.size() >= second.size()) ? first : second;
-					const ContainerType & shortNumber = (first.size() < second.size()) ? first : second;
-					auto halfSize = longNumber.size() / 2;
+					ConstIteratorType majorLongBegin = std::next(longNumber.begin(), halfSize);
+					ConstIteratorType majorLongEnd = longNumber.end();
+					BigUnsignedView majorLong(majorLongBegin, majorLongEnd);
 
-					ConstIteratorType minorLongBegin = longNumber.cbegin();
-					ConstIteratorType minorLongEnd = std::next(longNumber.begin(), halfSize);
-					ConstIteratorType minorShortBegin = shortNumber.cbegin();
-					ConstIteratorType minorShortEnd = shortNumber.size() > halfSize
-						? std::next(shortNumber.begin(), halfSize)
-						: shortNumber.end();
+					BigUnsigned multOfSums = multiplyByKaracuba(majorLong + minorLong, minorShort);
+					BigUnsigned differ = (multOfSums - minorMult);
 
-					ContainerType minorMult = multiplyByKaracuba2(
-						ContainerType(minorLongBegin, minorLongEnd),
-						ContainerType(minorShortBegin, minorShortEnd)
-					);
-
-					if (shortNumber.size() > halfSize) {
-						ConstIteratorType majorLongBegin = std::next(longNumber.begin(), halfSize);
-						ConstIteratorType majorLongEnd = longNumber.end();
-						ConstIteratorType majorShortBegin = std::next(shortNumber.begin(), halfSize);
-						ConstIteratorType majorShortEnd = shortNumber.end();
-
-						ContainerType majorMult = multiplyByKaracuba2(
-							ContainerType(majorLongBegin, majorLongEnd),
-							ContainerType(majorShortBegin, majorShortEnd)
-						);
-
-						ContainerType sumLong = std::move((BigUnsigned(ContainerType(majorLongBegin, majorLongEnd))
-							+ BigUnsigned(ContainerType(minorLongBegin, minorLongEnd))).getBlocksAccess());
-						ContainerType sumShort = std::move((BigUnsigned(ContainerType(majorShortBegin, majorShortEnd))
-							+ BigUnsigned(ContainerType(minorShortBegin, minorShortEnd))).getBlocksAccess());
-
-						ContainerType multOfSums = multiplyByKaracuba2(sumLong, sumShort);
-						ContainerType differ = std::move(
-							(BigUnsigned(multOfSums) - BigUnsigned(majorMult) - BigUnsigned(minorMult)).getBlocksAccess());
-
-						auto differShiftSize = sizeof(IntegralType) * 8 * halfSize;
-						auto a = BigUnsigned(differ) << (differShiftSize);
-						auto b = BigUnsigned(majorMult) << (2 * differShiftSize);
-						result = std::move((BigUnsigned(minorMult) + (a)
-							+ (b)).getBlocksAccess());
-					}
-					else {
-						ConstIteratorType majorLongBegin = std::next(longNumber.begin(), halfSize);
-						ConstIteratorType majorLongEnd = longNumber.end();
-
-						ContainerType sumLong = std::move((BigUnsigned(ContainerType(majorLongBegin, majorLongEnd))
-							+ BigUnsigned(ContainerType(minorLongBegin, minorLongEnd))).getBlocksAccess());
-						ContainerType sumShort(minorShortBegin, minorShortEnd);
-
-						ContainerType multOfSums = multiplyByKaracuba2(sumLong, sumShort);
-						ContainerType differ = std::move(
-							(BigUnsigned(multOfSums) - BigUnsigned(minorMult)).getBlocksAccess());
-
-						auto differShiftSize = sizeof(IntegralType) * 8 * halfSize;
-						auto a = BigUnsigned(differ) << (differShiftSize);
-						result = std::move((BigUnsigned(minorMult) + (a)).getBlocksAccess());
-					}
-
+					auto differShiftSize = sizeof(IntegralType) * 8 * halfSize;
+					auto a = BigUnsigned(differ) << (differShiftSize);
+					result = minorMult + a;
 				}
 
-				return result;
 			}
-		}
 
-		void BigUnsigned::multiplyByKaracuba(const BigUnsigned &first, const BigUnsigned &second) {
-			blocks_ = multiplyByKaracuba2(first.blocks_, second.blocks_);
+			return result;
 		}
 
 		// TODO: Replace this macros on smth else

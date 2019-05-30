@@ -276,23 +276,23 @@ namespace big_integer_tests {
 	TEST(BigUnsigned, multiplication_by_karacuba) {
 		BigUnsigned first(int(1e8)), second(int(1e9)), res;
 
-		res.multiplyByKaracuba(first, second);
+		res = multiplyByKaracuba(first, second);
 
 		EXPECT_EQ(bigUnsignedToString(res), to_string(long long(1e17)));
 
 		first = stringToBigUnsigned(to_string(long long(1e12)));
 		second = stringToBigUnsigned(to_string(long long(1e5)));
-		res.multiplyByKaracuba(first, second);
+		res = multiplyByKaracuba(first, second);
 		EXPECT_EQ(bigUnsignedToString(res), to_string(long long(1e17)));
 
 		first = stringToBigUnsigned(to_string(long long(1e12)));
-		res.multiplyByKaracuba(first, first);
+		res = multiplyByKaracuba(first, first);
 
 		EXPECT_EQ(bigUnsignedToString(first), "1000000000000");
 		EXPECT_EQ(bigUnsignedToString(res), "1000000000000000000000000");
 
 		first = stringToBigUnsigned("1234567890123");
-		res.multiplyByKaracuba(first, first);
+		res = multiplyByKaracuba(first, first);
 
 		EXPECT_EQ(bigUnsignedToString(res), "1524157875322755800955129");
 

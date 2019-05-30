@@ -244,7 +244,6 @@ namespace lipaboy_lib {
 
 			 // These 8: Arguments are read-only operands, result is saved in *this.
 			void multiply(const BigUnsigned &a, const BigUnsigned &b);
-			void multiplyByKaracuba(const BigUnsigned &a, const BigUnsigned &b);
 			void bitAnd(const BigUnsigned &a, const BigUnsigned &b);
 			void bitOr(const BigUnsigned &a, const BigUnsigned &b);
 			void bitXor(const BigUnsigned &a, const BigUnsigned &b);
@@ -311,10 +310,15 @@ namespace lipaboy_lib {
 
 			friend BigUnsigned operator +(BigUnsignedView first, BigUnsignedView second);
 			friend BigUnsigned operator -(BigUnsignedView first, BigUnsignedView second);
+			friend BigUnsigned multiplyByKaracuba(BigUnsignedView first, BigUnsignedView second);
 		};
 
 		BigUnsigned operator +(BigUnsignedView first, BigUnsignedView second);
 		BigUnsigned operator -(BigUnsignedView first, BigUnsignedView second);
+		BigUnsigned multiplyByKaracuba(BigUnsignedView first, BigUnsignedView second);
+		/*BigUnsigned multiplyByKaracuba(const BigUnsigned &first, const BigUnsigned &second) {
+			return multiplyByKaracuba(BigUnsignedView(first), BigUnsignedView(second));
+		}*/
 
 		/* Implementing the return-by-value and assignment operators in terms of the
 		 * copy-less operations.  The copy-less operations are responsible for making
