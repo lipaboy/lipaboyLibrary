@@ -1,12 +1,11 @@
 #pragma once
 
+#include "big_unsigned_view.h"
 #include <vector>
 
 namespace lipaboy_lib {
 
 	namespace long_numbers_space {
-
-		using std::vector;
 
 		// PLAN
 		//
@@ -25,14 +24,21 @@ namespace lipaboy_lib {
 		 * The number is stored as a NumberlikeArray of unsigned longs as if it were
 		 * written in base 256^sizeof(unsigned long).  The least significant block is
 		 * first, and the length is such that the most significant block is nonzero. */
-		class BigUnsigned //: protected NumberlikeArray<unsigned long> 
+
+		using std::vector;
+
+
+		class BigUnsigned
 		{
 		public:
 			// BigUnsigneds are built with a Blk type of unsigned long.
 			using BlockType = unsigned long;
 			using size_type = size_t;
 			using BlockContainer = std::vector<BlockType>;
+			using IteratorType = typename BlockContainer::iterator;
+			using ConstIteratorType = typename BlockContainer::const_iterator;
 
+			using ConstReference = BigUnsigned const &;
 
 		private:
 			BlockContainer blocks_;
@@ -50,15 +56,7 @@ namespace lipaboy_lib {
 			BigUnsigned(int, IndexType c) : blocks_(1, c) {}
 
 			// Decreases len to eliminate any leading zero blocks.
-			void zapLeadingZeros() {
-				int len = blocks_.size();
-				while (len > 0 && blocks_[len - 1] == 0)
-					len--;
-				if (len == 0)
-					setToZero();
-				else
-					blocks_.resize(len);
-			}
+			void zapLeadingZeros();
 
 		public:
 			// Constructs zero.
@@ -69,8 +67,12 @@ namespace lipaboy_lib {
 			BigUnsigned(BigUnsigned &&other) : blocks_(std::move(other.blocks_)) {}
 
 			// Assignment operator
-			BigUnsigned const & operator=(BigUnsigned other) {
+			ConstReference operator=(BigUnsigned other) {
 				std::swap(blocks_, other.blocks_);
+				return *this;
+			}
+			ConstReference operator=(BigUnsignedView otherView) {
+				std::copy(otherView.begin(), otherView.end(), blocks_.begin());
 				return *this;
 			}
 
@@ -119,14 +121,19 @@ namespace lipaboy_lib {
 
 			// Expose these from NumberlikeArray directly.
 			size_type getCapacity() const { return blocks_.capacity(); }
-			size_type getLength() const { return blocks_.size(); }
+			size_type length() const { return blocks_.size(); }
+
+			IteratorType begin() { return blocks_.begin(); }
+			IteratorType end() { return blocks_.end(); }
+			ConstIteratorType cbegin() const { return blocks_.cbegin(); }
+			ConstIteratorType cend() const { return blocks_.cend(); }
 
 			// Too bad: very slow -> conveyor corruption
 
 			/* Returns the requested block, or 0 if it is beyond the length (as if
 			 * the number had 0s infinitely to the left). */
 			BlockType getBlockDirty(IndexType i) const { return blocks_[i]; }
-			BlockType getBlock(IndexType i) const { return (i >= getLength()) ? 0 : blocks_[i]; }
+			BlockType getBlock(IndexType i) const { return (i >= length()) ? 0 : blocks_[i]; }
 
 			BlockContainer& getBlocksAccess() { return blocks_; }
 			BlockContainer const & getBlocks() const { return blocks_; }
@@ -134,7 +141,7 @@ namespace lipaboy_lib {
 			void setBlock(IndexType i, BlockType newBlock);
 
 			// The number is zero if and only if the canonical length is zero.
-			bool isZero() const { return getLength() <= 1 && blocks_[0] == 0; }
+			bool isZero() const { return length() <= 1 && blocks_[0] == 0; }
 
 			/* Returns the length of the number in bits, i.e., zero if the number
 			 * is zero and otherwise one more than the largest value of bi for
@@ -148,6 +155,8 @@ namespace lipaboy_lib {
 			/* Sets the state of bit bi to newBit.  The number grows or shrinks as
 			 * necessary. */
 			void setBit(IndexType bi, bool newBit);
+
+			operator BigUnsignedView() const { return BigUnsignedView(blocks_.cbegin(), blocks_.cend()); }
 
 		public:
 			void setToZero() { 
@@ -165,11 +174,11 @@ namespace lipaboy_lib {
 			// Ordinary comparison operators
 			bool operator ==(const BigUnsigned &other) const {
 				// Definitely unequal.
-				if (getLength() != other.getLength())
+				if (length() != other.length())
 					return false;
 
 				// Compare corresponding blocks one by one.
-				for (IndexType i = 0; i < getLength(); i++)
+				for (IndexType i = 0; i < length(); i++)
 					if (blocks_[i] != other.blocks_[i])
 						return false;
 				// No blocks differed, so the objects are equal.
@@ -180,6 +189,10 @@ namespace lipaboy_lib {
 			bool operator <=(const BigUnsigned &x) const { return compareTo(x) != greater; }
 			bool operator >=(const BigUnsigned &x) const { return compareTo(x) != less; }
 			bool operator > (const BigUnsigned &x) const { return compareTo(x) == greater; }
+
+			bool operator ==(BigUnsignedView other) const {
+				return std::equal(cbegin(), cend(), other.begin());
+			}
 
 			/*
 			 * BigUnsigned and BigInteger both provide three kinds of operators.
@@ -230,8 +243,6 @@ namespace lipaboy_lib {
 			 // COPY-LESS OPERATIONS
 
 			 // These 8: Arguments are read-only operands, result is saved in *this.
-			void add(const BigUnsigned &a, const BigUnsigned &b);
-			void subtract(const BigUnsigned &a, const BigUnsigned &b);
 			void multiply(const BigUnsigned &a, const BigUnsigned &b);
 			void multiplyByKaracuba(const BigUnsigned &a, const BigUnsigned &b);
 			void bitAnd(const BigUnsigned &a, const BigUnsigned &b);
@@ -254,8 +265,8 @@ namespace lipaboy_lib {
 			 * `divideWithRemainder' instead. */
 
 			 // OVERLOADED RETURN-BY-VALUE OPERATORS
-			BigUnsigned operator +(const BigUnsigned &x) const;
-			BigUnsigned operator -(const BigUnsigned &x) const;
+			BigUnsigned operator +(const BigUnsigned &x) const { return BigUnsignedView(*this) + BigUnsignedView(x); }
+			BigUnsigned operator -(const BigUnsigned &x) const { return BigUnsignedView(*this) - BigUnsignedView(x); }
 			BigUnsigned operator *(const BigUnsigned &x) const;
 			BigUnsigned operator /(const BigUnsigned &x) const;
 			BigUnsigned operator %(const BigUnsigned &x) const;
@@ -268,8 +279,10 @@ namespace lipaboy_lib {
 			BigUnsigned operator >>(int b) const;
 
 			// OVERLOADED ASSIGNMENT OPERATORS
-			void operator +=(const BigUnsigned &x);
-			void operator -=(const BigUnsigned &x);
+			ConstReference operator +=(BigUnsignedView x) { return (*this = (*this) + x); }
+			ConstReference operator +=(const BigUnsigned &x) { return (*this = (*this) + x); }
+			ConstReference operator -=(BigUnsignedView x) { return (*this = (*this) - x); }
+			ConstReference operator -=(const BigUnsigned &x) { return (*this = (*this) - x); }
 			void operator *=(const BigUnsigned &x);
 			void operator /=(const BigUnsigned &x);
 			void operator %=(const BigUnsigned &x);
@@ -294,22 +307,20 @@ namespace lipaboy_lib {
 			// See BigInteger.cc.
 			template <class X>
 			friend X convertBigUnsignedToPrimitiveAccess(const BigUnsigned &a);
+
+
+			friend BigUnsigned operator +(BigUnsignedView first, BigUnsignedView second);
+			friend BigUnsigned operator -(BigUnsignedView first, BigUnsignedView second);
 		};
+
+		BigUnsigned operator +(BigUnsignedView first, BigUnsignedView second);
+		BigUnsigned operator -(BigUnsignedView first, BigUnsignedView second);
 
 		/* Implementing the return-by-value and assignment operators in terms of the
 		 * copy-less operations.  The copy-less operations are responsible for making
 		 * any necessary temporary copies to work around aliasing. */
 
-		inline BigUnsigned BigUnsigned::operator +(const BigUnsigned &x) const {
-			BigUnsigned ans;
-			ans.add(*this, x);
-			return ans;
-		}
-		inline BigUnsigned BigUnsigned::operator -(const BigUnsigned &x) const {
-			BigUnsigned ans;
-			ans.subtract(*this, x);
-			return ans;
-		}
+		
 		inline BigUnsigned BigUnsigned::operator *(const BigUnsigned &x) const {
 			BigUnsigned ans;
 			ans.multiply(*this, x);
@@ -355,12 +366,6 @@ namespace lipaboy_lib {
 			return ans;
 		}
 
-		inline void BigUnsigned::operator +=(const BigUnsigned &x) {
-			add(*this, x);
-		}
-		inline void BigUnsigned::operator -=(const BigUnsigned &x) {
-			subtract(*this, x);
-		}
 		inline void BigUnsigned::operator *=(const BigUnsigned &x) {
 			multiply(*this, x);
 		}
@@ -438,7 +443,7 @@ namespace lipaboy_lib {
 			if (isZero())
 				// The number is zero; return zero.
 				return 0;
-			else if (getLength() == 1) {
+			else if (length() == 1) {
 				// The single block might fit in an X.  Try the conversion.
 				X x = X(blocks_[0]);
 				// Make sure the result accurately represents the block.

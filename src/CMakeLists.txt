@@ -43,6 +43,7 @@ set(LIB_LIPABOY_LIB_SOURCE_FILES
 	long_numbers/big_integer_utils.h
 	long_numbers/big_unsigned.cpp
 	long_numbers/big_unsigned.h
+	long_numbers/big_unsigned_view.h
 	long_numbers/big_unsigned_in_a_base.cpp
 	long_numbers/big_unsigned_in_a_base.h
 

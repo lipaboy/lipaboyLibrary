@@ -32,13 +32,13 @@ namespace lipaboy_lib {
 
 		void BigUnsigned::setBlock(IndexType i, BlockType newBlock) {
 			if (newBlock == 0) {
-				if (i < getLength()) {
+				if (i < length()) {
 					blocks_[i] = 0;
 					zapLeadingZeros();
 				}
 			}
 			else {
-				if (i >= getLength()) {
+				if (i >= length()) {
 					// The nonzero block extends the number.
 					blocks_.resize(i + 1, 0);
 					// Zero any added blocks that we aren't setting.
@@ -49,6 +49,16 @@ namespace lipaboy_lib {
 			}
 		}
 
+		void BigUnsigned::zapLeadingZeros() {
+			int len = blocks_.size();
+			while (len > 0 && blocks_[len - 1] == 0)
+				len--;
+			if (len == 0)
+				setToZero();
+			else
+				blocks_.resize(len);
+		}
+
 		/* Evidently the compiler wants BigUnsigned:: on the return type because, at
 		 * that point, it hasn't yet parsed the BigUnsigned:: on the name to get the
 		 * proper scope. */
@@ -56,19 +66,19 @@ namespace lipaboy_lib {
 			if (isZero())
 				return 0;
 			else {
-				BlockType leftmostBlock = getBlockDirty(getLength() - 1);
+				BlockType leftmostBlock = getBlockDirty(length() - 1);
 				IndexType leftmostBlockLen = 0;
 				while (leftmostBlock != 0) {
 					leftmostBlock >>= 1;
 					leftmostBlockLen++;
 				}
-				return leftmostBlockLen + (getLength() - 1) * BITS_PER_BLOCK;
+				return leftmostBlockLen + (length() - 1) * BITS_PER_BLOCK;
 			}
 		}
 
 		void BigUnsigned::setBit(IndexType bi, bool newBit) {
 			IndexType blockI = bi / BITS_PER_BLOCK;
-			BlockType block = (blockI < getLength()) ? getBlockDirty(blockI) : 0;
+			BlockType block = (blockI < length()) ? getBlockDirty(blockI) : 0;
 			BlockType mask = BlockType(1) << (bi % BITS_PER_BLOCK);
 			block = newBit ? (block | mask) : (block & ~mask);
 			setBlock(blockI, block);
@@ -77,13 +87,13 @@ namespace lipaboy_lib {
 		// COMPARISON
 		BigUnsigned::CmpRes BigUnsigned::compareTo(const BigUnsigned &x) const {
 			// A bigger getLength()gth implies a bigger number.
-			if (getLength() < x.getLength())
+			if (length() < x.length())
 				return less;
-			else if (getLength() > x.getLength())
+			else if (length() > x.length())
 				return greater;
 			else {
 				// Compare blocks one by one from left to right.
-				IndexType i = getLength();
+				IndexType i = length();
 				while (i > 0) {
 					i--;
 					if (blocks_[i] == x.blocks_[i])
@@ -121,84 +131,69 @@ namespace lipaboy_lib {
 		 * I'll leave in the copy.
 		 */
 
-		// TODO: Replace this macros on smth else
-#define DTRT_ALIASED(cond, op) \
-	if (cond) { \
-		BigUnsigned tmpThis; \
-		tmpThis.op; \
-		*this = tmpThis; \
-		return; \
-	}
+		using BlockType = typename BigUnsignedView::BlockType;
+		using IndexType = typename BigUnsigned::IndexType;
 
-		void BigUnsigned::add(const BigUnsigned &a, const BigUnsigned &b) {
-			DTRT_ALIASED(this == &a || this == &b, add(a, b));
-			// If one argument is zero, copy the other.
-			if (a.isZero()) {
-				operator =(b);
-				return;
-			}
-			else if (b.isZero()) {
-				operator =(a);
-				return;
-			}
+		BigUnsigned operator +(BigUnsignedView first, BigUnsignedView second) {
+			BigUnsigned result;
+
 			// Some variables...
 			// Carries in and out of an addition stage
 			bool carryIn, carryOut;
 			BlockType temp;
 			IndexType i;
 			// a2 points to the longer input, b2 points to the shorter
-			const BigUnsigned *a2, *b2;
-			if (a.getLength() >= b.getLength()) {
-				a2 = &a;
-				b2 = &b;
+			const BigUnsignedView *longNum, *shortNum;
+			if (first.length() >= second.length()) {
+				longNum = &first;
+				shortNum = &second;
 			}
 			else {
-				a2 = &b;
-				b2 = &a;
+				longNum = &second;
+				shortNum = &first;
 			}
 			// Set prelimiary getLength()gth and make room in this BigUnsigned
-			blocks_.resize(a2->getLength() + 1);
+			result.blocks_.resize(longNum->length() + 1);
 			// For each block index that is present in both inputs...
-			for (i = 0, carryIn = false; i < b2->getLength(); i++) {
+			for (i = 0, carryIn = false; i < shortNum->length(); i++) {
 				// Add input blocks
-				temp = a2->blocks_[i] + b2->blocks_[i];
+				temp = longNum->getBlockDirty(i) + shortNum->getBlockDirty(i);
 				// If a rollover occurred, the result is less than either input.
 				// This test is used many times in the BigUnsigned code.
-				carryOut = (temp < a2->blocks_[i]);
+				carryOut = (temp < longNum->getBlockDirty(i));
 				// If a carry was input, handle it
 				if (carryIn) {
 					temp++;
 					carryOut |= (temp == 0);
 				}
-				blocks_[i] = temp; // Save the addition result
+				result.blocks_[i] = temp; // Save the addition result
 				carryIn = carryOut; // Pass the carry along
 			}
 			// If there is a carry left over, increase blocks until
 			// one does not roll over.
-			for (; i < a2->getLength() && carryIn; i++) {
-				temp = a2->blocks_[i] + 1;
+			for (; i < longNum->length() && carryIn; i++) {
+				temp = longNum->getBlockDirty(i) + 1;
 				carryIn = (temp == 0);
-				blocks_[i] = temp;
+				result.blocks_[i] = temp;
 			}
 			// If the carry was resolved but the larger number
 			// still has blocks, copy them over.
-			for (; i < a2 -> getLength(); i++)
-				blocks_[i] = a2->blocks_[i];
+			for (; i < longNum->length(); i++)
+				result.blocks_[i] = longNum->getBlockDirty(i);
 			// Set the extra block if there's still a carry, decrease getLength()gth otherwise
 			if (carryIn)
-				blocks_[i] = 1;
+				result.blocks_[i] = 1;
 			else
-				blocks_.resize(getLength() - 1);
+				result.blocks_.resize(result.length() - 1);
+
+			return result;
 		}
 
-		void BigUnsigned::subtract(const BigUnsigned &a, const BigUnsigned &b) {
-			DTRT_ALIASED(this == &a || this == &b, subtract(a, b));
-			if (b.isZero()) {
-				// If b is zero, copy a.
-				operator =(a);
-				return;
-			}
-			else if (a.getLength() < b.getLength())
+		// THINK ABOUT: really necessary to do check for negative result?
+		BigUnsigned operator -(BigUnsignedView first, BigUnsignedView second) {
+			BigUnsigned result;
+
+			if (first.length() < second.length())
 				// If a is shorter than b, the result is negative.
 				throw "BigUnsigned::subtract: "
 				"Negative result in unsigned calculation";
@@ -207,40 +202,42 @@ namespace lipaboy_lib {
 			BlockType temp;
 			IndexType i;
 			// Set preliminary getLength()gth and make room
-			blocks_.resize(a.getLength());
+			result.blocks_.resize(first.length());
 			// For each block index that is present in both inputs...
-			for (i = 0, borrowIn = false; i < b.getLength(); i++) {
-				temp = a.blocks_[i] - b.blocks_[i];
+			for (i = 0, borrowIn = false; i < second.length(); i++) {
+				temp = first.getBlockDirty(i) - second.getBlockDirty(i);
 				// If a reverse rollover occurred,
 				// the result is greater than the block from a.
-				borrowOut = (temp > a.blocks_[i]);
+				borrowOut = (temp > first.getBlockDirty(i));
 				// Handle an incoming borrow
 				if (borrowIn) {
 					borrowOut |= (temp == 0);
 					temp--;
 				}
-				blocks_[i] = temp; // Save the subtraction result
+				result.blocks_[i] = temp; // Save the subtraction result
 				borrowIn = borrowOut; // Pass the borrow along
 			}
 			// If there is a borrow left over, decrease blocks until
 			// one does not reverse rollover.
-			for (; i < a.getLength() && borrowIn; i++) {
-				borrowIn = (a.blocks_[i] == 0);
-				blocks_[i] = a.blocks_[i] - 1;
+			for (; i < first.length() && borrowIn; i++) {
+				borrowIn = (first.getBlockDirty(i) == 0);
+				result.blocks_[i] = first.getBlockDirty(i) - 1;
 			}
 			/* If there's still a borrow, the result is negative.
 			 * Throw an exception, but zero out this object so as to leave it in a
 			 * predictable state. */
 			if (borrowIn) {
-				setToZero();
+				result.setToZero();
 				throw "BigUnsigned::subtract: Negative result in unsigned calculation";
 			}
 			else
 				// Copy over the rest of the blocks
-				for (; i < a.getLength(); i++)
-					blocks_[i] = a.blocks_[i];
+				for (; i < first.length(); i++)
+					result.blocks_[i] = first.getBlockDirty(i);
 			// Zap leading zeros
-			zapLeadingZeros();
+			result.zapLeadingZeros();
+
+			return result;
 		}
 
 		/*
@@ -305,7 +302,7 @@ namespace lipaboy_lib {
 			BigUnsigned::IndexType x, unsigned int y) {
 			BigUnsigned::BlockType part1 = (x == 0 || y == 0) ? 0 
 				: (num.blocks_[x - 1] >> (BigUnsigned::BITS_PER_BLOCK - y));
-			BigUnsigned::BlockType part2 = (x == num.getLength()) ? 0 : (num.blocks_[x] << y);
+			BigUnsigned::BlockType part2 = (x == num.length()) ? 0 : (num.blocks_[x] << y);
 			return part1 | part2;
 		}
 
@@ -391,9 +388,7 @@ namespace lipaboy_lib {
 						result = std::move((BigUnsigned(minorMult) + (a)).getBlocksAccess());
 					}
 
-
 				}
-
 
 				return result;
 			}
@@ -402,6 +397,15 @@ namespace lipaboy_lib {
 		void BigUnsigned::multiplyByKaracuba(const BigUnsigned &first, const BigUnsigned &second) {
 			blocks_ = multiplyByKaracuba2(first.blocks_, second.blocks_);
 		}
+
+		// TODO: Replace this macros on smth else
+#define DTRT_ALIASED(cond, op) \
+	if (cond) { \
+		BigUnsigned tmpThis; \
+		tmpThis.op; \
+		*this = tmpThis; \
+		return; \
+	}
 
 		void BigUnsigned::multiply(const BigUnsigned &a, const BigUnsigned &b) {
 			DTRT_ALIASED(this == &a || this == &b, multiply(a, b));
@@ -423,12 +427,12 @@ namespace lipaboy_lib {
 			BlockType temp;
 			bool carryIn, carryOut;
 			// Set preliminary getLength()gth and make room
-			blocks_.resize(a.getLength() + b.getLength());
+			blocks_.resize(a.length() + b.length());
 			// Zero out this object
-			for (i = 0; i < getLength(); i++)
+			for (i = 0; i < length(); i++)
 				blocks_[i] = 0;
 			// For each block of the first number...
-			for (i = 0; i < a.getLength(); i++) {
+			for (i = 0; i < a.length(); i++) {
 				// For each 1-bit of that block...
 				for (i2 = 0; i2 < BITS_PER_BLOCK; i2++) {
 					if ((a.blocks_[i] & (BlockType(1) << i2)) == 0)
@@ -446,7 +450,7 @@ namespace lipaboy_lib {
 					 * Instead, this loop runs an additional time with j == b.getLength().
 					 * These changes were made on 2005.01.11.
 					 */
-					for (j = 0, k = i, carryIn = false; j <= b.getLength(); j++, k++) {
+					for (j = 0, k = i, carryIn = false; j <= b.length(); j++, k++) {
 						/*
 						 * The body of this loop is very similar to the body of the first loop
 						 * in `add', except that this loop does a `+=' instead of a `+'.
@@ -517,7 +521,7 @@ namespace lipaboy_lib {
 			 * If *this.getLength() < b.getLength(), then *this < b, and we can be sure that b doesn't go into
 			 * *this at all.  The quotient is 0 and *this is already the remainder (so leave it alone).
 			 */
-			if (getLength() < b.getLength()) {
+			if (length() < b.length()) {
 				q.setToZero();
 				return;
 			}
@@ -560,23 +564,23 @@ namespace lipaboy_lib {
 			 * extra zero block ensures sensible behavior; we need
 			 * an extra block in `subtractBuf' for exactly the same reason.
 			 */
-			IndexType origLen = getLength(); // Save real getLength()gth.
+			IndexType origLen = length(); // Save real getLength()gth.
 			/* To avoid an out-of-bounds access in case of reallocation, allocate
 			 * first and then increment the logical getLength()gth. */
-			blocks_.resize(getLength() + 1);
+			blocks_.resize(length() + 1);
 			blocks_[origLen] = 0; // Zero the added block.
 
 			// subtractBuf holds part of the result of a subtraction; see above.
-			BlockType *subtractBuf = new BlockType[getLength()];
+			BlockType *subtractBuf = new BlockType[length()];
 
 			// Set preliminary getLength()gth for quotient and make room
-			q.blocks_.resize(origLen - b.getLength() + 1);
+			q.blocks_.resize(origLen - b.length() + 1);
 			// Zero out the quotient
-			for (i = 0; i < q.getLength(); i++)
+			for (i = 0; i < q.length(); i++)
 				q.blocks_[i] = 0;
 
 			// For each possible left-shift of b in blocks...
-			i = q.getLength();
+			i = q.length();
 			while (i > 0) {
 				i--;
 				// For each possible left-shift of b in bits...
@@ -593,7 +597,7 @@ namespace lipaboy_lib {
 					 * are in many ways analogous.  See especially the discussion
 					 * of `getShiftedBlock'.
 					 */
-					for (j = 0, k = i, borrowIn = false; j <= b.getLength(); j++, k++) {
+					for (j = 0, k = i, borrowIn = false; j <= b.length(); j++, k++) {
 						temp = blocks_[k] - getShiftedBlock(b, j, i2);
 						borrowOut = (temp > blocks_[k]);
 						if (borrowIn) {
@@ -645,9 +649,9 @@ namespace lipaboy_lib {
 		void BigUnsigned::bitAnd(const BigUnsigned &a, const BigUnsigned &b) {
 			DTRT_ALIASED(this == &a || this == &b, bitAnd(a, b));
 			// The bitwise & can't be longer than either operand.
-			blocks_.resize((a.getLength() >= b.getLength()) ? b.getLength() : a.getLength());
+			blocks_.resize((a.length() >= b.length()) ? b.length() : a.length());
 			IndexType i;
-			for (i = 0; i < getLength(); i++)
+			for (i = 0; i < length(); i++)
 				blocks_[i] = a.blocks_[i] & b.blocks_[i];
 			zapLeadingZeros();
 		}
@@ -656,7 +660,7 @@ namespace lipaboy_lib {
 			DTRT_ALIASED(this == &a || this == &b, bitOr(a, b));
 			IndexType i;
 			const BigUnsigned *a2, *b2;
-			if (a.getLength() >= b.getLength()) {
+			if (a.length() >= b.length()) {
 				a2 = &a;
 				b2 = &b;
 			}
@@ -664,12 +668,12 @@ namespace lipaboy_lib {
 				a2 = &b;
 				b2 = &a;
 			}
-			blocks_.resize(a2->getLength());
-			for (i = 0; i < b2->getLength(); i++)
+			blocks_.resize(a2->length());
+			for (i = 0; i < b2->length(); i++)
 				blocks_[i] = a2->blocks_[i] | b2->blocks_[i];
-			for (; i < a2->getLength(); i++)
+			for (; i < a2->length(); i++)
 				blocks_[i] = a2->blocks_[i];
-			blocks_.resize(a2->getLength());
+			blocks_.resize(a2->length());
 			// Doesn't need zapLeadingZeros.
 		}
 
@@ -677,7 +681,7 @@ namespace lipaboy_lib {
 			DTRT_ALIASED(this == &a || this == &b, bitXor(a, b));
 			IndexType i;
 			const BigUnsigned *a2, *b2;
-			if (a.getLength() >= b.getLength()) {
+			if (a.length() >= b.length()) {
 				a2 = &a;
 				b2 = &b;
 			}
@@ -685,12 +689,12 @@ namespace lipaboy_lib {
 				a2 = &b;
 				b2 = &a;
 			}
-			blocks_.resize(a2->getLength());
-			for (i = 0; i < b2->getLength(); i++)
+			blocks_.resize(a2->length());
+			for (i = 0; i < b2->length(); i++)
 				blocks_[i] = a2->blocks_[i] ^ b2->blocks_[i];
-			for (; i < a2->getLength(); i++)
+			for (; i < a2->length(); i++)
 				blocks_[i] = a2->blocks_[i];
-			blocks_.resize(a2->getLength());
+			blocks_.resize(a2->length());
 			zapLeadingZeros();
 		}
 
@@ -708,11 +712,11 @@ namespace lipaboy_lib {
 			IndexType shiftBlocks = b / BITS_PER_BLOCK;
 			unsigned int shiftBits = b % BITS_PER_BLOCK;
 			// + 1: room for high bits nudged left into another block
-			blocks_.resize(a.getLength() + shiftBlocks + 1);
+			blocks_.resize(a.length() + shiftBlocks + 1);
 			IndexType i, j;
 			for (i = 0; i < shiftBlocks; i++)
 				blocks_[i] = 0;
-			for (j = 0, i = shiftBlocks; j <= a.getLength(); j++, i++)
+			for (j = 0, i = shiftBlocks; j <= a.length(); j++, i++)
 				blocks_[i] = getShiftedBlock(a, j, shiftBits);
 			// Zap possible leading zero
 			zapLeadingZeros();
@@ -735,7 +739,7 @@ namespace lipaboy_lib {
 			unsigned int leftShiftBits = BITS_PER_BLOCK * rightShiftBlocks - b;
 			// Now (N * rightShiftBlocks - leftShiftBits) == b
 			// and 0 <= leftShiftBits < N.
-			if (rightShiftBlocks >= a.getLength() + 1) {
+			if (rightShiftBlocks >= a.length() + 1) {
 				// All of a is guaranteed to be shifted off, even considering the left
 				// bit shift.
 				setToZero();
@@ -743,9 +747,9 @@ namespace lipaboy_lib {
 			}
 			// Now we're allocating a positive amount.
 			// + 1: room for high bits nudged left into another block
-			blocks_.resize(a.getLength() + 1 - rightShiftBlocks);
+			blocks_.resize(a.length() + 1 - rightShiftBlocks);
 			IndexType i, j;
-			for (j = rightShiftBlocks, i = 0; j <= a.getLength(); j++, i++)
+			for (j = rightShiftBlocks, i = 0; j <= a.length(); j++, i++)
 				blocks_[i] = getShiftedBlock(a, j, leftShiftBits);
 			// Zap possible leading zero
 			zapLeadingZeros();
@@ -757,13 +761,13 @@ namespace lipaboy_lib {
 		void BigUnsigned::operator ++() {
 			IndexType i;
 			bool carry = true;
-			for (i = 0; i < getLength() && carry; i++) {
+			for (i = 0; i < length() && carry; i++) {
 				blocks_[i]++;
 				carry = (blocks_[i] == 0);
 			}
 			if (carry) {
 				// Allocate and then increase getLength()gth, as in divideWithRemainder
-				blocks_.resize(getLength() + 1);
+				blocks_.resize(length() + 1);
 				blocks_[i] = 1;
 			}
 		}

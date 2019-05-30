@@ -7,7 +7,7 @@
 
 #include "long_numbers/big_integer_library.h"
 
-#define BENCHMARK_TEST_RUN
+//#define BENCHMARK_TEST_RUN
 
 namespace long_numbers_benchmark_tests_space {
 

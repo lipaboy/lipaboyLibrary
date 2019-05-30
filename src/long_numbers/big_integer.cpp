@@ -108,7 +108,7 @@ namespace lipaboy_lib {
 		X BigInteger::convertToSignedPrimitive() const {
 			if (sign == zero)
 				return 0;
-			else if (mag.getLength() == 1) {
+			else if (mag.length() == 1) {
 				// The single block might fit in an X.  Try the conversion.
 				Blk b = mag.getBlockDirty(0);
 				if (sign == positive) {
@@ -182,7 +182,7 @@ namespace lipaboy_lib {
 			// common sign and add their magnitudes.
 			else if (a.sign == b.sign) {
 				sign = a.sign;
-				mag.add(a.mag, b.mag);
+				mag = a.mag + b.mag;
 			}
 			else {
 				// Otherwise, their magnitudes must be compared.
@@ -196,11 +196,11 @@ namespace lipaboy_lib {
 					// the lesser magnitude from the greater magnitude.
 				case greater:
 					sign = a.sign;
-					mag.subtract(a.mag, b.mag);
+					mag = a.mag - b.mag;
 					break;
 				case less:
 					sign = b.sign;
-					mag.subtract(b.mag, a.mag);
+					mag = b.mag - a.mag;
 					break;
 				}
 			}
@@ -222,7 +222,7 @@ namespace lipaboy_lib {
 			// If their signs differ, take a.sign and add the magnitudes.
 			else if (a.sign != b.sign) {
 				sign = a.sign;
-				mag.add(a.mag, b.mag);
+				mag = a.mag + b.mag;
 			}
 			else {
 				// Otherwise, their magnitudes must be compared.
@@ -236,13 +236,13 @@ namespace lipaboy_lib {
 					// subtract a from b.
 				case greater:
 					sign = a.sign;
-					mag.subtract(a.mag, b.mag);
+					mag = a.mag - b.mag;
 					break;
 					// If b's magnitude is greater, take the opposite
 					// of b.sign and subtract b from a.
 				case less:
 					sign = Sign(-b.sign);
-					mag.subtract(b.mag, a.mag);
+					mag = b.mag - a.mag;
 					break;
 				}
 			}
@@ -351,7 +351,7 @@ namespace lipaboy_lib {
 				// Increase the magnitude of the quotient by one.
 				q.mag++;
 				// Modify the remainder.
-				mag.subtract(b.mag, mag);
+				mag = b.mag - mag;
 				mag--;
 			}
 

@@ -199,7 +199,7 @@ namespace big_integer_tests {
 		b.setBlock(1, 314);
 		// Did b grow properly?  And did we zero intermediate blocks?
 		ASSERT_EQ(bigUnsignedToString(b), "1348619730944"); //
-		ASSERT_EQ(b.getLength(), 2); //2
+		ASSERT_EQ(b.length(), 2); //2
 		ASSERT_EQ(b.getBlock(0), 0); //0
 		ASSERT_EQ(b.getBlock(1), 314); //314
 		// Did b shrink properly?
@@ -213,9 +213,9 @@ namespace big_integer_tests {
 		ASSERT_EQ(bb.getBlock(1), 159); //159
 		// Blocks beyond the number should be zero regardless of whether they are
 		// within the capacity.
-		bb.add(1, 2);
+		bb = 1 + 2;
 		ASSERT_EQ(bb.getBlock(0), 3); //3
-		ASSERT_EQ(bb.getLength(), 1);
+		ASSERT_EQ(bb.length(), 1);
 	}
 
 	TEST(BigUnsigned, bit_accessors) {

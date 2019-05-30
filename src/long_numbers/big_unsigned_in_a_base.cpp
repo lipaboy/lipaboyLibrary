@@ -40,7 +40,7 @@ namespace lipaboy_lib {
 			this->base = base;
 
 			// Get an upper bound on how much space we need
-			int maxBitLenOfX = x.getLength() * BigUnsigned::BITS_PER_BLOCK;
+			int maxBitLenOfX = x.length() * BigUnsigned::BITS_PER_BLOCK;
 			int minBitsPerDigit = bitLen(base) - 1;
 			int maxDigitLenOfX = ceilingDiv(maxBitLenOfX, minBitsPerDigit);
 			if (maxDigitLenOfX <= 0)
@@ -74,7 +74,7 @@ namespace lipaboy_lib {
 			while (digitNum > 0) {
 				digitNum--;
 				temp.multiply(ans, buBase);
-				ans.add(temp, BigUnsigned(digits[digitNum]));
+				ans = temp + BigUnsigned(digits[digitNum]);
 			}
 			return ans;
 		}
