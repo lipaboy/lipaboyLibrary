@@ -29,6 +29,7 @@ namespace lipaboy_lib {
 
 		using std::vector;
 
+		static int reallocCount = 0;
 
 		class BigUnsigned
 		{
@@ -44,6 +45,18 @@ namespace lipaboy_lib {
 
 		private:
 			BlockContainer blocks_;
+
+			void resize(size_type newSize) {
+				reallocCount++;
+				blocks_.resize(newSize);
+			}
+			void resizeNoCount(size_type newSize) {
+				blocks_.resize(newSize);
+			}
+			void resize(size_type newSize, BlockType value) {
+				reallocCount++;
+				blocks_.resize(newSize, value);
+			}
 
 		public:
 			// Enumeration for the result of a comparison.
@@ -137,8 +150,8 @@ namespace lipaboy_lib {
 			BlockType getBlockDirty(IndexType i) const { return blocks_[i]; }
 			BlockType getBlock(IndexType i) const { return (i >= length()) ? 0 : blocks_[i]; }
 
-			BlockContainer& getBlocksAccess() { return blocks_; }
-			BlockContainer const & getBlocks() const { return blocks_; }
+			//BlockContainer& getBlocksAccess() { return blocks_; }
+			//BlockContainer const & getBlocks() const { return blocks_; }
 			/* Sets the requested block.  The number grows or shrinks as necessary. */
 			void setBlock(IndexType i, BlockType newBlock);
 
@@ -162,7 +175,7 @@ namespace lipaboy_lib {
 
 		public:
 			void setToZero() { 
-				blocks_.resize(1); 
+				resize(1); 
 				blocks_[0] = 0; 
 			}
 
@@ -423,7 +436,7 @@ namespace lipaboy_lib {
 		template <class X>
 		void BigUnsigned::initFromPrimitive(X x) {
 			// Create a single block.  blk is nullptr; no need to delete it.
-			blocks_.resize(1);
+			resize(1);
 			blocks_[0] = BlockType(x);
 		}
 
