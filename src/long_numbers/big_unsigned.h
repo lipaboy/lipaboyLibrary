@@ -47,14 +47,14 @@ namespace lipaboy_lib {
 			BlockContainer blocks_;
 
 			void resize(size_type newSize) {
-				reallocCount++;
+				//reallocCount++;
 				blocks_.resize(newSize);
 			}
 			void resizeNoCount(size_type newSize) {
 				blocks_.resize(newSize);
 			}
 			void resize(size_type newSize, BlockType value) {
-				reallocCount++;
+				//reallocCount++;
 				blocks_.resize(newSize, value);
 			}
 
@@ -171,7 +171,7 @@ namespace lipaboy_lib {
 			 * necessary. */
 			void setBit(IndexType bi, bool newBit);
 
-			operator BigUnsignedView() const { return BigUnsignedView(blocks_.cbegin(), blocks_.cend()); }
+			operator BigUnsignedView() const { return BigUnsignedView(blocks_.cbegin(), blocks_.cend(), blocks_); }
 
 		public:
 			void setToZero() { 
@@ -278,6 +278,7 @@ namespace lipaboy_lib {
 			/* `divide' and `modulo' are no longer offered.  Use
 			 * `divideWithRemainder' instead. */
 
+			ConstReference add(BigUnsignedView, BigUnsignedView);
 			 // OVERLOADED RETURN-BY-VALUE OPERATORS
 			BigUnsigned operator +(const BigUnsigned &x) const { return BigUnsignedView(*this) + BigUnsignedView(x); }
 			BigUnsigned operator -(const BigUnsigned &x) const { return BigUnsignedView(*this) - BigUnsignedView(x); }

@@ -136,6 +136,58 @@ namespace lipaboy_lib {
 		using BlockType = typename BigUnsignedView::BlockType;
 		using IndexType = typename BigUnsigned::IndexType;
 
+		BigUnsigned const & BigUnsigned::add(BigUnsignedView first, BigUnsignedView second) {
+			// TODO: add check on sum with yourself
+			if (&this->blocks_ == &(first.container()) || &this->blocks_ == &(second.container())) {
+				BigUnsigned temp;
+				temp.add(first, second);
+				return (*this = temp);
+			}
+
+			bool carryIn, carryOut;
+			BlockType temp;
+			IndexType i;
+			// Set prelimiary getLength()gth and make room in this BigUnsigned
+			BigUnsignedView longNum = (second.length() > first.length()) ? second : first;
+			BigUnsignedView shortNum = (second.length() > first.length()) ? first : second;
+			
+			resize(longNum.length() + 1);
+
+			// For each block index that is present in both inputs...
+			for (i = 0, carryIn = false; i < shortNum.length(); i++) {
+				// Add input blocks
+				temp = longNum.getBlockDirty(i) + shortNum.getBlockDirty(i);
+				// If a rollover occurred, the result is less than either input.
+				// This test is used many times in the BigUnsigned code.
+				carryOut = (temp < longNum.getBlockDirty(i));
+				// If a carry was input, handle it
+				if (carryIn) {
+					temp++;
+					carryOut |= (temp == 0);
+				}
+				blocks_[i] = temp; // Save the addition result
+				carryIn = carryOut; // Pass the carry along
+			}
+			// If there is a carry left over, increase blocks until
+			// one does not roll over.
+			for (; i < longNum.length() && carryIn; i++) {
+				temp = longNum.getBlockDirty(i) + 1;
+				carryIn = (temp == 0);
+				blocks_[i] = temp;
+			}
+			// If the carry was resolved but the larger number
+			// still has blocks, copy them over.
+			for (; i < longNum.length(); i++)
+				blocks_[i] = longNum.getBlockDirty(i);
+			// Set the extra block if there's still a carry, decrease getLength()gth otherwise
+			if (carryIn)
+				blocks_[i] = 1;
+			else
+				resize(length() - 1);
+
+			return *this;
+		}
+
 		BigUnsigned operator +(BigUnsignedView first, BigUnsignedView second) {
 			BigUnsigned result;
 
@@ -301,7 +353,8 @@ namespace lipaboy_lib {
 		  * the test `y == 0' handles this case specially.
 		  */
 		inline BigUnsigned::BlockType getShiftedBlock(const BigUnsigned &num,
-			BigUnsigned::IndexType x, unsigned int y) {
+			BigUnsigned::IndexType x, unsigned int y) 
+		{
 			BigUnsigned::BlockType part1 = (x == 0 || y == 0) ? 0 
 				: (num.blocks_[x - 1] >> (BigUnsigned::BITS_PER_BLOCK - y));
 			BigUnsigned::BlockType part2 = (x == num.length()) ? 0 : (num.blocks_[x] << y);
@@ -363,27 +416,36 @@ namespace lipaboy_lib {
 				auto halfSize = longNumber.length() / 2;
 
 				if (shortNumber.length() > halfSize) {
-					BigUnsignedView minorLong(longNumber.begin(), std::next(longNumber.begin(), halfSize));
+					BigUnsignedView minorLong(longNumber.begin(), std::next(longNumber.begin(), halfSize), 
+						longNumber.container());
 					BigUnsignedView minorShort(shortNumber.begin(),
 						shortNumber.length() > halfSize ? std::next(shortNumber.begin(), halfSize)
-						: shortNumber.end());
+						: shortNumber.end(), shortNumber.container());
 
 					// Recursive descent
 					NumberTypePointer minorMult = multiplyByKaracuba2(minorLong, minorShort, a);
 
-					BigUnsignedView majorLong(std::next(longNumber.begin(), halfSize), longNumber.end());
-					BigUnsignedView majorShort(std::next(shortNumber.begin(), halfSize), shortNumber.end());
+					BigUnsignedView majorLong(std::next(longNumber.begin(), halfSize), longNumber.end(), 
+						longNumber.container());
+					BigUnsignedView majorShort(std::next(shortNumber.begin(), halfSize), shortNumber.end(), 
+						shortNumber.container());
 
 					// Recursive descent
 					NumberTypePointer majorMult = multiplyByKaracuba2(majorLong, majorShort, a);
 
+					NumberTypePointer sumLong = allocFromStorage(storage, storageEndPos);
+					sumLong->add(majorLong, minorLong);
+					NumberTypePointer sumShort = allocFromStorage(storage, storageEndPos);
+					sumShort->add(majorShort, minorShort);
 					// Recursive descent
-					NumberTypePointer multOfSums = multiplyByKaracuba2(majorLong + minorLong, majorShort + minorShort, a);
+					NumberTypePointer multOfSums = multiplyByKaracuba2(*sumLong, *sumShort, a);
 					NumberTypePointer differ = allocFromStorage(storage, storageEndPos);
 					*differ = (*multOfSums - *majorMult - *minorMult);
 
 					auto differShiftSize = sizeof(IntegralType) * 8 * halfSize;
-					*result = *minorMult + (*differ << (differShiftSize)) + (*majorMult << (2 * differShiftSize));
+					//*result = *minorMult + (*differ << (differShiftSize)) + (*majorMult << (2 * differShiftSize));
+					result->add(*minorMult, (*differ << (differShiftSize)));
+					result->add(*result, (*majorMult << (2 * differShiftSize)));
 
 					//minor mult
 					deallocFromStorage(storageEndPos);
@@ -393,31 +455,41 @@ namespace lipaboy_lib {
 					deallocFromStorage(storageEndPos);
 					//differ
 					deallocFromStorage(storageEndPos);
+					//sumLong
+					deallocFromStorage(storageEndPos);
+					//sumShort
+					deallocFromStorage(storageEndPos);
 				}
 				else {
-					BigUnsignedView minorLong(longNumber.begin(), std::next(longNumber.begin(), halfSize));
+					BigUnsignedView minorLong(longNumber.begin(), std::next(longNumber.begin(), halfSize), 
+						longNumber.container());
 					BigUnsignedView minorShort(shortNumber.begin(),
 						shortNumber.length() > halfSize ? std::next(shortNumber.begin(), halfSize)
-						: shortNumber.end());
+						: shortNumber.end(), shortNumber.container());
 
 					// Recursive descent
 					NumberTypePointer minorMult = multiplyByKaracuba2(minorLong, minorShort, a);
 
-					BigUnsignedView majorLong(std::next(longNumber.begin(), halfSize), longNumber.end());
+					BigUnsignedView majorLong(std::next(longNumber.begin(), halfSize), longNumber.end(), 
+						longNumber.container());
 
+					NumberTypePointer sumLong = allocFromStorage(storage, storageEndPos);
+					sumLong->add(majorLong, minorLong);
 					// Recursive descent
-					NumberTypePointer multOfSums = multiplyByKaracuba2(majorLong + minorLong, minorShort, a);
+					NumberTypePointer multOfSums = multiplyByKaracuba2(*sumLong, minorShort, a);
 					NumberTypePointer differ = allocFromStorage(storage, storageEndPos);
 					*differ = (*multOfSums - *minorMult);
 
 					auto differShiftSize = sizeof(IntegralType) * 8 * halfSize;
-					*result = *minorMult + (*differ << (differShiftSize));
+					result->add(*minorMult, (*differ << (differShiftSize)));
 
 					//minor mult
 					deallocFromStorage(storageEndPos);
 					//differ
 					deallocFromStorage(storageEndPos);
 					//mult of sums
+					deallocFromStorage(storageEndPos);
+					//sumLong
 					deallocFromStorage(storageEndPos);
 				}
 

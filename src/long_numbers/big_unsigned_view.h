@@ -18,10 +18,19 @@ namespace lipaboy_lib {
 			using ContainerType = std::vector<BlockType>;
 			using IteratorType = typename ContainerType::const_iterator;
 			using size_type = size_t;
+			using ContainerTypePtr = const ContainerType * ;
 
 		public:
-			BigUnsignedView(ContainerType const & container) : begin_(container.cbegin()), end_(container.cend()) {}
-			BigUnsignedView(IteratorType begin, IteratorType end) : begin_(begin), end_(end) {}
+			BigUnsignedView(ContainerType const & container) 
+				: begin_(container.cbegin()), 
+				end_(container.cend()),
+				pContainer_(&container)
+			{}
+			BigUnsignedView(IteratorType begin, IteratorType end, ContainerType const & container) 
+				: begin_(begin), 
+				end_(end),
+				pContainer_(&container)
+			{}
 
 			IteratorType begin() const { return begin_; }
 			IteratorType end() const { return end_; }
@@ -32,11 +41,12 @@ namespace lipaboy_lib {
 			}
 			size_type length() const { return static_cast<size_type>(std::distance(begin_, end_)); }
 			bool isZero() const { return length() <= 1 && *begin_ == 0; }
+			ContainerType const & container() { return *pContainer_; }
 
 		private:
 			IteratorType begin_;
 			IteratorType end_;
-			//ContainerTypePointer pContainer_;
+			ContainerTypePtr pContainer_;
 		};
 
 	}

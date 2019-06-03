@@ -304,10 +304,6 @@ namespace big_integer_tests {
 
 		try {
 
-		
-
-		
-
 		//	{
 		//		/* Test that BigInteger division sets the sign to zero.
 		//		 * Bug reported by David Allen. */
