@@ -149,19 +149,19 @@ namespace long_numbers_benchmark_tests_space {
 	}
 
 	void finalize(vector<int>& res) {
-		for (auto i = 0; i < res.size(); ++i) {
+		for (auto i = 0; i < res.size() - 1; ++i) {
 			res[i + 1] += res[i] / base;
 			res[i] %= base;
 		}
 	}
-
+	
 
 
 
 	TEST(BigUnsigned, mult_speed) {
 
 #ifdef BENCHMARK_TEST_RUN
-		const int N = 20;
+		const int N = 17;
 		BigUnsigned number1(2);
 		BigUnsigned number2(2);
 
@@ -174,7 +174,7 @@ namespace long_numbers_benchmark_tests_space {
 			cout << "Time #1: " << (steady_clock::now() - start).count() / int(1e6) << endl;
 		}
 
-		{
+		/*{
 			BigUnsigned & number = number2;
 			auto start = steady_clock::now();
 			for (int i = 0; i < N - 1; i++) {
@@ -183,6 +183,26 @@ namespace long_numbers_benchmark_tests_space {
 			number = multiplyByKaracuba(number, number);
 			cout << "Time #K: " << (steady_clock::now() - start).count() / int(1e6) << endl;
 			cout << "Number length = " << number.length() << endl;
+		}*/
+
+		{
+			std::vector<int> number = get_number("2");
+			auto start = steady_clock::now();
+			for (int i = 0; i < N - 1; i++) {
+				number = karatsuba_mul(number, number);
+				finalize(number);
+			}
+			number = karatsuba_mul(number, number);
+			finalize(number);
+			cout << "Time #K_2: " << (steady_clock::now() - start).count() / int(1e6) << endl;
+			int len;
+			for (len = number.size() - 1; len >= 0; len--) {
+				if (number[len] != 0)
+					break;
+			}
+			number.resize(len + 1);
+			cout << "Number length = " << number.size() << endl;
+
 		}
 
 		system("pause");
