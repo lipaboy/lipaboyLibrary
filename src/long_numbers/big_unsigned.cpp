@@ -58,7 +58,7 @@ namespace lipaboy_lib {
 			if (len == 0)
 				setToZero();
 			else
-				resizeNoCount(len);
+				resize(len);
 		}
 
 		/* Evidently the compiler wants BigUnsigned:: on the return type because, at
@@ -190,56 +190,7 @@ namespace lipaboy_lib {
 
 		BigUnsigned operator +(BigUnsignedView first, BigUnsignedView second) {
 			BigUnsigned result;
-
-			// Some variables...
-			// Carries in and out of an addition stage
-			bool carryIn, carryOut;
-			BlockType temp;
-			IndexType i;
-			// a2 points to the longer input, b2 points to the shorter
-			const BigUnsignedView *longNum, *shortNum;
-			if (first.length() >= second.length()) {
-				longNum = &first;
-				shortNum = &second;
-			}
-			else {
-				longNum = &second;
-				shortNum = &first;
-			}
-			// Set prelimiary getLength()gth and make room in this BigUnsigned
-			result.resizeNoCount(longNum->length() + 1);
-			// For each block index that is present in both inputs...
-			for (i = 0, carryIn = false; i < shortNum->length(); i++) {
-				// Add input blocks
-				temp = longNum->getBlockDirty(i) + shortNum->getBlockDirty(i);
-				// If a rollover occurred, the result is less than either input.
-				// This test is used many times in the BigUnsigned code.
-				carryOut = (temp < longNum->getBlockDirty(i));
-				// If a carry was input, handle it
-				if (carryIn) {
-					temp++;
-					carryOut |= (temp == 0);
-				}
-				result.blocks_[i] = temp; // Save the addition result
-				carryIn = carryOut; // Pass the carry along
-			}
-			// If there is a carry left over, increase blocks until
-			// one does not roll over.
-			for (; i < longNum->length() && carryIn; i++) {
-				temp = longNum->getBlockDirty(i) + 1;
-				carryIn = (temp == 0);
-				result.blocks_[i] = temp;
-			}
-			// If the carry was resolved but the larger number
-			// still has blocks, copy them over.
-			for (; i < longNum->length(); i++)
-				result.blocks_[i] = longNum->getBlockDirty(i);
-			// Set the extra block if there's still a carry, decrease getLength()gth otherwise
-			if (carryIn)
-				result.blocks_[i] = 1;
-			else
-				result.resizeNoCount(result.length() - 1);
-
+			result.add(first, second);
 			return result;
 		}
 
@@ -256,7 +207,7 @@ namespace lipaboy_lib {
 			BlockType temp;
 			IndexType i;
 			// Set preliminary getLength()gth and make room
-			result.resizeNoCount(first.length());
+			result.resize(first.length());
 			// For each block index that is present in both inputs...
 			for (i = 0, borrowIn = false; i < second.length(); i++) {
 				temp = first.getBlockDirty(i) - second.getBlockDirty(i);
@@ -403,7 +354,7 @@ namespace lipaboy_lib {
 
 			if (first.length() == 1 && second.length() == 1) {\
 				DoubleType mult = static_cast<DoubleType>(first.getBlockDirty(0)) * second.getBlockDirty(0);
-				result->resizeNoCount(2);
+				result->resize(2);
 				result->blocks_[0] = static_cast<IntegralType>(
 					mult & setBitsFromStart<DoubleType>(sizeof(IntegralType) * 8));
 				result->blocks_[1] = static_cast<IntegralType>((mult >> (sizeof(IntegralType) * 8))
@@ -823,7 +774,7 @@ namespace lipaboy_lib {
 			IndexType shiftBlocks = b / BITS_PER_BLOCK;
 			unsigned int shiftBits = b % BITS_PER_BLOCK;
 			// + 1: room for high bits nudged left into another block
-			resizeNoCount(a.length() + shiftBlocks + 1);
+			resize(a.length() + shiftBlocks + 1);
 			IndexType i, j;
 			for (i = 0; i < shiftBlocks; i++)
 				blocks_[i] = 0;
