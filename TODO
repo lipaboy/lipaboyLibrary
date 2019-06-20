@@ -22,6 +22,12 @@
 
 ----Local TODOs:
 
+-1) Write instruction to use my library
+
+0) (Stream) realize the merging streams :
+	Stream(vector).merge(Stream(vector)) | sum()
+
+
 1) (LongNumber) Write division properly.
 
 2) (FixedPrecisionNumber) write tests for comparing numbers

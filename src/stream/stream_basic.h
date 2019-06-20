@@ -1,6 +1,8 @@
 #pragma once
 
 #include "stream_extended.h"
+#include "extra_tools/producing_iterator.h"
+#include "extra_tools/initializer_list_iterator.h"
 
 #include <vector>
 #include <functional>
@@ -22,6 +24,9 @@ namespace lipaboy_lib {
 		using std::optional;
 
 		using std::cout;
+
+        using lipaboy_lib::ProducingIterator;
+        using lipaboy_lib::InitializerListIterator;
 
 
 		//--------------------------Stream Base (specialization class)----------------------//
@@ -63,7 +68,7 @@ namespace lipaboy_lib {
 						end_ = begin_.endIter();
 			}
 			explicit
-				Stream(typename GeneratorTypePtr generator) 
+                Stream(GeneratorTypePtr generator)
 				: begin_(generator), 
 				end_() 
 			{}
@@ -73,7 +78,7 @@ namespace lipaboy_lib {
 		protected:
 			static constexpr bool isNoGetTypeBefore() { return true; }
 			static constexpr bool isGeneratorProducing() {
-				return std::is_same_v<TIterator, ProducingIterator<ValueType> >;
+                return std::is_same_v<TIterator, ProducingIterator<ValueType> >;
 			}
 			static constexpr bool isInitializingListCreation() {
 				return std::is_same_v<TIterator, InitializerListIterator<ValueType>

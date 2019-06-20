@@ -46,6 +46,29 @@ namespace lipaboy_lib_tests {
 		ASSERT_EQ(kek1 / kuk, -1. / 2.);
 	}
 
+	TEST(NumberSelfSummable, fixed_precision_number) {
+		FixedPrecisionNumber<double, int, 1, -5> kek1(2.);
+		FixedPrecisionNumber<double, int, 1, -7> kek2(2.f);
+
+		ASSERT_EQ(kek1 += 2., 4.);
+		ASSERT_EQ((kek1 += FixedPrecisionNumber<double, int, 1, -5>(2.)), 6.);
+		ASSERT_EQ(kek1 += kek2, 8.);
+
+		kek1 = 2.;
+		ASSERT_EQ(kek1 -= 2., 0.);
+		ASSERT_EQ((kek1 -= FixedPrecisionNumber<double, int, 1, -5>(2.)), -2.);
+		ASSERT_EQ(kek1 -= kek2, -4.);
+
+		kek1 = 2.;
+		ASSERT_EQ(kek1 *= 3., 6.);
+		ASSERT_EQ((kek1 *= FixedPrecisionNumber<double, int, 1, -5>(2.)), 12.);
+		ASSERT_EQ(kek1 *= kek2, 24.);
+
+		ASSERT_EQ(kek1 /= 3., 8.);
+		ASSERT_EQ((kek1 /= FixedPrecisionNumber<double, int, 1, -5>(2.)), 4.);
+		ASSERT_EQ(kek1 /= kek2, 2.);
+	}
+
 	TEST(EitherComparable, comparison) {
 		FixedPrecisionNumber<double, int, 1, -5>
 			kek1(2);

@@ -9,16 +9,16 @@
 #include <ostream>
 
 namespace lipaboy_lib {
-
 	
+	// TODO: overload operator<< for ostream
 
 	template <typename T, typename IntegerPrecisionType, 
 		IntegerPrecisionType fraction, IntegerPrecisionType dozenPower>
 	class FixedPrecisionNumber : 
         public ComparatorExtender<FixedPrecisionNumber<T, IntegerPrecisionType, fraction, dozenPower> >,
         public EitherComparable<T, FixedPrecisionNumber<T, IntegerPrecisionType, fraction, dozenPower> >,
-        public Algebra<T, FixedPrecisionNumber<T, IntegerPrecisionType, fraction, dozenPower> >,
-		public NumberSettable<T>
+        public OperationAlgebra<T, FixedPrecisionNumber<T, IntegerPrecisionType, fraction, dozenPower> >,
+		public SelfOperationAlgebra<T, FixedPrecisionNumber<T, IntegerPrecisionType, fraction, dozenPower> >
 	{
     public:
         using ValueType = T;
@@ -28,14 +28,12 @@ namespace lipaboy_lib {
 				: number(_number) {}
 
         bool operator<(const T& val) const noexcept { return (getNumber() < val
-			- static_cast<T>(fraction * powDozen<T, IntegerPrecisionType>(dozenPower))); }
+			- static_cast<T>(epsilonPrecision())); }
 //        bool operator<=(const T& val) const noexcept { return (getNumber() <= val
-//			+ static_cast<T>(fraction * powDozen<T, IntegerPrecisionType>(dozenPower))); }
+//			+ static_cast<T>(epsilonPrecision())); }
         bool operator==(const ValueType& val) const noexcept {
-            return (getNumber() >= val
-                    - static_cast<ValueType>(fraction * powDozen<T, IntegerPrecisionType>(dozenPower)))
-                && (getNumber() <= val
-                    + static_cast<ValueType>(fraction * powDozen<T, IntegerPrecisionType>(dozenPower)));
+            return (getNumber() >= val - static_cast<ValueType>(epsilonPrecision()))
+                && (getNumber() <= val + static_cast<ValueType>(epsilonPrecision()));
 		}
 
         bool operator<(const FixedPrecisionNumber& obj) const noexcept {
@@ -51,9 +49,16 @@ namespace lipaboy_lib {
 //        operator T() noexcept { return number; }
 
 		//friend std::ostream& operator<< (std::ostream& o, FixedPrecisionNumber const & number);
+
+	public:
+		constexpr ValueType epsilonPrecision() const { return fraction * powDozen<T, IntegerPrecisionType>(dozenPower); }
 	private:
 		T number;
 	};
+
+	// Number of fixed integer precision
+	template <typename T, int fraction, int dozenPower>
+	using FixedIntPrecisionNumber = FixedPrecisionNumber<T, int, fraction, dozenPower>;
 
 	/*template <typename T, typename IntegerPrecisionType,
 		IntegerPrecisionType fraction, IntegerPrecisionType dozenPower>
