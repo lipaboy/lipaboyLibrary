@@ -25,8 +25,9 @@
 -1) Write instruction to use my library
 
 0) (Stream) realize the merging streams :
-	Stream(vector).merge(Stream(vector)) | sum()
-
+	- Stream(vector).merge(Stream(vector)) | sum()
+	F.A.Q. Where do you storage result of this merging ? Output containers ? 
+	Or we say only about building the chain of some streams ?
 
 1) (LongNumber) Write division properly.
 
@@ -38,7 +39,7 @@
 
 5) (Stream) Put off the short_stream and fast_stream to it own files.
 
-6) (Stream) make 'assertOnInfinite' method by invisible for clients
+6) (Stream) make 'assertOnInfinite' method invisible for clients
 
 ----Think about:
 

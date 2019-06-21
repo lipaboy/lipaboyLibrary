@@ -41,7 +41,7 @@ namespace lipaboy_lib {
 
 			using std::function;
 
-			#define LOL_DEBUG_NOISY
+			//#define LOL_DEBUG_NOISY
 
 			using lipaboy_lib::function_traits;
 			using lipaboy_lib::WrapBySTDFunctionType;

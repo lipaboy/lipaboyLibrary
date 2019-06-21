@@ -2,6 +2,7 @@
 
 #include <string>
 #include <chrono>
+#include <stdlib.h>
 
 #include "stream/stream.h"
 
@@ -131,12 +132,13 @@ namespace stream_benchmarks {
 	// 
 	TEST(Benchmark_stream_vs_fast_stream, DISABLED_filter) {
 		const size_t SIZE = static_cast<size_t>(1e7);
+		auto filterFunc = [] (int i) { return rand() % 2 == 0; };
 
 		{
 			auto start = getCurrentTime();
 			int sum = 0;
 			for (size_t i = 0; i < SIZE; i++)
-				if (i % 2 == 0)
+				if (filterFunc(i))
 					sum += i;
 			cout << "Time: " << diffFromNow(start) << " Simple" << endl;
 		}
@@ -148,7 +150,7 @@ namespace stream_benchmarks {
 			auto start = getCurrentTime();
 			int a = 0;
 			buildStream([&a]() { return (a++); }) | get(SIZE)
-				| filter([](auto l) { return l % 2 == 0; }) | sum();
+				| filter([&filterFunc](auto l) { return filterFunc(l); }) | sum();
 			cout << "Time: " << diffFromNow(start) << " Stream" << endl;
 		}
 
@@ -158,13 +160,13 @@ namespace stream_benchmarks {
 
 			auto sum1 = 
 				buildStream(1, 2, 3, 4, 5, 6) 
-				| filter([](auto l) { return l % 2 == 0; }) | sum();
+				| filter([filterFunc](auto l) { return l % 2 == 0; }) | sum();
 			ASSERT_EQ(sum1, 12);
 
 			auto start = getCurrentTime();
 			int a = 0;
 			buildStream([&a]() { return (a++); }) | get(SIZE)
-				| filter([](auto l) { return l % 2 == 0; }) | sum();
+				| filter([filterFunc](auto l) { return filterFunc(l); }) | sum();
 			cout << "Time: " << diffFromNow(start) << " Fast Stream" << endl;
 		}
 
@@ -174,14 +176,14 @@ namespace stream_benchmarks {
 
 			auto stream =
 				(buildShortStream(1, 2, 3, 4, 5, 6)
-					| filter([](auto l) -> bool { return l % 2 == 0; }));
+					| filter([filterFunc](auto l) -> bool { return l % 2 == 0; }));
 			auto sum1 = stream | sum();
 			ASSERT_EQ(sum1.value(), 12);
 
 			auto start = getCurrentTime();
 			int a = 0;
 			buildShortStream([&a]() { return (a++); }) | get(SIZE)
-				| filter([](auto l) { return l % 2 == 0; }) | sum();
+				| filter([filterFunc](auto l) { return filterFunc(l); }) | sum();
 			cout << "Time: " << diffFromNow(start) << " Short Stream" << endl;
 		}
 
