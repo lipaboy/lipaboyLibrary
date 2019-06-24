@@ -52,6 +52,7 @@ set(LIB_LIPABOY_LIB_SOURCE_FILES
     stream/operators/to_vector.h
     stream/operators/tools.h
     stream/operators/ungroup_by_bit.h
+	stream/operators/group.h
 
     # Precision Number
     maths/fixed_precision_number.h

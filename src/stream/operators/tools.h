@@ -59,7 +59,8 @@ namespace lipaboy_lib {
 				NTH,
 				UNGROUP_BY_BIT,
 
-				DISTINCT
+				DISTINCT,
+				GROUP
 			};
 
 

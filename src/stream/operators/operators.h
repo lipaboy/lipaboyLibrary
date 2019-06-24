@@ -10,6 +10,7 @@
 #include "ungroup_by_bit.h"
 #include "map.h"
 #include "distinct.h"
+#include "group.h"
 
 //	   terminated operations
 #include "nth.h"
