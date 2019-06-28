@@ -11,7 +11,7 @@ set(TEST_SOURCE
     long_numbers/long_numbers_tests.cpp
 
     stream/stream_tests.cpp
-	stream/group_tests.cpp
+	stream/split_tests.cpp
     stream/stream_test.h
 	stream/benchmarks/stream_vs_fast_stream.cpp
 

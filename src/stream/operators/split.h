@@ -13,6 +13,8 @@ namespace lipaboy_lib {
 
 		namespace operators {
 
+			// TODO: replace SplitPredicate to regular expression checking
+
 			using std::vector;
 			using std::string;
 			using std::shared_ptr;
@@ -22,40 +24,19 @@ namespace lipaboy_lib {
 
 			using lipaboy_lib::function_traits;
 
-			//struct group {
-			//public:
-			//	using size_type = size_t;
 
-			//	template <class T>
-			//	using RetType = vector<T>;
-
-			//	//static constexpr OperatorMetaTypeEnum metaInfo = GROUP_BY_VECTOR;
-			//	static constexpr bool isTerminated = false;
-			//public:
-			//	group(size_type partSize) : partSize_(partSize) {
-			//		if (partSize == 0)
-			//			throw std::logic_error("Parameter of GroupType constructor must be positive");
-			//	}
-
-			//	size_type part() const { return partSize_; }
-
-			//private:
-			//	size_type partSize_;
-			//};
-
-
-			// group operator get input parameter - SplitPredicate - predicate functor that say when you must skip elem
+			// split operator get input parameter - SplitPredicate - predicate functor that say when you must skip elem
 			// and finish grouping input elements into some container
 
-			template <class SplitPredicate>
-			struct group : public FunctorHolder<SplitPredicate>
+			template <class SplitPredicate, class TContainer = std::string>
+			struct split : public FunctorHolder<SplitPredicate>
 			{
 			public:
 				using size_type = size_t;
 
 				using ValueType = char;
 				template <class T>
-				using RetType = std::string;
+				using RetType = TContainer;
 
 				using ReturnType = RetType<ValueType>;
 				using const_reference = const ReturnType &;
@@ -63,7 +44,7 @@ namespace lipaboy_lib {
 				static constexpr OperatorMetaTypeEnum metaInfo = GROUP;
 				static constexpr bool isTerminated = false;
 			public:
-				group(SplitPredicate splitFunctor) 
+				split(SplitPredicate splitFunctor) 
 					: FunctorHolder<SplitPredicate>(splitFunctor) 
 				{}
 
@@ -76,7 +57,7 @@ namespace lipaboy_lib {
 						auto temp = stream.nextElem();
 						if (FunctorHolder<SplitPredicate>::functor()(temp))
 							break;
-						part += temp;
+						part.push_back(temp);
 					}
 
 					return std::move(part);
@@ -100,18 +81,6 @@ namespace lipaboy_lib {
 			};
 
 		}
-
-		/*using operators::group;
-		using operators::group_impl;
-
-		template <class TStream>
-		struct shortening::StreamTypeExtender<TStream, group_impl> {
-			template <class T>
-			using remref = std::remove_reference_t<T>;
-
-			using type = typename remref<TStream>::template ExtendedStreamType<
-				remref<group_by_vector_impl<typename TStream::ResultValueType> > >;
-		};*/
 
 	}
 
