@@ -33,9 +33,18 @@ namespace stream_tests {
 
 	//----------Group-----------//
 
-	TEST(Group, simple) {
+	TEST(Split, strings) {
 		string str = "hello, world!";
-		string outStr = buildStream(str.begin(), str.end()) | group([](char ch) -> bool { return ch == ' '; }) | sum();
+		string outStr = buildStream(str.begin(), str.end()) | split([](char ch) -> bool { return ch == ' '; }) | sum();
+		ASSERT_EQ(outStr, "hello,world!");
+	}
+
+	TEST(Split, vectors) {
+		string str = "hello, world!";
+		string outStr = buildStream(str.begin(), str.end()) 
+			| split<std::function<bool(char)>, vector<char> >([](char ch) -> bool { return ch == ' '; }) 
+			| map([](vector<char> const & vec) { return std::string(vec.begin(), vec.end()); })
+			| sum();
 		ASSERT_EQ(outStr, "hello,world!");
 	}
 
