@@ -41,7 +41,7 @@ namespace lipaboy_lib {
 				using ReturnType = RetType<ValueType>;
 				using const_reference = const ReturnType &;
 
-				static constexpr OperatorMetaTypeEnum metaInfo = GROUP;
+				static constexpr OperatorMetaTypeEnum metaInfo = SPLIT;
 				static constexpr bool isTerminated = false;
 			public:
 				split(SplitPredicate splitFunctor) 
