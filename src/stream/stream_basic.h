@@ -182,7 +182,7 @@ namespace lipaboy_lib {
 					end_ = begin_.endIter();
 			}
 			explicit
-				ShortStream(typename GeneratorTypePtr generator)
+                ShortStream(GeneratorTypePtr generator)
 				: begin_(generator),
 				end_()
 			{}
@@ -303,7 +303,7 @@ namespace lipaboy_lib {
 					end_ = begin_.endIter();
 			}
 			explicit
-				Stream(typename GeneratorTypePtr generator)
+                Stream(GeneratorTypePtr generator)
 				: begin_(generator),
 				end_()
 			{}

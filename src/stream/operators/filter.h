@@ -202,6 +202,7 @@ namespace lipaboy_lib {
 		namespace operators {
 
 			using std::shared_ptr;
+            using stream::operators::FunctorHolder;
 
 			// INFO: you can remove intermediate type (filter) because you can deduce type of elems from Predicate's
 			//		 argument.
@@ -212,12 +213,12 @@ namespace lipaboy_lib {
 
 			template <class Predicate>
 			struct filter : 
-				public stream::operators::FunctorHolder<Predicate>,
+                public FunctorHolder<Predicate>,
 				public stream::operators::TReturnSameType
 			{
 				static constexpr bool isTerminated = false;
 			public:
-				filter(Predicate functor) : FunctorHolder<Predicate>(functor) {}
+                filter(Predicate functor) : stream::operators::FunctorHolder<Predicate>(functor) {}
 			};
 
 			template <class Predicate, class T>
@@ -228,7 +229,7 @@ namespace lipaboy_lib {
 				static constexpr bool isTerminated = false;
 			public:
 				filter_impl(filter<Predicate> obj)
-					: FunctorHolder<Predicate>(obj.functor())
+                    : FunctorHolder<Predicate>(obj.functor())
 				{}
 
 				// Opinion: difficult construction but without extra executions and computions
@@ -270,7 +271,7 @@ namespace lipaboy_lib {
 				bool scamper(TSubStream& stream) {
 					if (elem_ == nullptr)
 						return false;
-					while (false == functor()(*elem_)) {
+                    while (false == FunctorHolder<Predicate>::functor()(*elem_)) {
 						if (stream.hasNext())
 							*elem_ = stream.nextElem();
 						else {
