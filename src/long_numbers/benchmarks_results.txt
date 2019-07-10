@@ -1,0 +1,37 @@
+// all the allocs
+
+Realloc count: 610962
+Realloc count: 1812422
+Time #K: 19051
+Number length = 4097
+
+
+// without operator +
+Realloc count: 366578
+Realloc count: 1087454
+Time #K: 17820
+Number length = 4097
+
+
+// without operator +/-
+
+Realloc count: 906212
+
+
+// without operator +/-, realloc in the deepest level of Karacuba
+
+Realloc count: 724969
+
+// without operator +/-, realloc in the deepest level of Karacuba, realloc in bitShiftLeft
+
+Realloc count: 543000
+
+// without operator +/-, realloc in the deepest level of Karacuba, realloc in bitShiftLeft, zapLeading
+
+Realloc count: 535000
+
+// SetToZero
+
+Calls count: 535536
+
+
