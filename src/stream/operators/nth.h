@@ -15,11 +15,8 @@ namespace lipaboy_lib {
 			//---------------------------------------------------------------------------------------------------//
 			
 
-			struct nth {
+			struct nth : TReturnSameType {
 				using size_type = size_t;
-
-				template <class T>
-				using RetType = T;
 
 				nth(size_type count) : count_(count) {}
 				static constexpr OperatorMetaTypeEnum metaInfo = NTH;

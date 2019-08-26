@@ -18,6 +18,7 @@
 #include "reduce.h"
 #include "sum.h"
 #include "to_vector.h"
+#include "max.h"
 
 namespace lipaboy_lib {
 

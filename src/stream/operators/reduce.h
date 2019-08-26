@@ -7,7 +7,7 @@
 #include <functional>
 #include <algorithm>
 #include <iterator>
-
+#include <memory>
 #include <typeinfo>
 #include <type_traits>
 
@@ -19,11 +19,17 @@ namespace lipaboy_lib {
 
 			using std::function;
 
+			// TODO : remove std::shared_ptr
+
 			//------------------------------------------------------------------------------------------------//
 			//-----------------------------------Terminated operation-----------------------------------------//
 			//------------------------------------------------------------------------------------------------//
 
 			namespace {
+
+				template <class Accumulator>
+				using GetFirstArgumentType = typename function_traits<
+					lipaboy_lib::WrapBySTDFunctionType<Accumulator> >::template arg<0>::type;
 
 				template <class Accumulator>
 				using GetSecondArgumentType = typename function_traits<
@@ -63,59 +69,41 @@ namespace lipaboy_lib {
 
 			}
 
-			template <class Accumulator, class IdentityFn = FalseType >
-			struct reduce : FunctorHolder<Accumulator>,
-				FunctorHolder<IdentityFn>
+			template <class Accumulator>
+			struct reduce : FunctorHolder<Accumulator>
 			{
 			public:
-				template <class TResult, class T>
-				using AccumRetType = typename std::result_of<Accumulator(TResult, T)>::type;
-				using IdentityFnType = IdentityFn;
-				using ArgType = typename GetFirstArgumentType_ElseArg<IdentityFnType, Accumulator>::type;
-				using IdentityRetType = lipaboy_lib::enable_if_else_t<std::is_same<IdentityFn, FalseType >::value,
-					ArgType, result_of_else_t<IdentityFnType(ArgType)> >;
+				using ArgType = GetSecondArgumentType<Accumulator>;
+				using AccumRetType = std::remove_reference_t<GetFirstArgumentType<Accumulator> >;
 
 				template <class T>
-				using RetType = IdentityRetType;
+				using RetType = AccumRetType;
 
 				static constexpr enum OperatorMetaTypeEnum metaInfo = REDUCE;
 				static constexpr bool isTerminated = true;
 			public:
-				reduce(IdentityFn&& identity, Accumulator&& accum)
+				reduce(Accumulator&& accum, AccumRetType init)
 					: FunctorHolder<Accumulator>(accum),
-					FunctorHolder<IdentityFn>(identity)
-				{}
-				reduce(Accumulator&& accum)
-					: FunctorHolder<Accumulator>(accum),
-					FunctorHolder<IdentityFn>(FalseType())
+					pInit(std::make_shared<AccumRetType>(std::move(init)))
 				{}
 
 				template <class TResult_, class Arg_>
-				AccumRetType<TResult_, Arg_> accum(TResult_&& result, Arg_&& arg) const {
+				AccumRetType accum(TResult_&& result, Arg_&& arg) const {
 					return FunctorHolder<Accumulator>::functor()(std::forward<TResult_>(result),
 						std::forward<Arg_>(arg));
 				}
-				template <class Arg_>
-				IdentityRetType identity(Arg_&& arg) const
-				{
-					if constexpr (std::is_same<IdentityFn, FalseType>::value)
-						return std::forward<Arg_>(arg);
-					else
-						return FunctorHolder<IdentityFn>::functor()(std::forward<Arg_>(arg));
-				}
 
 				template <class Stream_>
-				auto apply(Stream_ & obj) -> IdentityRetType
+				auto apply(Stream_ & obj) -> AccumRetType
 				{
-					using RetType = typename reduce<Accumulator, IdentityFn>::IdentityRetType;
-					if (obj.hasNext()) {
-						auto result = identity(obj.nextElem());
-						for (; obj.hasNext(); )
-							result = accum(result, obj.nextElem());
-						return result;
-					}
-					return RetType();
+					auto result = std::move(*pInit);
+					for (; obj.hasNext(); )
+						result = accum(result, obj.nextElem());
+					return result;
 				}
+
+			private:
+				std::shared_ptr<AccumRetType> pInit;
 
 			};
 

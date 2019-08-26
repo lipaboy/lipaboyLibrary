@@ -60,7 +60,8 @@ namespace lipaboy_lib {
 				UNGROUP_BY_BIT,
 
 				DISTINCT,
-				SPLIT
+				SPLIT,
+				MAX
 			};
 
 

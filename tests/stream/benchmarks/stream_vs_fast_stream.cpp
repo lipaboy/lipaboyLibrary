@@ -206,7 +206,7 @@ namespace stream_benchmarks {
     // Results: (Linux, Release, 1e7)
     // 0% boost, deceleration by using stream 0%
     // (3005 simple, 3064 stream, 3016 fast_stream, 3175 short_stream)
-    TEST(Benchmark_stream_vs_fast_stream, filter_string) {
+    TEST(Benchmark_stream_vs_fast_stream, DISABLED_filter_string) {
         const size_t SIZE = static_cast<size_t>(1e7);
 
 		{

@@ -30,13 +30,8 @@ using std::unique_ptr;
 
 using namespace lipaboy_lib;
 
-#ifdef STREAM_V1_TESTS_RUN
-using namespace lipaboy_lib::stream_v1_space;
-using namespace lipaboy_lib::stream_v1_space::operators_space;
-#else
 using namespace lipaboy_lib::stream;
 using namespace lipaboy_lib::stream::operators;
-#endif
 
 //---------------------------------Tests-------------------------------//
 
@@ -255,8 +250,7 @@ TEST_F(PrepareStreamTest, FileStream_read) {
     auto res = fileStream
             | map([] (char ch) { return ch + 1; })
             | map([] (char ch) { return ch - 1; })
-            | reduce([] (char ch) { return string(1, ch); },
-                     [] (string& str, char ch) { return str + string(1, ch); });
+            | reduce([] (string& str, char ch) -> string { return str + string(1, ch); }, "");
     ASSERT_EQ(res, fileData);
 
     inFile.close();
@@ -275,7 +269,7 @@ TEST(Reduce, Infinite) {
     int a = 0;
     auto res = buildStream([&a]() { return a++; })
             | get(4)
-            | reduce([] (int res, int elem) { return res + elem; });
+            | reduce([] (int res, int elem) { return res + elem; }, 0);
     ASSERT_EQ(res, 6);
 }
 
@@ -285,6 +279,22 @@ TEST(Sum, Infinite) {
             | get(4)
             | sum();
     ASSERT_EQ(res, 6);
+}
+
+TEST(Sum, Empty_int) {
+	int a = 1;
+	auto res = buildStream([&a]() { return a++; })
+		| get(0)
+		| sum(-1);
+	ASSERT_EQ(res, -1);
+}
+
+TEST(Sum, Empty_string) {
+	string a = "";
+	auto res = buildStream([&a]() { return a + "2"; })
+		| get(0)
+		| sum(string("a"));
+	ASSERT_EQ(res, "a");
 }
 
 TEST(UngroupByBit, init_list) {

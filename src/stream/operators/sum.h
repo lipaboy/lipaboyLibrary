@@ -1,5 +1,6 @@
 #pragma once
 
+#include <any>
 #include "tools.h"
 
 namespace lipaboy_lib {
@@ -8,19 +9,33 @@ namespace lipaboy_lib {
 
 		namespace operators {
 
+			// TODO
+			// 1) Replace std::any to template sum<>
+
 			struct sum : TReturnSameType {
 				static constexpr OperatorMetaTypeEnum metaInfo = SUM;
 				static constexpr bool isTerminated = true;
+
+				sum() {
+				}
+
+				template <class TInit>
+				sum(TInit init) {
+					init_ = init;
+				}
 
 				template <class TStream>
 				auto apply(TStream & stream) -> typename TStream::ResultValueType
 				{
 					using TResult = typename TStream::ResultValueType;
-					auto result = (stream.hasNext()) ? stream.nextElem() : TResult();
+					auto result = init_.has_value() ? std::any_cast<TResult>(init_) : TResult();
+						//(stream.hasNext()) ? stream.nextElem() : TResult();
 					while (stream.hasNext())
 						result += stream.nextElem();
 					return result;
 				}
+
+				std::any init_;
 			};
 
 		}

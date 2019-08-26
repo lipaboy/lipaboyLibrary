@@ -8,6 +8,8 @@
 2) (Stream) Write SelectMany(v -> v.ToWords).GroupBy(v -> v).ToDictionary(v -> v.count)
 	to count the frequency of words in any text.
 
+3) (Stream) Stream as container of pair<Iter> : stream(b1, e1).hook_back(b2, e2) | split("\") | to_vector();
+
 ----Global TODOs:
 
 1) (Interval), (Comparable) write TODOs for them.
