@@ -9,9 +9,7 @@ namespace lipaboy_lib {
 
 		namespace operators {
 
-			// TODO
-			// 1) Replace std::any to template sum<>
-
+			template <class TInit = void*>
 			struct sum : TReturnSameType {
 				static constexpr OperatorMetaTypeEnum metaInfo = SUM;
 				static constexpr bool isTerminated = true;
@@ -19,7 +17,6 @@ namespace lipaboy_lib {
 				sum() {
 				}
 
-				template <class TInit>
 				sum(TInit init) {
 					init_ = init;
 				}
@@ -28,14 +25,17 @@ namespace lipaboy_lib {
 				auto apply(TStream & stream) -> typename TStream::ResultValueType
 				{
 					using TResult = typename TStream::ResultValueType;
-					auto result = init_.has_value() ? std::any_cast<TResult>(init_) : TResult();
-						//(stream.hasNext()) ? stream.nextElem() : TResult();
+					TResult result;
+					if constexpr (std::is_same_v<TInit, void *>)
+						result = TResult();
+					else
+						result = init_;
 					while (stream.hasNext())
 						result += stream.nextElem();
 					return result;
 				}
 
-				std::any init_;
+				TInit init_;
 			};
 
 		}
@@ -79,9 +79,9 @@ namespace lipaboy_lib {
 		namespace operators {
 
 			using stream::operators::OperatorMetaTypeEnum;
+			using SuperType = stream::operators::template sum<>;
 
-			struct sum : 
-				public stream::operators::sum
+			struct sum : public SuperType
 			{
 				static constexpr bool isTerminated = true;
 
@@ -89,7 +89,7 @@ namespace lipaboy_lib {
 				auto apply(TStream & stream) -> typename TStream::ResultValueType
 				{
 					stream.initialize();
-					return static_cast<stream::operators::sum *>(this)->apply(stream);
+					return static_cast<SuperType *>(this)->apply(stream);
 				}
 			};
 

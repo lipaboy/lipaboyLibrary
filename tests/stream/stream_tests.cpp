@@ -293,7 +293,7 @@ TEST(Sum, Empty_string) {
 	string a = "";
 	auto res = buildStream([&a]() { return a + "2"; })
 		| get(0)
-		| sum(string("a"));
+		| sum("a");
 	ASSERT_EQ(res, "a");
 }
 
