@@ -22,13 +22,13 @@ namespace stream_tests {
 
 	//---------------------------------Tests-------------------------------//
 
-	TEST(Split, strings) {
+	TEST(Stream_Split, strings) {
 		string str = "hello, world!";
 		string outStr = buildStream(str.begin(), str.end()) | split([](char ch) -> bool { return ch == ' '; }) | sum();
 		ASSERT_EQ(outStr, "hello,world!");
 	}
 
-	TEST(Split, vectors) {
+	TEST(Stream_Split, vectors) {
 		string str = "hello, world!";
 		string outStr = buildStream(str.begin(), str.end()) 
 			| split<std::function<bool(char)>, vector<char> >([](char ch) -> bool { return ch == ' '; }) 

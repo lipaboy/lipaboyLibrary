@@ -83,7 +83,7 @@ TEST_F(PrepareStreamTest, move_constructor_by_extending_the_stream) {
 //----------Other-----------//
 
 
-TEST(Filter, sample) {
+TEST(Stream_Filter, sample) {
 	int i = 0;
     auto res = buildStream(1, 2, 3)
             | filter([] (auto x) { return (x == x); })
@@ -91,7 +91,7 @@ TEST(Filter, sample) {
 
     ASSERT_EQ(res, vector<int>({ 1, 2, 3 }));
 }
-TEST(Filter, mod3) {
+TEST(Stream_Filter, mod3) {
     auto res = buildStream(1, 2, 3, 4, 5, 6)
             | filter([](int x) { return x % 3 == 0; })
             | to_vector();
@@ -99,7 +99,7 @@ TEST(Filter, mod3) {
     ASSERT_EQ(res, vector<int>({ 3, 6 }));
 }
 
-TEST(Get, Finite_N) {
+TEST(Stream_Get, Finite_N) {
     auto res = buildStream(1, 2, 5, 6, 1900, 234)
             | get(4)
             | to_vector();
@@ -107,7 +107,7 @@ TEST(Get, Finite_N) {
     ASSERT_EQ(res, vector<int>({ 1, 2, 5, 6 }));
 }
 
-TEST(Get, Finite_Overflow) {
+TEST(Stream_Get, Finite_Overflow) {
     auto res = buildStream(1, 2, 5, 6, 1900, 234)
             | get(100)
             | to_vector();
@@ -115,7 +115,7 @@ TEST(Get, Finite_Overflow) {
     ASSERT_EQ(res, vector<int>({ 1, 2, 5, 6, 1900, 234 }));
 }
 
-TEST(Get, InfiniteStream) {
+TEST(Stream_Get, InfiniteStream) {
     int a = 1;
     auto res = buildStream([&a]() { return a++; })
             | filter([] (int b) -> bool { return b % 2 != 0; })
@@ -126,14 +126,14 @@ TEST(Get, InfiniteStream) {
     ASSERT_EQ(res, vector<int>({ 1, 5, 7, 11 }));
 }
 
-TEST(Infinite, check_is_so) {
+TEST(Stream_Infinite, check_is_so) {
     int a = 1;
     auto stream = buildStream([&a]() { return a++; })
 		| map([](int a) { return 2 * a; });
 	ASSERT_TRUE(stream.isInfinite());
 }
 
-TEST(Get, Infinite_Empty) {
+TEST(Stream_Get, Infinite_Empty) {
     int a = 0;
     auto res = buildStream([&a]() { return a++; })
             | get(0)
@@ -142,7 +142,7 @@ TEST(Get, Infinite_Empty) {
     ASSERT_TRUE(res.empty());
 }
 
-TEST(Get, Group_Infinite) {
+TEST(Stream_Get, Group_Infinite) {
 	int a = 0;
 	auto res = buildStream([&a]() { return a++; })
 		| group_by_vector(2)
@@ -209,7 +209,7 @@ TEST_F(PrepareStreamTest, Nth_out_of_range_in_extended_stream) {
 
 //----------------Skip operator testing-------------------//
 
-TEST(Skip, Infinite) {
+TEST(Stream_Skip, Infinite) {
 	int a = 0;
     auto res = buildStream([&a]() { return a++; })
             | get(4)
@@ -219,7 +219,7 @@ TEST(Skip, Infinite) {
     ASSERT_EQ(res, vector<int>({ 2, 3 }));
 }
 
-TEST(Skip, Group_Infinite) {
+TEST(Stream_Skip, Group_Infinite) {
 	int a = 0;
 	auto res = buildStream([&a]() { return a++; })
 		| get(4)
@@ -230,7 +230,7 @@ TEST(Skip, Group_Infinite) {
 	ASSERT_EQ(res, vector<int>({ 2, 3 }));
 }
 
-TEST(Skip, Finite) {
+TEST(Stream_Skip, Finite) {
     std::list<int> lol = { 1, 2, 3 };
     auto res = buildStream(lol.begin(), lol.end())
             | skip(1)
@@ -256,7 +256,7 @@ TEST_F(PrepareStreamTest, FileStream_read) {
     inFile.close();
 }
 
-TEST(Group, Infinite) {
+TEST(Stream_Group, Infinite) {
     int a = 0;
     auto res = buildStream([&a]() { return a++; })
             | get(4)
@@ -265,39 +265,7 @@ TEST(Group, Infinite) {
     ASSERT_EQ(res, decltype(res)({ 2, 3 }));
 }
 
-TEST(Reduce, Infinite) {
-    int a = 0;
-    auto res = buildStream([&a]() { return a++; })
-            | get(4)
-            | reduce([] (int res, int elem) { return res + elem; }, 0);
-    ASSERT_EQ(res, 6);
-}
-
-TEST(Sum, Infinite) {
-    int a = 0;
-    auto res = buildStream([&a]() { return a++; })
-            | get(4)
-            | sum();
-    ASSERT_EQ(res, 6);
-}
-
-TEST(Sum, Empty_int) {
-	int a = 1;
-	auto res = buildStream([&a]() { return a++; })
-		| get(0)
-		| sum(-1);
-	ASSERT_EQ(res, -1);
-}
-
-TEST(Sum, Empty_string) {
-	string a = "";
-	auto res = buildStream([&a]() { return a + "2"; })
-		| get(0)
-		| sum("a");
-	ASSERT_EQ(res, "a");
-}
-
-TEST(UngroupByBit, init_list) {
+TEST(Stream_UngroupByBit, init_list) {
     vector<char> olala = { 1, 2 };
     auto vecVec = buildStream(olala.begin(), olala.end())
             | ungroup_by_bit()
@@ -312,7 +280,7 @@ TEST(UngroupByBit, init_list) {
 //-------------------------//
 
 // BUG: bug is found here
-TEST(NTH, tempValueCopying) {
+TEST(Stream_NTH, tempValueCopying) {
 	int a = 0;
 	auto stream = buildStream([&a]() { return a++; }) 
 		| get(6);
@@ -327,7 +295,7 @@ TEST(NTH, tempValueCopying) {
 int sqr (int a) { return a * a; }
 bool kekBool (int a) { return a % 2 == 0; }
 
-TEST(Filter, vector_int) {
+TEST(Stream_Filter, vector_int) {
     vector<int> olala = { 1, 2, 3, 4, 5, 6, 7, 8 };
     auto stream2 = buildStream(olala.begin(), olala.end());
     auto stream4 = stream2 | filter(kekBool)
@@ -338,7 +306,7 @@ TEST(Filter, vector_int) {
     ASSERT_EQ(kek, decltype(kek)({ 16, 36 }));
 }
 
-TEST(Filter, group_by_vector) {
+TEST(Stream_Filter, group_by_vector) {
     vector<int> olala = { 1, 2, 3, 4, 5, 6, 7, 8 };
     auto stream2 = buildStream(olala.begin(), olala.end());
     auto kek = stream2
@@ -349,7 +317,7 @@ TEST(Filter, group_by_vector) {
     ASSERT_EQ(kek, decltype(kek)({ vector<int>({ 2, 4, 6 }), vector<int>({ 8 }) }));
 }
 
-TEST(GroupByVector, filter) {
+TEST(Stream_GroupByVector, filter) {
 	vector<int> olala = { 1, 2, 3, 4, 5, 6, 7, 8 };
 	auto stream2 = buildStream(olala.begin(), olala.end());
 	auto kek = stream2
@@ -363,7 +331,7 @@ TEST(GroupByVector, filter) {
 
 //-----------------Distinct----------------//
 
-TEST(Distinct, simple) {
+TEST(Stream_Distinct, simple) {
 	vector<int> lol { 1, 1, 2, 3, 1, 1, 2, 4 };
 	auto elem = buildStream(lol.begin(), lol.end())
 		| distinct() | to_vector();
@@ -381,7 +349,7 @@ TEST(Distinct, simple) {
 	EXPECT_EQ(elem3, decltype(elem3)({ "lol", "kek", "kra" }));
 }
 
-TEST(Distinct, map_test) {
+TEST(Stream_Distinct, map_test) {
 	vector<int> lol{ 1, 1, 2, 3, 1, 1, 2, 4 };
 	auto elem = buildStream(lol.begin(), lol.end())
 		| map([](int i) { return std::to_string(i); }) 
