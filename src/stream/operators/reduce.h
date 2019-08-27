@@ -19,7 +19,7 @@ namespace lipaboy_lib {
 
 			using std::function;
 
-			// TODO : remove std::shared_ptr
+			// THINK ABOUT : remove std::shared_ptr or not ??
 
 			//------------------------------------------------------------------------------------------------//
 			//-----------------------------------Terminated operation-----------------------------------------//
