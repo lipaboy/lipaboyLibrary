@@ -264,7 +264,6 @@ TEST(Stream_Group, Infinite) {
             | nth(1);
     ASSERT_EQ(res, decltype(res)({ 2, 3 }));
 }
-
 TEST(Stream_UngroupByBit, init_list) {
     vector<char> olala = { 1, 2 };
     auto vecVec = buildStream(olala.begin(), olala.end())
