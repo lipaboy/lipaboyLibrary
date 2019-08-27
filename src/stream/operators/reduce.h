@@ -19,7 +19,17 @@ namespace lipaboy_lib {
 
 			using std::function;
 
+			// Contract rules :
+			// 1) Reduce operator must be initialized with start value because
+			//		impossible to predict if the stream contains elements or not.
+
 			// THINK ABOUT : remove std::shared_ptr or not ??
+			// Argument 1: maybe less copying of init value
+			// Another varic: you can add specialization of template class where
+			//		no members to store init value. Use function-initializer.
+			// Default constructor problem :
+			//		a) integral types - unspecific behaviour with different compilers
+			//		b) not every type has default constructor
 
 			//------------------------------------------------------------------------------------------------//
 			//-----------------------------------Terminated operation-----------------------------------------//
