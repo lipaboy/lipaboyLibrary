@@ -30,6 +30,14 @@ namespace stream_tests {
 		ASSERT_EQ(res, 6);
 	}
 
+	TEST(Stream_Reduce, Char_sticking) {
+		vector<char> vec{ 'l', 'o', 'l', ' ', 'k', 'e', 'k' };
+		auto res = buildStream(vec.begin(), vec.end())
+			| reduce([](string const & res, char elem) { return res + string(1, elem); },
+				[](char elem) -> string { return string(1, elem); });
+		ASSERT_EQ(res, "lol kek");
+	}
+
 	TEST(Stream_Sum, Infinite) {
 		int a = 0;
 		auto res = buildStream([&a]() { return a++; })
