@@ -38,6 +38,15 @@ namespace stream_tests {
 		ASSERT_EQ(res, "lol kek");
 	}
 
+	TEST(Stream_Reduce, Empty) {
+		vector<char> vec{ 'l', 'o', 'l', ' ', 'k', 'e', 'k' };
+		auto res = buildStream(vec.begin(), vec.end())
+			| get(0)
+			| reduce([](string const & res, char elem) { return res + string(1, elem); },
+				[](char elem) -> string { return string(1, elem); });
+		ASSERT_EQ(res.has_value(), false);
+	}
+
 	TEST(Stream_Sum, Infinite) {
 		int a = 0;
 		auto res = buildStream([&a]() { return a++; })
