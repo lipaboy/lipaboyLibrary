@@ -24,7 +24,7 @@ namespace stream_tests {
 
 	TEST(Stream_max, simple) {
 		int a = 0;
-		int max1 = buildStream([&a]() { return a++; }) | get(1000) | max_impl<int>(max<int>(-1));
+		auto max1 = buildStream([&a]() { return a++; }) | get(1000) | max(-1);
 		ASSERT_EQ(max1, 999);
 	}
 

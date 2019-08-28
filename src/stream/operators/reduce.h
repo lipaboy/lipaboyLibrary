@@ -10,6 +10,7 @@
 #include <memory>
 #include <typeinfo>
 #include <type_traits>
+#include <optional>
 
 namespace lipaboy_lib {
 
@@ -22,14 +23,10 @@ namespace lipaboy_lib {
 			// Contract rules :
 			// 1) Reduce operator must be initialized with start value because
 			//		impossible to predict if the stream contains elements or not.
-
-			// THINK ABOUT : remove std::shared_ptr or not ??
-			// Argument 1: maybe less copying of init value
-			// Another varic: you can add specialization of template class where
-			//		no members to store init value. Use function-initializer.
-			// Default constructor problem :
-			//		a) integral types - unspecific behaviour with different compilers
-			//		b) not every type has default constructor
+			// 2) IdentityFn - type of function. Necessary for correct initializing the
+			//		accum variable. It takes first stream element and pass through
+			//		identity function. For example, accumulator and argument types
+			//		could be different.
 
 			//------------------------------------------------------------------------------------------------//
 			//-----------------------------------Terminated operation-----------------------------------------//
@@ -79,22 +76,32 @@ namespace lipaboy_lib {
 
 			}
 
-			template <class Accumulator>
-			struct reduce : FunctorHolder<Accumulator>
+			template <class Accumulator, class IdentityFn = FalseType>
+			struct reduce : 
+				FunctorHolder<Accumulator>,
+				FunctorHolder<IdentityFn>
 			{
 			public:
 				using ArgType = GetSecondArgumentType<Accumulator>;
-				using AccumRetType = std::remove_reference_t<GetFirstArgumentType<Accumulator> >;
+				using AccumRetType = //std::remove_reference_t<GetFirstArgumentType<Accumulator> >;
+					std::remove_reference_t<
+						typename std::result_of<Accumulator(GetFirstArgumentType<Accumulator>, 
+							ArgType)>::type
+					>;
 
 				template <class T>
-				using RetType = AccumRetType;
+				using RetType = std::optional<AccumRetType>;
 
 				static constexpr enum OperatorMetaTypeEnum metaInfo = REDUCE;
 				static constexpr bool isTerminated = true;
 			public:
-				reduce(Accumulator&& accum, AccumRetType init)
+				reduce(Accumulator&& accum, IdentityFn&& identity)
 					: FunctorHolder<Accumulator>(accum),
-					pInit(std::make_shared<AccumRetType>(std::move(init)))
+					FunctorHolder<IdentityFn>(identity)
+				{}
+				reduce(Accumulator&& accum)
+					: FunctorHolder<Accumulator>(accum),
+					FunctorHolder<IdentityFn>([]() {})
 				{}
 
 				template <class TResult_, class Arg_>
@@ -103,17 +110,25 @@ namespace lipaboy_lib {
 						std::forward<Arg_>(arg));
 				}
 
+				template <class Arg_>
+				AccumRetType identity(Arg_&& arg) const {
+					if constexpr (std::is_same_v<IdentityFn, FalseType>)
+						return AccumRetType(std::forward<Arg_>(arg));
+					else
+						return FunctorHolder<IdentityFn>::functor()(std::forward<Arg_>(arg));
+				}
+
 				template <class Stream_>
-				auto apply(Stream_ & obj) -> AccumRetType
+				auto apply(Stream_ & obj) -> RetType<void>
 				{
-					auto result = std::move(*pInit);
+					if (!obj.hasNext())
+						return std::nullopt;
+					AccumRetType result = 
+						this->template identity<decltype(obj.nextElem())>(obj.nextElem());
 					for (; obj.hasNext(); )
 						result = accum(result, obj.nextElem());
 					return result;
 				}
-
-			private:
-				std::shared_ptr<AccumRetType> pInit;
 
 			};
 

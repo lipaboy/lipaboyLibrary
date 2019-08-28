@@ -26,7 +26,7 @@ namespace stream_tests {
 		int a = 0;
 		auto res = buildStream([&a]() { return a++; })
 			| get(4)
-			| reduce([](int res, int elem) { return res + elem; }, 0);
+			| reduce([](int res, int elem) { return res + elem; });
 		ASSERT_EQ(res, 6);
 	}
 

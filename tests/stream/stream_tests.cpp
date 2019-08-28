@@ -250,7 +250,8 @@ TEST_F(PrepareStreamTest, FileStream_read) {
     auto res = fileStream
             | map([] (char ch) { return ch + 1; })
             | map([] (char ch) { return ch - 1; })
-            | reduce([] (string& str, char ch) -> string { return str + string(1, ch); }, "");
+            | reduce([] (string& str, char ch) -> string { return str + string(1, ch); },
+				[](char ch) -> string { return string(1, ch); });
     ASSERT_EQ(res, fileData);
 
     inFile.close();
