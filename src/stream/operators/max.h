@@ -37,8 +37,7 @@ namespace lipaboy_lib {
 				using RetType = typename TSelfReduce<T>::template RetType<T>;
 
 			public:
-				max(T init)
-					: TSelfReduce<T>( 
+				max() : TSelfReduce<T>( 
 						[](T const & first, T const & second) -> T 
 						{ 
 							return first >= second ? first : second; 
