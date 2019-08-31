@@ -22,13 +22,6 @@ namespace stream_tests {
 
 	//---------------------------------Tests-------------------------------//
 
-	TEST(StreamTests, check) {
-		
-		ASSERT_NO_THROW(buildStream(1, 2, 3)
-			| filter([](auto x) { return (x == x); })
-			| nth(2));
-	}
-
 	TEST(Stream_Filter, empty) {
 		int i = 0;
 		auto res = buildStream(1, 2, 3)

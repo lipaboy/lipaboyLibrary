@@ -12,8 +12,13 @@ namespace lipaboy_lib {
 
 			using std::shared_ptr;
 
+			// Contract rules : 
+			//	1) filter_impl needs to store current element because
+			//		when we call hasNext() it has pass the pack of elements
+			//		to make sure the stream has next element indeed.
+
 			// INFO: you can remove intermediate type (filter) because you can deduce type of elems from Predicate's
-			//		 argument.
+			//		 argument. BUT: you cannot pass lambda with auto parameter deducing.
 
 			//-------------------------------------------------------------------------------------//
 			//--------------------------------Unterminated operation------------------------------//
