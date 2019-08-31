@@ -10,6 +10,7 @@ set(TEST_SOURCE
 
     long_numbers/long_numbers_tests.cpp
 
+	stream/nth_tests.cpp
 	stream/filter_tests.cpp
 	stream/reduce_tests.cpp
 	stream/max_tests.cpp

@@ -156,42 +156,6 @@ TEST_F(PrepareStreamTest, Get_Not_Empty) {
     ASSERT_EQ(res, *pOutsideContainer);
 }
 
-//----------------NTH operator testing-------------------//
-
-TEST_F(PrepareStreamTest, Nth_first_elem) {
-    auto res = buildStream(begin(), end())
-            | nth(0);
-    auto res2 = buildStream(begin(), end())
-            | map([] (typename PrepareStreamTest::ElemType a) { return a; })
-            | nth(0);
-
-    ASSERT_EQ(res, (*pOutsideContainer)[0]);
-    ASSERT_EQ(res2, (*pOutsideContainer)[0]);
-}
-
-TEST_F(PrepareStreamTest, Nth_last_elem) {
-    auto res = buildStream(begin(), end())
-            | map([] (typename PrepareStreamTest::ElemType a) { return a; })
-            | nth(pOutsideContainer->size() - 1);
-
-    ASSERT_EQ(res, pOutsideContainer->back());
-}
-
-TEST_F(PrepareStreamTest, Nth_out_of_range) {
-	ASSERT_ANY_THROW(buildStream(begin(), end()) | nth(pOutsideContainer->size()));
-}
-
-TEST_F(PrepareStreamTest, Nth_out_of_range_by_negative_index) {
-	ASSERT_ANY_THROW(buildStream(begin(), end()) | nth(-1));
-}
-
-TEST_F(PrepareStreamTest, Nth_out_of_range_in_extended_stream) {
-    ASSERT_ANY_THROW(buildStream(begin(), end())
-                    | map([] (typename PrepareStreamTest::ElemType a) { return a; })
-                    | nth(pOutsideContainer->size()));
-	//buildStream(begin(), end()) | print_to(cout);
-}
-
 //----------------Skip operator testing-------------------//
 
 TEST(Stream_Skip, Infinite) {
@@ -328,7 +292,7 @@ TEST(StreamTest, unique_ptr_test) {
 	auto stream = buildStream(lol) 
 		| map([](auto&& elem) -> move_only { return std::move(elem); });
 
-	ASSERT_EQ(*(stream | nth(0)), 5);
+	ASSERT_EQ(*(stream | nth(0)).value(), 5);
 
 	move_only lol2[] = { std::unique_ptr<int>(new int(3)) };
 	auto stream2 = buildStream(lol2, lol2 + 1) 
