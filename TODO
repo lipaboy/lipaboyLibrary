@@ -66,10 +66,4 @@
 	- maybe divide the nextElem(), hasNext(), initialize() methods by different classes 
 		that have responsibility to call them 
 
-3) (Stream) remove std::shared_ptr or not in reduce operator ??
-		Argument 1: maybe less copying of init value
-		Another varic: you can add specialization of template class where
-			no members to store init value. Use function-initializer.
-		Default constructor problem :
-		a) integral types - unspecific behaviour with different compilers
-		b) not every type has default constructor
+3) (Stream) How to simplify filter operator ??
