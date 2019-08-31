@@ -105,23 +105,24 @@ namespace lipaboy_lib {
 		//------------------Extending stream by concating operations-----------------//
 		//--------------------------------------------------------------------------//
 
-		// You cannot union these functions into one with Forward semantics because it will be to common
+		// You cannot union these functions into one with Forward semantics because it will be too generalized
 		// Example (this function will apply for such expression: std::ios::in | std::ios::out)
 
 		template <class TOperator, class... Args>
 		auto operator| (Stream<Args...>& stream, TOperator operation)
 			-> lipaboy_lib::enable_if_else_t<TOperator::isTerminated,
-			typename TOperator::template RetType<typename Stream<Args...>::ResultValueType>,
+			typename shortening::TerminatedOperatorTypeApply_t<Stream<Args...>, TOperator>
+				::template RetType<typename Stream<Args...>::ResultValueType>,
 			shortening::StreamTypeExtender_t<Stream<Args...>, TOperator> >
 		{
 			using StreamType = Stream<Args...>;
 
 			if constexpr (TOperator::isTerminated == true) {
 				stream.template assertOnInfinite<StreamType>();
-				return operation.apply(stream);
+				return shortening::TerminatedOperatorTypeApply_t<StreamType, TOperator>
+					(operation).apply(stream);
 			}
 			else {
-				//static_assert(TOperator::isTerminated , "lol1");
 				return shortening::StreamTypeExtender_t<StreamType, TOperator>
 					(operation, stream);
 			}
@@ -130,18 +131,21 @@ namespace lipaboy_lib {
 		template <class TOperator, class... Args>
 		auto operator| (Stream<Args...>&& stream, TOperator operation)
 			-> lipaboy_lib::enable_if_else_t<TOperator::isTerminated,
-			typename TOperator::template RetType<typename Stream<Args...>::ResultValueType>,
+			typename shortening::TerminatedOperatorTypeApply_t<Stream<Args...>, TOperator>
+				::template RetType<typename Stream<Args...>::ResultValueType>,
 			shortening::StreamTypeExtender_t<Stream<Args...>, TOperator> >
 		{
 			using StreamType = Stream<Args...>;
 
 			if constexpr (TOperator::isTerminated == true) {
 				stream.template assertOnInfinite<StreamType>();
-				return operation.apply(stream);
+				return shortening::TerminatedOperatorTypeApply_t<StreamType, TOperator>
+					(operation).apply(std::move(stream));
 			}
-			else
+			else {
 				return shortening::StreamTypeExtender_t<StreamType, TOperator>
-				(operation, std::move(stream));
+					(operation, std::move(stream));
+			}
 		}
 
 	}

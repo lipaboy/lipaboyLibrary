@@ -130,6 +130,14 @@ namespace lipaboy_lib {
 			template <class TStream, class TOperator>
 			using StreamTypeExtender_t = typename StreamTypeExtender<TStream, TOperator>::type;
 
+			template <class TStream, class TOperator>
+			struct TerminatedOperatorTypeApply {
+				using type = TOperator;
+			};
+
+			template <class TStream, class TOperator>
+			using TerminatedOperatorTypeApply_t = 
+				typename TerminatedOperatorTypeApply<TStream, TOperator>::type;
 		}
 
 	}

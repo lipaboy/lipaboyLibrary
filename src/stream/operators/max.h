@@ -18,15 +18,23 @@ namespace lipaboy_lib {
 			//-----------------------------------Terminated operation-------------------------------------------//
 			//---------------------------------------------------------------------------------------------------//
 
-		
-
 			namespace {
 				template <class T>
 				using TSelfReduce = reduce<std::function<T (T const &, T const &)> >;
 			}
 
+			struct max : public TReturnSameType
+			{
+				static constexpr OperatorMetaTypeEnum metaInfo = MAX;
+				static constexpr bool isTerminated = true;
+
+				max() {
+
+				}
+			};
+
 			template <class T>
-			struct max : 
+			struct max_impl : 
 				public TSelfReduce<T>,
 				TReturnSameType
 			{
@@ -37,7 +45,8 @@ namespace lipaboy_lib {
 				using RetType = typename TSelfReduce<T>::template RetType<T>;
 
 			public:
-				max() : TSelfReduce<T>( 
+				max_impl(max) : 
+					TSelfReduce<T>( 
 						[](T const & first, T const & second) -> T 
 						{ 
 							return first >= second ? first : second; 
@@ -53,18 +62,13 @@ namespace lipaboy_lib {
 			// i'am lipa boy (by Kirill Ponomarev)
 			};
 
-			/*using operators::max;
-			using operators::max_impl;*/
+			using operators::max;
+			using operators::max_impl;
 
-
-		/*	template <class TStream>
-			struct shortening::StreamTypeExtender<TStream, max<typename TStream::ResultValueType> > {
-				template <class T>
-				using remref = std::remove_reference_t<T>;
-
-				using type = typename remref<TStream>::template ExtendedStreamType<
-					remref<operators::max_impl<typename TStream::ResultValueType> > >;
-			};*/
+			template <class TStream>
+			struct shortening::TerminatedOperatorTypeApply<TStream, operators::max> {
+				using type = operators::max_impl<typename TStream::ResultValueType>;
+			};
 
 			//-------------------------------------------------------------//
 			//--------------------------Apply API--------------------------//

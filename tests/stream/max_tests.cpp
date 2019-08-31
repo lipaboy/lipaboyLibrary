@@ -26,7 +26,16 @@ namespace stream_tests {
 		int a = 0;
 		auto max1 = buildStream([&a]() { return a++; }) 
 			| get(1000) 
-			| max<int>();
+			| max();
+		ASSERT_EQ(max1, 999);
+	}
+
+	TEST(Stream_max, l_value) {
+		int a = 0;
+		auto maxOp = max();
+		auto max1 = buildStream([&a]() { return a++; })
+			| get(1000)
+			| maxOp;
 		ASSERT_EQ(max1, 999);
 	}
 
@@ -34,7 +43,8 @@ namespace stream_tests {
 		int a = 0;
 		auto max1 = buildStream([&a]() { return a++; }) 
 			| get(0) 
-			| max<int>();
+			| max();
+
 		ASSERT_EQ(max1.has_value(), false);
 	}
 
