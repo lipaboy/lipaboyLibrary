@@ -66,4 +66,4 @@
 	- maybe divide the nextElem(), hasNext(), initialize() methods by different classes 
 		that have responsibility to call them 
 
-3) (Stream) How to simplify filter operator ??
+3) (Stream) How to simplify 'filter' operator ??
