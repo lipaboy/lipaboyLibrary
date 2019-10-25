@@ -35,8 +35,7 @@ namespace lipaboy_lib {
 
 			template <class T>
 			struct max_impl : 
-				public TSelfReduce<T>,
-				TReturnSameType
+				public TSelfReduce<T>
 			{
 				static constexpr OperatorMetaTypeEnum metaInfo = MAX;
 				static constexpr bool isTerminated = true;

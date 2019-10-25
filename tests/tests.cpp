@@ -70,7 +70,8 @@ decltype(auto) combine2(std::list<Args>... list) {
 }
 
 TEST(Check, check) {
-    
+
+
 }
 
 
@@ -122,6 +123,8 @@ TEST(LuckyTicket, DISABLED_two_lucky_ones_in_sequence)
 			isLucky = false;
 	}
 	cout << clock() - start1 << endl;
+
+	
 
 	
 

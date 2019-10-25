@@ -16,7 +16,7 @@ namespace lipaboy_lib {
 			//---------------------------------------------------------------------------------------------------//
 			
 
-			struct nth : TReturnSameType {
+			struct nth {
 				using size_type = size_t;
 				static constexpr OperatorMetaTypeEnum metaInfo = NTH;
 				static constexpr bool isTerminated = true;
