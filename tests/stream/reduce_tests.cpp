@@ -22,12 +22,24 @@ namespace stream_tests {
 
 	//---------------------------------Tests-------------------------------//
 
+	namespace {
+		int sumFunc(int res, int elem) {
+			return res + elem;	
+		}
+	}
+
 	TEST(Stream_Reduce, Infinite) {
 		int a = 0;
 		auto res = buildStream([&a]() { return a++; })
 			| get(4)
 			| reduce([](int res, int elem) { return res + elem; });
 		ASSERT_EQ(res, 6);
+
+		/*a = 0;
+		res = buildStream([&a]() { return a++; })
+			| get(4)
+			| reduce(sumFunc);
+		ASSERT_EQ(res, 6);*/
 	}
 
 	TEST(Stream_Reduce, Char_sticking) {
