@@ -241,7 +241,8 @@ struct WrapBySTDFunctionExcludeLambda {
 	using NoWrapLambda = typename NoWrapLambdaBySTDFunction<F>::type;
 
 	using type = 
-		enable_if_else_t<std::is_invocable_v<F> && !is_lambda<F>::value, 
+		enable_if_else_t<std::is_invocable_v<F> //&& !is_lambda<F>::value
+		, 
 			NoWrapLambda< enable_getting_operator_type_if<F> >,
 			F
 		>;

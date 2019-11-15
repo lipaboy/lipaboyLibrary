@@ -24,7 +24,8 @@ namespace stream_tests {
 
 	TEST(Stream_Split, strings) {
 		string str = "hello, world!";
-		string outStr = buildStream(str.begin(), str.end()) | split_impl([](char ch) -> bool { return ch == ' '; }) | sum();
+		string outStr = buildStream(str.begin(), str.end()) 
+			| split_impl([](char ch) -> bool { return ch == ' '; }) | sum();
 		ASSERT_EQ(outStr, "hello,world!");
 	}
 

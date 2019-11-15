@@ -88,31 +88,51 @@ namespace lipaboy_lib {
 				FunctorType functor_;
 			};
 
-			// Wrap almost all the functions by std::function (except lambda with auto arguments and etc.)
+			// Wrap almost all the functions by std::function 
+			// (except lambda with auto arguments and etc.)
 			template <class Functor>
-			struct FunctorHolderWrapper : FunctorMetaType<WrapBySTDFunctionType<Functor> > {
+			struct FunctorHolderWrapper 
+				: FunctorMetaType< WrapBySTDFunctionType<Functor> > 
+			{
 				using FunctorType = WrapBySTDFunctionType<Functor>;
 				FunctorHolderWrapper(FunctorType func) : functor_(func) {}
 
 				FunctorType functor() const { return functor_; }
+				void setFunctor(FunctorType op) { functor_ = op; }
 			private:
 				FunctorType functor_;
 			};
 
 			template <>
-			struct FunctorHolderWrapper<std::function<void(void)> >
+			struct FunctorHolderWrapper< std::function<void(void)> >
 			{
 				FunctorHolderWrapper() {}
 			};
 
 			template <class Functor>
+			struct FunctorHolderWrapperExcludeLambda 
+				: FunctorMetaType< WrapBySTDFunctionExcludeLambdaType<Functor> > 
+			{
+				using FunctorType = WrapBySTDFunctionExcludeLambdaType<Functor>;
+				FunctorHolderWrapperExcludeLambda(FunctorType func) : functor_(func) {}
+
+				FunctorType functor() const { return functor_; }
+				void setFunctor(FunctorType op) { functor_ = op; }
+			private:
+				FunctorType functor_;
+			};
+
+			template <class Functor>
 			struct FunctorHolder
 				   //     : FunctorHolderWrapper<Functor>
-				: FunctorHolderDirectly<Functor>
+				//: FunctorHolderDirectly<Functor>
+				: FunctorHolderWrapperExcludeLambda<Functor>
 			{
-				FunctorHolder(Functor func)
-					 //       : FunctorHolderWrapper<Functor>(func)
-					: FunctorHolderDirectly<Functor>(func)
+				using Base = FunctorHolderWrapperExcludeLambda<Functor>;
+				//       : FunctorHolderWrapper<Functor>(func)
+					//: FunctorHolderDirectly<Functor>(func)
+				FunctorHolder(typename Base::FunctorType func) 
+					: Base(func)
 				{}
 			};
 
