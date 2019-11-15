@@ -225,6 +225,8 @@ struct NoWrapLambdaBySTDFunction<Ret(Class::*)(Args...) const>
 
 namespace {
 
+	// INFO: this crutch must be for specific lambdas which have auto specificator in signature
+	//		or at return type.
 	template <class T>
 	using enable_getting_operator_type_if = 
 		decltype(&enable_if_else_t<std::is_invocable_v<T>, 
@@ -235,9 +237,12 @@ namespace {
 
 template <class F>
 struct WrapBySTDFunctionExcludeLambda {
+	template <class F>
+	using NoWrapLambda = typename NoWrapLambdaBySTDFunction<F>::type;
+
 	using type = 
 		enable_if_else_t<std::is_invocable_v<F> && !is_lambda<F>::value, 
-			typename NoWrapLambdaBySTDFunction< enable_getting_operator_type_if<F> >::type,
+			NoWrapLambda< enable_getting_operator_type_if<F> >,
 			F
 		>;
 };

@@ -71,43 +71,11 @@ namespace {
 		return res;
 	}
 
-	int sumKek(int) {
-		return 1;
-	}
-
-	template <class F>
-	class S {
-	public:
-		S(F f) : f_(f) {}
-		void justDo() { std::cout << ""; }
-
-		WrapBySTDFunctionExcludeLambdaType<F> f_;
-	};
-
 }
 
 TEST(Check, check) {
     
-	auto func 
-		= [](auto) { return false; };
-
-		// logical error
-	//WrapBySTDFunctionExcludeLambdaType<decltype(func)> func2 = [](auto) { return false; };
-
-		// logical error (type of lambda has an unique name)
-	//decltype([](auto) { return false; }) func2 = [](auto) { return false; };
-
-	func(1);
-
-	auto func4 = [](int) { return 4; };
-	WrapBySTDFunctionType<decltype(func4)> func5 = func4;
-
-	S s1([](auto) { return false; });
-	s1.justDo();
-	S s2(func);
-	s2.justDo();
-
-	std::function<int(int)> func3 = sumKek;
+	
 }
 
 
