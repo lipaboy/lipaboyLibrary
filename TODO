@@ -12,6 +12,8 @@ Global TODOs:
 
 1) (Interval), (Comparable) write TODOs for them.
 
+2) (Stream) Rename Stream to UndercoverStream and buildStream to Stream
+
 Local TODOs:
 
 1) (LongNumber) Write division properly.
