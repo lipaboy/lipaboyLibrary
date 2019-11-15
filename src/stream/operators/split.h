@@ -28,15 +28,19 @@ namespace lipaboy_lib {
 			// split operator get input parameter - SplitPredicate - predicate functor that say when you must skip elem
 			// and finish grouping input elements into some container
 
-			template <class SplitPredicate>
-			struct split : public FunctorHolder<SplitPredicate>
+			template <class TContainer>
+			struct split 
+				: public FunctorHolder<
+					std::function<bool(typename TContainer::value_type)>
+				>
 			{
 				static constexpr OperatorMetaTypeEnum metaInfo = SPLIT;
 				static constexpr bool isTerminated = false;
 
-				using ContainerType = std::remove_reference_t <
-					std::invoke_result_t<SplitPredicate()> 
-				>;
+				using ValueType = typename TContainer::value_type;
+				using SplitPredicate = std::function<bool(ValueType)>;
+				using ContainerType = TContainer;
+
 			public:
 				split(SplitPredicate splitFunctor)
 					: FunctorHolder<SplitPredicate>(splitFunctor)
@@ -63,8 +67,8 @@ namespace lipaboy_lib {
 				split_impl(SplitPredicate splitFunctor) 
 					: FunctorHolder<SplitPredicate>(splitFunctor) 
 				{}
-				split_impl(split<SplitPredicate> obj)
-					: FunctorHolder<SplitPredicate>(obj.function())
+				split_impl(split<TContainer> obj)
+					: FunctorHolder<SplitPredicate>(obj.functor())
 				{}
 
 				template <class TSubStream>
@@ -103,15 +107,17 @@ namespace lipaboy_lib {
 		using operators::split;
 		using operators::split_impl;
 
-		template <class TStream, class SplitPredicate>
-		struct shortening::StreamTypeExtender<TStream, split<SplitPredicate> > {
+		template <class TStream, class TContainer>
+		struct shortening::StreamTypeExtender<TStream, 
+			split<TContainer> >
+		{
 			template <class T>
 			using remref = std::remove_reference_t<T>;
 
 			using type = typename remref<TStream>::template ExtendedStreamType<
 				remref<
-					split_impl<SplitPredicate,
-						typename split<SplitPredicate>::ContainerType
+					split_impl<typename split<TContainer>::SplitPredicate,
+						typename split<TContainer>::ContainerType
 					>
 				>
 			>;
