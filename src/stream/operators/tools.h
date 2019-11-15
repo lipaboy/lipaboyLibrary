@@ -99,13 +99,19 @@ namespace lipaboy_lib {
 				FunctorType functor_;
 			};
 
+			template <>
+			struct FunctorHolderWrapper<std::function<void(void)> >
+			{
+				FunctorHolderWrapper() {}
+			};
+
 			template <class Functor>
 			struct FunctorHolder
-				//        : FunctorHolderWrapper<Functor>
+				   //     : FunctorHolderWrapper<Functor>
 				: FunctorHolderDirectly<Functor>
 			{
 				FunctorHolder(Functor func)
-					//        : FunctorHolderWrapper<Functor>(func)
+					 //       : FunctorHolderWrapper<Functor>(func)
 					: FunctorHolderDirectly<Functor>(func)
 				{}
 			};

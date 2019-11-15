@@ -85,9 +85,9 @@ namespace lipaboy_lib {
 				using ArgType = GetSecondArgumentType<AccumulatorFn>;
 				using AccumRetType = 
 					std::remove_reference_t<
-						typename std::result_of<AccumulatorFn(
-							GetFirstArgumentType<AccumulatorFn>, 
-							ArgType)>::type
+						std::invoke_result_t <
+							AccumulatorFn, GetFirstArgumentType<AccumulatorFn>, ArgType
+						>
 					>;
 
 				template <class T>

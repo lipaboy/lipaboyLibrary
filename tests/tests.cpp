@@ -48,29 +48,66 @@ using namespace lipaboy_lib;
 //	string a;
 //};
 
-template <class... Args>
-decltype(auto) combine(Args... arg) {
-	return std::make_tuple(arg...);
-}
+namespace {
 
-template <class... Args>
-decltype(auto) combine2(std::list<Args>... list) {
-	std::list<std::tuple<Args...> > res;
-	size_t const size = std::min({ list.size()... });
-
-	//for (auto & elem : list) 
-	//cout << size << endl;
-
-	for (size_t i = 0; i < size; i++) {
-		res.push_front(std::tuple<Args...>(list.front()...));
-		(list.pop_front(), ...);
+	template <class... Args>
+	decltype(auto) combine(Args... arg) {
+		return std::make_tuple(arg...);
 	}
 
-	return res;
+	template <class... Args>
+	decltype(auto) combine2(std::list<Args>... list) {
+		std::list<std::tuple<Args...> > res;
+		size_t const size = std::min({ list.size()... });
+
+		//for (auto & elem : list) 
+		//cout << size << endl;
+
+		for (size_t i = 0; i < size; i++) {
+			res.push_front(std::tuple<Args...>(list.front()...));
+			(list.pop_front(), ...);
+		}
+
+		return res;
+	}
+
+	int sumKek(int) {
+		return 1;
+	}
+
+	template <class F>
+	class S {
+	public:
+		S(F f) : f_(f) {}
+		void justDo() { std::cout << ""; }
+
+		WrapBySTDFunctionExcludeLambdaType<F> f_;
+	};
+
 }
 
 TEST(Check, check) {
     
+	auto func 
+		= [](auto) { return false; };
+
+		// logical error
+	//WrapBySTDFunctionExcludeLambdaType<decltype(func)> func2 = [](auto) { return false; };
+
+		// logical error (type of lambda has an unique name)
+	//decltype([](auto) { return false; }) func2 = [](auto) { return false; };
+
+	func(1);
+
+	auto func4 = [](int) { return 4; };
+	WrapBySTDFunctionType<decltype(func4)> func5 = func4;
+
+	S s1([](auto) { return false; });
+	s1.justDo();
+	S s2(func);
+	s2.justDo();
+
+	std::function<int(int)> func3 = sumKek;
 }
 
 

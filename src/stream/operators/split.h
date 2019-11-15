@@ -28,8 +28,23 @@ namespace lipaboy_lib {
 			// split operator get input parameter - SplitPredicate - predicate functor that say when you must skip elem
 			// and finish grouping input elements into some container
 
-			template <class SplitPredicate, class TContainer = std::string>
+			template <class SplitPredicate>
 			struct split : public FunctorHolder<SplitPredicate>
+			{
+				static constexpr OperatorMetaTypeEnum metaInfo = SPLIT;
+				static constexpr bool isTerminated = false;
+
+				using ContainerType = std::remove_reference_t <
+					std::invoke_result_t<SplitPredicate()> 
+				>;
+			public:
+				split(SplitPredicate splitFunctor)
+					: FunctorHolder<SplitPredicate>(splitFunctor)
+				{}
+			};
+
+			template <class SplitPredicate, class TContainer = std::string>
+			struct split_impl : public FunctorHolder<SplitPredicate>
 			{
 			public:
 				using size_type = size_t;
@@ -43,9 +58,13 @@ namespace lipaboy_lib {
 
 				static constexpr OperatorMetaTypeEnum metaInfo = SPLIT;
 				static constexpr bool isTerminated = false;
+
 			public:
-				split(SplitPredicate splitFunctor) 
+				split_impl(SplitPredicate splitFunctor) 
 					: FunctorHolder<SplitPredicate>(splitFunctor) 
+				{}
+				split_impl(split<SplitPredicate> obj)
+					: FunctorHolder<SplitPredicate>(obj.function())
 				{}
 
 				template <class TSubStream>
@@ -76,11 +95,27 @@ namespace lipaboy_lib {
 					return stream.hasNext();
 				}
 
-
 			private:
 			};
 
 		}
+
+		using operators::split;
+		using operators::split_impl;
+
+		template <class TStream, class SplitPredicate>
+		struct shortening::StreamTypeExtender<TStream, split<SplitPredicate> > {
+			template <class T>
+			using remref = std::remove_reference_t<T>;
+
+			using type = typename remref<TStream>::template ExtendedStreamType<
+				remref<
+					split_impl<SplitPredicate,
+						typename split<SplitPredicate>::ContainerType
+					>
+				>
+			>;
+		};
 
 	}
 

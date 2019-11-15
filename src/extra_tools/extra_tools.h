@@ -173,6 +173,15 @@ struct WrapLambdaBySTDFunction<Ret(Class::*)(Args...) const>
     using type = std::function<Ret(Args...)>;
 };
 
+template<typename T>
+struct is_lambda : std::true_type
+{};
+
+template<typename Ret, typename Class, typename... Args>
+struct is_lambda<Ret(Class::*)(Args...) const>
+	: std::false_type
+{};
+
 }
 
 template <typename F>
@@ -182,23 +191,74 @@ struct WrapBySTDFunction {
 //        void;
 };
 
-template<typename R, typename ...Args>
+template <typename R, typename ...Args>
 struct WrapBySTDFunction< R(Args...) > {
     using type = std::function< R(Args...) >;
 };
 
-template<typename R, typename ...Args>
+template <typename R, typename ...Args>
 struct WrapBySTDFunction< R(*)(Args...) > {
     using type = std::function< R(Args...) >;
 };
 
-template<typename R, typename ...Args>
+template <typename R, typename ...Args>
 struct WrapBySTDFunction<std::function<R(Args...)> > {
     using type = std::function<R(Args...)>;
 };
 
 template <typename T>
 using WrapBySTDFunctionType = typename WrapBySTDFunction<T>::type;
+
+//--------------------Wrap by std::function exclude lambda--------------------//
+
+template<typename F>
+struct NoWrapLambdaBySTDFunction
+{
+	using type = F;
+};
+
+template<typename Ret, typename Class, typename... Args>
+struct NoWrapLambdaBySTDFunction<Ret(Class::*)(Args...) const>
+{
+	using type = Ret(Class::*)(Args...);
+};
+
+namespace {
+
+	template <class T>
+	using enable_getting_operator_type_if = 
+		decltype(&enable_if_else_t<std::is_invocable_v<T>, 
+			T, std::function<int(int)> 
+		>::operator());
+
+}
+
+template <class F>
+struct WrapBySTDFunctionExcludeLambda {
+	using type = 
+		enable_if_else_t<std::is_invocable_v<F> && !is_lambda<F>::value, 
+			typename NoWrapLambdaBySTDFunction< enable_getting_operator_type_if<F> >::type,
+			F
+		>;
+};
+
+template <typename R, typename ...Args>
+struct WrapBySTDFunctionExcludeLambda< R(Args...) > {
+	using type = std::function< R(Args...) >;
+};
+
+template <typename R, typename ...Args>
+struct WrapBySTDFunctionExcludeLambda< R(*)(Args...) > {
+	using type = std::function< R(Args...) >;
+};
+
+template <typename R, typename ...Args>
+struct WrapBySTDFunctionExcludeLambda< std::function<R(Args...)> > {
+	using type = std::function<R(Args...)>;
+};
+
+template <typename T>
+using WrapBySTDFunctionExcludeLambdaType = typename WrapBySTDFunctionExcludeLambda<T>::type;
 
 }
 

@@ -24,14 +24,14 @@ namespace stream_tests {
 
 	TEST(Stream_Split, strings) {
 		string str = "hello, world!";
-		string outStr = buildStream(str.begin(), str.end()) | split([](char ch) -> bool { return ch == ' '; }) | sum();
+		string outStr = buildStream(str.begin(), str.end()) | split_impl([](char ch) -> bool { return ch == ' '; }) | sum();
 		ASSERT_EQ(outStr, "hello,world!");
 	}
 
 	TEST(Stream_Split, vectors) {
 		string str = "hello, world!";
 		string outStr = buildStream(str.begin(), str.end()) 
-			| split<std::function<bool(char)>, vector<char> >([](char ch) -> bool { return ch == ' '; }) 
+			| split_impl<std::function<bool(char)>, vector<char> >([](char ch) -> bool { return ch == ' '; }) 
 			| map([](vector<char> const & vec) { return std::string(vec.begin(), vec.end()); })
 			| sum();
 		ASSERT_EQ(outStr, "hello,world!");
