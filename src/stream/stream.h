@@ -27,7 +27,7 @@ namespace lipaboy_lib {
 		//-------------------Wrappers-----------------------//
 
 		template <class TIterator>
-		auto buildStream(TIterator begin, TIterator end)
+		auto Stream(TIterator begin, TIterator end)
 			-> StreamOfOutsideIterators<TIterator>
 		{
 			return StreamOfOutsideIterators<TIterator>(begin, end);
@@ -41,7 +41,7 @@ namespace lipaboy_lib {
 		}
 
 		template <class T>
-		auto buildStream(std::initializer_list<T> init)
+		auto Stream(std::initializer_list<T> init)
 			-> StreamOfInitializingList<T>
 		{
 			return StreamOfInitializingList<T>(init);
@@ -55,7 +55,7 @@ namespace lipaboy_lib {
 		}
 
 		template <class T, class... Args>
-		auto buildStream(T elem, Args... args)
+		auto Stream(T elem, Args... args)
 			-> StreamOfInitializingList<T>
 		{
 			return StreamOfInitializingList<T>({ elem, args... });
@@ -69,7 +69,7 @@ namespace lipaboy_lib {
 		}
 
 		template <class Generator>
-		auto buildStream(Generator&& generator)
+		auto Stream(Generator&& generator)
 			-> StreamOfGenerator<Generator>
 		{
 			return StreamOfGenerator<Generator>(std::forward<Generator>(generator));
@@ -84,7 +84,7 @@ namespace lipaboy_lib {
 
 
 		template <class T, size_t size>
-		auto buildStream(T(&init)[size])
+		auto Stream(T(&init)[size])
 			-> StreamOfOutsideIterators<std::move_iterator<T*> >
 		{
 			return StreamOfOutsideIterators<std::move_iterator<T*> >(
