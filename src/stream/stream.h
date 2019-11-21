@@ -13,15 +13,15 @@ namespace lipaboy_lib {
 		//-------------Different types of Stream---------------//
 
 		template <class TIterator>
-		using StreamOfOutsideIterators = Stream<TIterator>;
+		using StreamOfOutsideIterators = StreamBase<TIterator>;
 
 		template <class T>
-		using StreamOfInitializingList = Stream<InitializerListIterator<T>
+		using StreamOfInitializingList = StreamBase<InitializerListIterator<T>
 			//typename std::initializer_list<T>::iterator
 		>;
 
 		template <class Generator>
-		using StreamOfGenerator = Stream<ProducingIterator<typename std::result_of<Generator(void)>::type> >;
+		using StreamOfGenerator = StreamBase<ProducingIterator<typename std::result_of<Generator(void)>::type> >;
 
 
 		//-------------------Wrappers-----------------------//
@@ -101,12 +101,12 @@ namespace lipaboy_lib {
 		// Example (this function will apply for such expression: std::ios::in | std::ios::out)
 
 		template <class TOperator, class... Args>
-		auto operator| (Stream<Args...>& stream, TOperator operation)
+		auto operator| (StreamBase<Args...>& stream, TOperator operation)
 			-> lipaboy_lib::enable_if_else_t<TOperator::isTerminated,
-			typename TOperator::template RetType<typename Stream<Args...>::ResultValueType>,
-			shortening::StreamTypeExtender_t<Stream<Args...>, TOperator> >
+			typename TOperator::template RetType<typename StreamBase<Args...>::ResultValueType>,
+			shortening::StreamTypeExtender_t<StreamBase<Args...>, TOperator> >
 		{
-			using StreamType = Stream<Args...>;
+			using StreamType = StreamBase<Args...>;
 
 			if constexpr (TOperator::isTerminated == true) {
 				stream.template assertOnInfinite<StreamType>();
@@ -120,12 +120,12 @@ namespace lipaboy_lib {
 		}
 
 		template <class TOperator, class... Args>
-		auto operator| (Stream<Args...>&& stream, TOperator operation)
+		auto operator| (StreamBase<Args...>&& stream, TOperator operation)
 			-> lipaboy_lib::enable_if_else_t<TOperator::isTerminated,
-			typename TOperator::template RetType<typename Stream<Args...>::ResultValueType>,
-			shortening::StreamTypeExtender_t<Stream<Args...>, TOperator> >
+			typename TOperator::template RetType<typename StreamBase<Args...>::ResultValueType>,
+			shortening::StreamTypeExtender_t<StreamBase<Args...>, TOperator> >
 		{
-			using StreamType = Stream<Args...>;
+			using StreamType = StreamBase<Args...>;
 
 			if constexpr (TOperator::isTerminated == true) {
 				stream.template assertOnInfinite<StreamType>();

@@ -31,7 +31,7 @@ namespace lipaboy_lib {
 		//--------------------------Stream Base (specialization class)----------------------//
 
 		template <class TIterator>
-		class Stream<TIterator> {
+		class StreamBase<TIterator> {
 		public:
 			using T = typename std::iterator_traits<TIterator>::value_type;
 			using ValueType = T;
@@ -40,13 +40,13 @@ namespace lipaboy_lib {
 			class Range;
 
 			template <class Functor>
-			using ExtendedStreamType = Stream<Functor, TIterator>;
+			using ExtendedStreamType = StreamBase<Functor, TIterator>;
 
 			using ResultValueType = ValueType;
 
 			using GeneratorTypePtr = std::function<ValueType(void)>;
 
-			template <typename, typename...> friend class Stream;
+			template <typename, typename...> friend class StreamBase;
 
 			//using SuperType = void;
 			//using OperatorType = TIterator;
@@ -56,19 +56,19 @@ namespace lipaboy_lib {
 
 			template <class OuterIterator>
 			explicit
-				Stream(OuterIterator begin, OuterIterator end) 
+				StreamBase(OuterIterator begin, OuterIterator end) 
 				: begin_(begin),
 				end_(end)
 			{}
 			explicit
-				Stream(std::initializer_list<T> init) 
+				StreamBase(std::initializer_list<T> init) 
 				: begin_(init)
 			{
-				if constexpr (Stream::isInitializingListCreation())
+				if constexpr (StreamBase::isInitializingListCreation())
 						end_ = begin_.endIter();
 			}
 			explicit
-                Stream(GeneratorTypePtr generator)
+                StreamBase(GeneratorTypePtr generator)
 				: begin_(generator), 
 				end_() 
 			{}
@@ -117,10 +117,10 @@ namespace lipaboy_lib {
 			//-----------------Slider API Ends--------------//
 
 		public:
-			bool operator==(Stream const & other) const { return equals(other); }
-			bool operator!=(Stream const & other) const { return !((*this) == other); }
+			bool operator==(StreamBase const & other) const { return equals(other); }
+			bool operator!=(StreamBase const & other) const { return !((*this) == other); }
 		private:
-			bool equals(Stream const & other) const { 
+			bool equals(StreamBase const & other) const { 
 				return begin_ == other.begin_ 
 					&& end_ == other.end_; 
 			}

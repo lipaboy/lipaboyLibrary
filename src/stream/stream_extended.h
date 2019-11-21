@@ -31,33 +31,33 @@ namespace lipaboy_lib {
 		//-----------------Stream Extended class----------------------//
 
 		template <class TOperator, class... Rest>
-		class Stream : public Stream<Rest...> {
+		class StreamBase : public StreamBase<Rest...> {
 		public:
 			using size_type = size_t;
 			using OperatorType = TOperator;
-			using SuperType = Stream<Rest...>;
+			using SuperType = StreamBase<Rest...>;
 			using ConstSuperType = const SuperType;
 			using iterator = typename SuperType::outside_iterator;
 			using SuperTypePtr = SuperType * ;
 			using ConstSuperTypePtr = const SuperType *;
 			using ValueType = typename SuperType::ValueType;
 			using Range = typename SuperType::Range;
-			using ActionSignature = void(Stream*);
+			using ActionSignature = void(StreamBase*);
 			using ActionType = std::function<ActionSignature>;
 
 			template <class Functor>
-			using ExtendedStreamType = Stream<Functor, OperatorType, Rest...>;
+			using ExtendedStreamType = StreamBase<Functor, OperatorType, Rest...>;
 
 			using ResultValueType = typename TOperator::template RetType<typename SuperType::ResultValueType>;
 
-			template <typename, typename...> friend class Stream;
+			template <typename, typename...> friend class StreamBase;
 
 			//----------------------Constructors----------------------//
 		public:
 
 			template <class StreamSuperType_, class TFunctor_>
 			explicit
-				Stream(TFunctor_&& functor, StreamSuperType_&& obj) noexcept
+				StreamBase(TFunctor_&& functor, StreamSuperType_&& obj) noexcept
 				: SuperType(std::forward<StreamSuperType_>(obj)), operator_(std::forward<TFunctor_>(functor))
 			{
 #ifdef LOL_DEBUG_NOISY
@@ -68,7 +68,7 @@ namespace lipaboy_lib {
 #endif
 			}
 		public:
-			Stream(Stream const & obj)
+			StreamBase(StreamBase const & obj)
 				: SuperType(static_cast<ConstSuperType&>(obj)),
 				operator_(obj.operator_)
 			{
@@ -76,7 +76,7 @@ namespace lipaboy_lib {
 				cout << "   StreamEx copy-constructed" << endl;
 #endif
 			}
-			Stream(Stream&& obj) noexcept
+			StreamBase(StreamBase&& obj) noexcept
 				: SuperType(std::move(obj)),
 				operator_(std::move(obj.operator_))
 			{
@@ -147,10 +147,10 @@ namespace lipaboy_lib {
 			//-----------------------------Slider API Ends----------------------------//
 			//------------------------------------------------------------------------//
 
-			bool operator==(Stream & other) { return equals(other); }
-			bool operator!=(Stream & other) { return !((*this) == other); }
+			bool operator==(StreamBase & other) { return equals(other); }
+			bool operator!=(StreamBase & other) { return !((*this) == other); }
 		private:
-			bool equals(Stream & other) {
+			bool equals(StreamBase & other) {
 				return (operator_ == other.operator_
 					&& superThisPtr()->equals(static_cast<SuperType&>(other))
 					);

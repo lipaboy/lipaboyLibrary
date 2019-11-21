@@ -30,7 +30,7 @@ using stream_v1_space::Stream;
 using stream_v1_space::StreamOfOutsideIterators;
 using namespace lipaboy_lib::stream_v1_space::operators_space;
 #else
-using stream_space::Stream;
+using stream_space::StreamBase;
 using stream_space::StreamOfOutsideIterators;
 using namespace lipaboy_lib::stream_space::operators_space;
 #endif

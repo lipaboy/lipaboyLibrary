@@ -48,24 +48,24 @@ using namespace lipaboy_lib::stream_space::operators_space;
 
 TEST_F(PrepareStreamTest, copy_constructor) {
     auto temp = buildStream(begin(), end()) | get(pOutsideContainer->size() - 1);
-    auto obj = Stream(temp);
+    auto obj = StreamBase(temp);
 
     ASSERT_TRUE(temp == obj);
 
-    auto obj2 = Stream(buildStream(begin(), end()));
+    auto obj2 = StreamBase(buildStream(begin(), end()));
     static_assert(std::is_same_v<decltype(obj2), decltype(buildStream(begin(), end()))>, "lol");
     ASSERT_TRUE(obj2 == buildStream(begin(), end()));
 }
 
 TEST_F(PrepareStreamTest, move_constructor) {
     auto temp = buildStream(begin(), end()) | get(pOutsideContainer->size() - 1);
-    auto temp2 = Stream(temp);
-    auto obj = Stream(std::move(temp2));
+    auto temp2 = StreamBase(temp);
+    auto obj = StreamBase(std::move(temp2));
 
     ASSERT_TRUE(temp == obj);
 
-    auto temp3 = Stream(buildStream(begin(), end()));
-    auto obj2 = Stream(std::move(temp3));
+    auto temp3 = StreamBase(buildStream(begin(), end()));
+    auto obj2 = StreamBase(std::move(temp3));
     ASSERT_TRUE(obj2 == buildStream(begin(), end()));
 }
 
@@ -77,7 +77,7 @@ TEST_F(PrepareStreamTest, copy_constructor_by_extending_the_stream) {
 }
 
 TEST_F(PrepareStreamTest, move_constructor_by_extending_the_stream) {
-    auto temp = Stream(buildStream(begin(), end()));
+    auto temp = StreamBase(buildStream(begin(), end()));
     auto obj = typename StreamType::template
             ExtendedStreamType<get>(get(pOutsideContainer->size() - 1), std::move(temp));
 
