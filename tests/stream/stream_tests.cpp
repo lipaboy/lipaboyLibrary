@@ -47,41 +47,41 @@ using namespace lipaboy_lib::stream_space::operators_space;
 //----------Constructor-----------//
 
 TEST_F(PrepareStreamTest, copy_constructor) {
-    auto temp = buildStream(begin(), end()) | get(pOutsideContainer->size() - 1);
-    auto obj = Stream(temp);
+    auto temp = Stream(begin(), end()) | get(pOutsideContainer->size() - 1);
+    auto obj = StreamBase(temp);
 
     ASSERT_TRUE(temp == obj);
 
-    auto obj2 = Stream(buildStream(begin(), end()));
-    static_assert(std::is_same_v<decltype(obj2), decltype(buildStream(begin(), end()))>, "lol");
-    ASSERT_TRUE(obj2 == buildStream(begin(), end()));
+    auto obj2 = StreamBase(Stream(begin(), end()));
+    static_assert(std::is_same_v<decltype(obj2), decltype(Stream(begin(), end()))>, "lol");
+    ASSERT_TRUE(obj2 == Stream(begin(), end()));
 }
 
 TEST_F(PrepareStreamTest, move_constructor) {
-    auto temp = buildStream(begin(), end()) | get(pOutsideContainer->size() - 1);
-    auto temp2 = Stream(temp);
-    auto obj = Stream(std::move(temp2));
+    auto temp = Stream(begin(), end()) | get(pOutsideContainer->size() - 1);
+    auto temp2 = StreamBase(temp);
+    auto obj = StreamBase(std::move(temp2));
 
     ASSERT_TRUE(temp == obj);
 
-    auto temp3 = Stream(buildStream(begin(), end()));
-    auto obj2 = Stream(std::move(temp3));
-    ASSERT_TRUE(obj2 == buildStream(begin(), end()));
+    auto temp3 = StreamBase(Stream(begin(), end()));
+    auto obj2 = StreamBase(std::move(temp3));
+    ASSERT_TRUE(obj2 == Stream(begin(), end()));
 }
 
 TEST_F(PrepareStreamTest, copy_constructor_by_extending_the_stream) {
     auto obj = typename StreamType::template
-            ExtendedStreamType<get>(get(pOutsideContainer->size() - 1), buildStream(begin(), end()));
+            ExtendedStreamType<get>(get(pOutsideContainer->size() - 1), Stream(begin(), end()));
 
-    ASSERT_TRUE(buildStream(begin(), end()) == static_cast<StreamType&>(obj));
+    ASSERT_TRUE(Stream(begin(), end()) == static_cast<StreamType&>(obj));
 }
 
 TEST_F(PrepareStreamTest, move_constructor_by_extending_the_stream) {
-    auto temp = Stream(buildStream(begin(), end()));
+    auto temp = StreamBase(Stream(begin(), end()));
     auto obj = typename StreamType::template
             ExtendedStreamType<get>(get(pOutsideContainer->size() - 1), std::move(temp));
 
-    ASSERT_TRUE(buildStream(begin(), end()) == static_cast<StreamType&>(obj));
+    ASSERT_TRUE(Stream(begin(), end()) == static_cast<StreamType&>(obj));
 }
 
 
@@ -90,14 +90,14 @@ TEST_F(PrepareStreamTest, move_constructor_by_extending_the_stream) {
 
 TEST(Filter, sample) {
 	int i = 0;
-    auto res = buildStream(1, 2, 3)
+    auto res = Stream(1, 2, 3)
             | filter([] (auto x) { return (x == x); })
             | to_vector();
 
     ASSERT_EQ(res, vector<int>({ 1, 2, 3 }));
 }
 TEST(Filter, mod3) {
-    auto res = buildStream(1, 2, 3, 4, 5, 6)
+    auto res = Stream(1, 2, 3, 4, 5, 6)
             | filter([](int x) { return x % 3 == 0; })
             | to_vector();
 
@@ -105,7 +105,7 @@ TEST(Filter, mod3) {
 }
 
 TEST(Get, Finite_N) {
-    auto res = buildStream(1, 2, 5, 6, 1900, 234)
+    auto res = Stream(1, 2, 5, 6, 1900, 234)
             | get(4)
             | to_vector();
 
@@ -113,7 +113,7 @@ TEST(Get, Finite_N) {
 }
 
 TEST(Get, Finite_Overflow) {
-    auto res = buildStream(1, 2, 5, 6, 1900, 234)
+    auto res = Stream(1, 2, 5, 6, 1900, 234)
             | get(100)
             | to_vector();
 
@@ -122,7 +122,7 @@ TEST(Get, Finite_Overflow) {
 
 TEST(Get, InfiniteStream) {
     int a = 1;
-    auto res = buildStream([&a]() { return a++; })
+    auto res = Stream([&a]() { return a++; })
             | filter([] (int b) -> bool { return b % 2 != 0; })
             | filter([] (int b) -> bool { return b % 3 != 0; })
             | get(4)
@@ -133,14 +133,14 @@ TEST(Get, InfiniteStream) {
 
 TEST(Infinite, check_is_so) {
     int a = 1;
-    auto stream = buildStream([&a]() { return a++; })
+    auto stream = Stream([&a]() { return a++; })
 		| map([](int a) { return 2 * a; });
 	ASSERT_TRUE(stream.isInfinite());
 }
 
 TEST(Get, Infinite_Empty) {
     int a = 0;
-    auto res = buildStream([&a]() { return a++; })
+    auto res = Stream([&a]() { return a++; })
             | get(0)
             | to_vector();
 
@@ -149,7 +149,7 @@ TEST(Get, Infinite_Empty) {
 
 TEST(Get, Group_Infinite) {
 	int a = 0;
-	auto res = buildStream([&a]() { return a++; })
+	auto res = Stream([&a]() { return a++; })
 		| group_by_vector(2)
 		| get(4)
 		| nth(2);
@@ -160,7 +160,7 @@ TEST(Get, Group_Infinite) {
 //----------------Get operator testing-------------------//
 
 TEST_F(PrepareStreamTest, Get_Empty) {
-    auto stream2 = buildStream(begin(), end())
+    auto stream2 = Stream(begin(), end())
             | get(0);
     auto res = stream2
             | to_vector();
@@ -169,7 +169,7 @@ TEST_F(PrepareStreamTest, Get_Empty) {
 }
 
 TEST_F(PrepareStreamTest, Get_Not_Empty) {
-    auto res = buildStream(begin(), end())
+    auto res = Stream(begin(), end())
             | get(pOutsideContainer->size())
             | to_vector();
 
@@ -179,9 +179,9 @@ TEST_F(PrepareStreamTest, Get_Not_Empty) {
 //----------------NTH operator testing-------------------//
 
 TEST_F(PrepareStreamTest, Nth_first_elem) {
-    auto res = buildStream(begin(), end())
+    auto res = Stream(begin(), end())
             | nth(0);
-    auto res2 = buildStream(begin(), end())
+    auto res2 = Stream(begin(), end())
             | map([] (typename PrepareStreamTest::ElemType a) { return a; })
             | nth(0);
 
@@ -190,7 +190,7 @@ TEST_F(PrepareStreamTest, Nth_first_elem) {
 }
 
 TEST_F(PrepareStreamTest, Nth_last_elem) {
-    auto res = buildStream(begin(), end())
+    auto res = Stream(begin(), end())
             | map([] (typename PrepareStreamTest::ElemType a) { return a; })
             | nth(pOutsideContainer->size() - 1);
 
@@ -198,25 +198,25 @@ TEST_F(PrepareStreamTest, Nth_last_elem) {
 }
 
 TEST_F(PrepareStreamTest, Nth_out_of_range) {
-	ASSERT_ANY_THROW(buildStream(begin(), end()) | nth(pOutsideContainer->size()));
+	ASSERT_ANY_THROW(Stream(begin(), end()) | nth(pOutsideContainer->size()));
 }
 
 TEST_F(PrepareStreamTest, Nth_out_of_range_by_negative_index) {
-	ASSERT_ANY_THROW(buildStream(begin(), end()) | nth(-1));
+	ASSERT_ANY_THROW(Stream(begin(), end()) | nth(-1));
 }
 
 TEST_F(PrepareStreamTest, Nth_out_of_range_in_extended_stream) {
-    ASSERT_ANY_THROW(buildStream(begin(), end())
+    ASSERT_ANY_THROW(Stream(begin(), end())
                     | map([] (typename PrepareStreamTest::ElemType a) { return a; })
                     | nth(pOutsideContainer->size()));
-	//buildStream(begin(), end()) | print_to(cout);
+	//Stream(begin(), end()) | print_to(cout);
 }
 
 //----------------Skip operator testing-------------------//
 
 TEST(Skip, Infinite) {
 	int a = 0;
-    auto res = buildStream([&a]() { return a++; })
+    auto res = Stream([&a]() { return a++; })
             | get(4)
             | skip(2)
             | to_vector();
@@ -226,7 +226,7 @@ TEST(Skip, Infinite) {
 
 TEST(Skip, Group_Infinite) {
 	int a = 0;
-	auto res = buildStream([&a]() { return a++; })
+	auto res = Stream([&a]() { return a++; })
 		| get(4)
 		| group_by_vector(2)
 		| skip(1)
@@ -237,7 +237,7 @@ TEST(Skip, Group_Infinite) {
 
 TEST(Skip, Finite) {
     std::list<int> lol = { 1, 2, 3 };
-    auto res = buildStream(lol.begin(), lol.end())
+    auto res = Stream(lol.begin(), lol.end())
             | skip(1)
             | skip(1)
             | to_vector();
@@ -249,7 +249,7 @@ TEST_F(PrepareStreamTest, FileStream_read) {
     std::ifstream inFile;
     inFile.open(filename, std::ios::in | std::ios::binary);
 
-    auto fileStream = buildStream(std::istreambuf_iterator<char>(inFile),
+    auto fileStream = Stream(std::istreambuf_iterator<char>(inFile),
                                    std::istreambuf_iterator<char>());
 
     auto res = fileStream
@@ -264,7 +264,7 @@ TEST_F(PrepareStreamTest, FileStream_read) {
 
 TEST(Group, Infinite) {
     int a = 0;
-    auto res = buildStream([&a]() { return a++; })
+    auto res = Stream([&a]() { return a++; })
             | get(4)
             | group_by_vector(2)
             | nth(1);
@@ -273,7 +273,7 @@ TEST(Group, Infinite) {
 
 TEST(Reduce, Infinite) {
     int a = 0;
-    auto res = buildStream([&a]() { return a++; })
+    auto res = Stream([&a]() { return a++; })
             | get(4)
             | reduce([] (int res, int elem) { return res + elem; });
     ASSERT_EQ(res, 6);
@@ -281,7 +281,7 @@ TEST(Reduce, Infinite) {
 
 TEST(Sum, Infinite) {
     int a = 0;
-    auto res = buildStream([&a]() { return a++; })
+    auto res = Stream([&a]() { return a++; })
             | get(4)
             | sum();
     ASSERT_EQ(res, 6);
@@ -289,7 +289,7 @@ TEST(Sum, Infinite) {
 
 TEST(UngroupByBit, init_list) {
     vector<char> olala = { 1, 2 };
-    auto vecVec = buildStream(olala.begin(), olala.end())
+    auto vecVec = Stream(olala.begin(), olala.end())
             | ungroup_by_bit()
             | group_by_vector(8)
             | to_vector();
@@ -304,7 +304,7 @@ TEST(UngroupByBit, init_list) {
 // BUG: bug is found here
 TEST(NTH, tempValueCopying) {
 	int a = 0;
-	auto stream = buildStream([&a]() { return a++; }) 
+	auto stream = Stream([&a]() { return a++; }) 
 		| get(6);
 	auto elem = stream | nth(0);
 	auto stream2 = stream;
@@ -319,7 +319,7 @@ bool kekBool (int a) { return a % 2 == 0; }
 
 TEST(Filter, vector_int) {
     vector<int> olala = { 1, 2, 3, 4, 5, 6, 7, 8 };
-    auto stream2 = buildStream(olala.begin(), olala.end());
+    auto stream2 = Stream(olala.begin(), olala.end());
     auto stream4 = stream2 | filter(kekBool)
             | map(sqr)
             | filter([] (int a) -> bool { return a % 10 == 6; });
@@ -330,7 +330,7 @@ TEST(Filter, vector_int) {
 
 TEST(Filter, group_by_vector) {
     vector<int> olala = { 1, 2, 3, 4, 5, 6, 7, 8 };
-    auto stream2 = buildStream(olala.begin(), olala.end());
+    auto stream2 = Stream(olala.begin(), olala.end());
     auto kek = stream2
             | filter([] (auto a) { return a % 2 == 0; })
             | group_by_vector(3)
@@ -341,7 +341,7 @@ TEST(Filter, group_by_vector) {
 
 TEST(GroupByVector, filter) {
 	vector<int> olala = { 1, 2, 3, 4, 5, 6, 7, 8 };
-	auto stream2 = buildStream(olala.begin(), olala.end());
+	auto stream2 = Stream(olala.begin(), olala.end());
 	auto kek = stream2
 		| group_by_vector(3)
         | filter([](auto const & vec) { return vec[0] % 2 == 0; })
@@ -355,16 +355,16 @@ TEST(GroupByVector, filter) {
 
 TEST(Distinct, simple) {
 	vector<int> lol { 1, 1, 2, 3, 1, 1, 2, 4 };
-	auto elem = buildStream(lol.begin(), lol.end())
+	auto elem = Stream(lol.begin(), lol.end())
 		| distinct() | to_vector();
 	EXPECT_EQ(elem, decltype(elem)({ 1, 2, 3, 4 }));
 
 	vector<string> lol2 { "lol", "kek", "lol", "kek", "kra" };
-	auto elem2 = buildStream(lol2.begin(), lol2.end())
+	auto elem2 = Stream(lol2.begin(), lol2.end())
 		| distinct() | nth(2);
 	EXPECT_EQ(elem2, "kra");
 
-	auto stream = buildStream(lol2.begin(), lol2.end())
+	auto stream = Stream(lol2.begin(), lol2.end())
 		| distinct();
 	auto stream2 = stream;
 	auto elem3 = stream2 | to_vector();
@@ -373,7 +373,7 @@ TEST(Distinct, simple) {
 
 TEST(Distinct, map_test) {
 	vector<int> lol{ 1, 1, 2, 3, 1, 1, 2, 4 };
-	auto elem = buildStream(lol.begin(), lol.end())
+	auto elem = Stream(lol.begin(), lol.end())
 		| map([](int i) { return std::to_string(i); }) 
 		| map([](string str) { return std::make_unique<string>(str); })
 		| map([](unique_ptr<string> p) { return *p; }) 
@@ -387,13 +387,13 @@ using lipaboy_lib_tests::NoisyD;
 TEST(StreamTest, unique_ptr_test) {
 	using move_only = std::unique_ptr<int>;
 	move_only lol[] = { std::unique_ptr<int>(new int(5)) };
-	auto stream = buildStream(lol) 
+	auto stream = Stream(lol) 
 		| map([](auto&& elem) -> move_only { return std::move(elem); });
 
 	ASSERT_EQ(*(stream | nth(0)), 5);
 
 	move_only lol2[] = { std::unique_ptr<int>(new int(3)) };
-	auto stream2 = buildStream(lol2, lol2 + 1) 
+	auto stream2 = Stream(lol2, lol2 + 1) 
 	//	| filter([](auto& elem) { return true; })
 		;
 	//ASSERT_EQ(*(stream2 | nth(0)), 3);
@@ -406,7 +406,7 @@ TEST(StreamTest, noisy) {
 #ifdef LOL_DEBUG_NOISY
 
         vector<NoisyD> vecNoisy(1);
-        auto streamNoisy = buildStream(std::move_iterator(vecNoisy.begin()), 
+        auto streamNoisy = Stream(std::move_iterator(vecNoisy.begin()), 
 			std::move_iterator(vecNoisy.end()));
         cout << "\tstart streaming" << endl;
         auto streamTemp2 =
@@ -433,7 +433,7 @@ TEST(StreamTest, noisy) {
 
         cout << "\tstart streaming" << endl;
 		auto streamTemp =
-			(buildStream(vecNoisy.begin(), vecNoisy.end())
+			(Stream(vecNoisy.begin(), vecNoisy.end())
                 | filter([] (const NoisyD& ) { return true; })
                 //| filter([] (const NoisyD& ) { return true; })
                 //| filter([] (const NoisyD& ) { return true; })
