@@ -5,7 +5,7 @@
 
 namespace lipaboy_lib {
 
-	namespace stream {
+	namespace stream_space {
 
 		namespace operators {
 
@@ -78,8 +78,8 @@ namespace lipaboy_lib {
 
 		namespace operators {
 
-			using stream::operators::OperatorMetaTypeEnum;
-			using SuperType = stream::operators::template sum<>;
+			using stream_space::operators::OperatorMetaTypeEnum;
+			using SuperType = stream_space::operators::template sum<>;
 
 			struct sum : public SuperType
 			{

@@ -18,15 +18,15 @@ namespace stream_tests {
 
 	using namespace lipaboy_lib;
 
-	using namespace lipaboy_lib::stream;
-	using namespace lipaboy_lib::stream::operators;
+	using namespace lipaboy_lib::stream_space;
+	using namespace lipaboy_lib::stream_space::operators;
 
 	//---------------------------------Tests-------------------------------//
 
 	TEST_F(PrepareStreamTest, Nth_first_elem) {
-		auto res = buildStream(begin(), end())
+		auto res = Stream(begin(), end())
 			| nth(0);
-		auto res2 = buildStream(begin(), end())
+		auto res2 = Stream(begin(), end())
 			| map([](typename PrepareStreamTest::ElemType a) { return a; })
 			| nth(0);
 
@@ -35,7 +35,7 @@ namespace stream_tests {
 	}
 
 	TEST_F(PrepareStreamTest, Nth_last_elem) {
-		auto res = buildStream(begin(), end())
+		auto res = Stream(begin(), end())
 			| map([](typename PrepareStreamTest::ElemType a) { return a; })
 			| nth(pOutsideContainer->size() - 1);
 
@@ -43,15 +43,15 @@ namespace stream_tests {
 	}
 
 	TEST_F(PrepareStreamTest, Nth_out_of_range) {
-		ASSERT_FALSE((buildStream(begin(), end()) | nth(pOutsideContainer->size())).has_value());
+		ASSERT_FALSE((Stream(begin(), end()) | nth(pOutsideContainer->size())).has_value());
 	}
 
 	TEST_F(PrepareStreamTest, Nth_out_of_range_by_negative_index) {
-		ASSERT_FALSE((buildStream(begin(), end()) | nth(-1)).has_value());
+		ASSERT_FALSE((Stream(begin(), end()) | nth(-1)).has_value());
 	}
 
 	TEST_F(PrepareStreamTest, Nth_out_of_range_in_extended_stream) {
-		auto res = buildStream(begin(), end())
+		auto res = Stream(begin(), end())
 			| map([](typename PrepareStreamTest::ElemType a) { return a; })
 			| nth(pOutsideContainer->size());
 		ASSERT_FALSE(res.has_value());

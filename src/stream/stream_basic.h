@@ -16,7 +16,7 @@
 
 namespace lipaboy_lib {
 
-	namespace stream {
+	namespace stream_space {
 
 		using std::vector;
 		using std::pair;
@@ -25,14 +25,14 @@ namespace lipaboy_lib {
 
 		using std::cout;
 
-        using lipaboy_lib::ProducingIterator;
-        using lipaboy_lib::InitializerListIterator;
+		using lipaboy_lib::ProducingIterator;
+		using lipaboy_lib::InitializerListIterator;
 
 
 		//--------------------------Stream Base (specialization class)----------------------//
 
 		template <class TIterator>
-		class Stream<TIterator> {
+		class StreamBase<TIterator> {
 		public:
 			using T = typename std::iterator_traits<TIterator>::value_type;
 			using ValueType = T;
@@ -42,35 +42,35 @@ namespace lipaboy_lib {
 
 		public:
 			template <class Functor>
-			using ExtendedStreamType = Stream<Functor, TIterator>;
+			using ExtendedStreamType = StreamBase<Functor, TIterator>;
 
 			using ResultValueType = ValueType;
 
 		public:
 			// INFO: this friendship means that all the Streams, which is extended from current,
 			//		 can have access to current class method API.
-			template <typename, typename...> friend class Stream;
+			template <typename, typename...> friend class StreamBase;
 
 		public:
 			//----------------------Constructors----------------------//
 
 			template <class OuterIterator>
 			explicit
-				Stream(OuterIterator begin, OuterIterator end) 
+				StreamBase(OuterIterator begin, OuterIterator end)
 				: begin_(begin),
 				end_(end)
 			{}
 			explicit
-				Stream(std::initializer_list<T> init) 
+				StreamBase(std::initializer_list<T> init)
 				: begin_(init)
 			{
-				if constexpr (Stream::isInitializingListCreation())
-						end_ = begin_.endIter();
+				if constexpr (StreamBase::isInitializingListCreation())
+					end_ = begin_.endIter();
 			}
 			explicit
-                Stream(GeneratorTypePtr generator)
-				: begin_(generator), 
-				end_() 
+				StreamBase(GeneratorTypePtr generator)
+				: begin_(generator),
+				end_()
 			{}
 
 			//----------------------Methods API-----------------------//
@@ -78,7 +78,7 @@ namespace lipaboy_lib {
 		protected:
 			static constexpr bool isNoGetTypeBefore() { return true; }
 			static constexpr bool isGeneratorProducing() {
-                return std::is_same_v<TIterator, ProducingIterator<ValueType> >;
+				return std::is_same_v<TIterator, ProducingIterator<ValueType> >;
 			}
 			static constexpr bool isInitializingListCreation() {
 				return std::is_same_v<TIterator, InitializerListIterator<ValueType>
@@ -104,14 +104,14 @@ namespace lipaboy_lib {
 			// illusion of protected (it means that can be replace on private)
 			// (because all the variadic templates are friends
 			// from current Stream to first specialization) (it is not a real inheritance)
-			
+
 
 			//-----------------Slider API--------------//
 		public:
-			ResultValueType nextElem() { 
+			ResultValueType nextElem() {
 				auto elem = *begin_;
 				begin_++;
-				return elem; 
+				return elem;
 			}
 			bool hasNext() { return begin_ != end_; }
 			void incrementSlider() { begin_++; }
@@ -119,12 +119,12 @@ namespace lipaboy_lib {
 			//-----------------Slider API Ends--------------//
 
 		public:
-			bool operator==(Stream const & other) const { return equals(other); }
-			bool operator!=(Stream const & other) const { return !((*this) == other); }
+			bool operator==(StreamBase const & other) const { return equals(other); }
+			bool operator!=(StreamBase const & other) const { return !((*this) == other); }
 		private:
-			bool equals(Stream const & other) const { 
-				return begin_ == other.begin_ 
-					&& end_ == other.end_; 
+			bool equals(StreamBase const & other) const {
+				return begin_ == other.begin_
+					&& end_ == other.end_;
 			}
 
 		private:
@@ -182,7 +182,7 @@ namespace lipaboy_lib {
 					end_ = begin_.endIter();
 			}
 			explicit
-                ShortStream(GeneratorTypePtr generator)
+				ShortStream(GeneratorTypePtr generator)
 				: begin_(generator),
 				end_()
 			{}
@@ -267,7 +267,7 @@ namespace lipaboy_lib {
 		//--------------------------Stream Base (specialization class)----------------------//
 
 		template <class TIterator>
-		class Stream<TIterator> {
+		class StreamBase<TIterator> {
 		public:
 			using T = typename std::iterator_traits<TIterator>::value_type;
 			using ValueType = T;
@@ -277,33 +277,33 @@ namespace lipaboy_lib {
 
 		public:
 			template <class Functor>
-			using ExtendedStreamType = Stream<Functor, TIterator>;
+			using ExtendedStreamType = StreamBase<Functor, TIterator>;
 
 			using ResultValueType = ValueType;
 
 		public:
 			// INFO: this friendship means that all the Streams, which is extended from current,
 			//		 can have access to current class method API.
-			template <typename, typename...> friend class Stream;
+			template <typename, typename...> friend class StreamBase;
 
 		public:
 			//----------------------Constructors----------------------//
 
 			template <class OuterIterator>
 			explicit
-				Stream(OuterIterator begin, OuterIterator end)
+				StreamBase(OuterIterator begin, OuterIterator end)
 				: begin_(begin),
 				end_(end)
 			{}
 			explicit
-				Stream(std::initializer_list<T> init)
+				StreamBase(std::initializer_list<T> init)
 				: begin_(init)
 			{
-				if constexpr (Stream::isInitializingListCreation())
+				if constexpr (StreamBase::isInitializingListCreation())
 					end_ = begin_.endIter();
 			}
 			explicit
-                Stream(GeneratorTypePtr generator)
+				StreamBase(GeneratorTypePtr generator)
 				: begin_(generator),
 				end_()
 			{}
@@ -353,10 +353,10 @@ namespace lipaboy_lib {
 			//-----------------Slider API Ends--------------//
 
 		public:
-			bool operator==(Stream const & other) const { return equals(other); }
-			bool operator!=(Stream const & other) const { return !((*this) == other); }
+			bool operator==(StreamBase const & other) const { return equals(other); }
+			bool operator!=(StreamBase const & other) const { return !((*this) == other); }
 		private:
-			bool equals(Stream const & other) const {
+			bool equals(StreamBase const & other) const {
 				return begin_ == other.begin_
 					&& end_ == other.end_;
 			}
@@ -368,6 +368,6 @@ namespace lipaboy_lib {
 
 	}
 
-	
+
 
 }

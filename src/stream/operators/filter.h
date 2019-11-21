@@ -6,7 +6,7 @@
 
 namespace lipaboy_lib {
 
-	namespace stream {
+	namespace stream_space {
 
 		namespace operators {
 
@@ -145,7 +145,7 @@ namespace lipaboy_lib {
 
 		namespace operators {
 
-			using stream::operators::FunctorHolder;
+			using stream_space::operators::FunctorHolder;
 
 			//-------------------------------------------------------------------------------------//
 			//--------------------------------Unterminated operation------------------------------//
@@ -207,7 +207,7 @@ namespace lipaboy_lib {
 		namespace operators {
 
 			using std::shared_ptr;
-            using stream::operators::FunctorHolder;
+            using stream_space::operators::FunctorHolder;
 
 			// INFO: you can remove intermediate type (filter) because you can deduce type of elems from Predicate's
 			//		 argument.
@@ -219,17 +219,17 @@ namespace lipaboy_lib {
 			template <class Predicate>
 			struct filter : 
                 public FunctorHolder<Predicate>,
-				public stream::operators::TReturnSameType
+				public stream_space::operators::TReturnSameType
 			{
 				static constexpr bool isTerminated = false;
 			public:
-                filter(Predicate functor) : stream::operators::FunctorHolder<Predicate>(functor) {}
+                filter(Predicate functor) : stream_space::operators::FunctorHolder<Predicate>(functor) {}
 			};
 
 			template <class Predicate, class T>
 			struct filter_impl : 
-				public stream::operators::FunctorHolder<Predicate>,
-				public stream::operators::TReturnSameType
+				public stream_space::operators::FunctorHolder<Predicate>,
+				public stream_space::operators::TReturnSameType
 			{
 				static constexpr bool isTerminated = false;
 			public:

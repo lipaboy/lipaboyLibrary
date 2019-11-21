@@ -19,9 +19,9 @@ using std::unique_ptr;
 using namespace lipaboy_lib;
 
 
-using stream::Stream;
-using stream::StreamOfOutsideIterators;
-using namespace lipaboy_lib::stream::operators;
+using stream_space::StreamBase;
+using stream_space::StreamOfOutsideIterators;
+using namespace lipaboy_lib::stream_space::operators;
 
 using lipaboy_lib_tests::Noisy;
 

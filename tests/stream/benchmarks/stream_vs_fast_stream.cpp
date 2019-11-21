@@ -36,12 +36,12 @@ namespace stream_benchmarks {
 		}
 
 		{
-			using namespace stream;
-			using namespace stream::operators;
+			using namespace stream_space;
+			using namespace stream_space::operators;
 
 			auto start = getCurrentTime();
 			int a = 0;
-			buildStream([&a]() { return a++; }) 
+			Stream([&a]() { return a++; }) 
 				| get(SIZE) 
 				| skip(100) 
 				| sum();
@@ -54,7 +54,7 @@ namespace stream_benchmarks {
 
 			auto start = getCurrentTime();
 			int a = 0;
-			sum3 = buildStream([&a]() { return a++; }) 
+			sum3 = Stream([&a]() { return a++; }) 
 				| get(SIZE) 
 				| skip(100) 
 				| sum();
@@ -94,12 +94,12 @@ namespace stream_benchmarks {
 		}
 
 		{
-			using namespace stream;
-			using namespace stream::operators;
+			using namespace stream_space;
+			using namespace stream_space::operators;
 
 			auto start = getCurrentTime();
 			int a = 0;
-            sum2 = buildStream([&a]() { return std::to_string(a++); })
+            sum2 = Stream([&a]() { return std::to_string(a++); })
 				| get(SIZE) 
 				| get(SIZE)
 				| get(SIZE)
@@ -116,7 +116,7 @@ namespace stream_benchmarks {
 
 			auto start = getCurrentTime();
 			int a = 0;
-            sum3 = buildStream([&a]() { return std::to_string(a++); })
+            sum3 = Stream([&a]() { return std::to_string(a++); })
 				| get(SIZE) 
 				| get(SIZE)
 				| get(SIZE)
@@ -153,12 +153,12 @@ namespace stream_benchmarks {
 		}
 
 		{
-			using namespace stream;
-			using namespace stream::operators;
+			using namespace stream_space;
+			using namespace stream_space::operators;
 
 			auto start = getCurrentTime();
 			int a = 0;
-			buildStream([&a]() { return (a++); }) | get(SIZE)
+			Stream([&a]() { return (a++); }) | get(SIZE)
 				| filter([&filterFunc](auto l) { return filterFunc(l); }) | sum();
 			cout << "Time: " << diffFromNow(start) << " Stream" << endl;
 		}
@@ -168,13 +168,13 @@ namespace stream_benchmarks {
 			using namespace fast_stream::operators;
 
 			auto sum1 = 
-				buildStream(1, 2, 3, 4, 5, 6) 
+				Stream(1, 2, 3, 4, 5, 6) 
                 | filter([](auto l) { return l % 2 == 0; }) | sum();
 			ASSERT_EQ(sum1, 12);
 
 			auto start = getCurrentTime();
 			int a = 0;
-			buildStream([&a]() { return (a++); }) | get(SIZE)
+			Stream([&a]() { return (a++); }) | get(SIZE)
 				| filter([filterFunc](auto l) { return filterFunc(l); }) | sum();
 			cout << "Time: " << diffFromNow(start) << " Fast Stream" << endl;
 		}
@@ -219,12 +219,12 @@ namespace stream_benchmarks {
 		}
 
 		{
-			using namespace stream;
-			using namespace stream::operators;
+			using namespace stream_space;
+			using namespace stream_space::operators;
 
 			auto start = getCurrentTime();
 			int a = 0;
-			buildStream([&a]() { return std::to_string(a++); }) | get(SIZE)
+			Stream([&a]() { return std::to_string(a++); }) | get(SIZE)
 				| filter([](auto& l) { return std::stoi(l) % 2 == 0; }) | sum();
 			cout << "Time: " << diffFromNow(start) << " Stream" << endl;
 		}
@@ -235,7 +235,7 @@ namespace stream_benchmarks {
 
 			auto start = getCurrentTime();
 			int a = 0;
-			buildStream([&a]() { return std::to_string(a++); }) | get(SIZE)
+			Stream([&a]() { return std::to_string(a++); }) | get(SIZE)
 				| filter([](auto& l) { return std::stoi(l) % 2 == 0; }) | sum();
 			cout << "Time: " << diffFromNow(start) << " Fast Stream" << endl;
 		}

@@ -22,7 +22,7 @@
 
 namespace lipaboy_lib {
 
-	namespace stream {
+	namespace stream_space {
 
 		namespace experimental {
 

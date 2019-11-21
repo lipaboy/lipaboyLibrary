@@ -15,7 +15,7 @@
 
 namespace lipaboy_lib {
 
-	namespace stream {
+	namespace stream_space {
 
 		using std::cout;
 		using std::endl;
@@ -25,35 +25,35 @@ namespace lipaboy_lib {
 		//-----------------Stream Extended class----------------------//
 
 		template <class TOperator, class... Rest>
-		class Stream : public Stream<Rest...> {
+		class StreamBase : public StreamBase<Rest...> {
 		public:
 			using size_type = size_t;
 			using OperatorType = TOperator;
-			using SubType = Stream<Rest...>;
+			using SubType = StreamBase<Rest...>;
 			using ConstSubType = const SubType;
 			using iterator = typename SubType::outside_iterator;
 			using SubTypePtr = SubType * ;
 			using ConstSubTypePtr = const SubType *;
 			using ValueType = typename SubType::ValueType;
-			using ActionSignature = void(Stream*);
+			using ActionSignature = void(StreamBase*);
 			using ActionType = std::function<ActionSignature>;
 
 		public:
 			template <class Functor>
-			using ExtendedStreamType = Stream<Functor, OperatorType, Rest...>;
+			using ExtendedStreamType = StreamBase<Functor, OperatorType, Rest...>;
 
 			using ResultValueType = typename TOperator::template RetType<
 				typename SubType::ResultValueType>;
 
 		public:
-			template <typename, typename...> friend class Stream;
+			template <typename, typename...> friend class StreamBase;
 
 			//----------------------Constructors----------------------//
 		public:
 
 			template <class StreamSuperType_, class TFunctor_>
 			explicit
-				Stream(TFunctor_&& functor, StreamSuperType_&& obj) noexcept
+				StreamBase(TFunctor_&& functor, StreamSuperType_&& obj) noexcept
 				: SubType(std::forward<StreamSuperType_>(obj)), operator_(std::forward<TFunctor_>(functor))
 			{
 #ifdef LOL_DEBUG_NOISY
@@ -64,7 +64,7 @@ namespace lipaboy_lib {
 #endif
 			}
 		public:
-			Stream(Stream const & obj)
+			StreamBase(StreamBase const & obj)
 				: SubType(static_cast<ConstSubType&>(obj)),
 				operator_(obj.operator_)
 			{
@@ -72,7 +72,7 @@ namespace lipaboy_lib {
 				cout << "   StreamEx copy-constructed" << endl;
 #endif
 			}
-			Stream(Stream&& obj) noexcept
+			StreamBase(StreamBase&& obj) noexcept
 				: SubType(std::move(obj)),
 				operator_(std::move(obj.operator_))
 			{
@@ -86,7 +86,7 @@ namespace lipaboy_lib {
 			//-----------------Tools-------------------//
 		protected:
 			static constexpr bool isNoGetTypeBefore() {
-				return (!std::is_same_v<get, TOperator>
+				return (!std::is_same_v<get, TOperator> 
 					&& SubType::isNoGetTypeBefore());
 			}
 			static constexpr bool isGeneratorProducing() {
@@ -144,10 +144,10 @@ namespace lipaboy_lib {
 			//-----------------------------Slider API Ends----------------------------//
 			//------------------------------------------------------------------------//
 
-			bool operator==(Stream & other) { return equals(other); }
-			bool operator!=(Stream & other) { return !((*this) == other); }
+			bool operator==(StreamBase & other) { return equals(other); }
+			bool operator!=(StreamBase & other) { return !((*this) == other); }
 		private:
-			bool equals(Stream & other) {
+			bool equals(StreamBase & other) {
 				return (operator_ == other.operator_
 					&& superThisPtr()->equals(static_cast<SubType&>(other))
 					);
@@ -295,11 +295,11 @@ namespace lipaboy_lib {
 		//-----------------Stream Extended class----------------------//
 
 		template <class TOperator, class... Rest>
-		class Stream : public Stream<Rest...> {
+		class StreamBase : public StreamBase<Rest...> {
 		public:
 			using size_type = size_t;
 			using OperatorType = TOperator;
-			using SubType = Stream<Rest...>;
+			using SubType = StreamBase<Rest...>;
 			using ConstSubType = const SubType;
 			using iterator = typename SubType::outside_iterator;
 			using SubTypePtr = SubType * ;
@@ -308,28 +308,28 @@ namespace lipaboy_lib {
 
 		public:
 			template <class Functor>
-			using ExtendedStreamType = Stream<Functor, OperatorType, Rest...>;
+			using ExtendedStreamType = StreamBase<Functor, OperatorType, Rest...>;
 
 			using ResultValueType = typename TOperator::template RetType<
 				typename SubType::ResultValueType>;
 
 		public:
-			template <typename, typename...> friend class Stream;
+			template <typename, typename...> friend class StreamBase;
 
 			//----------------------Constructors----------------------//
 		public:
 
 			template <class StreamSuperType_, class TFunctor_>
 			explicit
-				Stream(TFunctor_&& functor, StreamSuperType_&& obj) noexcept
+				StreamBase(TFunctor_&& functor, StreamSuperType_&& obj) noexcept
 				: SubType(std::forward<StreamSuperType_>(obj)), operator_(std::forward<TFunctor_>(functor))
 			{}
 		public:
-			Stream(Stream const & obj)
+			StreamBase(StreamBase const & obj)
 				: SubType(static_cast<ConstSubType&>(obj)),
 				operator_(obj.operator_)
 			{}
-			Stream(Stream&& obj) noexcept
+			StreamBase(StreamBase&& obj) noexcept
 				: SubType(std::move(obj)),
 				operator_(std::move(obj.operator_))
 			{}
@@ -386,10 +386,10 @@ namespace lipaboy_lib {
 			//-----------------------------Slider API Ends----------------------------//
 			//------------------------------------------------------------------------//
 
-			bool operator==(Stream & other) { return equals(other); }
-			bool operator!=(Stream & other) { return !((*this) == other); }
+			bool operator==(StreamBase & other) { return equals(other); }
+			bool operator!=(StreamBase & other) { return !((*this) == other); }
 		private:
-			bool equals(Stream & other) {
+			bool equals(StreamBase & other) {
 				return (operator_ == other.operator_
 					&& subThisPtr()->equals(static_cast<SubType&>(other))
 					);

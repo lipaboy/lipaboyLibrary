@@ -4,7 +4,7 @@
 
 namespace lipaboy_lib {
 
-	namespace stream {
+	namespace stream_space {
 
 		namespace operators {
 
@@ -62,7 +62,7 @@ namespace lipaboy_lib {
 		namespace operators {
 
 			struct skip : 
-				public stream::operators::TReturnSameType
+				public stream_space::operators::TReturnSameType
 			{
 			public:
 				using size_type = size_t;

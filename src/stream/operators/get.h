@@ -4,7 +4,7 @@
 
 namespace lipaboy_lib {
 
-	namespace stream {
+	namespace stream_space {
 
 		namespace operators {
 
@@ -94,10 +94,10 @@ namespace lipaboy_lib {
 		namespace operators {
 
 			struct get : 
-				public lipaboy_lib::stream::operators::get
+				public lipaboy_lib::stream_space::operators::get
 			{
 			public:
-				get(size_type size) : lipaboy_lib::stream::operators::get(size) {}
+				get(size_type size) : lipaboy_lib::stream_space::operators::get(size) {}
 
 				template <class TSubStream>
 				void initialize(TSubStream& stream) {
