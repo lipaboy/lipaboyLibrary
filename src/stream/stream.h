@@ -108,13 +108,17 @@ namespace lipaboy_lib {
 		// Example (this function will apply for such expression: std::ios::in | std::ios::out)
 
 		namespace shortening {
+
 			template <class TOperator, class... Args>
 			using ExtendingReturnType =
 				lipaboy_lib::enable_if_else_t<TOperator::isTerminated,
+				// terminated
 					typename shortening::TerminatedOperatorTypeApply_t<StreamBase<Args...>, TOperator>
 						::template RetType<typename StreamBase<Args...>::ResultValueType>,
+				// non-terminated
 					shortening::StreamTypeExtender_t<StreamBase<Args...>, TOperator> 
 				>;
+
 		}
 
 		template <class TOperator, class... Args>

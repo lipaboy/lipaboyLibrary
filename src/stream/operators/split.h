@@ -41,10 +41,14 @@ namespace lipaboy_lib {
 				using SplitPredicate = std::function<bool(ValueType)>;
 				using ContainerType = TContainer;
 
+				template <class T>
+				using RetType = ContainerType;
+
 			public:
-				split(SplitPredicate splitFunctor)
-					: FunctorHolder<SplitPredicate>(splitFunctor)
-				{}
+				explicit
+					split(SplitPredicate splitFunctor)
+						: FunctorHolder<SplitPredicate>(splitFunctor)
+					{}
 			};
 
 			template <class SplitPredicate, class TContainer = std::string>
@@ -64,12 +68,14 @@ namespace lipaboy_lib {
 				static constexpr bool isTerminated = false;
 
 			public:
-				split_impl(SplitPredicate splitFunctor) 
-					: FunctorHolder<SplitPredicate>(splitFunctor) 
-				{}
-				split_impl(split<TContainer> obj)
-					: FunctorHolder<SplitPredicate>(obj.functor())
-				{}
+				explicit
+					split_impl(SplitPredicate splitFunctor) 
+						: FunctorHolder<SplitPredicate>(splitFunctor) 
+					{}
+				explicit
+					split_impl(split<TContainer> obj)
+						: FunctorHolder<SplitPredicate>(obj.functor())
+					{}
 
 				template <class TSubStream>
 				auto nextElem(TSubStream& stream) -> ReturnType
@@ -119,6 +125,7 @@ namespace lipaboy_lib {
 					split_impl<typename split<TContainer>::SplitPredicate,
 						typename split<TContainer>::ContainerType
 					>
+					//split_impl<std::function<bool(char)>, std::string>
 				>
 			>;
 		};

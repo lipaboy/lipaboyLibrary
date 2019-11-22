@@ -28,12 +28,9 @@ namespace stream_tests {
 			| split_impl([](char ch) -> bool { return ch == ' '; }) | sum();
 		ASSERT_EQ(outStr, "hello,world!");
 
-		//string 
-		//auto 
-		//	outStr2 = Stream(str.begin(), str.end())
-		//	| split<string>([](char ch) -> bool { return ch == ' '; })// | sum()
-		//	;
-		//ASSERT_EQ(outStr2, "hello,world!");
+		string outStr2 = (Stream(str.begin(), str.end()) 
+			| split<string>([](char ch) -> bool { return ch == ' '; })) | sum();
+		ASSERT_EQ(outStr2, "hello,world!");
 	}
 
 	TEST(Stream_Split, vectors) {

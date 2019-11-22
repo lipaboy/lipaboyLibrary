@@ -1,3 +1,8 @@
+!!!!!!!!!!!
+Necessary:
+
+1) (Stream) Instruction for write operators (RetType<T> and etc.)
+
 ----Ideas:
 
 1) Create container like ListOfVectors with iterators and so that.

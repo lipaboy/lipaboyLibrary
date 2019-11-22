@@ -51,13 +51,13 @@ namespace lipaboy_lib {
 			//----------------------Constructors----------------------//
 		public:
 
-			template <class StreamSuperType_, class TFunctor_>
+			template <class StreamSubType_, class TFunctor_>
 			explicit
-				StreamBase(TFunctor_&& functor, StreamSuperType_&& obj) noexcept
-				: SubType(std::forward<StreamSuperType_>(obj)), operator_(std::forward<TFunctor_>(functor))
+				StreamBase(TFunctor_&& functor, StreamSubType_&& obj) noexcept
+				: SubType(std::forward<StreamSubType_>(obj)), operator_(std::forward<TFunctor_>(functor))
 			{
 #ifdef LOL_DEBUG_NOISY
-				if constexpr (std::is_rvalue_reference<StreamSuperType_&&>::value)
+				if constexpr (std::is_rvalue_reference<StreamSubType_&&>::value)
 					cout << "   Stream is extended by move-constructor" << endl;
 				else
 					cout << "   Stream is extended by copy-constructor" << endl;
@@ -201,10 +201,10 @@ namespace lipaboy_lib {
 			//----------------------Constructors----------------------//
 		public:
 
-			template <class StreamSuperType_, class TFunctor_>
+			template <class StreamSubType_, class TFunctor_>
 			explicit
-				ShortStream(TFunctor_&& functor, StreamSuperType_&& obj) noexcept
-				: SubType(std::forward<StreamSuperType_>(obj)), operator_(std::forward<TFunctor_>(functor))
+				ShortStream(TFunctor_&& functor, StreamSubType_&& obj) noexcept
+				: SubType(std::forward<StreamSubType_>(obj)), operator_(std::forward<TFunctor_>(functor))
 			{}
 		public:
 			ShortStream(ShortStream const & obj)
@@ -319,10 +319,10 @@ namespace lipaboy_lib {
 			//----------------------Constructors----------------------//
 		public:
 
-			template <class StreamSuperType_, class TFunctor_>
+			template <class StreamSubType_, class TFunctor_>
 			explicit
-				StreamBase(TFunctor_&& functor, StreamSuperType_&& obj) noexcept
-				: SubType(std::forward<StreamSuperType_>(obj)), operator_(std::forward<TFunctor_>(functor))
+				StreamBase(TFunctor_&& functor, StreamSubType_&& obj) noexcept
+				: SubType(std::forward<StreamSubType_>(obj)), operator_(std::forward<TFunctor_>(functor))
 			{}
 		public:
 			StreamBase(StreamBase const & obj)
