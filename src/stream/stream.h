@@ -33,18 +33,42 @@ namespace lipaboy_lib {
 			return StreamOfOutsideIterators<TIterator>(begin, end);
 		}
 
-		template <class TIterator>
-		auto allocateStream(TIterator begin, TIterator end)
-			-> StreamOfOutsideIterators<TIterator> *
-		{
-			return new StreamOfOutsideIterators<TIterator>(begin, end);
-		}
-
 		template <class T>
 		auto Stream(std::initializer_list<T> init)
 			-> StreamOfInitializingList<T>
 		{
 			return StreamOfInitializingList<T>(init);
+		}
+
+		template <class T, class... Args>
+		auto Stream(T elem, Args... args)
+			-> StreamOfInitializingList<T>
+		{
+			return StreamOfInitializingList<T>({ elem, args... });
+		}
+
+		template <class Generator>
+		auto Stream(Generator&& generator)
+			-> StreamOfGenerator<Generator>
+		{
+			return StreamOfGenerator<Generator>(std::forward<Generator>(generator));
+		}
+
+		template <class T, size_t size>
+		auto Stream(T(&init)[size])
+			-> StreamOfOutsideIterators<std::move_iterator<T*> >
+		{
+			return StreamOfOutsideIterators<std::move_iterator<T*> >(
+				std::make_move_iterator<T*>(std::begin(init)),
+				std::make_move_iterator<T*>(std::end(init))
+				);
+		}
+
+		template <class TIterator>
+		auto allocateStream(TIterator begin, TIterator end)
+			-> StreamOfOutsideIterators<TIterator> *
+		{
+			return new StreamOfOutsideIterators<TIterator>(begin, end);
 		}
 
 		template <class T>
@@ -55,13 +79,6 @@ namespace lipaboy_lib {
 		}
 
 		template <class T, class... Args>
-		auto Stream(T elem, Args... args)
-			-> StreamOfInitializingList<T>
-		{
-			return StreamOfInitializingList<T>({ elem, args... });
-		}
-
-		template <class T, class... Args>
 		auto allocateStream(T elem, Args... args)
 			-> StreamOfInitializingList<T> *
 		{
@@ -69,28 +86,10 @@ namespace lipaboy_lib {
 		}
 
 		template <class Generator>
-		auto Stream(Generator&& generator)
-			-> StreamOfGenerator<Generator>
-		{
-			return StreamOfGenerator<Generator>(std::forward<Generator>(generator));
-		}
-
-		template <class Generator>
 		auto allocateStream(Generator&& generator)
 			-> StreamOfGenerator<Generator> *
 		{
 			return new StreamOfGenerator<Generator>(std::forward<Generator>(generator));
-		}
-
-
-		template <class T, size_t size>
-		auto Stream(T(&init)[size])
-			-> StreamOfOutsideIterators<std::move_iterator<T*> >
-		{
-			return StreamOfOutsideIterators<std::move_iterator<T*> >(
-				std::make_move_iterator<T*>(std::begin(init)),
-				std::make_move_iterator<T*>(std::end(init))
-				);
 		}
 
 		template <class Container>
@@ -108,12 +107,19 @@ namespace lipaboy_lib {
 		// You cannot union these functions into one with Forward semantics because it will be too generalized
 		// Example (this function will apply for such expression: std::ios::in | std::ios::out)
 
+		namespace shortening {
+			template <class TOperator, class... Args>
+			using ExtendingReturnType =
+				lipaboy_lib::enable_if_else_t<TOperator::isTerminated,
+					typename shortening::TerminatedOperatorTypeApply_t<StreamBase<Args...>, TOperator>
+						::template RetType<typename StreamBase<Args...>::ResultValueType>,
+					shortening::StreamTypeExtender_t<StreamBase<Args...>, TOperator> 
+				>;
+		}
+
 		template <class TOperator, class... Args>
 		auto operator| (StreamBase<Args...>& stream, TOperator operation)
-			-> lipaboy_lib::enable_if_else_t<TOperator::isTerminated,
-			typename shortening::TerminatedOperatorTypeApply_t<StreamBase<Args...>, TOperator>
-				::template RetType<typename StreamBase<Args...>::ResultValueType>,
-			shortening::StreamTypeExtender_t<StreamBase<Args...>, TOperator> >
+			-> shortening::ExtendingReturnType<TOperator, Args...>
 		{
 			using StreamType = StreamBase<Args...>;
 
@@ -130,10 +136,7 @@ namespace lipaboy_lib {
 
 		template <class TOperator, class... Args>
 		auto operator| (StreamBase<Args...>&& stream, TOperator operation)
-			-> lipaboy_lib::enable_if_else_t<TOperator::isTerminated,
-			typename shortening::TerminatedOperatorTypeApply_t<StreamBase<Args...>, TOperator>
-				::template RetType<typename StreamBase<Args...>::ResultValueType>,
-			shortening::StreamTypeExtender_t<StreamBase<Args...>, TOperator> >
+			-> shortening::ExtendingReturnType<TOperator, Args...>
 		{
 			using StreamType = StreamBase<Args...>;
 
