@@ -14,6 +14,8 @@ namespace lipaboy_lib {
 		namespace operators {
 
 			// TODO: replace SplitPredicate to regular expression checking
+			// TODO: make split_impl more common by working with different ValueType,
+			//		not only with char.
 
 			using std::vector;
 			using std::string;

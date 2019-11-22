@@ -9,6 +9,8 @@ namespace lipaboy_lib {
 
 		namespace operators {
 
+			// Question: what's shit is it doing here, void* ?
+
 			template <class TInit = void*>
 			struct sum : TReturnSameType {
 				static constexpr OperatorMetaTypeEnum metaInfo = SUM;
