@@ -23,24 +23,56 @@ namespace stream_tests {
 	//---------------------------------Tests-------------------------------//
 
 	TEST(Stream_Split, strings) {
-		string str = "hello, world!";
+		string str = "hello, world!!";
 		string outStr = Stream(str.begin(), str.end()) 
-			| split_impl([](char ch) -> bool { return ch == ' '; }) | sum();
-		ASSERT_EQ(outStr, "hello,world!");
+			| split_impl([](char ch) -> bool 
+			{ 
+				return ch == ' '; 
+			}) 
+			| sum();
+		ASSERT_EQ(outStr, "hello,world!!");
 
-		string outStr2 = (Stream(str.begin(), str.end()) 
-			| split<string>([](char ch) -> bool { return ch == ' '; })) | sum();
-		ASSERT_EQ(outStr2, "hello,world!");
+		auto outStr2 = Stream(str.begin(), str.end()) 
+			| split<string>([](char ch) -> bool 
+			{ 
+				return ch == ' ' || ch == ',' || ch == '!'; 
+			}) 
+			| to_vector();
+		ASSERT_EQ(outStr2, vector<string>({ "hello", "world", "" }));
 	}
 
 	TEST(Stream_Split, vectors) {
 		string str = "hello, world!";
 		string outStr = Stream(str.begin(), str.end()) 
-			| split_impl<std::function<bool(char)>, vector<char> >([](char ch) -> bool { return ch == ' '; }) 
-			| map([](vector<char> const & vec) { return std::string(vec.begin(), vec.end()); })
+			| split_impl<std::function<bool(char)>, vector<char> >([](char ch) -> bool 
+			{ 
+				return ch == ' '; 
+			}) 
+			| map([](vector<char> const & vec) 
+			{ 
+				return std::string(vec.begin(), vec.end()); 
+			})
 			| sum();
 		ASSERT_EQ(outStr, "hello,world!");
+
+		string outStr2 = Stream(str.begin(), str.end())
+			| split< vector<char> >([](char ch) -> bool 
+			{ 
+				return ch == ' '; 
+			})
+			| map([](vector<char> const & vec) 
+			{ 
+				return std::string(vec.begin(), vec.end()); 
+			})
+			| sum();
+			ASSERT_EQ(outStr2, "hello,world!");
 	}
+
+	/*TEST(Stream_Split, integers) {
+		int a = 0;
+		auto val = Stream([&a]() { return ++a; })
+			| split<
+	}*/
 
 }
 

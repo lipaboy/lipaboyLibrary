@@ -59,7 +59,7 @@ namespace lipaboy_lib {
 			public:
 				using size_type = size_t;
 
-				using ValueType = char;
+				using ValueType = typename TContainer::value_type;
 				template <class T>
 				using RetType = TContainer;
 
@@ -86,8 +86,11 @@ namespace lipaboy_lib {
 
 					for (size_type i = 0; stream.hasNext(); i++) {
 						auto temp = stream.nextElem();
-						if (FunctorHolder<SplitPredicate>::functor()(temp))
+						if (FunctorHolder<SplitPredicate>::functor()(temp)) {
+							if (part.empty())
+								continue;
 							break;
+						}
 						part.push_back(temp);
 					}
 
@@ -104,6 +107,8 @@ namespace lipaboy_lib {
 
 				template <class TSubStream>
 				bool hasNext(TSubStream& stream) {
+					// INFO: we cannot check current element with SplitPredicate
+					//		because we must call the nextElem that change the stream.
 					return stream.hasNext();
 				}
 
