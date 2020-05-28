@@ -76,6 +76,8 @@ add_library(LIPABOY_LIB STATIC
     ${LIB_LIPABOY_LIB_SOURCE_FILES}
 )
 
+	# BOOST library connection
+
 #if(WIN32)
 #	add_definitions( -DBOOST_ALL_DYN_LINK )  #If not VS will give linking errors of redefinitions
 #	set(Boost_USE_STATIC_LIBS OFF )
@@ -85,7 +87,6 @@ add_library(LIPABOY_LIB STATIC
 #
 #    INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 #endif(WIN32)
-
 #if(WIN32)
 #    TARGET_LINK_LIBRARIES( LIPABOY_LIB ${Boost_LIBRARIES} )
 #endif(WIN32)
