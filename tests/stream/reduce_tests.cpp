@@ -63,7 +63,7 @@ namespace stream_tests {
 		int a = 0;
 		auto res = Stream([&a]() { return a++; })
 			| get(4)
-			| sum();
+            | sum<>();
 		ASSERT_EQ(res, 6);
 	}
 

@@ -136,7 +136,8 @@ namespace lipaboy_lib {
 
 			public:
 				template <class StreamType>
-				int apply(StreamType & stream)
+                auto apply(StreamType & stream)
+                    -> RetType<typename StreamType::ResultValueType>
 				{
 					while (stream.hasNext()) {
 						auto elem = stream.nextElem();

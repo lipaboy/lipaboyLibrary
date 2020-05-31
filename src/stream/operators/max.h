@@ -40,8 +40,8 @@ namespace lipaboy_lib {
 				static constexpr OperatorMetaTypeEnum metaInfo = MAX;
 				static constexpr bool isTerminated = true;
 
-				template <class T>
-				using RetType = typename TSelfReduce<T>::template RetType<T>;
+                template <class TVal>
+                using RetType = typename TSelfReduce<T>::template RetType<TVal>;
 
 			public:
 				max_impl(max) : 
@@ -61,19 +61,19 @@ namespace lipaboy_lib {
 			// i'am lipa boy (by Kirill Ponomarev)
 			};
 
-			using operators::max;
-			using operators::max_impl;
-
-			template <class TStream>
-			struct shortening::TerminatedOperatorTypeApply<TStream, operators::max> {
-				using type = operators::max_impl<typename TStream::ResultValueType>;
-			};
-
-			//-------------------------------------------------------------//
-			//--------------------------Apply API--------------------------//
-			//-------------------------------------------------------------//
-
 		}
+
+    //-------------------------------------------------------------//
+    //--------------------------Apply API--------------------------//
+    //-------------------------------------------------------------//
+
+    using operators::max;
+    using operators::max_impl;
+
+    template <class TStream>
+    struct shortening::TerminatedOperatorTypeApply<TStream, operators::max> {
+        using type = operators::max_impl<typename TStream::ResultValueType>;
+    };
 
 	}
 

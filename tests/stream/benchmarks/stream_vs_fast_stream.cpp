@@ -44,7 +44,7 @@ namespace stream_benchmarks {
 			Stream([&a]() { return a++; }) 
 				| get(SIZE) 
 				| skip(100) 
-				| sum();
+                | sum<>();
 			cout << "Time: " << diffFromNow(start) << " Stream" << endl;
 		}
 
@@ -57,7 +57,7 @@ namespace stream_benchmarks {
 			sum3 = Stream([&a]() { return a++; }) 
 				| get(SIZE) 
 				| skip(100) 
-				| sum();
+                | sum();
 			cout << "Time: " << diffFromNow(start) << " Fast Stream" << endl;
 		}
 
@@ -106,7 +106,7 @@ namespace stream_benchmarks {
 				| skip(100) 
 				| skip(100)
 				| skip(100)
-                | sum();
+                | sum<>();
 			cout << "Time: " << diffFromNow(start) << " Stream" << endl;
 		}
 
@@ -159,7 +159,8 @@ namespace stream_benchmarks {
 			auto start = getCurrentTime();
 			int a = 0;
 			Stream([&a]() { return (a++); }) | get(SIZE)
-				| filter([&filterFunc](auto l) { return filterFunc(l); }) | sum();
+                | filter([&filterFunc](auto l) { return filterFunc(l); })
+                | sum<>();
 			cout << "Time: " << diffFromNow(start) << " Stream" << endl;
 		}
 
@@ -225,7 +226,8 @@ namespace stream_benchmarks {
 			auto start = getCurrentTime();
 			int a = 0;
 			Stream([&a]() { return std::to_string(a++); }) | get(SIZE)
-				| filter([](auto& l) { return std::stoi(l) % 2 == 0; }) | sum();
+                | filter([](auto& l) { return std::stoi(l) % 2 == 0; })
+                | sum<>();
 			cout << "Time: " << diffFromNow(start) << " Stream" << endl;
 		}
 

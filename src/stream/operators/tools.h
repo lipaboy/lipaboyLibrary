@@ -158,7 +158,7 @@ namespace lipaboy_lib {
 
 			template <class TStream, class TOperator>
 			struct TerminatedOperatorTypeApply {
-				using type = TOperator;
+                using type = std::remove_reference_t<TOperator>;
 			};
 
 			template <class TStream, class TOperator>

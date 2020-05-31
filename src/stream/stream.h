@@ -146,12 +146,14 @@ namespace lipaboy_lib {
 
 			if constexpr (TOperator::isTerminated == true) {
 				stream.template assertOnInfinite<StreamType>();
+                // INFO: needn't to move the stream because it is terminated operation
+                //       and method 'apply' get the l-value stream.
 				return shortening::TerminatedOperatorTypeApply_t<StreamType, TOperator>
-					(operation).apply(std::move(stream));
+                    (operation).apply(stream);
 			}
 			else {
 				return shortening::StreamTypeExtender_t<StreamType, TOperator>
-					(operation, std::move(stream));
+                    (operation, std::move(stream));
 			}
 		}
 

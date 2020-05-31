@@ -14,12 +14,9 @@ namespace lipaboy_lib {
 			template <class TInit = void*>
 			struct sum : TReturnSameType {
 				static constexpr OperatorMetaTypeEnum metaInfo = SUM;
-				static constexpr bool isTerminated = true;
+                static constexpr bool isTerminated = true;
 
-				sum() {
-				}
-
-				sum(TInit init) {
+                sum(TInit init = nullptr) {
 					init_ = init;
 				}
 

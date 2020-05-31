@@ -237,8 +237,8 @@ namespace {
 
 template <class F>
 struct WrapBySTDFunctionExcludeLambda {
-	template <class F>
-	using NoWrapLambda = typename NoWrapLambdaBySTDFunction<F>::type;
+    template <class F_>
+    using NoWrapLambda = typename NoWrapLambdaBySTDFunction<F_>::type;
 
 	using type = 
 		enable_if_else_t<std::is_invocable_v<F> //&& !is_lambda<F>::value

@@ -29,7 +29,7 @@ namespace stream_tests {
 			{ 
 				return ch == ' '; 
 			}) 
-			| sum();
+            | sum<>();
 		ASSERT_EQ(outStr, "hello,world!!");
 
 		auto outStr2 = Stream(str.begin(), str.end()) 
@@ -52,7 +52,7 @@ namespace stream_tests {
 			{ 
 				return std::string(vec.begin(), vec.end()); 
 			})
-			| sum();
+            | sum<>();
 		ASSERT_EQ(outStr, "hello,world!");
 
 		string outStr2 = Stream(str.begin(), str.end())
@@ -64,7 +64,7 @@ namespace stream_tests {
 			{ 
 				return std::string(vec.begin(), vec.end()); 
 			})
-			| sum();
+            | sum<>();
 			ASSERT_EQ(outStr2, "hello,world!");
 	}
 
