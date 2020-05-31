@@ -14,6 +14,9 @@ Global TODOs:
 
 2) Write instruction to use my library
 
+3) (Stream) realize the merging streams :
+	Stream(vector).merge(Stream(vector)) | sum()
+
 Local TODOs:
 
 1) (LongNumber) Write division properly.

@@ -52,10 +52,10 @@ function(enable_cxx_compiler_flag_if_supported flag)
     endif()
 endfunction()
 
+# too hard - check not only the project but all libs. Also check on unreferenced functions
 #enable_cxx_compiler_flag_if_supported("-Wall")
 #enable_cxx_compiler_flag_if_supported("-Wextra")
-#enable_cxx_compiler_flag_if_supported("-pedantic")
-
+#enable_cxx_compiler_flag_if_supported("-pedantic")	
 enable_cxx_compiler_flag_if_supported("-std=c++17")
 
 if (WIN32)
