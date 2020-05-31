@@ -46,14 +46,14 @@ namespace long_numbers_benchmark_tests_space {
 	using std::vector;
 	using std::istream;
 	// current base functions use for operate with long integers
-	constexpr int base = 1e7;
+	const int base = int(1e7);
 	// lenght of the long number for which naive multiplication
 	// will be called in the Karatsuba function
-	constexpr unsigned int len_f_naive = 32;
+	const unsigned int len_f_naive = 32;
 	// One digit size for numbers with bases multiple of ten
-	constexpr int dig_size = 10;
+	const int dig_size = 10;
 	// How much zeroes have to be in the number
-	constexpr int add_zero = base / dig_size;
+	const int add_zero = base / dig_size;
 
 	vector<int> get_number(std::string snum) {
 		vector<int> vnum;
@@ -92,8 +92,8 @@ namespace long_numbers_benchmark_tests_space {
 		auto len = x.size();
 		vector<int> res(2 * len);
 
-		for (auto i = 0; i < len; ++i) {
-			for (auto j = 0; j < len; ++j) {
+		for (size_t i = 0; i < len; ++i) {
+			for (size_t j = 0; j < len; ++j) {
 				res[i + j] += x[i] * y[j];
 			}
 		}
@@ -109,7 +109,7 @@ namespace long_numbers_benchmark_tests_space {
 			return naive_mul(x, y);
 		}
 
-		auto k = len / 2;
+		size_t k = len / 2;
 
 		vector<int> Xr{ x.begin(), x.begin() + k };
 		vector<int> Xl{ x.begin() + k, x.end() };
@@ -122,26 +122,26 @@ namespace long_numbers_benchmark_tests_space {
 		vector<int> Xlr(k);
 		vector<int> Ylr(k);
 
-		for (int i = 0; i < k; ++i) {
+		for (size_t i = 0; i < k; ++i) {
 			Xlr[i] = Xl[i] + Xr[i];
 			Ylr[i] = Yl[i] + Yr[i];
 		}
 
 		vector<int> P3 = karatsuba_mul(Xlr, Ylr);
 
-		for (auto i = 0; i < len; ++i) {
+		for (size_t i = 0; i < len; ++i) {
 			P3[i] -= P2[i] + P1[i];
 		}
 
-		for (auto i = 0; i < len; ++i) {
+		for (size_t i = 0; i < len; ++i) {
 			res[i] = P2[i];
 		}
 
-		for (auto i = len; i < 2 * len; ++i) {
+		for (size_t i = len; i < 2 * len; ++i) {
 			res[i] = P1[i - len];
 		}
 
-		for (auto i = k; i < len + k; ++i) {
+		for (size_t i = k; i < len + k; ++i) {
 			res[i] += P3[i - k];
 		}
 
@@ -149,7 +149,7 @@ namespace long_numbers_benchmark_tests_space {
 	}
 
 	void finalize(vector<int>& res) {
-		for (auto i = 0; i < res.size() - 1; ++i) {
+		for (size_t i = 0; i < res.size() - 1; ++i) {
 			res[i + 1] += res[i] / base;
 			res[i] %= base;
 		}
