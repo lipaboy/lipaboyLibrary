@@ -74,34 +74,7 @@ namespace {
 }
 
 TEST(Check, check) {
-	using namespace stream_space;
-	using namespace stream_space::operators;
 
-	using IntType = long long;
-	vector<IntType> riots1;
-	//vector<double> riots2;
-	IntType N = 19;
-	riots1.push_back(1);
-	//riots2.push_back(1.);
-	int sign1 = -1;
-	for (IntType i = 1; i < N; i++) {
-		riots1.push_back(riots1.back() * i + sign1);
-		sign1 *= -1;
-
-		//riots2.push_back(0.);
-		//double sign2 = 1.;
-		//double k = 1.;
-		//for (IntType j = 0; j <= i; j++) {
-		//	riots2[i] += sign2 / k;
-		//	sign2 *= -1.;
-		//	k *= j + 1.;
-		//}
-		//k /= i + 1.;
-		//riots2[i] *= k;	//== i! (factorial(i) )
-		//EXPECT_EQ(riots1[i], static_cast<IntType>(std::floor(riots2[i])));
-	}
-	Stream(riots1) | print_to(cout, "\n");
-	ASSERT_TRUE(false);
 }
 
 
