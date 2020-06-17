@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
     ::testing::InitGoogleTest(&argc, argv);
 	auto res = RUN_ALL_TESTS();
 #ifdef WIN32
-	system("pause");
+	//system("pause");
 #endif
     return res;
 }

@@ -275,7 +275,7 @@ TEST(Reduce, Infinite) {
     int a = 0;
     auto res = Stream([&a]() { return a++; })
             | get(4)
-            | reduce([] (int res, int elem) { return res + elem; });
+            | reduce<std::function<int(int, int)>, FalseType >([] (int res, int elem) { return res + elem; });
     ASSERT_EQ(res, 6);
 }
 
