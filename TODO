@@ -46,6 +46,12 @@
 
 ----Think about:
 
+3) (BigNumber) Write BigUnsignedView - wrapper around iterators over Container.
+
+4) (BigUnsigned) Rewrite with move-semantics
+
+Think about:
+
 1) I would like to add union interval and segment like the entire object (e.g. [-2, 3) U (5, +inf) ).
 	- May be work with "<", "<=" symbols (from C++ STL). like container.add(5, "<=");
 	- Answer: I think you need to create wrapper around Set<T> 

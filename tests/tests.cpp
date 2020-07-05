@@ -101,7 +101,7 @@ TEST(Check, check) {
 		//EXPECT_EQ(riots1[i], static_cast<IntType>(std::floor(riots2[i])));
 	}
 	Stream(riots1) | print_to(cout, "\n");
-	ASSERT_TRUE(false);
+	//ASSERT_TRUE(false);
 }
 
 
@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
 	auto res = RUN_ALL_TESTS();
 	
 #ifdef WIN32
-	system("pause");
+	//system("pause");
 #endif
     return res;
 }
