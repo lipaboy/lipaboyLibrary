@@ -60,12 +60,12 @@ namespace lipaboy_lib {
 	template <typename T, int fraction, int dozenPower>
 	using FixedIntPrecisionNumber = FixedPrecisionNumber<T, int, fraction, dozenPower>;
 
-	/*template <typename T, typename IntegerPrecisionType,
+	template <typename T, typename IntegerPrecisionType,
 		IntegerPrecisionType fraction, IntegerPrecisionType dozenPower>
 	inline std::ostream& operator<< (std::ostream& o, 
 			FixedPrecisionNumber<T, IntegerPrecisionType, fraction, dozenPower> const & number) {
 		return o << number.getNumber();
-	}*/
+	}
 
 }
 
