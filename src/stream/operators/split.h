@@ -27,8 +27,9 @@ namespace lipaboy_lib {
 			using lipaboy_lib::function_traits;
 
 
-			// split operator get input parameter - SplitPredicate - predicate functor that say when you must skip elem
-			// and finish grouping input elements into some container
+			// INFO:
+			// split operator get input parameter - SplitPredicate - predicate functor that say when you must 
+			// finish grouping input elements into some container and start the new group.
 
 			template <class TContainer>
 			struct split 
