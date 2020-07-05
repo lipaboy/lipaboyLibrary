@@ -7,9 +7,9 @@ namespace lipaboy_lib {
 
 	/*------------Too a lot of code production (but more flexible)------------*/
 
-	//TODO: swap (*this) and other by places (more beautifully)
+	// TODO: swap (*this) and other by places (more beautifully)
 
-	//EitherComparable with other object types
+	// EitherComparable with other object types
     template <class T, class TDerived>
 	class EitherComparable {
     public:

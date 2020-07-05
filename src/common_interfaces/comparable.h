@@ -4,23 +4,24 @@
 //Lipa std
 namespace lipaboy_lib {
 
-    // Hint: EitherComparable with other object types
+    // INFO: ComparatorExtender extends the operators for class.
+	// ISSUE to class: class must have two operators: operator== and operator<
 
     template <class Derived>
     class ComparatorExtender {
 	public:
         bool operator< (const ComparatorExtender& other) const {
-            return static_cast<Derived const *>(this)->operator< (*dynamic_cast<Derived const *>(&other));
+            return static_cast<Derived const *>(this)->operator< (*static_cast<Derived const *>(&other));
         }
         bool operator<= (const ComparatorExtender& other) const {
 			return ((*this) < other) || ((*this) == other);
 		}
         bool operator== (const ComparatorExtender& other) const {
-            return static_cast<Derived const *>(this)->operator== (*dynamic_cast<Derived const *>(&other));
+            return static_cast<Derived const *>(this)->operator== (*static_cast<Derived const *>(&other));
         }
 
-//        bool operator> (const ComparatorExtender& other) const { return !((*this) <= other); }
-//        bool operator>= (const ComparatorExtender& other) const { return !((*this) < other); }
+        bool operator> (const ComparatorExtender& other) const { return !((*this) <= other); }
+        bool operator>= (const ComparatorExtender& other) const { return !((*this) < other); }
         bool operator!= (const ComparatorExtender& other) const { return !((*this) == other); }
 	};
 
