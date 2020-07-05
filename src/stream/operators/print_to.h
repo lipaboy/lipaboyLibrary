@@ -9,7 +9,7 @@ namespace lipaboy_lib {
 
 	namespace stream_space {
 
-		namespace operators_space {
+		namespace operators {
 
 			using std::ostream;
 			using std::string;

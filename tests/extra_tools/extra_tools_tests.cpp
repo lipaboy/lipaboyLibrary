@@ -9,6 +9,8 @@
 namespace lipaboy_lib_tests {
 
 using lipaboy_lib::RelativeForward;
+using lipaboy_lib::WrapBySTDFunctionExcludeLambdaType;
+using lipaboy_lib::WrapBySTDFunctionType;
 
 using std::string;
 using std::cout;
@@ -73,6 +75,45 @@ TEST(RelativeForward, simple_test) {
     ASSERT_FALSE(isLValueRef(std::move(temp)));
     ASSERT_TRUE(isRValueRef(std::move(temp)));
     ASSERT_FALSE(isRValueRef(temp));
+}
+
+
+namespace {
+	int sumKek(int) {
+		return 1;
+	}
+
+	template <class F>
+	class S {
+	public:
+		S(F f) : f_(f) {}
+		void justDo() { std::cout << ""; }
+
+		WrapBySTDFunctionExcludeLambdaType<F> f_;
+	};
+}
+
+TEST(Wrap_By_StdFunction, excluding_lambdas) {
+	auto func
+		= [](auto) { return false; };
+
+	// logical error
+	//WrapBySTDFunctionExcludeLambdaType<decltype(func)> func2 = [](auto) { return false; };
+
+	// logical error (type of lambda has an unique name)
+	//decltype([](auto) { return false; }) func2 = [](auto) { return false; };
+
+	func(1);
+
+	auto func4 = [](int) { return 4; };
+	WrapBySTDFunctionType<decltype(func4)> func5 = func4;
+
+	S s1([](auto) { return false; });
+	s1.justDo();
+	S s2(func);
+	s2.justDo();
+
+	std::function<int(int)> func3 = sumKek;
 }
 
 }

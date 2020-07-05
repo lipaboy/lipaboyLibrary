@@ -35,20 +35,20 @@ class Stream : public Stream<Rest...> {
 public:
     using size_type = size_t;
     using OperatorType = TOperator;
-    using SuperType = Stream<Rest...>;
-    using ConstSuperType = const SuperType;
-    using iterator = typename SuperType::outside_iterator;
-    using SuperTypePtr = SuperType *;
-    using ConstSuperTypePtr = const SuperType *;
-    using ValueType = typename SuperType::ValueType;
-    using Range = typename SuperType::Range;
+    using SubType = Stream<Rest...>;
+    using ConstSubType = const SubType;
+    using iterator = typename SubType::outside_iterator;
+    using SubPtr = SubType *;
+    using ConstSubTypePtr = const SubType *;
+    using ValueType = typename SubType::ValueType;
+    using Range = typename SubType::Range;
     using ActionSignature = void(Stream*);
     using ActionType = std::function<ActionSignature>;
 
     template <class Functor>
     using ExtendedStreamType = Stream<Functor, OperatorType, Rest...>;
 
-    using ResultValueType = typename TOperator::template RetType<typename SuperType::ResultValueType>;
+    using ResultValueType = typename TOperator::template RetType<typename SubType::ResultValueType>;
 
     template <typename, typename...> friend class Stream;
 
@@ -58,7 +58,7 @@ public:
     template <class StreamSuperType_, class TFunctor_>
     explicit
     Stream (TFunctor_&& functor, StreamSuperType_&& obj) noexcept
-        : SuperType(std::forward<StreamSuperType_>(obj)), operator_(std::forward<TFunctor_>(functor))
+        : SubType(std::forward<StreamSuperType_>(obj)), operator_(std::forward<TFunctor_>(functor))
     {
 #ifdef LOL_DEBUG_NOISY
         if constexpr (std::is_rvalue_reference<StreamSuperType_&&>::value)
@@ -69,7 +69,7 @@ public:
     }
 public:
     Stream (Stream const & obj)
-        : SuperType(static_cast<ConstSuperType&>(obj)),
+        : SubType(static_cast<ConstSubType&>(obj)),
         operator_(obj.operator_)
     {
 #ifdef LOL_DEBUG_NOISY
@@ -77,7 +77,7 @@ public:
 #endif
     }
     Stream (Stream&& obj) noexcept
-        : SuperType(std::move(obj)),
+        : SubType(std::move(obj)),
         operator_(std::move(obj.operator_))
     {
 #ifdef LOL_DEBUG_NOISY
@@ -90,10 +90,10 @@ public:
             //-----------------Tools-------------------//
 protected:
     static constexpr bool isNoGetTypeBefore() {
-        return (TOperator::metaInfo != GET && SuperType::isNoGetTypeBefore());
+        return (TOperator::metaInfo != GET && SubType::isNoGetTypeBefore());
     }
     static constexpr bool isGeneratorProducing() {
-        return SuperType::isGeneratorProducing();
+        return SubType::isGeneratorProducing();
     }
 
 public:
@@ -102,16 +102,16 @@ public:
 	}
 	template <class TStream_>
 	inline static constexpr void assertOnInfinite() { 
-		SuperType::template assertOnInfinite<TStream_>(); 
+		SubType::template assertOnInfinite<TStream_>(); 
 	}
 
 protected:
     // shortness
-    SuperTypePtr superThisPtr() { return static_cast<SuperTypePtr>(this); }
-    ConstSuperTypePtr constSuperThisPtr() const { return static_cast<ConstSuperTypePtr>(this); }
-    auto superNextElem() -> typename SuperType::ResultValueType { return superThisPtr()->nextElem(); }
+    SubPtr superThisPtr() { return static_cast<SubPtr>(this); }
+    ConstSubTypePtr constSuperThisPtr() const { return static_cast<ConstSubTypePtr>(this); }
+    auto superNextElem() -> typename SubType::ResultValueType { return superThisPtr()->nextElem(); }
     bool superHasNext() { return superThisPtr()->hasNext(); }
-    auto superCurrentElem() -> typename SuperType::ResultValueType {
+    auto superCurrentElem() -> typename SubType::ResultValueType {
         return superThisPtr()->currentElem();
     }
 
@@ -125,13 +125,13 @@ public:
     // or before using slider API)
     void init() {
 		superThisPtr()->init();
-        operator_.template init<SuperType>(*superThisPtr());
+        operator_.template init<SubType>(*superThisPtr());
     }
 
 public:
     ResultValueType nextElem() {
 #ifdef WIN32
-        return std::move(operator_.nextElem<SuperType>(*superThisPtr()));
+        return std::move(operator_.nextElem<SubType>(*superThisPtr()));
 #else
         return std::move(operator_.template nextElem<SuperType>(*superThisPtr()));
 #endif
@@ -145,7 +145,7 @@ public:
 		// Solve: Problem in the intersection 
         //        of names (currentElem() of Stream and currentElem() of operator_)
 #ifdef WIN32
-        return std::move(operator_.currentElem<SuperType>(*superThisPtr()));
+        return std::move(operator_.currentElem<SubType>(*superThisPtr()));
 #else
         return std::move(operator_.template currentElem<SuperType>(*superThisPtr()));
 #endif
@@ -153,7 +153,7 @@ public:
 
     bool hasNext() {
 #ifdef WIN32
-        return operator_.hasNext<SuperType>(*superThisPtr());
+        return operator_.hasNext<SubType>(*superThisPtr());
 #else
         return operator_.template hasNext<SuperType>(*superThisPtr());
 #endif
@@ -161,7 +161,7 @@ public:
 
 	void incrementSlider() {
 #ifdef WIN32
-        operator_.incrementSlider<SuperType>(*superThisPtr());
+        operator_.incrementSlider<SubType>(*superThisPtr());
 #else
         operator_.template incrementSlider<SuperType>(*superThisPtr());
 #endif
@@ -186,7 +186,7 @@ public:
 private:
     bool equals(Stream & other) {
         return (operator_ == other.operator_
-                && superThisPtr()->equals(static_cast<SuperType&>(other))
+                && superThisPtr()->equals(static_cast<SubType&>(other))
                 );
     }
 
