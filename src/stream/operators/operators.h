@@ -92,7 +92,7 @@ namespace lipaboy_lib {
 		//			produces end result.
 		//		3) non-terminated operator processes the stream and produces the stream
 
-		// Example operator
+		// Example Of Operators
 		namespace operators {
 
 			// Example of applying this operator you can find: tests/stream/nop_tests.cpp
