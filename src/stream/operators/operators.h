@@ -31,10 +31,10 @@ namespace lipaboy_lib {
 		//-----------------------------------------------------------//
 		//
 		// 1) You must find out if your operator would be terminated or not.
-		//		- Terminated operator terminates (finishes) the stream and
-		//		produces smth.
+		//		- Terminated operator terminates (finishes) the data stream and
+		//		always produces smth directly (like value) or indirectly (like printing into console).
 		//		- Non-terminated operator extends the stream by creating new 
-		//		interlayer of processing the stream data
+		//		interlayer of processing the stream data.
 		//
 		//		If your operator is terminated than you must add the 
 		//		boolean 'isTerminated' compile-time class property with true value:
@@ -42,17 +42,21 @@ namespace lipaboy_lib {
 		//		Else:
 		//			static constexpr bool isTerminated = false;
 		//
-		// 2) In operator class must be defined the RetType template alias type 
-		//		which says what's type
-		//		your operator will return by applying it. Template argument is type of
+		// 2) In operator class must be defined the "RetType" template alias type 
+		//		which says what's type your operator will return by applying it. 
+		//		Template argument of alias is type of
 		//		data that your operator processes.
 		//
-		//		template <class T>
-		//		using RetType = YourOperatorReturnType<T>;
+		//		> template <class T>
+		//		> using RetType = YourOperatorReturnType<T>;
 		//
 		//		Example:
-		//		int sum1 = Stream(1, 2, 3, 4, 5) | your_operator() | sum();
-		//		Stream{int} -> Stream{YourOperatorReturnType<int>} -> int
+		//		> int sum1 = Stream(1, 2, 3, 4, 5) | your_operator() | sum();
+		//		your_operator input type: int
+		//		your_operator output type: YourOperatorReturnType<int> ("==" RetType<int>)
+		//
+		//		Whole map of types:
+		//		std::initializer_list<int> -> Stream{ElemType: int} -> Stream{YourOperatorReturnType<int>} -> int
 		//
 		// 3) For non-terminated operator in your operator class must be implemented 
 		//		Stream API - three template methods:
@@ -67,7 +71,7 @@ namespace lipaboy_lib {
 		//			template <class StreamType>
 		//			void incrementSlider<StreamType>(StreamType & stream);
 		//
-		//		C. hasNext - says true if your processed stream has next element
+		//		C. hasNext - says true only if your processed stream has next element
 		//
 		//			template <class StreamType>
 		//			bool hasNext<StreamType>(StreamType & stream);
@@ -79,18 +83,19 @@ namespace lipaboy_lib {
 		//		template <class StreamType>
 		//		auto apply(StreamType & stream) -> SomeReturnType;
 		//
-		// Your instruments:
+		// Your instruments (par. 3 and 4):
 		//	- stream.hasNext();
 		//	- stream.nextElem();
 		//	- stream.incrementSlider();
 		//	- typename StreamType::ResultValueType;
 		//
 		// Difference between non-terminated and terminated operators:
-		//		1) one-to-one vs all-to-one
-		//			+ many-to-one vs all-to-one
-		//		2) in terminated operator method 'apply' processes the whole stream and 
+		//		1) Style of transforming data elements:
+		//			Non-term.:	one-to-one, many-to-one, one-to-many
+		//			Term.:		all-to-one
+		//		2) In terminated operator method 'apply' processes the whole stream and 
 		//			produces end result.
-		//		3) non-terminated operator processes the stream and produces the stream
+		//		3) Non-terminated operator processes the stream and produces a performed stream.
 
 		// Example Of Operators
 		namespace operators {
