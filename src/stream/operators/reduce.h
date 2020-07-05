@@ -113,6 +113,7 @@ namespace lipaboy_lib {
 
 				template <class Arg_>
 				AccumRetType identity(Arg_&& arg) const {
+					static_assert(std::is_same_v<IdentityFn, FalseType>, "Err1");
 					if constexpr (std::is_same_v<IdentityFn, FalseType>)
 						return AccumRetType(std::forward<Arg_>(arg));
 					else

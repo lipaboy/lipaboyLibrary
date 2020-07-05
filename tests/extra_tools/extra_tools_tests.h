@@ -15,7 +15,7 @@ struct NoisyHash {};
 struct NoisyCon : NoisyHash {
     NoisyCon() { cout << "Constructed" << endl; }
     NoisyCon(NoisyCon const &) {}
-    NoisyCon(NoisyCon &&) {}
+    NoisyCon(NoisyCon &&) noexcept {}
 };
 
 struct NoisyCopy : NoisyHash {
@@ -25,7 +25,7 @@ struct NoisyCopy : NoisyHash {
 
 struct NoisyMove : NoisyHash {
     NoisyMove() {}
-    NoisyMove(NoisyMove &&) { cout << "Move-Constructed" << endl; }
+    NoisyMove(NoisyMove &&) noexcept { cout << "Move-Constructed" << endl; }
 };
 
 // NoisyD - Noisy without notifying of destruction
@@ -36,12 +36,12 @@ struct NoisyD :
 {
     NoisyD() {}
     NoisyD(NoisyD const & obj) : NoisyCopy(obj), NoisyCon(obj) {}
-    NoisyD(NoisyD&& obj) : NoisyMove(std::move(obj)), NoisyCon(std::move(obj)) {}
+    NoisyD(NoisyD&& obj) noexcept : NoisyMove(std::move(obj)), NoisyCon(std::move(obj)) {}
 
     const NoisyD& operator= (const NoisyD&) {
         return *this;
     }
-    const NoisyD& operator= (const NoisyD&&) {
+    const NoisyD& operator= (const NoisyD&&) noexcept {
         return *this;
     }
 };
@@ -49,7 +49,7 @@ struct NoisyD :
 struct Noisy : NoisyD {
 	Noisy() {}
 	Noisy(Noisy const & obj) : NoisyD(obj) {}
-	Noisy(Noisy&& obj) : NoisyD(std::move(obj)) {}
+	Noisy(Noisy&& obj) noexcept : NoisyD(std::move(obj)) {}
 
 	bool operator==(Noisy const &) const { return false; }
 	bool operator!=(Noisy const & other) const { return !((*this) == other); }
@@ -57,7 +57,7 @@ struct Noisy : NoisyD {
 	const Noisy& operator= (const Noisy&) {
 		return *this;
 	}
-	const Noisy& operator= (const Noisy&&) {
+	const Noisy& operator= (const Noisy&&) noexcept {
 		return *this;
 	}
 
