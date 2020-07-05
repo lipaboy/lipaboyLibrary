@@ -87,6 +87,9 @@ namespace lipaboy_lib_tests {
 		ASSERT_TRUE(kek1 <= kek2);
 
 		ASSERT_TRUE(kek1 >= 2.);
+
+		using ConstFixedDouble3 = const FixedPrecisionNumber<double, int, 1, -3>;
+		ASSERT_TRUE(ConstFixedDouble3(5.) >= ConstFixedDouble3(5.0001));
 	}
 
 	TEST(Interval, contains) {
