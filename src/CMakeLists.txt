@@ -34,6 +34,19 @@ set(LIB_LIPABOY_LIB_SOURCE_FILES
     # Long Numbers
     long_numbers/long_number.h
 
+	long_numbers/big_integer.cpp
+	long_numbers/big_integer.h
+	long_numbers/big_integer_algorithms.cpp
+	long_numbers/big_integer_algorithms.h
+	long_numbers/big_integer_library.h
+	long_numbers/big_integer_utils.cpp
+	long_numbers/big_integer_utils.h
+	long_numbers/big_unsigned.cpp
+	long_numbers/big_unsigned.h
+	long_numbers/big_unsigned_view.h
+	long_numbers/big_unsigned_in_a_base.cpp
+	long_numbers/big_unsigned_in_a_base.h
+
     # Stream
     stream/stream_extended.h
     stream/stream_basic.h
@@ -52,6 +65,8 @@ set(LIB_LIPABOY_LIB_SOURCE_FILES
     stream/operators/to_vector.h
     stream/operators/tools.h
     stream/operators/ungroup_by_bit.h
+	stream/operators/split.h
+	stream/operators/max.h
 
     # Precision Number
     maths/fixed_precision_number.h
@@ -77,7 +92,6 @@ add_library(LIPABOY_LIB STATIC
 )
 
 	# BOOST library connection
-
 #if(WIN32)
 #	add_definitions( -DBOOST_ALL_DYN_LINK )  #If not VS will give linking errors of redefinitions
 #	set(Boost_USE_STATIC_LIBS OFF )
@@ -87,7 +101,7 @@ add_library(LIPABOY_LIB STATIC
 #
 #    INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 #endif(WIN32)
-#
+
 #if(WIN32)
 #    TARGET_LINK_LIBRARIES( LIPABOY_LIB ${Boost_LIBRARIES} )
 #endif(WIN32)

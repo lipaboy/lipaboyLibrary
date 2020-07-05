@@ -7,17 +7,27 @@
 #include <functional>
 #include <algorithm>
 #include <iterator>
-
+#include <memory>
 #include <typeinfo>
 #include <type_traits>
+#include <optional>
+
 
 namespace lipaboy_lib {
 
 	namespace stream_space {
 
-		namespace operators_space {
+		namespace operators {
 
 			using std::function;
+
+			// Contract rules :
+			// 1) Reduce operator must be initialized with start value because
+			//		impossible to predict if the stream contains elements or not.
+			// 2) IdentityFn - type of function. Necessary for correct initializing the
+			//		accum variable. It takes first stream element and pass through
+			//		identity function. For example, accumulator and argument types
+			//		could be different.
 
 			//------------------------------------------------------------------------------------------------//
 			//-----------------------------------Terminated operation-----------------------------------------//
@@ -25,9 +35,13 @@ namespace lipaboy_lib {
 
 			namespace {
 
-				template <class Accumulator>
+				template <class AccumulatorFn>
+				using GetFirstArgumentType = typename function_traits<
+					lipaboy_lib::WrapBySTDFunctionType<AccumulatorFn> >::template arg<0>::type;
+
+				template <class AccumulatorFn>
 				using GetSecondArgumentType = typename function_traits<
-					lipaboy_lib::WrapBySTDFunctionType<Accumulator> >::template arg<1>::type;
+					lipaboy_lib::WrapBySTDFunctionType<AccumulatorFn> >::template arg<1>::type;
 
 				using FalseType =
 					//    std::false_type;
@@ -40,7 +54,7 @@ namespace lipaboy_lib {
 				};
 				template <class F, class T>
 				struct result_of_else<F(T)> {
-					using type = typename std::result_of<F(T)>::type;
+					using type = typename std::invoke_result<F, T>::type;
 				};
 				template <class T>
 				struct result_of_else<FalseType(T)>
@@ -51,70 +65,71 @@ namespace lipaboy_lib {
 
 				//
 
-				template <class F, class Accumulator>
+				template <class F, class AccumulatorFn>
 				struct GetFirstArgumentType_ElseArg {
 					using type = typename function_traits<lipaboy_lib::WrapBySTDFunctionType<F> >::template arg<0>::type;
 				};
 
-				template <class Accumulator>
-				struct GetFirstArgumentType_ElseArg<FalseType, Accumulator> {
-					using type = GetSecondArgumentType<Accumulator>;
+				template <class AccumulatorFn>
+				struct GetFirstArgumentType_ElseArg<FalseType, AccumulatorFn> {
+					using type = GetSecondArgumentType<AccumulatorFn>;
 				};
 
 			}
 
-			template <class Accumulator, class IdentityFn = FalseType >
-			struct reduce : FunctorHolder<Accumulator>,
+			template <class AccumulatorFn, class IdentityFn = FalseType>
+			struct reduce : 
+				FunctorHolder<AccumulatorFn>,
 				FunctorHolder<IdentityFn>
 			{
 			public:
-				template <class TResult, class T>
-				using AccumRetType = typename std::result_of<Accumulator(TResult, T)>::type;
-				using IdentityFnType = IdentityFn;
-				using ArgType = typename GetFirstArgumentType_ElseArg<IdentityFnType, Accumulator>::type;
-				using IdentityRetType = lipaboy_lib::enable_if_else_t<std::is_same<IdentityFn, FalseType >::value,
-					ArgType, result_of_else_t<IdentityFnType(ArgType)> >;
+				using ArgType = GetSecondArgumentType<AccumulatorFn>;
+				using AccumRetType = 
+					std::remove_reference_t<
+						std::invoke_result_t <
+							AccumulatorFn, GetFirstArgumentType<AccumulatorFn>, ArgType
+						>
+					>;
 
 				template <class T>
-				using RetType = IdentityRetType;
+				using RetType = std::optional<AccumRetType>;
 
 				static constexpr enum OperatorMetaTypeEnum metaInfo = REDUCE;
 				static constexpr bool isTerminated = true;
 			public:
-				reduce(IdentityFn&& identity, Accumulator&& accum)
-					: FunctorHolder<Accumulator>(accum),
+				reduce(AccumulatorFn&& accum, IdentityFn&& identity)
+					: FunctorHolder<AccumulatorFn>(accum),
 					FunctorHolder<IdentityFn>(identity)
 				{}
-				reduce(Accumulator&& accum)
-					: FunctorHolder<Accumulator>(accum),
-					FunctorHolder<IdentityFn>(FalseType())
+				reduce(AccumulatorFn&& accum)
+					: FunctorHolder<AccumulatorFn>(accum),
+					FunctorHolder<IdentityFn>([]() {})
 				{}
 
 				template <class TResult_, class Arg_>
-				AccumRetType<TResult_, Arg_> accum(TResult_&& result, Arg_&& arg) const {
-					return FunctorHolder<Accumulator>::functor()(std::forward<TResult_>(result),
+				AccumRetType accum(TResult_&& result, Arg_&& arg) const {
+					return FunctorHolder<AccumulatorFn>::functor()(std::forward<TResult_>(result),
 						std::forward<Arg_>(arg));
 				}
+
 				template <class Arg_>
-				IdentityRetType identity(Arg_&& arg) const
-				{
-					if constexpr (std::is_same<IdentityFn, FalseType>::value)
-						return std::forward<Arg_>(arg);
+				AccumRetType identity(Arg_&& arg) const {
+					if constexpr (std::is_same_v<IdentityFn, FalseType>)
+						return AccumRetType(std::forward<Arg_>(arg));
 					else
-						return FunctorHolder<IdentityFn>::functor()(std::forward<Arg_>(arg));
+						return operators::FunctorHolder<IdentityFn>::functor()(std::forward<Arg_>(arg));
 				}
 
 				template <class Stream_>
-				auto apply(Stream_ & obj) -> IdentityRetType
+				auto apply(Stream_ & obj) -> RetType<void>
 				{
-					using RetType = typename reduce<Accumulator, IdentityFn>::IdentityRetType;
-					if (obj.hasNext()) {
-						auto result = identity(obj.nextElem());
-						for (; obj.hasNext(); )
-							result = accum(result, obj.nextElem());
-						return result;
-					}
-					return RetType();
+					if (!obj.hasNext())
+						return std::nullopt;
+					AccumRetType result = 
+						this->template identity<ArgType>(obj.nextElem());
+					for (; obj.hasNext(); )
+						result = accum(result, obj.nextElem());
+					return result;
 				}
 
 			};

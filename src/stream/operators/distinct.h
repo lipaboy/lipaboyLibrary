@@ -11,7 +11,7 @@ namespace lipaboy_lib {
 
 	namespace stream_space {
 
-		namespace operators_space {
+		namespace operators {
 
 			using std::shared_ptr;
 
@@ -45,10 +45,15 @@ namespace lipaboy_lib {
 
 			public:
                 distinct_impl(distinct)
+					// init by stopper, not more
                     : filter_impl<std::function<bool(T&)>, T>(std::function<bool(T&)>([](T&) { return true; }))
 				{
 					pDistinctSet_ = std::make_shared<ContainerType>();
 					ContainerTypePtr lol = pDistinctSet_;
+#ifdef LOL_DEBUG_NOISY
+					std::cout << "\tset is created" << endl;
+#endif
+					// set by real functor of filtering
 					this->setFunctor(std::function<bool(T&)>(
 						[set = lol](T & elem) -> bool 
 						{
@@ -62,14 +67,20 @@ namespace lipaboy_lib {
 						}));
 				}
 
+#ifdef LOL_DEBUG_NOISY
+				~distinct_impl() {
+					std::cout << "\tdestruct distinct" << endl;
+				}
+#endif
+
 			private:
 				ContainerTypePtr pDistinctSet_;
 			};
 
 		}
 
-		using operators_space::distinct;
-		using operators_space::distinct_impl;
+		using operators::distinct;
+		using operators::distinct_impl;
 
 		template <class TStream>
 		struct shortening::StreamTypeExtender<TStream, distinct> {

@@ -66,6 +66,10 @@ if (WIN32)
             add_compile_options("/std:c++17")
         endif()
     endif()
+    CHECK_CXX_COMPILER_FLAG("-Wno-zero-as-null-pointer-constant" _lol)
+    if (_lol)
+        add_compile_options("-Wno-zero-as-null-pointer-constant")
+    endif()
 endif()
 
 #------------End Flags setting-------------#

@@ -2,13 +2,7 @@
 
 #include <gtest/gtest.h>
 
-//#define STREAM_V1_TESTS_RUN
-
-#ifdef STREAM_V1_TESTS_RUN
-#include "stream/stream_v1/stream.h"
-#else
 #include "stream/stream.h"
-#endif
 
 #include "extra_tools/extra_tools_tests.h"
 
@@ -25,15 +19,9 @@ using std::unique_ptr;
 using namespace lipaboy_lib;
 
 
-#ifdef STREAM_V1_TESTS_RUN
-using stream_v1_space::Stream;
-using stream_v1_space::StreamOfOutsideIterators;
-using namespace lipaboy_lib::stream_v1_space::operators_space;
-#else
-using stream_space::Stream;
+using stream_space::StreamBase;
 using stream_space::StreamOfOutsideIterators;
-using namespace lipaboy_lib::stream_space::operators_space;
-#endif
+using namespace lipaboy_lib::stream_space::operators;
 
 using lipaboy_lib_tests::Noisy;
 
