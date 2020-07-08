@@ -47,8 +47,7 @@
 
 	6) (Stream) make 'assertOnInfinite' method invisible for clients
 
-	7) (Stream) write constructor with pair<IterFirst, IterSecond>
-		Stream(getIterPair("Some string")) | ...
+	8) (Stream.Reduce) add compile-assert to check if client passes only one argument to lambda in Accumulator of Reduce
 
 ----Think about:
 

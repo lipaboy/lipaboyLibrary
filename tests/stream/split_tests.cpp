@@ -76,7 +76,7 @@ namespace stream_tests {
 
 	TEST(Stream_Split, group_by_numbers) {
 		string str = "my pocket money in GTAV: 5 234 321$ but my brother has 5 324$";
-		auto val = Stream(str.begin(), str.end())
+		auto val = Stream(str)
 			| filter(
 				[](char ch) -> bool
 				{

@@ -33,12 +33,12 @@ namespace lipaboy_lib {
 			return StreamOfOutsideIterators<TIterator>(begin, end);
 		}
 
-		template <class T>
+		/*template <class T>
 		auto Stream(std::initializer_list<T> init)
 			-> StreamOfInitializingList<T>
 		{
 			return StreamOfInitializingList<T>(init);
-		}
+		}*/
 
 		template <class T, class... Args>
 		auto Stream(T elem, Args... args)
@@ -97,7 +97,15 @@ namespace lipaboy_lib {
 			-> StreamOfOutsideIterators<typename Container::const_iterator>
 		{
 			return StreamOfOutsideIterators<typename Container::const_iterator>(
-				container.cbegin(), container.cend());
+				cbegin(container), cend(container));
+		}
+
+		template <class T>
+		auto Stream(std::initializer_list<T> container)
+			-> StreamOfOutsideIterators<typename std::initializer_list<T>::iterator>
+		{
+			return StreamOfOutsideIterators<typename std::initializer_list<T>::iterator>(
+				begin(container), end(container));
 		}
 
 		//--------------------------------------------------------------------------//

@@ -79,6 +79,40 @@ TEST_F(PrepareStreamTest, move_constructor_by_extending_the_stream) {
     ASSERT_TRUE(Stream(begin(), end()) == static_cast<StreamType&>(obj));
 }
 
+TEST_F(PrepareStreamTest, initializer_list_int) {
+    auto value = Stream({ 1, 2, 3, 4, 5, 6, 6, 2, 4, 5, 6 }) 
+        | filter([](int a) { return a % 2 == 0; })
+        | distinct()
+        | sum();
+
+    ASSERT_EQ(value, 12);
+}
+
+TEST_F(PrepareStreamTest, initializer_list_strings) {
+    string * text = new string("I was a Neir Automata but I was some drunk.");
+    auto words = Stream(*text)
+        | split<string>(
+            [](char ch) {
+                return ch == ' ';
+            })
+        | to_vector();
+    auto save = words;
+
+    auto& w = words;
+    auto value = Stream({w[0], w[1], w[2], w[3], w[4], w[5], w[6], w[7], w[8], w[9]})
+        | distinct()
+        | reduce(
+            [](string &text, string &word) 
+            {
+                return text.append(" ").append(word);
+            });
+
+    ASSERT_EQ(value.value(), "I was a Neir Automata but some drunk.");
+    ASSERT_EQ(save, words);
+
+    delete text;
+}
+
 
 //----------Other-----------//
 

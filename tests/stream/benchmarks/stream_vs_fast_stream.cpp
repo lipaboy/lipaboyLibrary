@@ -31,7 +31,7 @@ namespace stream_benchmarks {
 			auto start = getCurrentTime();
 			for (size_t i = 0; i < SIZE; i++)
 				if (i >= 100)
-					sum1 += i;
+					sum1 += int(i);
 			cout << "Time: " << diffFromNow(start) << " Simple" << endl;
 		}
 
@@ -148,7 +148,7 @@ namespace stream_benchmarks {
 			int sum = 0;
 			for (size_t i = 0; i < SIZE; i++)
                 if (filterFunc(int(i)))
-					sum += i;
+					sum += int(i);
 			cout << "Time: " << diffFromNow(start) << " Simple" << endl;
 		}
 
