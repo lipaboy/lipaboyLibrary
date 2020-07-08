@@ -11,8 +11,17 @@
 
 	3) (Stream) Stream as container of pair<Iter> : stream(b1, e1).hook_back(b2, e2) | split(by::DIGITS) | to_vector();
 		// hook_back - it's like connect one stream to another (one pair of iters to another one).
+		Realize the merging streams :
+		- Stream(vector).merge(Stream(vector)) | sum()
+		F.A.Q. Where do you storage result of this merging ? Output containers ? 
+		Or we say only about building the chain of some streams ?
 
 ----Global TODOs:
+
+	0) Write instruction to use:
+		- Algebra Interfaces
+		- FixedPrecisionNumber class
+		- For all the operators of stream
 
 	1) (Interval), (Comparable) write TODOs for them.
 
@@ -26,16 +35,9 @@
 
 ----Local TODOs:
 
-	-1) Write instruction to use my library
-
-	0) (Stream) realize the merging streams :
-		- Stream(vector).merge(Stream(vector)) | sum()
-		F.A.Q. Where do you storage result of this merging ? Output containers ? 
-		Or we say only about building the chain of some streams ?
-
 	1) (LongNumber) Write division properly.
 
-	2) (FixedPrecisionNumber) write tests for comparing numbers
+	2) (FixedPrecisionNumber) write tests for comparing numbers. (check if all are right)
 
 	3) (Stream) rename shortening namespace to shortenings (or better shorteners)
 
