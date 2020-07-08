@@ -47,6 +47,24 @@ namespace lipaboy_lib {
 			return StreamOfInitializingList<T>({ elem, args... });
 		}
 
+		// Note: such approach doesn't match for second constructor. 
+		//		 For more information try to explore
+
+		//template <class T>
+		//auto Stream(std::initializer_list<T> init)
+		//	-> StreamOfOutsideIterators<typename std::initializer_list<T>::iterator>
+		//{
+		//	return StreamOfOutsideIterators<typename std::initializer_list<T>::iterator>(
+		//		begin(init), end(init));
+		//}
+
+		//template <class T, class... Args>
+		//auto Stream(T elem, Args... args)
+		//	-> StreamOfOutsideIterators<typename std::initializer_list<T>::iterator>
+		//{
+		//	return Stream({ elem, args... });
+		//}
+
 		template <class Generator>
 		auto Stream(Generator&& generator)
 			-> StreamOfGenerator<Generator>
@@ -97,8 +115,10 @@ namespace lipaboy_lib {
 			-> StreamOfOutsideIterators<typename Container::const_iterator>
 		{
 			return StreamOfOutsideIterators<typename Container::const_iterator>(
-				container.cbegin(), container.cend());
+				cbegin(container), cend(container));
 		}
+
+		
 
 		//--------------------------------------------------------------------------//
 		//------------------Extending stream by concating operations-----------------//
