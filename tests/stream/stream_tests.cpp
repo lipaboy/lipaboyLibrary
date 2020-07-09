@@ -264,7 +264,7 @@ TEST(Stream_UngroupByBit, init_list) {
 
 //-------------------------//
 
-// BUG: bug is found here
+// BUG: bug is found here (what's bug?)
 TEST(Stream_NTH, tempValueCopying) {
 	int a = 0;
 	auto stream = Stream([&a]() { return a++; }) 
@@ -283,7 +283,7 @@ TEST(Stream_GroupByVector, filter) {
 	auto kek = stream2
 		| group_by_vector(3)
         | filter([](auto const & vec) { return vec[0] % 2 == 0; })
-// why I cannot use auto&
+// why I cannot use auto& (maybe on linux?)
 		| to_vector();
 
 	ASSERT_EQ(kek, decltype(kek)({ vector<int>({ 4, 5, 6 }) }));
