@@ -13,6 +13,20 @@ namespace lipaboy_lib {
 using std::cout;
 using std::endl;
 
+
+// PLAN:
+//
+// TODO: put it into extra namespace
+
+
+template <class TWord>
+inline constexpr TWord setBitsFromStart(size_t bitsCount) {
+	return (bitsCount <= 0) ? TWord(0)
+		: (bitsCount <= 1) ? TWord(1)
+		: (TWord(1) << (bitsCount - 1)) | setBitsFromStart<TWord>(bitsCount - 1);
+}
+
+
 // TODO: it is not a "enable.." logic. It is like choosing the types relative to condition. 
 //		 Refactor it.
 template<bool B, class T1, class T2>

@@ -1,70 +1,87 @@
 
 ----Ideas:
 
-1) Create container like ListOfVectors with iterators and so that.
-	- But maybe list< vector<bool> > is enough. Necessary to think this moment.
-	- Year, you only need to write wrapper around it with iterators.
-	- You need it in PseudoRandomSequences project (to storage big sequence)
+	1) Create container like ListOfVectors with iterators and so that.
+		- But maybe list< vector<bool> > is enough. Necessary to think this moment.
+		- Year, you only need to write wrapper around it with iterators.
+		- You need it in PseudoRandomSequences project (to storage big sequence)
 
-2) (Stream) Write SelectMany(v -> v.ToWords).GroupBy(v -> v).ToDictionary(v -> v.count)
-	to count the frequency of words in any text.
+	2) (Stream) Write SelectMany(v -> v.ToWords).GroupBy(v -> v).ToDictionary(v -> v.count)
+		to count the frequency of words in any text.
 
-3) (Stream) Stream as container of pair<Iter> : stream(b1, e1).hook_back(b2, e2) | split("\") | to_vector();
+	3) (Stream) Stream as container of pair<Iter> : stream(b1, e1).hook_back(b2, e2) | split(by::DIGITS) | to_vector();
+		// hook_back - it's like connect one stream to another (one pair of iters to another one).
+		Realize the merging streams :
+		- Stream(vector).merge(Stream(vector)) | sum()
+		F.A.Q. Where do you storage result of this merging ? Output containers ? 
+		Or we say only about building the chain of some streams ?
 
 ----Global TODOs:
 
-1) (Interval), (Comparable) write TODOs for them.
+	0) Write instruction to use:
+		- Algebra Interfaces
+		- FixedPrecisionNumber class
+		- For all the operators of stream
 
-2) (Stream & FastStream) think how union common methods and types of different Stream (main and fast ones).
-	- Write static "interface" (static polymorphism) with these common methods (next, hasNext, increment) and 
-		transfer it to operators ones in argument.
+	1) (Interval), (Comparable) write TODOs for them.
 
-3) (FastStream) use Stream's tests to test the fast_stream::Stream.
+	2) (Stream & FastStream) think how union common methods and types of different Stream (main and fast ones).
+		- Write static "interface" (static polymorphism) with these common methods (next, hasNext, increment) and 
+			transfer it to operators ones in argument.
 
-4) (Stream) write group_by(to any container like vector, list, string and so on (IIterable))
+	3) (FastStream) use Stream's tests to test the fast_stream::Stream.
+
+	4) (Stream) write group_by(to any container like vector, list, string and so on (IIterable))
 
 ----Local TODOs:
 
--1) Write instruction to use my library
+	1) (LongNumber) Write division properly.
 
-0) (Stream) realize the merging streams :
-	- Stream(vector).merge(Stream(vector)) | sum()
-	F.A.Q. Where do you storage result of this merging ? Output containers ? 
-	Or we say only about building the chain of some streams ?
+	2) (FixedPrecisionNumber) write tests for comparing numbers. (check if all are right)
 
-1) (LongNumber) Write division properly.
+	3) (Stream) rename shortening namespace to shortenings (or better shorteners)
 
-2) (FixedPrecisionNumber) write tests for comparing numbers
+	4) (Stream) Edit distinct operator by replacing the std::refs on value_type values.
 
-3) (Stream) rename shortening namespace to shortenings (or better shorteners)
+	5) (Stream) Put off the short_stream and fast_stream to it own files.
 
-4) (Stream) Edit distinct operator by replacing the std::refs on value_type values.
+	6) (Stream) make 'assertOnInfinite' method invisible for clients
 
-5) (Stream) Put off the short_stream and fast_stream to it own files.
-
-6) (Stream) make 'assertOnInfinite' method invisible for clients
+	8) (Stream.Reduce) add compile-assert to check if client passes only one argument to lambda in Accumulator of Reduce
 
 ----Think about:
 
-1) I would like to add union interval and segment like the entire object (e.g. [-2, 3) U (5, +inf) ).
-	- May be work with "<", "<=" symbols (from C++ STL). like container.add(5, "<=");
-	- Answer: I think you need to create wrapper around Set<T> 
-		because it cannot contain the function (contain), 
-		or if so then wrapper will inherit from Interface IPlenty
-	- What do I need the interface IPlenty for? 
-		May be combine such actions like do smth over collection 
-		by pattern like plenty language (set theory language). 
-		Like do smth over the whole collection accept this set (plenty).
+	1) I would like to add union interval and segment like the entire object (e.g. [-2, 3) U (5, +inf) ).
+		- May be work with "<", "<=" symbols (from C++ STL). like container.add(5, "<=");
+		- Answer: I think you need to create wrapper around Set<T> 
+			because it cannot contain the function (contain), 
+			or if so then wrapper will inherit from Interface IPlenty
+		- What do I need the interface IPlenty for? 
+			May be combine such actions like do smth over collection 
+			by pattern like plenty language (set theory language). 
+			Like do smth over the whole collection accept this set (plenty).
 
-2) (Stream) Think about optimizing Stream by adding ability to doPreliminary and Postliminary actions 
-	like previous version of Stream.
-	- For example, you have terminated operator sum(). You don't want to write the same code
-		with adding the only line (doPreliminaryActions();). You want to write wrapper 
-		around first sum(). 
-	- It is similar that your Stream have different levels of abstraction. 
-		First: nextElem(), hasNext(), incrementSlider().
-		Second: First + [ doPreliminaryActions() or init() ].
-	- maybe divide the nextElem(), hasNext(), initialize() methods by different classes 
-		that have responsibility to call them 
+	2) (Interval) Must add check on leftBorder "<=" rightBorder?
+		- Disadvantage: you take freedom from clients to use empty sets. Maybe
 
-3) (Stream) How to simplify 'filter' operator ??
+	3) (Interval) Must make the Infinity classes as singleton?
+
+	4) (Interval) Think about constraining the NumericalInterval with Direction of comparators (<, <= - one direction,
+			>, >= - another direction).
+
+	5) (Stream) Think about optimizing Stream by adding ability to doPreliminary and Postliminary actions 
+		like previous version of Stream.
+		- For example, you have terminated operator sum(). You don't want to write the same code
+			with adding the only line (doPreliminaryActions();). You want to write wrapper 
+			around first sum(). 
+		- It is similar that your Stream have different levels of abstraction. 
+			First: nextElem(), hasNext(), incrementSlider().
+			Second: First + [ doPreliminaryActions() or init() ].
+		- maybe divide the nextElem(), hasNext(), initialize() methods by different classes 
+			that have responsibility to call them 
+
+	6) (Stream) How to simplify 'filter' operator ??
+
+	7) (BigNumber) Write BigUnsignedView - wrapper around iterators over Container.
+
+	8) (BigUnsigned) Rewrite with move-semantics

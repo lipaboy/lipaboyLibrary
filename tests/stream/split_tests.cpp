@@ -24,19 +24,21 @@ namespace stream_tests {
 
 	TEST(Stream_Split, strings) {
 		string str = "hello, world!!";
-		string outStr = Stream(str.begin(), str.end()) 
-			| split_impl([](char ch) -> bool 
-			{ 
-				return ch == ' '; 
-			}) 
-            | sum<>();
+        string outStr = Stream(str.begin(), str.end())
+			| split_impl(
+				[](char ch) -> bool 
+				{ 
+					return ch == ' '; 
+				}) 
+            | sum();
 		ASSERT_EQ(outStr, "hello,world!!");
 
 		auto outStr2 = Stream(str.begin(), str.end()) 
-			| split<string>([](char ch) -> bool 
-			{ 
-				return ch == ' ' || ch == ',' || ch == '!'; 
-			}) 
+			| split<string>(
+				[](char ch) -> bool 
+				{ 
+					return ch == ' ' || ch == ',' || ch == '!'; 
+				}) 
 			| to_vector();
 		ASSERT_EQ(outStr2, vector<string>({ "hello", "world", "" }));
 	}
@@ -44,6 +46,7 @@ namespace stream_tests {
 	TEST(Stream_Split, vectors) {
 		string str = "hello, world!";
 		string outStr = Stream(str.begin(), str.end()) 
+<<<<<<< HEAD
 			| split_impl<std::function<bool(char)>, vector<char> >([](char ch) -> bool 
 			{ 
 				return ch == ' '; 
@@ -65,14 +68,57 @@ namespace stream_tests {
 				return std::string(vec.begin(), vec.end()); 
 			})
             | sum<>();
+=======
+			| split_impl<std::function<bool(char)>, vector<char> >(
+				[](char ch) -> bool 
+				{ 
+					return ch == ' '; 
+				}) 
+			| map(
+				[](vector<char> const & vec) 
+				{ 
+					return std::string(vec.begin(), vec.end()); 
+				})
+			| sum();
+		ASSERT_EQ(outStr, "hello,world!");
+
+		string outStr2 = Stream(str.begin(), str.end())
+			| split< vector<char> >(
+				[](char ch) -> bool 
+				{ 
+					return ch == ' '; 
+				})
+			| map(
+				[](vector<char> const & vec) 
+				{ 
+					return std::string(vec.begin(), vec.end()); 
+				})
+			| sum();
+>>>>>>> f407cf6d7087c823c5e994a764d13837532c420c
 			ASSERT_EQ(outStr2, "hello,world!");
 	}
 
-	/*TEST(Stream_Split, integers) {
-		int a = 0;
-		auto val = Stream([&a]() { return ++a; })
-			| split<
-	}*/
+	TEST(Stream_Split, group_by_numbers) {
+		string str = "my pocket money in GTAV: 5 234 321$ but my brother has 5 324$";
+		auto val = Stream(str)
+			| filter(
+				[](char ch) -> bool
+				{
+					return ch != ' ';
+				})
+			| split< std::string >(
+				[](char ch) 
+				{
+					return !std::isdigit(ch);
+				})
+			| map(
+				[](std::string const & numStr) -> int
+				{
+					return std::stoi(numStr);
+				})
+			| sum();
+		ASSERT_EQ(val, 5239645);
+	}
 
 }
 

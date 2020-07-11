@@ -6,11 +6,10 @@
 
 namespace lipaboy_lib_tests {
 
-	using lipaboy_lib::FixedIntPrecisionNumber;
 	using lipaboy_lib::FixedPrecisionNumber;
 
 	TEST(FixedPrecisionNumber, simple) {
-		FixedIntPrecisionNumber<double, 1, -5> kek(5.);
+		FixedPrecisionNumber<double, 1, -5> kek(5.);
 
 		ASSERT_EQ(kek, 5.);
 		ASSERT_EQ(5., kek);

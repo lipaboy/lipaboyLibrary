@@ -116,27 +116,15 @@ namespace lipaboy_lib {
 		public:
 
 			ResultValueType nextElem() {
-#ifdef WIN32
-				return operator_.nextElem<SubType>(*superThisPtr());
-#else
                 return operator_.template nextElem<SubType>(*superThisPtr());
-#endif
 			}
 
 			bool hasNext() {
-#ifdef WIN32
-				return operator_.hasNext<SubType>(*superThisPtr());
-#else
                 return operator_.template hasNext<SubType>(*superThisPtr());
-#endif
 			}
 
 			void incrementSlider() {
-#ifdef WIN32
-				operator_.incrementSlider<SubType>(*superThisPtr());
-#else
                 operator_.template incrementSlider<SubType>(*superThisPtr());
-#endif
 			}
 
 

@@ -35,7 +35,7 @@ namespace lipaboy_lib {
 				static constexpr bool isTerminated = false;
 				
 				using type = T;
-				using reference = std::reference_wrapper<type>;
+				//using reference = std::reference_wrapper<type>;
                 using ContainerType = std::unordered_set<
                     //reference,
                     type,
@@ -58,9 +58,6 @@ namespace lipaboy_lib {
 						[set = lol](T & elem) -> bool 
 						{
                             bool isInserted = set->insert(elem).second;
-                            //for (auto it = set->begin(); it != set->end(); it++) {
-                            //    auto temp = *it;
-                            //}
                             if (isInserted)
 								return true;
 							return false;

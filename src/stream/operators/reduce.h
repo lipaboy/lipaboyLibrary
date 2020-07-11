@@ -12,6 +12,7 @@
 #include <type_traits>
 #include <optional>
 
+
 namespace lipaboy_lib {
 
 	namespace stream_space {
@@ -53,7 +54,7 @@ namespace lipaboy_lib {
 				};
 				template <class F, class T>
 				struct result_of_else<F(T)> {
-					using type = typename std::result_of<F(T)>::type;
+					using type = typename std::invoke_result<F, T>::type;
 				};
 				template <class T>
 				struct result_of_else<FalseType(T)>
@@ -116,7 +117,7 @@ namespace lipaboy_lib {
 					if constexpr (std::is_same_v<IdentityFn, FalseType>)
 						return AccumRetType(std::forward<Arg_>(arg));
 					else
-						return FunctorHolder<IdentityFn>::functor()(std::forward<Arg_>(arg));
+						return operators::FunctorHolder<IdentityFn>::functor()(std::forward<Arg_>(arg));
 				}
 
 				template <class Stream_>

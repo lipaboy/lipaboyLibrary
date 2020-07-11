@@ -12,7 +12,7 @@ namespace lipaboy_lib {
 	class Point2D
 	{
 	public:
-		Point2D() {}
+		Point2D() : X(0), Y(0) {}
 		Point2D(double x, double y) : X(x), Y(y) {}
 #ifdef QT_H
 		Point2D(QPointF point) : X(point.x()), Y(point.y()) {}
