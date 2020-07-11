@@ -11,6 +11,11 @@
 #include <typeinfo>
 #include <type_traits>
 
+//#define _SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING
+//
+//#define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
+
+
 namespace lipaboy_lib {
 
 	namespace stream_space {
@@ -40,7 +45,7 @@ namespace lipaboy_lib {
 				};
 				template <class F, class T>
 				struct result_of_else<F(T)> {
-					using type = typename std::result_of<F(T)>::type;
+					using type = typename std::invoke_result<F, T>::type;
 				};
 				template <class T>
 				struct result_of_else<FalseType(T)>
@@ -81,14 +86,19 @@ namespace lipaboy_lib {
 				static constexpr enum OperatorMetaTypeEnum metaInfo = REDUCE;
 				static constexpr bool isTerminated = true;
 			public:
-				reduce(IdentityFn&& identity, Accumulator&& accum)
+				reduce(IdentityFn identity, Accumulator accum)
 					: FunctorHolder<Accumulator>(accum),
 					FunctorHolder<IdentityFn>(identity)
-				{}
-				reduce(Accumulator&& accum)
+				{
+					//static_assert(!std::is_same<IdentityFn, std::function<int(int, int)> >::value, "0");
+					//static_assert(!std::is_same<Accumulator, std::function<int(int, int)> >::value, "1");
+				}
+				reduce(Accumulator accum)
 					: FunctorHolder<Accumulator>(accum),
 					FunctorHolder<IdentityFn>(FalseType())
-				{}
+				{
+					//static_assert(std::is_same<IdentityFn, FalseType>::value, "2");
+				}
 
 				template <class TResult_, class Arg_>
 				AccumRetType<TResult_, Arg_> accum(TResult_&& result, Arg_&& arg) const {
@@ -101,7 +111,7 @@ namespace lipaboy_lib {
 					if constexpr (std::is_same<IdentityFn, FalseType>::value)
 						return std::forward<Arg_>(arg);
 					else
-						return FunctorHolder<IdentityFn>::functor()(std::forward<Arg_>(arg));
+						return operators_space::FunctorHolder<IdentityFn>::functor()(std::forward<Arg_>(arg));
 				}
 
 				template <class Stream_>
