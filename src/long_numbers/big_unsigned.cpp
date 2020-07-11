@@ -350,7 +350,7 @@ namespace lipaboy_lib {
 
 			NumberTypePointer result = allocFromStorage(storage, storageEndPos);
 
-			int init = storageEndPos;
+            //int init = storageEndPos;
 
 			if (first.length() == 1 && second.length() == 1) {\
 				DoubleType mult = static_cast<DoubleType>(first.getBlockDirty(0)) * second.getBlockDirty(0);
