@@ -57,6 +57,7 @@ endfunction()
 #enable_cxx_compiler_flag_if_supported("-Wextra")
 #enable_cxx_compiler_flag_if_supported("-pedantic")	
 enable_cxx_compiler_flag_if_supported("-std=c++17")
+#enable_cxx_compiler_flag_if_supported("-Woverflow=off")
 
 if (WIN32)
     if (MSVC_VERSION GREATER_EQUAL "1900")

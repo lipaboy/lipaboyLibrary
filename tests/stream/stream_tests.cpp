@@ -89,6 +89,7 @@ TEST_F(PrepareStreamTest, initializer_list_int) {
     ASSERT_EQ(value, 12);
 }
 
+
 TEST_F(PrepareStreamTest, initializer_list_strings) {
     string * text = new string("I was a Neir Automata but I was some drunk.");
     auto words = Stream(*text)
@@ -103,7 +104,7 @@ TEST_F(PrepareStreamTest, initializer_list_strings) {
     auto value = Stream({w[0], w[1], w[2], w[3], w[4], w[5], w[6], w[7], w[8], w[9]})
         | distinct()
         | reduce(
-            [](string &text, string &word) 
+            [](string & text, string const & word)
             {
                 return text.append(" ").append(word);
             });

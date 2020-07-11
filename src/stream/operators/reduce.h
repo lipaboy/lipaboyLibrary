@@ -126,7 +126,7 @@ namespace lipaboy_lib {
 					if (!obj.hasNext())
 						return std::nullopt;
 					AccumRetType result = 
-						this->template identity<ArgType>(obj.nextElem());
+                        this->template identity<ArgType>(obj.nextElem());
 					for (; obj.hasNext(); )
 						result = accum(result, obj.nextElem());
 					return result;

@@ -96,12 +96,15 @@ namespace lipaboy_lib {
 	template <class T, typename LeftComparator, typename RightComparator>
 	class Interval : public IntervalBase<T, LeftComparator, RightComparator>
 	{
+    private:
+        using SuperType = IntervalBase<T, LeftComparator, RightComparator>;
 	public:
 		Interval(const T& leftBorder, const T& rightBorder)
-			: IntervalBase<T, LeftComparator, RightComparator>(leftBorder, rightBorder) {}
+            : SuperType(leftBorder, rightBorder) {}
 
-		T& rLeft() { return leftBorder_; }
-		T& rRight() { return rightBorder_; }
+        // NOTE: in linux gcc cannot see the protected fields of super template class.
+        T& rLeft() { return SuperType::leftBorder_; }
+        T& rRight() { return SuperType::rightBorder_; }
 	};
 
 	template <class T>
@@ -115,22 +118,36 @@ namespace lipaboy_lib {
 	class PositiveRay : 
 		public IntervalBase<T, LeftComparator, typename PositiveInfinity<T>::less, T, PositiveInfinity<T> >
 	{
+    private:    // user cannot see the SuperType of class
+        using SuperType = IntervalBase<
+            T,
+            LeftComparator,
+            typename PositiveInfinity<T>::less,
+            T,
+            PositiveInfinity<T> >;
 	public:
 		PositiveRay(const T& leftBorder)
-			: IntervalBase(leftBorder, PositiveInfinity<T>()) {}
+            : SuperType(leftBorder, PositiveInfinity<T>()) {}
 
-		T& rLeft() { return leftBorder_; }
+        T& rLeft() { return SuperType::leftBorder_; }
 	};
 
 	template <class T, typename RightComparator>
 	class NegativeRay :
 		public IntervalBase<T, typename NegativeInfinity<T>::less, RightComparator, NegativeInfinity<T>, T >
 	{
+    private:    // user cannot see the SuperType of class
+        using SuperType = IntervalBase<
+            T,
+            typename NegativeInfinity<T>::less,
+            RightComparator,
+            NegativeInfinity<T>,
+            T>;
 	public:
 		NegativeRay(const T& rightBorder)
-			: IntervalBase(NegativeInfinity<T>(), rightBorder) {}
+            : SuperType(NegativeInfinity<T>(), rightBorder) {}
 
-		T& rRight() { return rightBorder_; }
+        T& rRight() { return SuperType::rightBorder_; }
 	};
 
 	template <class T>
@@ -143,8 +160,16 @@ namespace lipaboy_lib {
 			PositiveInfinity<T>
 		>
 	{
+    private:
+        using SuperType = IntervalBase<
+            T,
+            typename NegativeInfinity<T>::less,
+            typename PositiveInfinity<T>::less,
+            NegativeInfinity<T>,
+            PositiveInfinity<T>
+        >;
 	public:
-		UniversumInterval() : IntervalBase(NegativeInfinity<T>(), PositiveInfinity<T>()) {}
+        UniversumInterval() : SuperType(NegativeInfinity<T>(), PositiveInfinity<T>()) {}
 	};
 
 	//--------------------Interval API---------------------//

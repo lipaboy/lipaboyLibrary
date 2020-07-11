@@ -31,6 +31,11 @@ namespace lipaboy_lib {
 
 		static int reallocCount = 0;
 
+        class BigUnsigned;
+
+        BigUnsigned operator +(BigUnsignedView first, BigUnsignedView second);
+        BigUnsigned operator -(BigUnsignedView first, BigUnsignedView second);
+
 		class BigUnsigned
 		{
 		public:
@@ -280,8 +285,8 @@ namespace lipaboy_lib {
 
 			ConstReference add(BigUnsignedView, BigUnsignedView);
 			 // OVERLOADED RETURN-BY-VALUE OPERATORS
-			BigUnsigned operator +(const BigUnsigned &x) const { return BigUnsignedView(*this) + BigUnsignedView(x); }
-			BigUnsigned operator -(const BigUnsigned &x) const { return BigUnsignedView(*this) - BigUnsignedView(x); }
+            BigUnsigned operator +(const BigUnsigned &x) const { return BigUnsignedView(*this) + BigUnsignedView(x); }
+            BigUnsigned operator -(const BigUnsigned &x) const { return BigUnsignedView(*this) - BigUnsignedView(x); }
 			BigUnsigned operator *(const BigUnsigned &x) const;
 			BigUnsigned operator /(const BigUnsigned &x) const;
 			BigUnsigned operator %(const BigUnsigned &x) const;
@@ -294,9 +299,9 @@ namespace lipaboy_lib {
 			BigUnsigned operator >>(int b) const;
 
 			// OVERLOADED ASSIGNMENT OPERATORS
-			ConstReference operator +=(BigUnsignedView x) { return (*this = (*this) + x); }
+            ConstReference operator +=(BigUnsignedView x) { return (*this = BigUnsignedView(*this) + x); }
 			ConstReference operator +=(const BigUnsigned &x) { return (*this = (*this) + x); }
-			ConstReference operator -=(BigUnsignedView x) { return (*this = (*this) - x); }
+            ConstReference operator -=(BigUnsignedView x) { return (*this = BigUnsignedView(*this) - x); }
 			ConstReference operator -=(const BigUnsigned &x) { return (*this = (*this) - x); }
 			void operator *=(const BigUnsigned &x);
 			void operator /=(const BigUnsigned &x);

@@ -45,30 +45,7 @@ namespace stream_tests {
 
 	TEST(Stream_Split, vectors) {
 		string str = "hello, world!";
-		string outStr = Stream(str.begin(), str.end()) 
-<<<<<<< HEAD
-			| split_impl<std::function<bool(char)>, vector<char> >([](char ch) -> bool 
-			{ 
-				return ch == ' '; 
-			}) 
-			| map([](vector<char> const & vec) 
-			{ 
-				return std::string(vec.begin(), vec.end()); 
-			})
-            | sum<>();
-		ASSERT_EQ(outStr, "hello,world!");
-
-		string outStr2 = Stream(str.begin(), str.end())
-			| split< vector<char> >([](char ch) -> bool 
-			{ 
-				return ch == ' '; 
-			})
-			| map([](vector<char> const & vec) 
-			{ 
-				return std::string(vec.begin(), vec.end()); 
-			})
-            | sum<>();
-=======
+        string outStr = Stream(str.begin(), str.end())
 			| split_impl<std::function<bool(char)>, vector<char> >(
 				[](char ch) -> bool 
 				{ 
@@ -93,9 +70,9 @@ namespace stream_tests {
 				{ 
 					return std::string(vec.begin(), vec.end()); 
 				})
-			| sum();
->>>>>>> f407cf6d7087c823c5e994a764d13837532c420c
-			ASSERT_EQ(outStr2, "hello,world!");
+            | sum();
+
+        ASSERT_EQ(outStr2, "hello,world!");
 	}
 
 	TEST(Stream_Split, group_by_numbers) {

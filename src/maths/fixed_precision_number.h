@@ -15,8 +15,8 @@ namespace lipaboy_lib {
 	template <typename T, typename IntegerPrecisionType, 
 		IntegerPrecisionType fraction, IntegerPrecisionType dozenPower>
 	class FixedPrecisionNumberBase : 
-        public ComparatorExtender<FixedPrecisionNumberBase<T, IntegerPrecisionType, fraction, dozenPower> >,
         public EitherComparable<T, FixedPrecisionNumberBase<T, IntegerPrecisionType, fraction, dozenPower> >,
+        public ComparatorExtender<FixedPrecisionNumberBase<T, IntegerPrecisionType, fraction, dozenPower> >,
 		public OperationAlgebra<T, FixedPrecisionNumberBase<T, IntegerPrecisionType, fraction, dozenPower> >,
         public SelfOperationAlgebra<T, FixedPrecisionNumberBase<T, IntegerPrecisionType, fraction, dozenPower> >
 	{

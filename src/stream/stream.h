@@ -162,10 +162,10 @@ namespace lipaboy_lib {
 		auto operator| (StreamBase<Args...>&& stream, TOperator operation)
 			-> shortening::ExtendingReturnType<TOperator, Args...>
 		{
-			using StreamType = StreamBase<Args...>;
+            using StreamType = StreamBase<Args...>;
 
 			if constexpr (TOperator::isTerminated == true) {
-				stream.template assertOnInfinite<StreamType>();
+                stream.template assertOnInfinite<StreamType>();
                 // INFO: needn't to move the stream because it is terminated operation
                 //       and method 'apply' get the l-value stream.
 				return shortening::TerminatedOperatorTypeApply_t<StreamType, TOperator>

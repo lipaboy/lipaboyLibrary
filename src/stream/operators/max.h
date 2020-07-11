@@ -58,22 +58,23 @@ namespace lipaboy_lib {
 					return TSelfReduce<T>::template apply<Stream_>(obj);
 				}
 
-			// i'am lipa boy (by Kirill Ponomarev)
+            // i'am lipa boy (by Kirill Ponomarev)
+
 			};
 
-		}
+            //-------------------------------------------------------------//
+            //--------------------------Apply API--------------------------//
+            //-------------------------------------------------------------//
 
-    //-------------------------------------------------------------//
-    //--------------------------Apply API--------------------------//
-    //-------------------------------------------------------------//
+        }
 
-    using operators::max;
-    using operators::max_impl;
+        using operators::max;
+        using operators::max_impl;
 
-    template <class TStream>
-    struct shortening::TerminatedOperatorTypeApply<TStream, operators::max> {
-        using type = operators::max_impl<typename TStream::ResultValueType>;
-    };
+        template <class TStream>
+        struct shortening::TerminatedOperatorTypeApply<TStream, max> {
+            using type = operators::max_impl<typename TStream::ResultValueType>;
+        };
 
 	}
 
