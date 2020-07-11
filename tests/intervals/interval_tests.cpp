@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 
 #include <iostream>
+#include <climits>
 
 #include "intervals/interval.h"
 #include "intervals/numerical_interval.h"

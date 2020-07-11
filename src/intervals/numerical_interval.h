@@ -12,11 +12,13 @@ namespace lipaboy_lib {
 	>
 	class NumericalInterval : public Interval<T, LeftComparator, RightComparator>
 	{
+    private:
+        using SuperType = Interval<T, LeftComparator, RightComparator>;
 	public:
 		NumericalInterval(const T& leftBorder, const T& rightBorder)
-			: Interval<T, LeftComparator, RightComparator>(leftBorder, rightBorder) {}
+            : SuperType(leftBorder, rightBorder) {}
 
-		T length() { return DifferenceFunc()(right(), left()); }
+        T length() { return DifferenceFunc()(SuperType::right(), SuperType::left()); }
 
 	};
 

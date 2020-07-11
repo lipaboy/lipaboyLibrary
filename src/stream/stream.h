@@ -138,16 +138,21 @@ namespace lipaboy_lib {
 			}
 		}
 
+        // NOTE: you cannot move stream in operator's argument because operator passes only l-value var
 		template <class TOperator, class... Args>
 		auto operator| (StreamBase<Args...>&& stream, TOperator operation)
 			-> shortening::ExtendingReturnType<TOperator, Args...>
 		{
-			using StreamType = StreamBase<Args...>;
+            using StreamType = StreamBase<Args...>;
 
 			if constexpr (TOperator::isTerminated == true) {
 				stream.template assertOnInfinite<StreamType>();
-				return shortening::TerminatedOperatorTypeApply_t<StreamType, TOperator>
-					(operation).apply(std::move(stream));
+                return shortening::TerminatedOperatorTypeApply_t<StreamType, TOperator>
+                    (operation).apply(
+                            //std::move(
+                                          stream
+                                //)
+                            );
 			}
 			else {
 				return shortening::StreamTypeExtender_t<StreamType, TOperator>

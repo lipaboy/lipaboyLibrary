@@ -1,5 +1,4 @@
-#ifndef COMPARABLE_H
-#define COMPARABLE_H
+#pragma once
 
 //Lipa std
 namespace lipaboy_lib {
@@ -27,5 +26,4 @@ namespace lipaboy_lib {
 
 }
 
-#endif //COMPARABLE_H
-#pragma once
+
