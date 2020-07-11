@@ -278,14 +278,14 @@ namespace big_integer_tests {
 
 		res = multiplyByKaracuba(first, second);
 
-		EXPECT_EQ(bigUnsignedToString(res), to_string(long long(1e17)));
+        EXPECT_EQ(bigUnsignedToString(res), to_string((long long)(1e17)));
 
-		first = stringToBigUnsigned(to_string(long long(1e12)));
-		second = stringToBigUnsigned(to_string(long long(1e5)));
+        first = stringToBigUnsigned(to_string((long long)(1e12)));
+        second = stringToBigUnsigned(to_string((long long)(1e5)));
 		res = multiplyByKaracuba(first, second);
-		EXPECT_EQ(bigUnsignedToString(res), to_string(long long(1e17)));
+        EXPECT_EQ(bigUnsignedToString(res), to_string((long long)(1e17)));
 
-		first = stringToBigUnsigned(to_string(long long(1e12)));
+        first = stringToBigUnsigned(to_string((long long)(1e12)));
 		res = multiplyByKaracuba(first, first);
 
 		EXPECT_EQ(bigUnsignedToString(first), "1000000000000");
