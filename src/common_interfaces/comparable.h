@@ -13,7 +13,7 @@ namespace lipaboy_lib {
             return static_cast<Derived const *>(this)->operator< (*static_cast<Derived const *>(&other));
         }
         bool operator<= (const ComparatorExtender& other) const {
-			return ((*this) < other) || ((*this) == other);
+            return ((*this) < other) || ((*this) == other);
 		}
         bool operator== (const ComparatorExtender& other) const {
             return static_cast<Derived const *>(this)->operator== (*static_cast<Derived const *>(&other));

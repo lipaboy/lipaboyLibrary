@@ -75,13 +75,25 @@ namespace lipaboy_lib_tests {
 		ASSERT_EQ(kek1, kek2);
 		ASSERT_TRUE(kek1 == kek2);
 		kek2 += 2.;
-        //ASSERT_NE(kek1, kek2);
-        //ASSERT_TRUE(kek1 <= kek2);
+#ifdef WIN32
+        ASSERT_NE(kek1, kek2);
+#endif
+        ASSERT_TRUE(kek1 < kek2);
+#ifdef WIN32
+        ASSERT_TRUE(tkek(kek1) <= kek2);
+#else
+        using lipaboy_lib::ComparatorExtender;
+        using lipaboy_lib::EitherComparable;
+        using tkek = ComparatorExtender<FixedPrecisionNumber<double, 1, -5> >;
+        ASSERT_TRUE(tkek(kek1) <= kek2);
+#endif
 
-        //ASSERT_TRUE(kek1 >= 2.);
+#ifdef WIN32
+        ASSERT_TRUE(kek1 >= 2.);
 
 		using ConstFixedDouble3 = const FixedPrecisionNumber<double, 1, -3>;
         //ASSERT_TRUE(ConstFixedDouble3(5.) >= ConstFixedDouble3(5.0001));
+#endif
 
 		ASSERT_TRUE(2.00002 > kek1);
 		ASSERT_TRUE(2.00002 >= kek1);
