@@ -85,3 +85,8 @@
 	7) (BigNumber) Write BigUnsignedView - wrapper around iterators over Container.
 
 	8) (BigUnsigned) Rewrite with move-semantics
+
+
+Linux problems:
+
+	1) (FixedPrecisionNumber and EitherComparable) fix ambigious error with kek1 <= kek2
