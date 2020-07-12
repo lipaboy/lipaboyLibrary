@@ -16,7 +16,7 @@ namespace lipaboy_lib {
         using DerivedType = TDerived;
         using ValueType = T;
 	public:
-        bool operator< (const T& other) const {
+        bool operator< (const ValueType& other) const {
             return static_cast<DerivedType const *>(this)->operator< (other);
         }
         bool operator<= (const ValueType& other) const {
@@ -26,8 +26,8 @@ namespace lipaboy_lib {
             return static_cast<DerivedType const *>(this)->operator== (other);
         }
 
-		bool operator> (const T& other) const { return !((*this) <= other); }
-		bool operator>= (const T& other) const { return !((*this) < other); }
+		bool operator> (const ValueType& other) const { return !((*this) <= other); }
+		bool operator>= (const ValueType& other) const { return !((*this) < other); }
         bool operator!= (const ValueType& other) const { return !((*this) == other); }
 	};
 

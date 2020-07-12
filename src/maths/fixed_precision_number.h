@@ -27,32 +27,35 @@ namespace lipaboy_lib {
 			FixedPrecisionNumberBase(T _number = T()) noexcept
 				: number(_number) {}
 
-        bool operator<(const T& val) const noexcept { return (getNumber() < val
-			- static_cast<T>(epsilonPrecision())); }
-//        bool operator<=(const T& val) const noexcept { return (getNumber() <= val
-//			+ static_cast<T>(epsilonPrecision())); }
+        bool operator<(const ValueType& val) const noexcept { 
+			return (getNumber() < val - static_cast<ValueType>(epsilon()));
+		}
+//      bool operator<=(const ValueType& val) const noexcept { 
+//			return (getNumber() <= val + static_cast<ValueType>(epsilon())); 
+//		}
         bool operator==(const ValueType& val) const noexcept {
-            return (getNumber() >= val - static_cast<ValueType>(epsilonPrecision()))
-                && (getNumber() <= val + static_cast<ValueType>(epsilonPrecision()));
+            return (getNumber() >= val - static_cast<ValueType>(epsilon()))
+                && (getNumber() <= val + static_cast<ValueType>(epsilon()));
 		}
 
         bool operator<(const FixedPrecisionNumberBase& obj) const noexcept {
-            return (*this) < obj.getNumber(); }
+            return (*this) < obj.getNumber(); 
+		}
         bool operator==(const FixedPrecisionNumberBase& obj) const noexcept {
-            return (*this) == obj.getNumber(); }
+            return (*this) == obj.getNumber(); 
+		}
 
 		void setNumber(T const & val) noexcept { number = val; }
         T const & getNumber() const noexcept { return number; }
-		FixedPrecisionNumberBase const & operator= (T const & val) noexcept { setNumber(val); return *this; }
+		FixedPrecisionNumberBase const & operator= (T const & val) noexcept { 
+			setNumber(val); 
+			return *this; 
+		}
 
 		static constexpr ValueType epsilon() {
 			return static_cast<ValueType>(fraction * powDozen<ValueType, IntegerPrecisionType>(dozenPower));
 		}
-
-		//friend std::ostream& operator<< (std::ostream& o, FixedPrecisionNumber const & number);
-
-	public:
-		constexpr ValueType epsilonPrecision() const { return fraction * powDozen<T, IntegerPrecisionType>(dozenPower); }
+ 
 	private:
 		T number;
 	};
@@ -64,8 +67,10 @@ namespace lipaboy_lib {
 
 	template <typename T, typename IntegerPrecisionType,
 		IntegerPrecisionType fraction, IntegerPrecisionType dozenPower>
-	inline std::ostream& operator<< (std::ostream& o, 
-		FixedPrecisionNumberBase<T, IntegerPrecisionType, fraction, dozenPower> const & number) {
+	inline std::ostream& operator<< (
+		std::ostream& o, 
+		FixedPrecisionNumberBase<T, IntegerPrecisionType, fraction, dozenPower> const & number) 
+	{
 		return o << number.getNumber();
 	}
 
