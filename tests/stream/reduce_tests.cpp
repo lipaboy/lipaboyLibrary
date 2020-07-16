@@ -28,18 +28,20 @@ namespace stream_tests {
 		}
 	}
 
-	TEST(Stream_Reduce, Infinite) {
+	TEST(Stream_Reduce, Producing_Iterator) {
 		int a = 0;
 		auto res = Stream([&a]() { return a++; })
 			| get(4)
 			| reduce([](int res, int elem) { return res + elem; });
 		ASSERT_EQ(res, 6);
+	}
 
-		/*a = 0;
-		res = Stream([&a]() { return a++; })
+	TEST(Stream_Reduce, not_lambda_as_parameter) {
+		int a = 0;
+		auto res = Stream([&a]() { return a++; })
 			| get(4)
 			| reduce(sumFunc);
-		ASSERT_EQ(res, 6);*/
+		ASSERT_EQ(res, 6);
 	}
 
 	TEST(Stream_Reduce, Char_sticking) {
