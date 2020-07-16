@@ -33,6 +33,8 @@
 
 	4) (Stream) write group_by(to any container like vector, list, string and so on (IIterable))
 
+	5) (LongNumbers) compare perfomance of BigUnsigned multiplication and library's one
+
 ----Local TODOs:
 
 	1) (LongNumber) Write division properly.
