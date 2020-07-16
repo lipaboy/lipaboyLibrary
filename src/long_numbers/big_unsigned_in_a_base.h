@@ -58,7 +58,7 @@ namespace lipaboy_lib {
 
 			// Decreases len to eliminate any leading zero digits.
 			void zapLeadingZeros() {
-				int len = getLength();
+				int len = int(getLength());
 				while (len > 0 && digits[len - 1] == 0)
 					len--;
 				if (len == 0)

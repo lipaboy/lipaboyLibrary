@@ -50,6 +50,9 @@
 	6) (Stream) make 'assertOnInfinite' method invisible for clients
 
 	8) (Stream.Reduce) add compile-assert to check if client passes only one argument to lambda in Accumulator of Reduce
+		Process: 
+			- add interlayer between reduce operator and initializing of it to catch the moment of error origin.
+				But adding static_assert into constructor doesn't make any effect.
 
 ----Think about:
 

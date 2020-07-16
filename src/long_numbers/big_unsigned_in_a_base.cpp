@@ -40,7 +40,7 @@ namespace lipaboy_lib {
 			this->base = base;
 
 			// Get an upper bound on how much space we need
-			int maxBitLenOfX = x.length() * BigUnsigned::BITS_PER_BLOCK;
+			int maxBitLenOfX = int(x.length() * BigUnsigned::BITS_PER_BLOCK);
 			int minBitsPerDigit = bitLen(base) - 1;
 			int maxDigitLenOfX = ceilingDiv(maxBitLenOfX, minBitsPerDigit);
 			if (maxDigitLenOfX <= 0)
@@ -70,7 +70,7 @@ namespace lipaboy_lib {
 
 		BigUnsignedInABase::operator BigUnsigned() const {
 			BigUnsigned ans(0), buBase(base), temp;
-			IndexType digitNum = getLength();
+			IndexType digitNum = IndexType(getLength());
 			while (digitNum > 0) {
 				digitNum--;
 				temp.multiply(ans, buBase);
@@ -95,7 +95,7 @@ namespace lipaboy_lib {
 
 			IndexType digitNum, symbolNumInString;
 			for (digitNum = 0; digitNum < getLength(); digitNum++) {
-				symbolNumInString = getLength() - 1 - digitNum;
+				symbolNumInString = IndexType(getLength() - 1 - digitNum);
 				char theSymbol = s[symbolNumInString];
 				if (theSymbol >= '0' && theSymbol <= '9')
 					digits[digitNum] = theSymbol - '0';
@@ -126,7 +126,7 @@ namespace lipaboy_lib {
 			s[getLength()] = '\0';
 			IndexType digitNum, symbolNumInString;
 			for (symbolNumInString = 0; symbolNumInString < getLength(); symbolNumInString++) {
-				digitNum = getLength() - 1 - symbolNumInString;
+				digitNum = IndexType(getLength() - 1 - symbolNumInString);
 				Digit theDigit = digits[digitNum];
 				if (theDigit < 10)
 					s[symbolNumInString] = char('0' + theDigit);

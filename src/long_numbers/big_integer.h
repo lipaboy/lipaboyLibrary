@@ -91,8 +91,8 @@ namespace lipaboy_lib {
 			const BigUnsigned &getMagnitude() const { return mag; }
 
 			// Some accessors that go through to the magnitude
-			Index getLength() const { return mag.length(); }
-			Index getCapacity() const { return mag.getCapacity(); }
+			Index getLength() const { return Index(mag.length()); }
+			Index getCapacity() const { return Index(mag.getCapacity()); }
 			Blk getBlock(Index i) const { return mag.getBlockDirty(i); }
 			bool isZero() const { return sign == zero; } // A bit special
 

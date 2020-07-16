@@ -20,7 +20,7 @@ namespace lipaboy_lib {
 
 			namespace {
 				template <class T>
-				using TSelfReduce = reduce<std::function<T (T const &, T const &)> >;
+				using TSelfReduce = reduce_impl<std::function<T (T const &, T const &)> >;
 			}
 
 			struct max : public TReturnSameType
@@ -28,9 +28,7 @@ namespace lipaboy_lib {
 				static constexpr OperatorMetaTypeEnum metaInfo = MAX;
 				static constexpr bool isTerminated = true;
 
-				max() {
-
-				}
+				max() {}
 			};
 
 			template <class T>
@@ -55,6 +53,8 @@ namespace lipaboy_lib {
 				template <class Stream_>
 				auto apply(Stream_ & obj) -> typename TSelfReduce<T>::template RetType<T>
 				{
+					static_assert(std::is_same_v<typename TSelfReduce<T>::template RetType<T>, std::optional<T> >,
+						"Error69");
 					return TSelfReduce<T>::template apply<Stream_>(obj);
 				}
 
@@ -68,13 +68,13 @@ namespace lipaboy_lib {
 
         }
 
-        using operators::max;
-        using operators::max_impl;
+		using operators::max;
+		using operators::max_impl;
 
-        template <class TStream>
-        struct shortening::TerminatedOperatorTypeApply<TStream, max> {
-            using type = operators::max_impl<typename TStream::ResultValueType>;
-        };
+		template <class TStream>
+		struct shortening::TerminatedOperatorTypeApply<TStream, max> {
+			using type = operators::max_impl<typename TStream::ResultValueType>;
+		};
 
 	}
 

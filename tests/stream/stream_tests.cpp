@@ -104,7 +104,7 @@ TEST_F(PrepareStreamTest, initializer_list_strings) {
     auto value = Stream({w[0], w[1], w[2], w[3], w[4], w[5], w[6], w[7], w[8], w[9]})
         | distinct()
         | reduce(
-            [](string & text, string const & word)
+            [](string & text, string const & word) -> string
             {
                 return text.append(" ").append(word);
             });

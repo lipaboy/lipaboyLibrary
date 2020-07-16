@@ -26,13 +26,31 @@ namespace stream_tests {
 		int sumFunc(int res, int elem) {
 			return res + elem;	
 		}
+
+		int sumFunc2(int res) {
+			return res + 0;
+		}
 	}
+
+	//TEST(Stream_Reduce, check_err) {
+	//	/*using namespace lipaboy_lib::stream_space::shortening;
+	//	static_assert(GetArgumentCount<std::function<int(int)> > == 2,
+	//		"Stream.Reduce Error: count arguments of lambda \
+	//						function is not equal to 2.");*/
+	//	int a = 0;
+	//	auto res = Stream([&a]() { return a++; })
+	//		| get(4)
+	//		//| reduce<std::function<int(int)> >(std::function<int(int)>([](int res) { return res + 1; }));
+	//		| reduce(sumFunc2);
+	//	ASSERT_EQ(res, 6);
+	//}
 
 	TEST(Stream_Reduce, Producing_Iterator) {
 		int a = 0;
 		auto res = Stream([&a]() { return a++; })
 			| get(4)
-			| reduce([](int res, int elem) { return res + elem; });
+			| reduce<std::function<int(int, int)> >(
+				std::function<int(int, int)>([](int res, int elem) -> int { return res + elem; }));
 		ASSERT_EQ(res, 6);
 	}
 
