@@ -1,6 +1,6 @@
 #pragma once
 
-#include "stream/operators/operators.h"
+#include "operators/operators.h"
 #include "stream_extended.h"
 #include "stream_base.h"
 #include "extra_tools/initializer_list_iterator.h"

@@ -38,26 +38,9 @@ namespace lipaboy_lib::short_stream {
 				return resOpt;
 			}
 
-			/*template <class TSubStream>
-			void incrementSlider(TSubStream& stream) {
-				stream.incrementSlider();
-			}
-*/
 		};
 
 	}
-
-	/*using operators::filter;
-	using operators::filter_impl;
-
-	template <class TStream, class Predicate>
-	struct shortening::StreamTypeExtender<TStream, filter<Predicate> > {
-		template <class T>
-		using remref = std::remove_reference_t<T>;
-
-		using type = typename remref<TStream>::template ExtendedStreamType<
-			remref<filter_impl<Predicate> > >;
-	};*/
 
 }
 

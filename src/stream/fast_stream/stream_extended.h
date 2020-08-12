@@ -1,6 +1,6 @@
 #pragma once
 
-#include "stream/operators/operators.h"
+#include "operators/operators.h"
 
 #include <functional>
 #include <type_traits>

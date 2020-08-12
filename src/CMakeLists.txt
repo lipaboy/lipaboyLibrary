@@ -72,11 +72,22 @@ set(LIB_LIPABOY_LIB_SOURCE_FILES
     stream/short_stream/stream_base.h
     stream/short_stream/stream_extended.h
     stream/short_stream/stream.h
+    "stream/short_stream/operators/filter.h"
+    stream/short_stream/operators/tools.h 
+    "stream/short_stream/operators/get.h"
+    stream/short_stream/operators/sum.h
+    stream/short_stream/operators/operators.h
 
     # Fast Stream
     stream/fast_stream/stream_base.h
     stream/fast_stream/stream_extended.h
     stream/fast_stream/stream.h
+    "stream/fast_stream/operators/filter.h"
+    "stream/fast_stream/operators/get.h"
+    stream/fast_stream/operators/sum.h
+    stream/fast_stream/operators/skip.h
+    stream/fast_stream/operators/tools.h
+    stream/fast_stream/operators/operators.h
 
     # Precision Number
     maths/fixed_precision_number.h
@@ -94,7 +105,7 @@ set(LIB_LIPABOY_LIB_SOURCE_FILES
     maths/vector3d.h
     maths/vector4d.h
     maths/vector4d.cpp
- "stream/short_stream/operators/filter.h" "stream/short_stream/operators/tools.h" "stream/short_stream/operators/get.h" "stream/short_stream/operators/sum.h" "stream/short_stream/operators/operators.h")
+)
 
 # Declare the library
 add_library(LIPABOY_LIB STATIC
