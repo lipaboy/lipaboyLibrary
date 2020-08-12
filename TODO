@@ -89,6 +89,8 @@
 
 	8) (BigUnsigned) Rewrite with move-semantics
 
+	9) (Stream.Sum) Think how fight with uninitialized accumulator of sum<>() ?
+
 
 Linux problems:
 

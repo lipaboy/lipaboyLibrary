@@ -21,9 +21,9 @@ namespace stream_benchmarks {
 		return std::chrono::duration_cast<ratio>(steady_clock::now() - from).count(); 
 	}
 
-	// Results: (Windows)
-	// 7% boost and that's all
-    // Results: (Linux, Release, 1e8)
+	// Results: (Windows, AMD Ryzen 5 3500U 2019 year old, Release, 1e8)
+	// 37% boost (50 simple, 2640 stream, 1667 fast_stream)
+    // Results: (Linux, Intel B960 2010 years old, Release, 1e8)
     // 0% boost (97 simple, 2717 stream, 2751 fast_stream)
     TEST(Benchmark_stream_vs_fast_stream, DISABLED_skip) {
         const size_t SIZE = static_cast<size_t>(1e8);
@@ -72,10 +72,12 @@ namespace stream_benchmarks {
 		ASSERT_FALSE(true);
 	}
 
-    // Results: (Linux, Release, 1e7)
+	// Results: (Windows, AMD Ryzen 5 3500U 2019 year old, Release, 5e7)
+	// 13% boost (6561 simple, 6343 stream, 5535 fast_stream) and 16% acceleration by using stream
+    // Results: (Linux, Intel B960 2010 years old, Release, 1e7)
     // 0% boost (1936 simple, 2307 stream, 2300 fast_stream)
     TEST(Benchmark_stream_vs_fast_stream, DISABLED_skip_string) {
-        const size_t SIZE = static_cast<size_t>(1e7);
+        const size_t SIZE = static_cast<size_t>(5e7);
 		string sum1 = "";
 		string sum2 = "";
 		string sum3 = "";
@@ -103,10 +105,6 @@ namespace stream_benchmarks {
 			int a = 0;
             sum2 = Stream([&a]() { return std::to_string(a++); })
 				| get(SIZE) 
-				| get(SIZE)
-				| get(SIZE)
-				| skip(100) 
-				| skip(100)
 				| skip(100)
                 | sum<>();
 			cout << "Time: " << diffFromNow(start) << " Stream" << endl;
@@ -120,10 +118,6 @@ namespace stream_benchmarks {
 			int a = 0;
             sum3 = Stream([&a]() { return std::to_string(a++); })
 				| get(SIZE) 
-				| get(SIZE)
-				| get(SIZE)
-				| skip(100) 
-				| skip(100)
 				| skip(100)
                 | sum();
 			cout << "Time: " << diffFromNow(start) << " Fast Stream" << endl;
@@ -138,11 +132,14 @@ namespace stream_benchmarks {
 		ASSERT_FALSE(true);
 	}
 
-    // Results: (Linux, Release, 1e8)
+	// Results: (Windows, AMD Ryzen 5 3500U 2019 year old, Release, 1e8)
+	// (2312 simple, 5214 stream, 5480 fast_stream, 5001 short_stream) and 56% deceleration
+	// (4096 simple, 13519 stream, 13808 fast_stream, 12250 short_stream) and 70% deceleration
+    // Results: (Linux, Intel B960 2010 years old, Release, 1e8)
     // 23% boost, deceleration by using stream 30%
     // (1347 simple, 5698 stream, 4358 fast_stream, 4681 short_stream)
     TEST(Benchmark_stream_vs_fast_stream, DISABLED_filter) {
-        const size_t SIZE = static_cast<size_t>(1e8);
+        const size_t SIZE = static_cast<size_t>(2e8);
         auto filterFunc = [] (int) { return rand() % 2 == 0; };
 
 		{
@@ -206,11 +203,13 @@ namespace stream_benchmarks {
 		ASSERT_FALSE(true);
 	}
 
-    // Results: (Linux, Release, 1e7)
+	// Results: (Windows, AMD Ryzen 5 3500U 2019 year old, Release, 5e7)
+	// (7786 simple, 11276 stream, 10465 fast_stream, 11579 short_stream) and 31% deceleration
+    // Results: (Linux, Intel B960 2010 years old, Release, 1e7)
     // 0% boost, deceleration by using stream 0%
     // (3005 simple, 3064 stream, 3016 fast_stream, 3175 short_stream)
-    TEST(Benchmark_stream_vs_fast_stream, DISABLED_filter_string) {
-        const size_t SIZE = static_cast<size_t>(1e7);
+    TEST(Benchmark_stream_vs_fast_stream, /*DISABLED_*/filter_string) {
+        const size_t SIZE = static_cast<size_t>(5e7);
 
 		{
 			auto start = getCurrentTime();
