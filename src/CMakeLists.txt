@@ -49,11 +49,11 @@ set(LIB_LIPABOY_LIB_SOURCE_FILES
 
     # Stream
     stream/stream_extended.h
-    stream/stream_basic.h
+    "stream/stream_base.h"
     stream/stream.h
     stream/operators/distinct.h
-    stream/operators/filter.h
-    stream/operators/get.h
+    "stream/operators/filter.h"
+    "stream/operators/get.h"
     stream/operators/group_by_vector.h
     stream/operators/map.h
     stream/operators/nth.h
@@ -67,6 +67,27 @@ set(LIB_LIPABOY_LIB_SOURCE_FILES
     stream/operators/ungroup_by_bit.h
 	stream/operators/split.h
 	stream/operators/max.h
+
+    # Short Stream
+    stream/short_stream/stream_base.h
+    stream/short_stream/stream_extended.h
+    stream/short_stream/stream.h
+    "stream/short_stream/operators/filter.h"
+    stream/short_stream/operators/tools.h 
+    "stream/short_stream/operators/get.h"
+    stream/short_stream/operators/sum.h
+    stream/short_stream/operators/operators.h
+
+    # Fast Stream
+    stream/fast_stream/stream_base.h
+    stream/fast_stream/stream_extended.h
+    stream/fast_stream/stream.h
+    "stream/fast_stream/operators/filter.h"
+    "stream/fast_stream/operators/get.h"
+    stream/fast_stream/operators/sum.h
+    stream/fast_stream/operators/skip.h
+    stream/fast_stream/operators/tools.h
+    stream/fast_stream/operators/operators.h
 
     # Precision Number
     maths/fixed_precision_number.h

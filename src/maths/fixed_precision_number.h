@@ -22,9 +22,9 @@ namespace lipaboy_lib {
 	{
     public:
         using ValueType = std::remove_reference_t<T>;
+
 	public:
-		explicit
-			FixedPrecisionNumberBase(T _number = T()) noexcept
+		FixedPrecisionNumberBase(T _number = T()) noexcept
 				: number(_number) {}
 
         bool operator<(const ValueType& val) const noexcept { 
