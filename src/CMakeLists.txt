@@ -94,7 +94,7 @@ set(LIB_LIPABOY_LIB_SOURCE_FILES
     maths/vector3d.h
     maths/vector4d.h
     maths/vector4d.cpp
-)
+ "stream/short_stream/operators/filter.h" "stream/short_stream/operators/tools.h" "stream/short_stream/operators/get.h" "stream/short_stream/operators/sum.h" "stream/short_stream/operators/operators.h")
 
 # Declare the library
 add_library(LIPABOY_LIB STATIC
