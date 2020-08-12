@@ -23,6 +23,8 @@ namespace stream_benchmarks {
 
 	// Results: (Windows, AMD Ryzen 5 3500U 2019 year old, Release, 1e8)
 	// 37% boost (50 simple, 2640 stream, 1667 fast_stream)
+    // Results: (Linux, AMD Ryzen 5 3500U 2019 year old, Release, 1e8)
+    // 7% boost (80 simple, 1739 stream, 1618 fast_stream)
     // Results: (Linux, Intel B960 2010 years old, Release, 1e8)
     // 0% boost (97 simple, 2717 stream, 2751 fast_stream)
     TEST(Benchmark_stream_vs_fast_stream, DISABLED_skip) {
@@ -74,10 +76,14 @@ namespace stream_benchmarks {
 
 	// Results: (Windows, AMD Ryzen 5 3500U 2019 year old, Release, 5e7)
 	// 13% boost (6561 simple, 6343 stream, 5535 fast_stream) and 16% acceleration by using stream
+    // Results: (Linux, AMD Ryzen 5 3500U 2019 year old, Release, 5e7)
+    // -2% boost (2398 simple, 3122 stream, 3209 fast_stream)
+    // --||-- 1e8
+    // 9% boost (5141 simple, 6736 stream, 6132 fast_stream)
     // Results: (Linux, Intel B960 2010 years old, Release, 1e7)
     // 0% boost (1936 simple, 2307 stream, 2300 fast_stream)
     TEST(Benchmark_stream_vs_fast_stream, DISABLED_skip_string) {
-        const size_t SIZE = static_cast<size_t>(5e7);
+        const size_t SIZE = static_cast<size_t>(1e8);
 		string sum1 = "";
 		string sum2 = "";
 		string sum3 = "";
@@ -134,7 +140,10 @@ namespace stream_benchmarks {
 
 	// Results: (Windows, AMD Ryzen 5 3500U 2019 year old, Release, 1e8)
 	// (2312 simple, 5214 stream, 5480 fast_stream, 5001 short_stream) and 56% deceleration
+    // --||-- 2e8
 	// (4096 simple, 13519 stream, 13808 fast_stream, 12250 short_stream) and 70% deceleration
+    // Results: (Linux, AMD Ryzen 5 3500U 2019 year old, Release, 2e8)
+    // (1385 simple, 6226 stream, 6305 fast_stream, 5893 short_stream) and 78% deceleration
     // Results: (Linux, Intel B960 2010 years old, Release, 1e8)
     // 23% boost, deceleration by using stream 30%
     // (1347 simple, 5698 stream, 4358 fast_stream, 4681 short_stream)
@@ -205,11 +214,14 @@ namespace stream_benchmarks {
 
 	// Results: (Windows, AMD Ryzen 5 3500U 2019 year old, Release, 5e7)
 	// (7786 simple, 11276 stream, 10465 fast_stream, 11579 short_stream) and 31% deceleration
+    // Results: (Linux, AMD Ryzen 5 3500U 2019 year old, Release, 5e7)
+    // (2610 simple, 5035 stream, 5148 fast_stream, 5437 short_stream) and 48% deceleration
+    // (5315 simple, 11294 stream, 10490 fast_stream, 12093 short_stream) and 52% deceleration
     // Results: (Linux, Intel B960 2010 years old, Release, 1e7)
     // 0% boost, deceleration by using stream 0%
     // (3005 simple, 3064 stream, 3016 fast_stream, 3175 short_stream)
     TEST(Benchmark_stream_vs_fast_stream, DISABLED_filter_string) {
-        const size_t SIZE = static_cast<size_t>(5e7);
+        const size_t SIZE = static_cast<size_t>(1e8);
 
 		{
 			auto start = getCurrentTime();
