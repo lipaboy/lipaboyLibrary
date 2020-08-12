@@ -49,7 +49,7 @@ set(LIB_LIPABOY_LIB_SOURCE_FILES
 
     # Stream
     stream/stream_extended.h
-    stream/stream_basic.h
+    "stream/stream_base.h"
     stream/stream.h
     stream/operators/distinct.h
     "stream/operators/filter.h"
