@@ -19,5 +19,10 @@ namespace lipaboy_lib_tests {
 		ASSERT_EQ(5.000002, kek);
 	}
 
+	TEST(FixedPrecisionNumber, initializing) {
+		FixedPrecisionNumber<double, 1, -5> kek = 2.;
+		ASSERT_EQ(kek, 2.);
+	}
+
 }
 
