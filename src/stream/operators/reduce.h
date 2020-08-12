@@ -44,8 +44,8 @@ namespace lipaboy_lib {
 				lipaboy_lib::WrapBySTDFunctionType<AccumulatorFn> >::template arg<1>::type;
 
 			template <class AccumulatorFn>
-			constexpr size_t GetArgumentCount = typename function_traits<
-				lipaboy_lib::WrapBySTDFunctionType<AccumulatorFn> >::nargs;
+            constexpr size_t GetArgumentCount = function_traits<
+                lipaboy_lib::WrapBySTDFunctionType<AccumulatorFn> >::nargs;
 
 			// TODO: replace on std::false_type
 			using FalseType =
