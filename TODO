@@ -47,7 +47,8 @@
 
 	6) (Stream) make 'assertOnInfinite' method invisible for clients
 
-	8) (Stream.Reduce) add compile-assert to check if client passes only one argument to lambda in Accumulator of Reduce
+	8) (Stream.Reduce) add compile-assert to check if client passes only one argument 
+		to lambda in Accumulator of Reduce
 
 ----Think about:
 
