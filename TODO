@@ -43,11 +43,9 @@
 
 	4) (Stream) Edit distinct operator by replacing the std::refs on value_type values.
 
-	5) (Stream) Put off the short_stream and fast_stream to it own files.
+	5) (Stream) make 'assertOnInfinite' method invisible for clients
 
-	6) (Stream) make 'assertOnInfinite' method invisible for clients
-
-	8) (Stream.Reduce) add compile-assert to check if client passes only one argument 
+	6) (Stream.Reduce) add compile-assert to check if client passes only one argument 
 		to lambda in Accumulator of Reduce
 
 ----Think about:
