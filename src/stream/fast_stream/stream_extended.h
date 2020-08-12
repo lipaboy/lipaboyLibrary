@@ -5,18 +5,21 @@
 #include <functional>
 #include <type_traits>
 
-namespace lipaboy_lib::short_stream {
+namespace lipaboy_lib::fast_stream {
 
-	using short_stream::operators::get;
+	using std::cout;
+	using std::endl;
+
+	using operators::get;
 
 	//-----------------Stream Extended class----------------------//
 
 	template <class TOperator, class... Rest>
-	class ShortStream : public ShortStream<Rest...> {
+	class StreamBase : public StreamBase<Rest...> {
 	public:
 		using size_type = size_t;
 		using OperatorType = TOperator;
-		using SubType = ShortStream<Rest...>;
+		using SubType = StreamBase<Rest...>;
 		using ConstSubType = const SubType;
 		using iterator = typename SubType::outside_iterator;
 		using SubTypePtr = SubType*;
@@ -25,28 +28,28 @@ namespace lipaboy_lib::short_stream {
 
 	public:
 		template <class Functor>
-		using ExtendedStreamType = ShortStream<Functor, OperatorType, Rest...>;
+		using ExtendedStreamType = StreamBase<Functor, OperatorType, Rest...>;
 
 		using ResultValueType = typename TOperator::template RetType<
 			typename SubType::ResultValueType>;
 
 	public:
-		template <typename, typename...> friend class ShortStream;
+		template <typename, typename...> friend class StreamBase;
 
 		//----------------------Constructors----------------------//
 	public:
 
 		template <class StreamSubType_, class TFunctor_>
 		explicit
-			ShortStream(TFunctor_&& functor, StreamSubType_&& obj) noexcept
+			StreamBase(TFunctor_&& functor, StreamSubType_&& obj) noexcept
 			: SubType(std::forward<StreamSubType_>(obj)), operator_(std::forward<TFunctor_>(functor))
 		{}
 	public:
-		ShortStream(ShortStream const& obj)
+		StreamBase(StreamBase const& obj)
 			: SubType(static_cast<ConstSubType&>(obj)),
 			operator_(obj.operator_)
 		{}
-		ShortStream(ShortStream&& obj) noexcept
+		StreamBase(StreamBase&& obj) noexcept
 			: SubType(std::move(obj)),
 			operator_(std::move(obj.operator_))
 		{}
@@ -85,11 +88,17 @@ namespace lipaboy_lib::short_stream {
 
 	public:
 
-		ResultValueType next() {
-			return operator_.template next<SubType>(*subThisPtr());
+		ResultValueType nextElem() {
+			return operator_.template nextElem<SubType>(*subThisPtr());
+		}
+		bool hasNext() {
+			return operator_.template hasNext<SubType>(*subThisPtr());
 		}
 		void incrementSlider() {
 			operator_.template incrementSlider<SubType>(*subThisPtr());
+		}
+		void initialize() {
+			operator_.template initialize<SubType>(*subThisPtr());
 		}
 
 
@@ -97,10 +106,10 @@ namespace lipaboy_lib::short_stream {
 		//-----------------------------Slider API Ends----------------------------//
 		//------------------------------------------------------------------------//
 
-		bool operator==(ShortStream& other) { return equals(other); }
-		bool operator!=(ShortStream& other) { return !((*this) == other); }
+		bool operator==(StreamBase& other) { return equals(other); }
+		bool operator!=(StreamBase& other) { return !((*this) == other); }
 	private:
-		bool equals(ShortStream& other) {
+		bool equals(StreamBase& other) {
 			return (operator_ == other.operator_
 				&& subThisPtr()->equals(static_cast<SubType&>(other))
 				);

@@ -73,6 +73,11 @@ set(LIB_LIPABOY_LIB_SOURCE_FILES
     stream/short_stream/stream_extended.h
     stream/short_stream/stream.h
 
+    # Fast Stream
+    stream/fast_stream/stream_base.h
+    stream/fast_stream/stream_extended.h
+    stream/fast_stream/stream.h
+
     # Precision Number
     maths/fixed_precision_number.h
     maths/precision_number_can_throw.h

@@ -8,12 +8,13 @@
 #include <optional>
 #include <type_traits>
 
-namespace lipaboy_lib::short_stream {
+namespace lipaboy_lib::fast_stream {
+
 
 	//--------------------------Stream Base (specialization class)----------------------//
 
 	template <class TIterator>
-	class ShortStream<TIterator> {
+	class StreamBase<TIterator> {
 	public:
 		using T = typename std::iterator_traits<TIterator>::value_type;
 		using ValueType = T;
@@ -23,33 +24,33 @@ namespace lipaboy_lib::short_stream {
 
 	public:
 		template <class Functor>
-		using ExtendedStreamType = ShortStream<Functor, TIterator>;
+		using ExtendedStreamType = StreamBase<Functor, TIterator>;
 
-		using ResultValueType = std::optional<ValueType>;
+		using ResultValueType = ValueType;
 
 	public:
 		// INFO: this friendship means that all the Streams, which is extended from current,
 		//		 can have access to current class method API.
-		template <typename, typename...> friend class ShortStream;
+		template <typename, typename...> friend class StreamBase;
 
 	public:
 		//----------------------Constructors----------------------//
 
 		template <class OuterIterator>
 		explicit
-			ShortStream(OuterIterator begin, OuterIterator end)
+			StreamBase(OuterIterator begin, OuterIterator end)
 			: begin_(begin),
 			end_(end)
 		{}
 		explicit
-			ShortStream(std::initializer_list<T> init)
+			StreamBase(std::initializer_list<T> init)
 			: begin_(init)
 		{
-			if constexpr (ShortStream::isInitializingListCreation())
+			if constexpr (StreamBase::isInitializingListCreation())
 				end_ = begin_.endIter();
 		}
 		explicit
-			ShortStream(GeneratorTypePtr generator)
+			StreamBase(GeneratorTypePtr generator)
 			: begin_(generator),
 			end_()
 		{}
@@ -87,23 +88,22 @@ namespace lipaboy_lib::short_stream {
 
 		//-----------------Slider API--------------//
 	public:
-		ResultValueType next() {
-			if (begin_ != end_) {
-				auto elem = *begin_;
-				begin_++;
-				return elem;
-			}
-			return std::nullopt;
+		ResultValueType nextElem() {
+			auto elem = *begin_;
+			begin_++;
+			return elem;
 		}
+		bool hasNext() { return begin_ != end_; }
 		void incrementSlider() { begin_++; }
+		void initialize() {}
 
 		//-----------------Slider API Ends--------------//
 
 	public:
-		bool operator==(ShortStream const& other) const { return equals(other); }
-		bool operator!=(ShortStream const& other) const { return !((*this) == other); }
+		bool operator==(StreamBase const& other) const { return equals(other); }
+		bool operator!=(StreamBase const& other) const { return !((*this) == other); }
 	private:
-		bool equals(ShortStream const& other) const {
+		bool equals(StreamBase const& other) const {
 			return begin_ == other.begin_
 				&& end_ == other.end_;
 		}

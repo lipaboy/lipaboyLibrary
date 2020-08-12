@@ -6,6 +6,7 @@
 
 #include "stream/stream.h"
 #include "stream/short_stream/stream.h"
+#include "stream/fast_stream/stream.h"
 
 namespace stream_benchmarks {
 
