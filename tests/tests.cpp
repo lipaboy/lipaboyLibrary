@@ -4,22 +4,19 @@
 #include <vector>
 #include <string>
 #include <memory>
-#include <any>
 #include <list>
 #include <tuple>
 #include <functional>
 #include <algorithm>
 
-#include <time.h>
+//#include "extra_tools/extra_tools.h"
 
-#include "extra_tools/extra_tools.h"
+#include "stream/stream.h"
+//#include "extra_tools/extra_tools_tests.h"
+//#include "extra_tools/maths_tools.h"
+//#include "maths/fixed_precision_number.h"
 
-#include "stream/stream_test.h"
-#include "extra_tools/extra_tools_tests.h"
-#include "extra_tools/maths_tools.h"
-#include "maths/fixed_precision_number.h"
-
-#include "maths/vector4d.h"
+//#include "extra_tools/detect_time_duration.h"
 
 namespace lipaboy_lib_tests {
 
@@ -31,7 +28,8 @@ using std::unique_ptr;
 using std::any;
 
 using namespace lipaboy_lib;
-using namespace stream_space;
+using namespace lipaboy_lib::stream_space;
+using namespace lipaboy_lib::stream_space::operators;
 
 
 namespace {
@@ -60,6 +58,8 @@ namespace {
 }
 
 TEST(Check, numberphile) {
+	//auto startTime = extra::getCurrentTime();
+
 	// initial values are important
 	vector< vector<char> > temps = { {1, 1}, {1} };
 
@@ -136,8 +136,10 @@ TEST(Check, numberphile) {
 	cout << "Max steps: " << maxSteps << endl
 		<< "Number: ";
 	(Stream(maxElem) 
-		| operators::map([](char ch) -> int { return int(ch); }) 
-		| operators::print_to(cout)) << endl;
+		| map([](char ch) -> int { return int(ch); }) 
+		| print_to(cout)) << endl;
+
+	//cout << "Time elapsed: " << extra::diffFromNow(startTime) << endl;
 
 	ASSERT_TRUE(false);
 }

@@ -8,6 +8,8 @@
 
 #include "stream/stream.h"
 
+#include "extra_tools/detect_time_duration.h"
+
 namespace stream_tests {
 
 	using std::cout;
@@ -32,6 +34,8 @@ namespace stream_tests {
             | nop()
             | return_zero();
         ASSERT_EQ(zero, 0);
+
+		extra::getCurrentTime();
 	}
 
 }
