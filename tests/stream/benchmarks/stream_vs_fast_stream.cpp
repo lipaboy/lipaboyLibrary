@@ -13,7 +13,7 @@
 namespace stream_benchmarks {
 
 	using namespace lipaboy_lib;
-	using namespace lipaboy_lib::extra;
+    using namespace lipaboy_lib::extra;
 
 	using std::cout;
 	using std::endl;

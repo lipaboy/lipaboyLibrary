@@ -11,20 +11,20 @@ set(TEST_SOURCE
 
 	# Long Numbers
     long_numbers/long_numbers_tests.cpp
-	intervals/interval_tests.cpp
-	long_numbers/big_integer_tests.cpp
-	long_numbers/long_numbers_benchmark_tests.cpp
+    intervals/interval_tests.cpp
+    long_numbers/big_integer_tests.cpp
+    long_numbers/long_numbers_benchmark_tests.cpp
 
 	# Stream
-	stream/nop_tests.cpp
-	stream/nth_tests.cpp
-	stream/filter_tests.cpp
-	stream/reduce_tests.cpp
-	stream/max_tests.cpp
-	stream/split_tests.cpp
+    stream/nop_tests.cpp
+    stream/nth_tests.cpp
+    stream/filter_tests.cpp
+    stream/reduce_tests.cpp
+    stream/max_tests.cpp
+    stream/split_tests.cpp
     stream/stream_tests.cpp
     stream/stream_test.h
-	stream/benchmarks/stream_vs_fast_stream.cpp
+    stream/benchmarks/stream_vs_fast_stream.cpp
 
 	# HashMap
     hash_map/forward_list_tests.cpp
@@ -39,7 +39,7 @@ set(TEST_SOURCE
     extra_tools/extra_tools_tests.h
 
 	# Maths
-	maths/fixed_precision_number_tests.cpp
+    maths/fixed_precision_number_tests.cpp
     )
 
 add_executable(${MODULE_NAME}_tests ${TEST_SOURCE})

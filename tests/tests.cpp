@@ -16,7 +16,7 @@
 //#include "extra_tools/maths_tools.h"
 //#include "maths/fixed_precision_number.h"
 
-//#include "extra_tools/detect_time_duration.h"
+#include "extra_tools/detect_time_duration.h"
 
 namespace lipaboy_lib_tests {
 
@@ -58,13 +58,13 @@ namespace {
 }
 
 TEST(Check, numberphile) {
-	//auto startTime = extra::getCurrentTime();
+    auto startTime = extra::getCurrentTime();
 
 	// initial values are important
 	vector< vector<char> > temps = { {1, 1}, {1} };
 
-	const int MAX = 100;
-	int maxSteps = 0;
+    constexpr long long MAX = 10000;
+    size_t maxSteps = 0;
 	vector<char> maxElem;
 	for (int i = 0; i < MAX; i++) {
 		
@@ -75,7 +75,7 @@ TEST(Check, numberphile) {
 		}
 
 		bool isZeroFound = false;
-		int iTemp = 0;
+        size_t iTemp = 0;
 		for (; ; iTemp++) {
 			if (iTemp >= temps.size() - 1)
 				temps.push_back({ 1 });
@@ -83,11 +83,11 @@ TEST(Check, numberphile) {
 				temps[iTemp + 1].resize(1);
 				temps[iTemp + 1][0] = 1;
 			}
-			for (int k = 0; k < temps[iTemp].size(); k++) {
+            for (size_t k = 0; k < temps[iTemp].size(); k++) {
 				if (temps[iTemp][k] == 1)
 					continue;
 				// k's digit
-				int t = 0;
+                size_t t = 0;
 				char remainder = 0; // decade's remainder
 				// temps[iTemp + 1] - middle result of multiplication
 				for (; t < temps[iTemp + 1].size(); t++) {
@@ -121,7 +121,7 @@ TEST(Check, numberphile) {
 
 		// get next number
 
-		int j = 0;
+        size_t j = 0;
 		for (; j < number.size(); j++) {
 			number[j]++;
 			if (number[j] < 10)
@@ -139,7 +139,7 @@ TEST(Check, numberphile) {
 		| map([](char ch) -> int { return int(ch); }) 
 		| print_to(cout)) << endl;
 
-	//cout << "Time elapsed: " << extra::diffFromNow(startTime) << endl;
+    cout << "Time elapsed: " << extra::diffFromNow(startTime) << endl;
 
 	ASSERT_TRUE(false);
 }

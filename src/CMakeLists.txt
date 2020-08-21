@@ -35,18 +35,18 @@ set(LIB_LIPABOY_LIB_SOURCE_FILES
     # Long Numbers
     long_numbers/long_number.h
 
-	long_numbers/big_integer.cpp
-	long_numbers/big_integer.h
-	long_numbers/big_integer_algorithms.cpp
-	long_numbers/big_integer_algorithms.h
-	long_numbers/big_integer_library.h
-	long_numbers/big_integer_utils.cpp
-	long_numbers/big_integer_utils.h
-	long_numbers/big_unsigned.cpp
-	long_numbers/big_unsigned.h
-	long_numbers/big_unsigned_view.h
-	long_numbers/big_unsigned_in_a_base.cpp
-	long_numbers/big_unsigned_in_a_base.h
+    long_numbers/big_integer.cpp
+    long_numbers/big_integer.h
+    long_numbers/big_integer_algorithms.cpp
+    long_numbers/big_integer_algorithms.h
+    long_numbers/big_integer_library.h
+    long_numbers/big_integer_utils.cpp
+    long_numbers/big_integer_utils.h
+    long_numbers/big_unsigned.cpp
+    long_numbers/big_unsigned.h
+    long_numbers/big_unsigned_view.h
+    long_numbers/big_unsigned_in_a_base.cpp
+    long_numbers/big_unsigned_in_a_base.h
 
     # Stream
     stream/stream_extended.h
@@ -66,8 +66,8 @@ set(LIB_LIPABOY_LIB_SOURCE_FILES
     stream/operators/to_vector.h
     stream/operators/tools.h
     stream/operators/ungroup_by_bit.h
-	stream/operators/split.h
-	stream/operators/max.h
+    stream/operators/split.h
+    stream/operators/max.h
 
     # Short Stream
     stream/short_stream/stream_base.h
