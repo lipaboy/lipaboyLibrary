@@ -63,16 +63,13 @@ TEST(Check, numberphile) {
 	// initial values are important
 	vector< vector<char> > temps = { {1, 1}, {1} };
 
-    constexpr long long MAX = 10000;
+    // 1e9 - 59 secs,  1e15 > 5 min
+    constexpr long long MAX = static_cast<long long>(1e2);
     size_t maxSteps = 0;
 	vector<char> maxElem;
-	for (int i = 0; i < MAX; i++) {
+    for (size_t i = 0; i < MAX; i++) {
 		
-		// multiply the digits until we get the one digit as result
-
-		if (i == 14) {
-			cout << "opa";
-		}
+        // multiply the digits until we get the one digit as result
 
 		bool isZeroFound = false;
         size_t iTemp = 0;
@@ -140,6 +137,9 @@ TEST(Check, numberphile) {
 		| print_to(cout)) << endl;
 
     cout << "Time elapsed: " << extra::diffFromNow(startTime) << endl;
+
+    //string str;
+    //std::cin >> str;
 
 	ASSERT_TRUE(false);
 }
