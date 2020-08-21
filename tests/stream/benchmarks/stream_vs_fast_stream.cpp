@@ -3,23 +3,22 @@
 #include <string>
 #include <chrono>
 #include <stdlib.h>
+#include <iostream>
 
 #include "stream/stream.h"
 #include "stream/short_stream/stream.h"
 #include "stream/fast_stream/stream.h"
+#include "extra_tools/detect_time_duration.h"
 
 namespace stream_benchmarks {
 
 	using namespace lipaboy_lib;
+	using namespace lipaboy_lib::extra;
 
+	using std::cout;
+	using std::endl;
 	using std::string;
-	using std::chrono::steady_clock;
-
-	decltype(auto) getCurrentTime() { return steady_clock::now(); }
-	template <class ratio = std::chrono::milliseconds>
-	decltype(auto) diffFromNow(steady_clock::time_point from) { 
-		return std::chrono::duration_cast<ratio>(steady_clock::now() - from).count(); 
-	}
+	
 
 	// Results: (Windows, AMD Ryzen 5 3500U 2019 year old, Release, 1e8)
 	// 37% boost (50 simple, 2640 stream, 1667 fast_stream)

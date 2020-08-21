@@ -5,13 +5,7 @@
 #include <functional>
 #include <memory>
 
-// debugging
-#include <iostream>
-
 namespace lipaboy_lib {
-
-using std::cout;
-using std::endl;
 
 
 // PLAN:

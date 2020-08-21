@@ -6,6 +6,7 @@
 #include <numeric>
 #include <stdexcept>
 #include <memory>
+#include <iostream>
 
 namespace lipaboy_lib {
 
@@ -456,7 +457,7 @@ namespace lipaboy_lib {
 			reallocCount = 0;
 			auto res = *multiplyByKaracuba2(first, second, a);
 			deallocFromStorage(storageEndPos);
-			cout << "Realloc count: " << reallocCount << endl;
+			std::cout << "Realloc count: " << reallocCount << std::endl;
 			return res;
 		}
 

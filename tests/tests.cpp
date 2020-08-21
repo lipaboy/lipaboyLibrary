@@ -84,6 +84,8 @@ TEST(Check, numberphile) {
 				temps[iTemp + 1][0] = 1;
 			}
 			for (int k = 0; k < temps[iTemp].size(); k++) {
+				if (temps[iTemp][k] == 1)
+					continue;
 				// k's digit
 				int t = 0;
 				char remainder = 0; // decade's remainder

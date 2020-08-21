@@ -35,6 +35,9 @@
 
 	5) (LongNumbers) compare perfomance of BigUnsigned multiplication and library's one
 
+	6) (Stream) add cast operator: stream | cast<int>() | print_to(cout, "");
+		- Also static, dynamic casts.
+
 ----Local TODOs:
 
 	1) (LongNumber) Write division properly.
@@ -51,6 +54,8 @@
 		Process: 
 			- add interlayer between reduce operator and initializing of it to catch the moment of error origin.
 				But adding static_assert into constructor doesn't make any effect.
+
+	7) (Extra tools) Move it into extra namespace.
 
 ----Think about:
 
