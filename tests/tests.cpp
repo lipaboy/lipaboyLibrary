@@ -62,11 +62,12 @@ TEST(Check, numberphile) {
 
 	// initial values are important
     vector< vector<char> > temps(30, vector<char>(50, 1));
+    temps[0] = vector<char>(50, 2);
     vector<size_t> sizes(30, 1);
     sizes[0] = 2;
 
-    // (Linux) 1e8 - 12 secs, 1e9 - 150 secs,  1e15 > 5 min
-    constexpr long long MAX = static_cast<long long>(1e9);
+    // (Linux) 1e8 - 12 secs, 1e9 - 116 secs,  1e15 > 5 min
+    constexpr long long MAX = static_cast<long long>(1e2);
     size_t maxSteps = 0;
 	vector<char> maxElem;
     for (size_t i = 0; i < MAX; i++) {
@@ -114,7 +115,7 @@ TEST(Check, numberphile) {
 			number[j]++;
 			if (number[j] < 10)
 				break;
-			number[j] = 1;
+            number[j] = 2;
 		}
         if (j == sizes[0])
             sizes[0]++;
@@ -123,10 +124,11 @@ TEST(Check, numberphile) {
 
 	cout << "Max steps: " << maxSteps << endl
 		<< "Number: ";
-	(Stream(maxElem) 
+    auto vec = Stream(maxElem)
 		| map([](char ch) -> int { return int(ch); }) 
-        | filter([] (int i) { return i > 1; })
-		| print_to(cout)) << endl;
+        | get(sizes[0])
+        | to_vector();
+    (Stream(vec.rbegin(), vec.rend()) | print_to(cout)) << endl;
 
     cout << "Time elapsed: " << extra::diffFromNow(startTime) << endl;
 
@@ -142,7 +144,7 @@ TEST(Check, numberphile_int64_t) {
     vector<int64_t> numbers(30, 1);
     numbers[0] = 11;
 
-    // linux: 1e9 - 23 secs
+    // linux: 1e9 - 23 secs, 1e10 - 211 secs
     constexpr uint64_t MAX = static_cast<uint64_t>(1e2);
     uint64_t maxSteps = 0;
     uint64_t maxNumber = 1;
