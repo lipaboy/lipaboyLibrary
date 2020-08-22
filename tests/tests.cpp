@@ -61,57 +61,48 @@ TEST(Check, numberphile) {
     auto startTime = extra::getCurrentTime();
 
 	// initial values are important
-	vector< vector<char> > temps = { {1, 1}, {1} };
+    vector< vector<char> > temps(30, vector<char>(50, 1));
+    vector<size_t> sizes(30, 1);
+    sizes[0] = 2;
 
-    // 1e9 - 59 secs,  1e15 > 5 min
-    constexpr long long MAX = static_cast<long long>(1e2);
+    // (Linux) 1e8 - 12 secs, 1e9 - 150 secs,  1e15 > 5 min
+    constexpr long long MAX = static_cast<long long>(1e9);
     size_t maxSteps = 0;
 	vector<char> maxElem;
     for (size_t i = 0; i < MAX; i++) {
 		
         // multiply the digits until we get the one digit as result
 
-		bool isZeroFound = false;
         size_t iTemp = 0;
-		for (; ; iTemp++) {
-			if (iTemp >= temps.size() - 1)
-				temps.push_back({ 1 });
-			else {
-				temps[iTemp + 1].resize(1);
-				temps[iTemp + 1][0] = 1;
-			}
-            for (size_t k = 0; k < temps[iTemp].size(); k++) {
+        for (; ; iTemp++) {
+            sizes[iTemp + 1] = 1;
+            temps[iTemp + 1][0] = 1;
+
+            for (size_t k = 0; k < sizes[iTemp]; k++) {
 				if (temps[iTemp][k] == 1)
 					continue;
 				// k's digit
                 size_t t = 0;
 				char remainder = 0; // decade's remainder
 				// temps[iTemp + 1] - middle result of multiplication
-				for (; t < temps[iTemp + 1].size(); t++) {
+                for (; t < sizes[iTemp + 1]; t++) {
 					char& curr = temps[iTemp + 1][t];
 					curr = curr * temps[iTemp][k] + remainder;
 					remainder = curr / 10;
-					curr %= 10;
-					if (curr == 0) {
-						isZeroFound = true;
-						break;
-					}
+                    curr %= 10;
 				}
-				if (t == temps[iTemp + 1].size() && remainder > 0) {
-					temps[iTemp + 1].push_back(remainder);
-				}
-				if (isZeroFound)
-					break;
+                if (remainder > 0) {
+                    sizes[iTemp + 1]++;
+                    temps[iTemp + 1][t] = remainder;
+                }
 			}
-			if (temps[iTemp + 1].size() <= 1)
-				break;
-			if (isZeroFound)
-				break;
+            if (sizes[iTemp + 1] <= 1)
+                break;
 		}
 
 		vector<char>& number = temps[0];
 
-		if (iTemp + 1 > maxSteps) {
+        if (iTemp + 1 >= maxSteps) {
 			maxSteps = iTemp + 1;
 			maxElem = number;
 		}
@@ -119,14 +110,14 @@ TEST(Check, numberphile) {
 		// get next number
 
         size_t j = 0;
-		for (; j < number.size(); j++) {
+        for (; j < sizes[0]; j++) {
 			number[j]++;
 			if (number[j] < 10)
 				break;
 			number[j] = 1;
 		}
-		if (j == number.size())
-			number.push_back(1);
+        if (j == sizes[0])
+            sizes[0]++;
 
 	}
 
@@ -134,6 +125,7 @@ TEST(Check, numberphile) {
 		<< "Number: ";
 	(Stream(maxElem) 
 		| map([](char ch) -> int { return int(ch); }) 
+        | filter([] (int i) { return i > 1; })
 		| print_to(cout)) << endl;
 
     cout << "Time elapsed: " << extra::diffFromNow(startTime) << endl;
@@ -142,6 +134,54 @@ TEST(Check, numberphile) {
     //std::cin >> str;
 
 	ASSERT_TRUE(false);
+}
+
+TEST(Check, numberphile_int64_t) {
+    auto startTime = extra::getCurrentTime();
+
+    vector<int64_t> numbers(30, 1);
+    numbers[0] = 11;
+
+    // linux: 1e9 - 23 secs
+    constexpr uint64_t MAX = static_cast<uint64_t>(1e2);
+    uint64_t maxSteps = 0;
+    uint64_t maxNumber = 1;
+    for (uint64_t i = 0; i < MAX; i++) {
+
+        // multiply the digits
+
+        uint64_t iNum = 0;
+        for (; ; iNum++) {
+            numbers[iNum + 1] = 1;
+
+            auto curr = numbers[iNum];
+            for ( ; curr > 0; ) {
+                numbers[iNum + 1] *= curr % 10;
+                curr /= 10;
+            }
+
+            if (numbers[iNum + 1] < 10)
+                break;
+        }
+
+        if (maxSteps <= iNum + 1) {
+            maxSteps = iNum + 1;
+            maxNumber = numbers[0];
+        }
+
+        // get next number
+        numbers[0]++;
+    }
+
+    cout << "Max steps: " << maxSteps << endl
+        << "Number: " << maxNumber << endl;
+
+    cout << "Time elapsed: " << extra::diffFromNow(startTime) << endl;
+
+    string str;
+    std::cin >> str;
+
+    ASSERT_TRUE(false);
 }
 
 TEST(Check, check) {
