@@ -7,6 +7,9 @@
 #include <vector>
 
 #include "long_numbers/big_integer_library.h"
+#include "long_numbers/long_number.h"
+
+#include "extra_tools/detect_time_duration.h"
 
 //#define BENCHMARK_TEST_RUN
 
@@ -16,6 +19,36 @@ namespace long_numbers_benchmark_tests_space {
 	using std::endl;
 	using namespace std::chrono;
 	using namespace lipaboy_lib::long_numbers_space;
+    using namespace lipaboy_lib::extra;
+
+    TEST(LongNumberDecimal, benchmark) {
+        LongIntegerDecimal<2> l("3");
+        uint64_t num = 3;   // 3^40
+
+        auto start1 = getCurrentTime();
+        // 1e5 - 5 secs for LongNumber
+        constexpr int ROUND_TRIP = 100000;
+        for (int round = 0; round < ROUND_TRIP; round++) {
+            for (int i = 0; i < 38; i++) {
+                num *= 3;
+            }
+            num = 3;
+        }
+        cout << "Time 1: " << diffFromNow(start1) << endl;
+
+        auto start2 = getCurrentTime();
+        for (int round = 0; round < ROUND_TRIP; round++) {
+            for (int i = 0; i < 38; i++) {
+                l = l * LongIntegerDecimal<2>(3);
+            }
+            l = LongIntegerDecimal<2>(3);
+        }
+
+        cout << "Time 1: " << diffFromNow(start2) << endl;
+
+        string s;
+        std::cin >> s;
+    }
 
 	TEST(BigInteger, division_speed) {
 
@@ -57,7 +90,7 @@ namespace long_numbers_benchmark_tests_space {
 
 	vector<int> get_number(std::string snum) {
 		vector<int> vnum;
-		// индикатор разрядов
+        // indicator of digits
 		unsigned int dig = 1;
 		int n = 0;
 
@@ -65,7 +98,7 @@ namespace long_numbers_benchmark_tests_space {
 		for (auto it = snum.crbegin(); it != snum.crend(); ++it) {
 			n += (*it - '0') * dig;
 			dig *= dig_size;
-			// если разряд равен базе, то выталкиваем число в вектор
+            // if indicator == base then push the number into vector
 			if (dig == base) {
 				vnum.push_back(n);
 				n = 0;

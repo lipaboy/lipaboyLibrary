@@ -206,6 +206,7 @@ public:
     }
 
     // Yeah, I receive the argument by copy
+    // doesn't work
     LongIntegerDecimal operator/(LongIntegerDecimal other) const {
         LongIntegerDecimal temp(other);
         LongIntegerDecimal res(0);
@@ -215,7 +216,7 @@ public:
         // TODO: remove infinite loop
         for ( ; ; ) {
             temp *= LongIntegerDecimal(10);
-            if (temp > dividend)
+            if (dividend < temp)
                 break;
             other *= LongIntegerDecimal(10);
             modulus *= LongIntegerDecimal(10);
@@ -235,7 +236,7 @@ public:
             for ( ; ; ) {
                 other.divideByDec();
                 modulus.divideByDec();
-                if (dividend >= other)
+                if (other <= dividend)
                     break;
             }
         }
