@@ -106,6 +106,10 @@ set(LIB_LIPABOY_LIB_SOURCE_FILES
     maths/vector3d.h
     maths/vector4d.h
     maths/vector4d.cpp
+
+    # Numberphile
+    numberphile/long_digits_multiplication_searching.h
+    numberphile/long_digits_multiplication_searching.cpp
 )
 
 # Declare the library
