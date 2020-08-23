@@ -41,10 +41,10 @@
     7) (Stream) add reverse operator (maybe primitive with saving at vector)
     
     8) (Numberphile searching) need to develop my long_numbers with templates (maybe not global, only for tasks)
+    
+    9) (LongNumber) Write division properly.
 
 ----Local TODOs:
-
-	1) (LongNumber) Write division properly.
 
 	2) (FixedPrecisionNumber) write tests for comparing numbers. (check if all are right)
 
@@ -60,6 +60,8 @@
 				But adding static_assert into constructor doesn't make any effect.
 
 	7) (Extra tools) Move it into extra namespace.
+	
+	8) (LongNumber) Write test for to_string() method.
 
 ----Think about:
 

@@ -46,8 +46,8 @@ namespace long_numbers_benchmark_tests_space {
 
         cout << "Time 1: " << diffFromNow(start2) << endl;
 
-        string s;
-        std::cin >> s;
+//        string s;
+//        std::cin >> s;
     }
 
 	TEST(BigInteger, division_speed) {

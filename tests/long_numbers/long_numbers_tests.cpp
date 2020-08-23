@@ -89,16 +89,31 @@ TEST(LongInteger, equality) {
 
 TEST(LongInteger, division_by_dec) {
     LongIntegerDecimal<2> num2("123456789012");
-    num2.divideByDec();
+    auto remainder = num2.divideByDec();
     EXPECT_EQ(num2.to_string(), "12345678901");
-    num2.divideByDec();
+    EXPECT_EQ(remainder, 2);
+    remainder = num2.divideByDec();
     EXPECT_EQ(num2.to_string(), "1234567890");
-    num2.divideByDec();
+    EXPECT_EQ(remainder, 1);
+    remainder = num2.divideByDec();
     EXPECT_EQ(num2.to_string(), "123456789");
-    num2.divideByDec();
+    EXPECT_EQ(remainder, 0);
+    remainder = num2.divideByDec();
     EXPECT_EQ(num2.to_string(), "12345678");
-    num2.divideByDec();
+    EXPECT_EQ(remainder, 9);
+    remainder = num2.divideByDec();
     EXPECT_EQ(num2.to_string(), "1234567");
+    EXPECT_EQ(remainder, 8);
+    for (int i = 0; i < 6; i++)
+        remainder = num2.divideByDec();
+    EXPECT_EQ(num2.to_string(), "1");
+    EXPECT_EQ(remainder, 2);
+    remainder = num2.divideByDec();
+    EXPECT_EQ(num2.to_string(), "0");
+    EXPECT_EQ(remainder, 1);
+    remainder = num2.divideByDec();
+    EXPECT_EQ(num2.to_string(), "0");
+    EXPECT_EQ(remainder, 0);
 }
 
 //---------Operator* checking-----------//
