@@ -1,6 +1,5 @@
 #include "long_digits_multiplication_searching.h"
 
-
 namespace lipaboy_lib::numberphile {
 
     void long_digits_multiplication_searching_vectors() {
@@ -193,6 +192,8 @@ namespace lipaboy_lib::numberphile {
             }
         };
 
+        using special::pow;
+
         for (uint64_t len = 2; len <= MAX; len++) {
 
             for (uint64_t iTwo = 0; iTwo <= len; iTwo++) {
@@ -243,6 +244,137 @@ namespace lipaboy_lib::numberphile {
 //        std::cin >> str;
 
     }
+
+    void long_digits_multiplication_searching_long_numbers()
+    {
+        using IntType = LongIntegerDecimal<30>;
+
+        auto startTime = extra::getCurrentTime();
+
+        vector<IntType> nums(30, IntType(1));
+
+        // linux: <20, 1e160> - 119 secs,<30, 1e240> - 22 mins
+        // info uint64_t = 64 bit, 10^19 max value, as 7 is max value, then maximum 7^22
+        constexpr uint64_t MAX = 5;
+        uint64_t maxSteps = 0;
+        IntType maxNumber(1);
+
+        auto updateMaxSteps = [&maxSteps, &maxNumber, &nums] (uint64_t twos,
+                uint64_t threes, uint64_t fives, uint64_t sevens)
+        {
+            uint64_t iNum = 0;
+            for (; ; iNum++) {
+                nums[iNum + 1] = IntType(1);
+
+                auto curr = nums[iNum];
+                for ( ; IntType(0) < curr; ) {
+                    nums[iNum + 1] *= IntType(curr.divideByDec());
+                }
+
+                if (nums[iNum + 1] < IntType(10))
+                    break;
+            }
+
+            if (maxSteps <= iNum + 2) {
+                maxSteps = iNum + 2;
+                maxNumber = IntType(0);
+                for (uint64_t i = 0; i < twos % 2; i++) {
+                    maxNumber = maxNumber * IntType(10);
+                    maxNumber += IntType(2);
+                }
+                for (uint64_t i = 0; i < (twos % 3) / 2; i++) {
+                    maxNumber *= IntType(10);
+                    maxNumber += IntType(4);
+                }
+                for (uint64_t i = 0; i < twos / 3; i++) {
+                    maxNumber *= IntType(10);
+                    maxNumber += IntType(8);
+                }
+                for (uint64_t i = 0; i < threes % 2; i++) {
+                    maxNumber *= IntType(10);
+                    maxNumber += IntType(3);
+                }
+                for (uint64_t i = 0; i < fives; i++) {
+                    maxNumber *= IntType(10);
+                    maxNumber += IntType(5);
+                }
+                for (uint64_t i = 0; i < sevens; i++) {
+                    maxNumber *= IntType(10);
+                    maxNumber += IntType(7);
+                }
+                for (uint64_t i = 0; i < threes / 2; i++) {
+                    maxNumber *= IntType(10);
+                    maxNumber += IntType(9);
+                }
+            }
+        };
+
+        using special::pow;
+
+        for (uint64_t len = 2; len <= MAX; len++) {
+
+            for (uint64_t iTwo = 0; iTwo <= len; iTwo++) {
+
+                for (uint64_t iThree = 0; iThree <= len - iTwo; iThree++) {
+
+                    // sevens = len - iTwo - iThree
+
+                    // multiply the digits
+
+                    auto iSeven = len - iTwo - iThree;
+                    nums[0] = pow<IntType, uint64_t>(IntType(2), iTwo) *
+                            pow<IntType, uint64_t>(IntType(3), iThree) *
+                            pow<IntType, uint64_t>(IntType(7), iSeven);
+
+                    updateMaxSteps(iTwo, iThree, 0, iSeven);
+
+                }
+
+            }
+
+            for (uint64_t iFive = 0; iFive <= len; iFive++) {
+
+                for (uint64_t iThree = 0; iThree <= len - iFive; iThree++) {
+
+                    // sevens = len - iFive - iThree
+
+                    auto iSeven = len - iFive - iThree;
+
+                    nums[0] = pow<IntType, uint64_t>(IntType(5), iFive) *
+                            pow<IntType, uint64_t>(IntType(3), iThree) *
+                            pow<IntType, uint64_t>(IntType(7), iSeven);
+
+                    updateMaxSteps(0, iThree, iFive, iSeven);
+
+                }
+
+            }
+
+        }
+
+        cout << "Max decimal-digit count of type: "
+             << IntType::integralModulusDegree() * IntType::length() << endl;
+        cout << "Max steps: " << maxSteps << endl
+            << "Number: " << maxNumber.to_string() << endl;
+
+        for (int j = 0; ; j++) {
+            IntType res(1);
+            for (int i = 0; ; i++) {
+                if (maxNumber <= IntType(0))
+                    break;
+                auto dig = maxNumber.divideByDec();
+                res = res * IntType(dig);
+            }
+            maxNumber = res;
+            cout << res.to_string() << endl;
+            if (res <= IntType(10))
+                break;
+        }
+
+        cout << "Time elapsed: " << extra::diffFromNow(startTime) << endl;
+
+    }
+
 
 }
 

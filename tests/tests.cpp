@@ -82,6 +82,7 @@ int main(int argc, char *argv[])
     long_digits_multiplication_searching_vectors();
     long_digits_multiplication_searching_uint64_t();
     long_digits_multiplication_searching_optimized();
+    long_digits_multiplication_searching_long_numbers();
 
     return 0;
 #endif

@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "stream/stream.h"
+#include "long_numbers/long_number.h"
 
 namespace lipaboy_lib::numberphile {
 
@@ -16,14 +17,19 @@ namespace lipaboy_lib::numberphile {
 
     using namespace lipaboy_lib::stream_space;
     using namespace lipaboy_lib::stream_space::operators;
+    using lipaboy_lib::long_numbers_space::LongIntegerDecimal;
 
-    template <typename T>
-    inline T pow(T number, T degree) {
+    namespace special {
+
+    template <typename T, typename IndexType = T>
+    inline T pow(T number, IndexType degree) {
         T result = static_cast<T>(1);
-        for (T i = static_cast<T>(0); i < degree; i++) {
+        for (IndexType i = static_cast<IndexType>(0); i < degree; i++) {
             result *= number;
         }
         return result;
+    }
+
     }
 
 
@@ -32,6 +38,8 @@ namespace lipaboy_lib::numberphile {
     void long_digits_multiplication_searching_uint64_t();
 
     void long_digits_multiplication_searching_optimized();
+
+    void long_digits_multiplication_searching_long_numbers();
 
 }
 

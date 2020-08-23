@@ -264,7 +264,7 @@ public:
 
 	//------------Setters, Getters----------//
 
-	constexpr size_t length() const { return lengthOfIntegrals; }
+    static constexpr size_t length() { return lengthOfIntegrals; }
 
 	// sign() - #much-costs operation because it compares *this with zero number
 	TSigned sign() const { 
@@ -294,11 +294,11 @@ public:
 
 public:
     // maximum count decimal digits that can be placed into IntegralType
-    constexpr IntegralType integralModulusDegree() const {
+    static constexpr IntegralType integralModulusDegree() {
 		return static_cast<IntegralType>(std::floor(
 			std::log(2) / std::log(10) * double(extra::bitsCount<IntegralType>()))); 
 	}
-    constexpr IntegralType integralModulus() const { return powDozen<IntegralType>(integralModulusDegree()); }
+    static constexpr IntegralType integralModulus() { return powDozen<IntegralType>(integralModulusDegree()); }
 
 private:
 	constexpr IntegralType zeroIntegral() const { return IntegralType(0); }
