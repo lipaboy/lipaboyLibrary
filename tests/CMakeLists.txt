@@ -25,6 +25,7 @@ set(TEST_SOURCE
     stream/stream_tests.cpp
     stream/stream_test.h
     stream/benchmarks/stream_vs_fast_stream.cpp
+    "stream/cast_tests.cpp"
 
 	# HashMap
     hash_map/forward_list_tests.cpp
@@ -40,7 +41,7 @@ set(TEST_SOURCE
 
 	# Maths
     maths/fixed_precision_number_tests.cpp
-    )
+)
 
 add_executable(${MODULE_NAME}_tests ${TEST_SOURCE})
 target_link_libraries(${MODULE_NAME}_tests 

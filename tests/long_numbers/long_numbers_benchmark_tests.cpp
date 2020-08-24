@@ -21,7 +21,7 @@ namespace long_numbers_benchmark_tests_space {
 	using namespace lipaboy_lib::long_numbers_space;
     using namespace lipaboy_lib::extra;
 
-    TEST(LongNumberDecimal, benchmark) {
+    TEST(LongNumberDecimal, DISABLED_benchmark) {
         LongIntegerDecimal<2> l("3");
         uint64_t num = 3;   // 3^40
 

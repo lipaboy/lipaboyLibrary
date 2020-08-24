@@ -11,6 +11,7 @@
 #include "map.h"
 #include "distinct.h"
 #include "split.h"
+#include "cast.h"
 
 //	   terminated operations
 #include "nth.h"
