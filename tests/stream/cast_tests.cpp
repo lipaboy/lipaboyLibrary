@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <memory>
 
 #include <gtest/gtest.h>
 
@@ -67,6 +68,26 @@ namespace stream_tests {
 		ASSERT_EQ(res.value(), -15);
 	}
 
+	bool isKek(int) { return true; }
+	bool isKek(double) { return false; }
+	int isLol(double) { return true; }
+
+	TEST(Stream_Cast, smart_ptr) {
+
+		double a = 0.;
+		Stream([&a]() { return a++; })
+			| map(static_cast<double (*)(double)>(&std::floor))
+			| get(3)
+			| sum();
+
+		/*a = 0.;
+		Stream([&a]() { return a++; })
+			| filter(isKek)
+			| sum();*/
+
+
+		
+	}
 
 }
 

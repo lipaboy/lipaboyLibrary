@@ -102,6 +102,9 @@
 
 	9) (Stream.Sum) Think how fight with uninitialized accumulator of sum<>() ?
 
+	10) (StreamBase) Think about creating cStream for copy-value logic from container and 
+		Stream as move-value logic from container. It enables using unique_ptr into Stream.
+
 
 Linux problems:
 

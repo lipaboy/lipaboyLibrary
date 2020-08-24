@@ -109,7 +109,9 @@ namespace lipaboy_lib {
 			//-----------------Slider API--------------//
 		public:
 			ResultValueType nextElem() {
-				auto elem = *begin_;
+				auto elem = //std::forward<T>(
+					*begin_;
+					//);
 				begin_++;
 				return elem;
 			}

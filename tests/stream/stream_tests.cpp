@@ -336,6 +336,25 @@ TEST(StreamTest, unique_ptr_test) {
 	//	| filter([](auto& elem) { return true; })
 		;
 	//ASSERT_EQ(*(stream2 | nth(0)), 3);
+
+    // try unique_ptr with filter
+    {
+        /*int a = 0;
+        auto res = Stream([&a]() { return std::make_unique<int>(a++); })
+            | get(5)
+            | filter([](std::unique_ptr<int> const& p) { return (*p) % 2 == 0; })
+            | reduce(
+                [](int res, std::unique_ptr<int> const& p)
+                {
+                    return res + (*p);
+                },
+                [](std::unique_ptr<int> const& p) {
+                    return *p;
+                }
+                );
+        ASSERT_EQ(res.value(), 6);*/
+
+    }
 }
 
 TEST(StreamTest, noisy) {
