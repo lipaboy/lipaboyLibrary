@@ -35,6 +35,38 @@ namespace stream_tests {
 		ASSERT_EQ(res, 10);
 	}
 
+	TEST(Stream_Cast, cast_dynamic) {
+		struct A {
+			virtual int get() {
+				return 5;
+			}
+			virtual ~A() {}
+		};
+		struct B : A {
+			int get() {
+				return -5;
+			}
+		};
+
+		auto res = Stream([]() { return new B(); })
+			| cast_dynamic<A*>()
+			| get(3)
+			| reduce(
+				[](int res, A* a) {
+					res += a->get();
+					delete a;
+					return res;
+				},
+				[](A* a) -> int {
+					auto temp = a->get();
+					delete a;
+					return temp;
+				}
+			);
+
+		ASSERT_EQ(res.value(), -15);
+	}
+
 
 }
 

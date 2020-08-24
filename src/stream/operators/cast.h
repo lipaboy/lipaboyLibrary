@@ -64,6 +64,35 @@ namespace lipaboy_lib::stream_space {
 			}
 		};
 
+		template <class TypeCastTo>
+		class cast_dynamic {
+		public:
+			static constexpr bool isTerminated = false;
+
+			template <class T>
+			using RetType = TypeCastTo; // return the same type
+
+		public:
+			template <class StreamType>
+			auto nextElem(StreamType& stream)
+				-> RetType<typename StreamType::ResultValueType>
+			{
+				return dynamic_cast<TypeCastTo>(stream.nextElem());
+			}
+
+			template <class StreamType>
+			void incrementElem(StreamType& stream)
+			{
+				stream.incrementElem();
+			}
+
+			template <class StreamType>
+			bool hasNext(StreamType& stream)
+			{
+				return stream.hasNext();
+			}
+		};
+
 	}
 
 }
