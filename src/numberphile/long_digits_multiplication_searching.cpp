@@ -245,15 +245,17 @@ namespace lipaboy_lib::numberphile {
 
     }
 
+
+    // linux: <20, 1e160> - 2 mins, <30, 1e240> - 22 mins
+    // windows: <20, 1e60> - 2,6 mins, <30, 1e25> - 15 secs
     void long_digits_multiplication_searching_long_numbers()
     {
-        using IntType = LongIntegerDecimal<30>;
+        using IntType = LongIntegerDecimal<20>;
 
         auto startTime = extra::getCurrentTime();
 
         vector<IntType> nums(30, IntType(1));
 
-        // linux: <20, 1e160> - 119 secs,<30, 1e240> - 22 mins
         // info uint64_t = 64 bit, 10^19 max value, as 7 is max value, then maximum 7^22
         constexpr uint64_t MAX = 5;
         uint64_t maxSteps = 0;
