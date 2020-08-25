@@ -68,11 +68,46 @@ namespace stream_tests {
 		ASSERT_EQ(res.value(), -15);
 	}
 
+	TEST(Stream_Cast, smart_ptr) {
+		struct A {
+			virtual int get() {
+				return 5;
+			}
+			virtual ~A() {}
+		};
+		struct B : A {
+			int get() {
+				return -5;
+			}
+		};
+		
+		int a = 0;
+		auto res = Stream([]() { return std::make_shared<B>(); })
+			| cast_to<shared_ptr<A> >()
+			| get(3)
+			| reduce(
+				[](int res, shared_ptr<A> a) {
+					return res + a->get();
+				},
+				[](shared_ptr<A> a) -> int {
+					return a->get();
+				}
+				);
+
+		ASSERT_TRUE(res < 0);
+
+	}
+
 	bool isKek(int) { return true; }
 	bool isKek(double) { return false; }
-	int isLol(double) { return true; }
+	int isLol(double) { return 2; }
+	bool isLol2(double) { return 2; }
+	template <class Predicate>
+	void foo(Predicate p) {
+		static_cast<bool (*)(double)>(&p);
+	}
 
-	TEST(Stream_Cast, smart_ptr) {
+	TEST(Stream_Cast, troubles) {
 
 		double a = 0.;
 		Stream([&a]() { return a++; })
@@ -80,11 +115,24 @@ namespace stream_tests {
 			| get(3)
 			| sum();
 
+		a = 0.;
+		Stream([&a]() { return a++; })
+			| get(2)
+			| filter<bool(double)>(isKek)
+			| sum();
+
+		a = 0.;
+		Stream([&a]() { return a++; })
+			| get(2)
+			| filter(isLol)
+			| sum();
+
+		// Compile-error
 		/*a = 0.;
 		Stream([&a]() { return a++; })
 			| filter(isKek)
+			| get(2)
 			| sum();*/
-
 
 		
 	}

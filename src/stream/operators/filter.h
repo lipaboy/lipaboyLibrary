@@ -92,7 +92,7 @@ namespace lipaboy_lib {
 					bool isHasNext = false;
 					do {
 						// Info: We don't have the right to std::move the content of pCurrentElem_
-						if (true == FunctorHolder<Predicate>::functor()(*pCurrentElem_)) {
+						if (FunctorHolder<Predicate>::functor()(*pCurrentElem_)) {
 							saveResult(true);
 							return true;
 						}
@@ -120,7 +120,7 @@ namespace lipaboy_lib {
 				bool curr_;
 				bool isSavesActual_ = false;
 			};
-
+			
 		}
 
 		using operators::filter;

@@ -321,6 +321,8 @@ TEST(Stream_Distinct, map_test) {
 	ASSERT_EQ(elem, decltype(elem)({ "1", "2", "3", "4" }));
 }
 
+//--------------------Stream special tests----------------------//
+
 using lipaboy_lib_tests::NoisyD;
 
 TEST(StreamTest, unique_ptr_test) {
@@ -355,6 +357,15 @@ TEST(StreamTest, unique_ptr_test) {
         ASSERT_EQ(res.value(), 6);*/
 
     }
+}
+
+TEST(StreamTest, Infinite_stream) {
+    //int a = 0;
+    //auto res = Stream([&a]() { return a++; })
+        //| filter([](int) { return false; })
+        //| get(2)
+        //| sum();
+    //ASSERT_EQ(res, 1);
 }
 
 TEST(StreamTest, noisy) {
