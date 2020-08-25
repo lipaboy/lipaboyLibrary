@@ -7,11 +7,13 @@
 #include <typeinfo>
 #include <type_traits>
 
+#include <optional>
+
 namespace lipaboy_lib {
 
 	namespace stream_space {
 
-		namespace operators_space {
+		namespace operators {
 
 			// What's stream at all?
 			// Answer: Stream is not iterator (because can't return current element). 
@@ -57,7 +59,9 @@ namespace lipaboy_lib {
 				NTH,
 				UNGROUP_BY_BIT,
 
-				DISTINCT
+				DISTINCT,
+				SPLIT,
+				MAX
 			};
 
 
@@ -67,6 +71,7 @@ namespace lipaboy_lib {
 				template <class T>
 				using RetType = T;
 			};
+
 			template <class Functor>
 			struct FunctorMetaType {
 				using GetMetaType = Functor;
@@ -83,25 +88,51 @@ namespace lipaboy_lib {
 				FunctorType functor_;
 			};
 
-			// Wrap almost all the functions by std::function (except lambda with auto arguments and etc.)
+			// Wrap almost all the functions by std::function 
+			// (except lambda with auto arguments and etc.)
 			template <class Functor>
-			struct FunctorHolderWrapper : FunctorMetaType<WrapBySTDFunctionType<Functor> > {
+			struct FunctorHolderWrapper 
+				: FunctorMetaType< WrapBySTDFunctionType<Functor> > 
+			{
 				using FunctorType = WrapBySTDFunctionType<Functor>;
 				FunctorHolderWrapper(FunctorType func) : functor_(func) {}
 
 				FunctorType functor() const { return functor_; }
+				void setFunctor(FunctorType op) { functor_ = op; }
+			private:
+				FunctorType functor_;
+			};
+
+			template <>
+			struct FunctorHolderWrapper< std::function<void(void)> >
+			{
+				FunctorHolderWrapper() {}
+			};
+
+			template <class Functor>
+			struct FunctorHolderWrapperExcludeLambda 
+				: FunctorMetaType< WrapBySTDFunctionExcludeLambdaType<Functor> > 
+			{
+				using FunctorType = WrapBySTDFunctionExcludeLambdaType<Functor>;
+				FunctorHolderWrapperExcludeLambda(FunctorType func) : functor_(func) {}
+
+				FunctorType functor() const { return functor_; }
+				void setFunctor(FunctorType op) { functor_ = op; }
 			private:
 				FunctorType functor_;
 			};
 
 			template <class Functor>
 			struct FunctorHolder
-				//        : FunctorHolderWrapper<Functor>
-				: FunctorHolderDirectly<Functor>
+				   //     : FunctorHolderWrapper<Functor>
+				//: FunctorHolderDirectly<Functor>
+				: FunctorHolderWrapperExcludeLambda<Functor>
 			{
-				FunctorHolder(Functor func)
-					//        : FunctorHolderWrapper<Functor>(func)
-					: FunctorHolderDirectly<Functor>(func)
+				using Base = FunctorHolderWrapperExcludeLambda<Functor>;
+				//       : FunctorHolderWrapper<Functor>(func)
+					//: FunctorHolderDirectly<Functor>(func)
+				FunctorHolder(typename Base::FunctorType func) 
+					: Base(func)
 				{}
 			};
 
@@ -125,6 +156,14 @@ namespace lipaboy_lib {
 			template <class TStream, class TOperator>
 			using StreamTypeExtender_t = typename StreamTypeExtender<TStream, TOperator>::type;
 
+			template <class TStream, class TOperator>
+			struct TerminatedOperatorTypeApply {
+                using type = std::remove_reference_t<TOperator>;
+			};
+
+			template <class TStream, class TOperator>
+			using TerminatedOperatorTypeApply_t = 
+				typename TerminatedOperatorTypeApply<TStream, TOperator>::type;
 		}
 
 	}

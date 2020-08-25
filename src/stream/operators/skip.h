@@ -6,7 +6,7 @@ namespace lipaboy_lib {
 
 	namespace stream_space {
 
-		namespace operators_space {
+		namespace operators {
 
 			struct skip : TReturnSameType 
 			{
@@ -21,7 +21,7 @@ namespace lipaboy_lib {
 				template <class TSubStream>
 				auto nextElem(TSubStream& stream) -> typename TSubStream::ResultValueType {
 					skipElements<TSubStream>(stream);
-					return std::move(stream.nextElem());
+					return stream.nextElem();
 				}
 
 				template <class TSubStream>
@@ -58,3 +58,4 @@ namespace lipaboy_lib {
 	}
 
 }
+

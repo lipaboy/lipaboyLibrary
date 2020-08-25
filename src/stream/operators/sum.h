@@ -1,29 +1,40 @@
 #pragma once
 
+#include <any>
 #include "tools.h"
 
 namespace lipaboy_lib {
 
 	namespace stream_space {
 
-		namespace operators_space {
+		namespace operators {
 
-			struct sum {
+			// Question: what's shit is it doing here, void* ?
+
+			template <class TInit = void*>
+			struct sum : TReturnSameType {
 				static constexpr OperatorMetaTypeEnum metaInfo = SUM;
-				static constexpr bool isTerminated = true;
+                static constexpr bool isTerminated = true;
 
-				template <class T>
-				using RetType = T;
+                sum(TInit init = nullptr) {
+					init_ = init;
+				}
 
 				template <class TStream>
 				auto apply(TStream & stream) -> typename TStream::ResultValueType
 				{
 					using TResult = typename TStream::ResultValueType;
-					auto result = (stream.hasNext()) ? stream.nextElem() : TResult();
-					for (; stream.hasNext();)
+					TResult result;
+					if constexpr (std::is_same_v<TInit, void *>)
+						result = TResult();
+					else
+						result = init_;
+					while (stream.hasNext())
 						result += stream.nextElem();
-					return std::move(result);
+					return result;
 				}
+
+				TInit init_;
 			};
 
 		}

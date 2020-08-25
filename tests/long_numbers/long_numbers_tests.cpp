@@ -85,6 +85,37 @@ TEST(LongInteger, equality) {
 	ASSERT_EQ(num1, num2);
 }
 
+//---------Operator/ checking-----------//
+
+TEST(LongInteger, division_by_dec) {
+    LongIntegerDecimal<2> num2("123456789012");
+    auto remainder = num2.divideByDec();
+    EXPECT_EQ(num2.to_string(), "12345678901");
+    EXPECT_EQ(remainder, 2);
+    remainder = num2.divideByDec();
+    EXPECT_EQ(num2.to_string(), "1234567890");
+    EXPECT_EQ(remainder, 1);
+    remainder = num2.divideByDec();
+    EXPECT_EQ(num2.to_string(), "123456789");
+    EXPECT_EQ(remainder, 0);
+    remainder = num2.divideByDec();
+    EXPECT_EQ(num2.to_string(), "12345678");
+    EXPECT_EQ(remainder, 9);
+    remainder = num2.divideByDec();
+    EXPECT_EQ(num2.to_string(), "1234567");
+    EXPECT_EQ(remainder, 8);
+    for (int i = 0; i < 6; i++)
+        remainder = num2.divideByDec();
+    EXPECT_EQ(num2.to_string(), "1");
+    EXPECT_EQ(remainder, 2);
+    remainder = num2.divideByDec();
+    EXPECT_EQ(num2.to_string(), "0");
+    EXPECT_EQ(remainder, 1);
+    remainder = num2.divideByDec();
+    EXPECT_EQ(num2.to_string(), "0");
+    EXPECT_EQ(remainder, 0);
+}
+
 //---------Operator* checking-----------//
 
 TEST(LongInteger, multiplication_double_rank_by_independent_parts) {
@@ -92,6 +123,13 @@ TEST(LongInteger, multiplication_double_rank_by_independent_parts) {
 	LongIntegerDecimal<2> num4("200200");
 
 	EXPECT_EQ((num3 * num4).to_string(), "40080040000");
+
+    num3 *= num4;
+
+    EXPECT_EQ(num3.to_string(), "40080040000");
+
+    LongIntegerDecimal<1> num5("10");
+    EXPECT_EQ((num4 * num5).to_string(), "2002000");
 }
 
 TEST(LongInteger, multiplication_different_signs) {
@@ -144,7 +182,7 @@ TEST(LongInteger, sum_double_rank_by_crossing_parts) {
 
 	ASSERT_EQ("901001000201", (num1 + num2).to_string());
 	ASSERT_EQ("901001000201", (num2 + num1).to_string());
-	Summarize<2, 0>::sum(num1, num2, 0);
+    interesting::Summarize<2, 0>::sum(num1, num2, 0);
 	ASSERT_EQ("901001000201", (num1).to_string());
 }
 
@@ -193,7 +231,7 @@ TEST(LongInteger, check) {
 	string res = f;
 	res[res.size() - 1] = s[0];
 
-	Summarize<4, 0>::sum(num1, num2, 0);
+    interesting::Summarize<4, 0>::sum(num1, num2, 0);
 	ASSERT_EQ(res, (num1).to_string());
 
 

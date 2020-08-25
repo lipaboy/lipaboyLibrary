@@ -1,7 +1,8 @@
+**/*.deb
 **/.vs
 **/bin/*
 **/build*
-**/*.user
+**/*.user*
 **/*.autosave
 **/*.swp
 **/*.json

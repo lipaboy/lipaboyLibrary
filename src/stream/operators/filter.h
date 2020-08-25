@@ -8,12 +8,17 @@ namespace lipaboy_lib {
 
 	namespace stream_space {
 
-		namespace operators_space {
+		namespace operators {
 
 			using std::shared_ptr;
 
+			// Contract rules : 
+			//	1) filter_impl needs to store current element because
+			//		when we call hasNext() it has pass the pack of elements
+			//		to make sure the stream has next element indeed.
+
 			// INFO: you can remove intermediate type (filter) because you can deduce type of elems from Predicate's
-			//		 argument.
+			//		 argument. BUT: you cannot pass lambda with auto parameter deducing.
 
 			//-------------------------------------------------------------------------------------//
 			//--------------------------------Unterminated operation------------------------------//
@@ -52,12 +57,12 @@ namespace lipaboy_lib {
 					resetSaves();
 					auto temp = std::move(*pCurrentElem_);
 					if (stream.hasNext()) {
-						*pCurrentElem_ = std::move(stream.nextElem());
+						*pCurrentElem_ = stream.nextElem();
 						hasNext(stream);
 					}
 					else
 						pCurrentElem_ = nullptr;
-					return std::move(temp);
+					return temp;
 				}
 
 				template <class TSubStream>
@@ -118,8 +123,8 @@ namespace lipaboy_lib {
 
 		}
 
-		using operators_space::filter;
-		using operators_space::filter_impl;
+		using operators::filter;
+		using operators::filter_impl;
 
 		template <class TStream, class Predicate>
 		struct shortening::StreamTypeExtender<TStream, filter<Predicate> > {
@@ -133,3 +138,4 @@ namespace lipaboy_lib {
 	}
 
 }
+

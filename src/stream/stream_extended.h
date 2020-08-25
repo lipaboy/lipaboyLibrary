@@ -17,67 +17,63 @@ namespace lipaboy_lib {
 
 	namespace stream_space {
 
-		using std::vector;
-		using std::pair;
-		using std::string;
-		using std::unique_ptr;
-		using std::shared_ptr;
-
-		using namespace operators_space;
-
 		using std::cout;
 		using std::endl;
+
+		using operators::get;
 
 		//-----------------Stream Extended class----------------------//
 
 		template <class TOperator, class... Rest>
-		class Stream : public Stream<Rest...> {
+		class StreamBase : public StreamBase<Rest...> {
 		public:
 			using size_type = size_t;
 			using OperatorType = TOperator;
-			using SuperType = Stream<Rest...>;
-			using ConstSuperType = const SuperType;
-			using iterator = typename SuperType::outside_iterator;
-			using SuperTypePtr = SuperType * ;
-			using ConstSuperTypePtr = const SuperType *;
-			using ValueType = typename SuperType::ValueType;
-			using Range = typename SuperType::Range;
-			using ActionSignature = void(Stream*);
+			using SubType = StreamBase<Rest...>;
+			using ConstSubType = const SubType;
+			using iterator = typename SubType::outside_iterator;
+			using SubTypePtr = SubType * ;
+			using ConstSubTypePtr = const SubType *;
+			using ValueType = typename SubType::ValueType;
+			using ActionSignature = void(StreamBase*);
 			using ActionType = std::function<ActionSignature>;
 
+		public:
 			template <class Functor>
-			using ExtendedStreamType = Stream<Functor, OperatorType, Rest...>;
+			using ExtendedStreamType = StreamBase<Functor, OperatorType, Rest...>;
 
-			using ResultValueType = typename TOperator::template RetType<typename SuperType::ResultValueType>;
+			using ResultValueType = typename TOperator::template RetType<
+				typename SubType::ResultValueType>;
 
-			template <typename, typename...> friend class Stream;
+		public:
+			template <typename, typename...> friend class StreamBase;
 
 			//----------------------Constructors----------------------//
 		public:
 
-			template <class StreamSuperType_, class TFunctor_>
+			template <class StreamSubType_, class TFunctor_>
 			explicit
-				Stream(TFunctor_&& functor, StreamSuperType_&& obj) noexcept
-				: SuperType(std::forward<StreamSuperType_>(obj)), operator_(std::forward<TFunctor_>(functor))
+				StreamBase(TFunctor_&& functor, StreamSubType_&& obj) noexcept
+				: SubType(std::forward<StreamSubType_>(obj)), operator_(std::forward<TFunctor_>(functor))
 			{
 #ifdef LOL_DEBUG_NOISY
-				if constexpr (std::is_rvalue_reference<StreamSuperType_&&>::value)
+				if constexpr (std::is_rvalue_reference<StreamSubType_&&>::value)
 					cout << "   Stream is extended by move-constructor" << endl;
 				else
 					cout << "   Stream is extended by copy-constructor" << endl;
 #endif
 			}
 		public:
-			Stream(Stream const & obj)
-				: SuperType(static_cast<ConstSuperType&>(obj)),
+			StreamBase(StreamBase const & obj)
+				: SubType(static_cast<ConstSubType&>(obj)),
 				operator_(obj.operator_)
 			{
 #ifdef LOL_DEBUG_NOISY
 				cout << "   StreamEx copy-constructed" << endl;
 #endif
 			}
-			Stream(Stream&& obj) noexcept
-				: SuperType(std::move(obj)),
+			StreamBase(StreamBase&& obj) noexcept
+				: SubType(std::move(obj)),
 				operator_(std::move(obj.operator_))
 			{
 #ifdef LOL_DEBUG_NOISY
@@ -90,10 +86,11 @@ namespace lipaboy_lib {
 			//-----------------Tools-------------------//
 		protected:
 			static constexpr bool isNoGetTypeBefore() {
-				return (TOperator::metaInfo != GET && SuperType::isNoGetTypeBefore());
+				return (!std::is_same_v<get, TOperator> 
+					&& SubType::isNoGetTypeBefore());
 			}
 			static constexpr bool isGeneratorProducing() {
-				return SuperType::isGeneratorProducing();
+				return SubType::isGeneratorProducing();
 			}
 
 		public:
@@ -102,14 +99,14 @@ namespace lipaboy_lib {
 			}
 			template <class TStream_>
 			inline static constexpr void assertOnInfinite() {
-				SuperType::template assertOnInfinite<TStream_>();
+				SubType::template assertOnInfinite<TStream_>();
 			}
 
 		protected:
 			// shortnesses
-			SuperTypePtr superThisPtr() { return static_cast<SuperTypePtr>(this); }
-			ConstSuperTypePtr constSuperThisPtr() const { return static_cast<ConstSuperTypePtr>(this); }
-			auto superNextElem() -> typename SuperType::ResultValueType { return superThisPtr()->nextElem(); }
+			SubTypePtr superThisPtr() { return static_cast<SubTypePtr>(this); }
+			ConstSubTypePtr constSuperThisPtr() const { return static_cast<ConstSubTypePtr>(this); }
+			auto superNextElem() -> typename SubType::ResultValueType { return superThisPtr()->nextElem(); }
 			bool superHasNext() { return superThisPtr()->hasNext(); }
 
 			//------------------------------------------------------------------------//
@@ -119,27 +116,15 @@ namespace lipaboy_lib {
 		public:
 
 			ResultValueType nextElem() {
-#ifdef WIN32
-				return std::move(operator_.nextElem<SuperType>(*superThisPtr()));
-#else
-				return std::move(operator_.template nextElem<SuperType>(*superThisPtr()));
-#endif
+                return operator_.template nextElem<SubType>(*superThisPtr());
 			}
 
 			bool hasNext() {
-#ifdef WIN32
-				return operator_.hasNext<SuperType>(*superThisPtr());
-#else
-				return operator_.template hasNext<SuperType>(*superThisPtr());
-#endif
+                return operator_.template hasNext<SubType>(*superThisPtr());
 			}
 
 			void incrementSlider() {
-#ifdef WIN32
-				operator_.incrementSlider<SuperType>(*superThisPtr());
-#else
-				operator_.template incrementSlider<SuperType>(*superThisPtr());
-#endif
+                operator_.template incrementSlider<SubType>(*superThisPtr());
 			}
 
 
@@ -147,12 +132,12 @@ namespace lipaboy_lib {
 			//-----------------------------Slider API Ends----------------------------//
 			//------------------------------------------------------------------------//
 
-			bool operator==(Stream & other) { return equals(other); }
-			bool operator!=(Stream & other) { return !((*this) == other); }
+			bool operator==(StreamBase & other) { return equals(other); }
+			bool operator!=(StreamBase & other) { return !((*this) == other); }
 		private:
-			bool equals(Stream & other) {
+			bool equals(StreamBase & other) {
 				return (operator_ == other.operator_
-					&& superThisPtr()->equals(static_cast<SuperType&>(other))
+					&& superThisPtr()->equals(static_cast<SubType&>(other))
 					);
 			}
 

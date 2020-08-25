@@ -6,34 +6,50 @@ include_directories("${CMAKE_SOURCE_DIR}/src")
 set(TEST_SOURCE
     tests.cpp
 
+    # Special Iterators
 	containers/nested_iterator_tests.cpp
 	containers/nested_iterator_tests.h
 
-	common_interfaces/algebra_tests.cpp
+	# Algebra
+    common_interfaces/algebra_tests.cpp
 
+	# Long Numbers
     long_numbers/long_numbers_tests.cpp
+    intervals/interval_tests.cpp
+    long_numbers/big_integer_tests.cpp
+    long_numbers/long_numbers_benchmark_tests.cpp
 
+	# Stream
+    stream/nop_tests.cpp
+    stream/nth_tests.cpp
+    stream/filter_tests.cpp
+    stream/reduce_tests.cpp
+    stream/max_tests.cpp
+    stream/split_tests.cpp
     stream/stream_tests.cpp
     stream/stream_test.h
+    stream/benchmarks/stream_vs_fast_stream.cpp
 
+	# HashMap
     hash_map/forward_list_tests.cpp
     hash_map/hash_map_test.h
     hash_map/hash_map_tests.cpp
 
-	extra_tools/producing_iterator_tests.cpp
-	extra_tools/initializer_list_iterator_tests.cpp
-	extra_tools/maths_tools_tests.cpp
+	# Extra tools
+    extra_tools/producing_iterator_tests.cpp
+    extra_tools/initializer_list_iterator_tests.cpp
+    extra_tools/maths_tools_tests.cpp
     extra_tools/extra_tools_tests.cpp
     extra_tools/extra_tools_tests.h
+
+	# Maths
+    maths/fixed_precision_number_tests.cpp
     )
 
 add_executable(${MODULE_NAME}_tests ${TEST_SOURCE})
 target_link_libraries(${MODULE_NAME}_tests 
 	LIPABOY_LIB 
 	gtest 
-	gmock_main)
-
-set_property(TARGET ${MODULE_NAME}_tests PROPERTY CXX_STANDARD 17)
-set_property(TARGET ${MODULE_NAME}_tests PROPERTY CXX_STANDARD_REQUIRED ON)
+        gmock_main)
 
 add_test(NAME ${MODULE_NAME}_tests COMMAND ${MODULE_NAME}_tests)

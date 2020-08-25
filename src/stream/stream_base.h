@@ -1,13 +1,15 @@
 #pragma once
 
 #include "stream_extended.h"
+#include "extra_tools/producing_iterator.h"
+#include "extra_tools/initializer_list_iterator.h"
 
 #include <vector>
 #include <functional>
 #include <algorithm>
 #include <iterator>
 #include <type_traits>
-
+#include <optional>
 #include <typeinfo>
 
 #include <iostream>
@@ -19,53 +21,56 @@ namespace lipaboy_lib {
 		using std::vector;
 		using std::pair;
 		using std::string;
+		using std::optional;
 
 		using std::cout;
+
+		using lipaboy_lib::ProducingIterator;
+		using lipaboy_lib::InitializerListIterator;
 
 
 		//--------------------------Stream Base (specialization class)----------------------//
 
 		template <class TIterator>
-		class Stream<TIterator> {
+		class StreamBase<TIterator> {
 		public:
 			using T = typename std::iterator_traits<TIterator>::value_type;
 			using ValueType = T;
 			using size_type = size_t;
 			using outside_iterator = TIterator;
-			class Range;
+			using GeneratorTypePtr = std::function<ValueType(void)>;
 
+		public:
 			template <class Functor>
-			using ExtendedStreamType = Stream<Functor, TIterator>;
+			using ExtendedStreamType = StreamBase<Functor, TIterator>;
 
 			using ResultValueType = ValueType;
 
-			using GeneratorTypePtr = std::function<ValueType(void)>;
-
-			template <typename, typename...> friend class Stream;
-
-			//using SuperType = void;
-			//using OperatorType = TIterator;
+		public:
+			// INFO: this friendship means that all the Streams, which is extended from current,
+			//		 can have access to current class method API.
+			template <typename, typename...> friend class StreamBase;
 
 		public:
 			//----------------------Constructors----------------------//
 
 			template <class OuterIterator>
 			explicit
-				Stream(OuterIterator begin, OuterIterator end) 
+				StreamBase(OuterIterator begin, OuterIterator end)
 				: begin_(begin),
 				end_(end)
 			{}
 			explicit
-				Stream(std::initializer_list<T> init) 
+				StreamBase(std::initializer_list<T> init)
 				: begin_(init)
 			{
-				if constexpr (Stream::isInitializingListCreation())
-						end_ = begin_.endIter();
+				if constexpr (StreamBase::isInitializingListCreation())
+					end_ = begin_.endIter();
 			}
 			explicit
-				Stream(typename GeneratorTypePtr generator) 
-				: begin_(generator), 
-				end_() 
+				StreamBase(GeneratorTypePtr generator)
+				: begin_(generator),
+				end_()
 			{}
 
 			//----------------------Methods API-----------------------//
@@ -93,18 +98,20 @@ namespace lipaboy_lib {
 				static_assert(!TStream_::isInfinite(),
 					"Stream error: attempt to work with infinite stream");
 			}
+
 		protected:
 			// Info:
 			// illusion of protected (it means that can be replace on private)
 			// (because all the variadic templates are friends
 			// from current Stream to first specialization) (it is not a real inheritance)
 
+
 			//-----------------Slider API--------------//
 		public:
-			ResultValueType nextElem() { 
+			ResultValueType nextElem() {
 				auto elem = *begin_;
 				begin_++;
-				return std::move(elem); 
+				return elem;
 			}
 			bool hasNext() { return begin_ != end_; }
 			void incrementSlider() { begin_++; }
@@ -112,12 +119,12 @@ namespace lipaboy_lib {
 			//-----------------Slider API Ends--------------//
 
 		public:
-			bool operator==(Stream const & other) const { return equals(other); }
-			bool operator!=(Stream const & other) const { return !((*this) == other); }
+			bool operator==(StreamBase const & other) const { return equals(other); }
+			bool operator!=(StreamBase const & other) const { return !((*this) == other); }
 		private:
-			bool equals(Stream const & other) const { 
-				return begin_ == other.begin_ 
-					&& end_ == other.end_; 
+			bool equals(StreamBase const & other) const {
+				return begin_ == other.begin_
+					&& end_ == other.end_;
 			}
 
 		private:

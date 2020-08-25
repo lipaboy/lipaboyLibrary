@@ -6,7 +6,7 @@ namespace lipaboy_lib {
 
 	namespace stream_space {
 
-		namespace operators_space {
+		namespace operators {
 
 			struct get : public TReturnSameType
 			{
@@ -20,12 +20,16 @@ namespace lipaboy_lib {
 
 				template <class TSubStream>
 				auto nextElem(TSubStream& stream) -> typename TSubStream::ResultValueType {
+					// INFO: you needn't to check if there are not elements because
+					//		it must doing the client by calling hasNext()
+					//size_ = (size_ > 0) ? size_ - 1 : size_;
 					--size_;
-					return std::move(stream.nextElem());
+					return stream.nextElem();
 				}
 
 				template <class TSubStream>
 				void incrementSlider(TSubStream& stream) {
+					//size_ = (size_ > 0) ? size_ - 1 : size_;
 					--size_;
 					stream.incrementSlider();
 				}

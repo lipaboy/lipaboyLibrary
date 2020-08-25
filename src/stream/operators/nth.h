@@ -3,12 +3,13 @@
 #include "tools.h"
 
 #include <exception>
+#include <optional>
 
 namespace lipaboy_lib {
 
 	namespace stream_space {
 
-		namespace operators_space {
+		namespace operators {
 
 			//---------------------------------------------------------------------------------------------------//
 			//-----------------------------------Terminated operation-------------------------------------------//
@@ -17,21 +18,21 @@ namespace lipaboy_lib {
 
 			struct nth {
 				using size_type = size_t;
-
-				template <class T>
-				using RetType = T;
-
-				nth(size_type count) : count_(count) {}
 				static constexpr OperatorMetaTypeEnum metaInfo = NTH;
 				static constexpr bool isTerminated = true;
+				
+				template <class T>
+				using RetType = std::optional<T>;
+
+				nth(size_type count) : count_(count) {}
 
 				template <class Stream_>
-				auto apply(Stream_ & obj) -> typename Stream_::ResultValueType
+				auto apply(Stream_ & obj) -> RetType<typename Stream_::ResultValueType>
 				{
 					for (size_t i = 0; i < count() && obj.hasNext(); i++)
 						obj.incrementSlider();
 					if (!obj.hasNext())
-						throw std::logic_error("Stream (nth operation) : index is out of range");
+						return std::nullopt;
 					return std::move(obj.nextElem());
 				}
 
