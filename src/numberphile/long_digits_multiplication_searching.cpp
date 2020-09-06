@@ -246,7 +246,7 @@ namespace lipaboy_lib::numberphile {
     }
 
 
-    // linux: <20, 1e160> - 2 mins, <30, 1e240> - 22 mins
+    // linux: <20, 1e60> - 2 secs, <20, 1e160> - 1,5 mins, <30, 1e240> - 22 mins
     // windows: <20, 1e60> - 2,6 mins, <30, 1e25> - 15 secs
     void long_digits_multiplication_searching_long_numbers()
     {
@@ -315,36 +315,27 @@ namespace lipaboy_lib::numberphile {
 
         for (uint64_t len = 2; len <= MAX; len++) {
 
-            for (uint64_t iTwo = 0; iTwo <= len; iTwo++) {
+            for (uint64_t iSeven = 0; iSeven <= len; iSeven++) {
+                IntType temp7 = pow<IntType, uint64_t>(IntType(7), iSeven);
 
-                for (uint64_t iThree = 0; iThree <= len - iTwo; iThree++) {
+                for (uint64_t iThree = 0; iThree <= len - iSeven; iThree++) {
+                    IntType temp37 = temp7 * pow<IntType, uint64_t>(IntType(3), iThree);
 
-                    // sevens = len - iTwo - iThree
+                    // twos = len - iSeven - iThree
 
                     // multiply the digits
 
-                    auto iSeven = len - iTwo - iThree;
-                    nums[0] = pow<IntType, uint64_t>(IntType(2), iTwo) *
-                            pow<IntType, uint64_t>(IntType(3), iThree) *
-                            pow<IntType, uint64_t>(IntType(7), iSeven);
+                    auto iTwo = len - iSeven - iThree;
+                    nums[0] = temp37 *
+                            pow<IntType, uint64_t>(IntType(2), iTwo);
 
                     updateMaxSteps(iTwo, iThree, 0, iSeven);
 
-                }
+                    // fives = len - iSeven - iThree
 
-            }
-
-            for (uint64_t iFive = 0; iFive <= len; iFive++) {
-
-                for (uint64_t iThree = 0; iThree <= len - iFive; iThree++) {
-
-                    // sevens = len - iFive - iThree
-
-                    auto iSeven = len - iFive - iThree;
-
-                    nums[0] = pow<IntType, uint64_t>(IntType(5), iFive) *
-                            pow<IntType, uint64_t>(IntType(3), iThree) *
-                            pow<IntType, uint64_t>(IntType(7), iSeven);
+                    auto iFive = len - iSeven - iThree;
+                    nums[0] = temp37 *
+                            pow<IntType, uint64_t>(IntType(5), iFive);
 
                     updateMaxSteps(0, iThree, iFive, iSeven);
 
