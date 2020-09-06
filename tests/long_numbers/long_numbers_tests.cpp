@@ -134,6 +134,19 @@ TEST(LongInteger, division_double) {
     EXPECT_EQ((num3 / num4).to_string(), "200200");
 }
 
+//---------Operator% checking-----------//
+
+TEST(LongInteger, remainder_double) {
+    LongIntegerDecimal<2> num3("200201");
+    LongIntegerDecimal<2> num4("200200");
+
+    EXPECT_EQ((num3 % num4).to_string(), "1");
+
+    num3 *= num4;
+
+    EXPECT_EQ((num3 % num4).to_string(), "0");
+}
+
 //---------Operator* checking-----------//
 
 TEST(LongInteger, multiplication_double_rank_by_independent_parts) {

@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <string>
 #include <cmath>
+#include <tuple>
 
 #include "extra_tools/extra_tools.h"
 #include "intervals/cutoffborders.h"
@@ -36,6 +37,8 @@ namespace long_numbers_space {
 
 using std::array;
 using std::string;
+using std::pair;
+
 using lipaboy_lib::cutOffLeftBorder;
 using lipaboy_lib::enable_if_else_t;
 using lipaboy_lib::powDozen;
@@ -108,7 +111,6 @@ public:
 	LongIntegerDecimal() {
 		checkTemplateParameters();
 	}
-	explicit
 	LongIntegerDecimal(int small) : minus_(small < 0) {
 		checkTemplateParameters();
 		number_[0] = std::abs(small);
@@ -210,9 +212,27 @@ public:
         return *this;
     }
 
-    // Yeah, I receive the argument by copy
-    // doesn't work
     LongIntegerDecimal operator/(const_reference other) const {
+        return this->divide(other).first;
+    }
+
+    const_reference operator/=(const_reference other) {
+        (*this) = (*this) / other;
+        return *this;
+    }
+
+    LongIntegerDecimal operator%(const_reference other) const {
+        return this->divide(other).second;
+    }
+
+    const_reference operator%=(const_reference other) {
+        (*this) = (*this) % other;
+        return *this;
+    }
+
+    auto divide(const_reference other) const
+        -> pair<LongIntegerDecimal, LongIntegerDecimal>
+    {
         const LongIntegerDecimal DEC(10);
         const LongIntegerDecimal ONE(1);
         const LongIntegerDecimal ZERO(0);
@@ -246,7 +266,7 @@ public:
         }
         // dividend - it is equal to remainder of division
 
-        return res;
+        return std::make_pair(res, dividend);
     }
 
 	//-------------Converter---------------//
