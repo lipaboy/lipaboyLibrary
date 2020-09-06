@@ -42,6 +42,11 @@ TEST(LongInteger, comparison_less) {
 	LongIntegerDecimal<3> num8("-0");
 
 	ASSERT_FALSE(num7 < num8);
+
+    LongIntegerDecimal<2> num9("200200");
+    LongIntegerDecimal<2> num10("200200");
+
+    ASSERT_TRUE((num9 * num10) > num9 * LongIntegerDecimal<2>(1000));
 }
 
 //-----------Sign-----------//
@@ -114,6 +119,32 @@ TEST(LongInteger, division_by_dec) {
     remainder = num2.divideByDec();
     EXPECT_EQ(num2.to_string(), "0");
     EXPECT_EQ(remainder, 0);
+}
+
+//---------Operator/ checking-----------//
+
+TEST(LongInteger, division_double) {
+    LongIntegerDecimal<2> num3("200200");
+    LongIntegerDecimal<2> num4("200200");
+
+    EXPECT_EQ((num3 / num4).to_string(), "1");
+
+    num3 *= num4;
+
+    EXPECT_EQ((num3 / num4).to_string(), "200200");
+}
+
+//---------Operator% checking-----------//
+
+TEST(LongInteger, remainder_double) {
+    LongIntegerDecimal<2> num3("200201");
+    LongIntegerDecimal<2> num4("200200");
+
+    EXPECT_EQ((num3 % num4).to_string(), "1");
+
+    num3 *= num4;
+
+    EXPECT_EQ((num3 % num4).to_string(), "0");
 }
 
 //---------Operator* checking-----------//

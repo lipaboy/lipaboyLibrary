@@ -33,16 +33,12 @@
 
 	4) (Stream) write group_by(to any container like vector, list, string and so on (IIterable))
 
-	5) (LongNumbers) compare perfomance of BigUnsigned multiplication and library's one
-
 	6) (Stream) add cast operator: stream | cast<int>() | print_to(cout, "");
 		- Also static, dynamic casts.
 		
     7) (Stream) add reverse operator (maybe primitive with saving at vector)
     
     8) (Numberphile searching) need to develop my long_numbers with templates (maybe not global, only for tasks)
-    
-    9) (LongNumber) Write division properly.
 
 ----Local TODOs:
 

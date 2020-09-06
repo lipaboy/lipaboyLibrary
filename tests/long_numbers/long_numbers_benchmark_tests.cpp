@@ -21,30 +21,48 @@ namespace long_numbers_benchmark_tests_space {
 	using namespace lipaboy_lib::long_numbers_space;
     using namespace lipaboy_lib::extra;
 
-    TEST(LongNumberDecimal, benchmark) {
-        LongIntegerDecimal<2> l("3");
-        uint64_t num = 3;   // 3^40
+    // Results:
+    // Linux <Mult count>
+    // <158> LongIntegerDecimal<8> - 0.231 s, BigUnsigned - 16.2 s
+    // <158> LongIntegerDecimal<16> - 0.306 s
+    TEST(LongNumberDecimal, DISABLED_benchmark) {
+        constexpr int ROUND_TRIP = 100000;
+        constexpr int MULT_COUNT = 38 + 40 + 80;
+        using LongI = LongIntegerDecimal<16>;
 
+        uint64_t num = 3;   // 3^40
         auto start1 = getCurrentTime();
         // 1e5 - 5 secs for LongNumber
-        constexpr int ROUND_TRIP = 100000;
         for (int round = 0; round < ROUND_TRIP; round++) {
-            for (int i = 0; i < 38; i++) {
+            for (int i = 0; i < MULT_COUNT; i++) {
                 num *= 3;
             }
             num = 3;
         }
         cout << "Time 1: " << diffFromNow(start1) << endl;
 
+
+        auto bu = stringToBigUnsigned("3");
+        auto ctemp = bu;
+        auto start3 = getCurrentTime();
+        for (int round = 0; round < ROUND_TRIP; round++) {
+            for (int i = 0; i < MULT_COUNT; i++) {
+                bu = bu * ctemp;
+            }
+            bu = ctemp;
+        }
+        cout << "Time 3: " << diffFromNow(start3) << endl;
+
+        LongI l("3");
         auto start2 = getCurrentTime();
         for (int round = 0; round < ROUND_TRIP; round++) {
-            for (int i = 0; i < 38; i++) {
-                l = l * LongIntegerDecimal<2>(3);
+            for (int i = 0; i < MULT_COUNT; i++) {
+                l = l * LongI(3);
             }
-            l = LongIntegerDecimal<2>(3);
+            l = LongI(3);
         }
 
-        cout << "Time 1: " << diffFromNow(start2) << endl;
+        cout << "Time 3: " << diffFromNow(start2) << endl;
 
 //        string s;
 //        std::cin >> s;
