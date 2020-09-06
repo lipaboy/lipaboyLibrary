@@ -12,6 +12,7 @@
 #include "extra_tools/extra_tools.h"
 #include "intervals/cutoffborders.h"
 #include "extra_tools/maths_tools.h"
+#include "common_interfaces/comparable.h"
 
 namespace lipaboy_lib {
 
@@ -38,6 +39,7 @@ using std::string;
 using lipaboy_lib::cutOffLeftBorder;
 using lipaboy_lib::enable_if_else_t;
 using lipaboy_lib::powDozen;
+using lipaboy_lib::ComparatorExtender;
 
 // Concept: it is simple long number, without any trivial optimizations like
 //			checking if number is increasing or not (in order to making less computations)
@@ -72,6 +74,7 @@ namespace extra {
 
 template <size_t lengthOfIntegrals>     // count of integral type variables
 class LongIntegerDecimal
+        : public ComparatorExtender<LongIntegerDecimal<lengthOfIntegrals> >
 {
 public:
 	using TIntegral = std::uint32_t;
@@ -85,7 +88,9 @@ public:
     using ResultIntegralType = std::remove_reference_t<TIntegralResult>;
 	using ContainerType = array<IntegralType, lengthOfIntegrals>;
 	using iterator = typename ContainerType::iterator;
+    using reverse_iterator = std::reverse_iterator<iterator>;
 	using const_iterator = typename ContainerType::const_iterator;
+    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 	using reference = LongIntegerDecimal &;
 	using const_reference = const LongIntegerDecimal&;
@@ -207,39 +212,39 @@ public:
 
     // Yeah, I receive the argument by copy
     // doesn't work
-    LongIntegerDecimal operator/(LongIntegerDecimal other) const {
-        LongIntegerDecimal temp(other);
+    LongIntegerDecimal operator/(const_reference other) const {
+        const LongIntegerDecimal DEC(10);
+        const LongIntegerDecimal ONE(1);
+        const LongIntegerDecimal ZERO(0);
+
+        LongIntegerDecimal divider(other);
         LongIntegerDecimal res(0);
         LongIntegerDecimal dividend(*this);
 
         LongIntegerDecimal modulus(1);
         // TODO: remove infinite loop
         for ( ; ; ) {
-            temp *= LongIntegerDecimal(10);
-            if (dividend < temp)
+            divider *= DEC;
+            if (divider > dividend)
                 break;
-            other *= LongIntegerDecimal(10);
-            modulus *= LongIntegerDecimal(10);
+            modulus *= DEC;
         }
 
-        for ( ; ; ) {
-            for ( ; ; ) {
-                dividend -= other;
+        divider.divideByDec();
+        for ( ; dividend >= divider || modulus != ONE; ) {
+            for ( ; dividend >= divider; ) {
+                dividend -= divider;
                 res += modulus;
-                if (dividend < other)
-                    break;
             }
 
-            if (dividend == LongIntegerDecimal(0))
-                break;
-
-            for ( ; ; ) {
-                other.divideByDec();
+            for ( ; modulus != ONE; ) {
+                divider.divideByDec();
                 modulus.divideByDec();
-                if (other <= dividend)
+                if (divider <= dividend)
                     break;
             }
         }
+        // dividend - it is equal to remainder of division
 
         return res;
     }
@@ -288,9 +293,8 @@ public:
 	bool operator< (const_reference other) const {
 		if (sign() * other.sign() < TSigned(0))		// #much-costs condition because see sign()
 			return minus_;
-		return std::lexicographical_compare(cbegin(), cend(), other.cbegin(), other.cend());
-	}
-	bool operator<= (const_reference other) const { return (*this) < other || (*this) == other; }
+        return std::lexicographical_compare(crbegin(), crend(), other.crbegin(), other.crend());
+    }
 
 public:
     // maximum count decimal digits that can be placed into IntegralType
@@ -319,8 +323,12 @@ public:
 private:
 	iterator begin() { return number_.begin(); }
 	iterator end() { return number_.end(); }
+    reverse_iterator rbegin() { return number_.begin(); }
+    reverse_iterator rend() { return number_.end(); }
 	const_iterator cbegin() const { return number_.cbegin(); }
 	const_iterator cend() const { return number_.cend(); }
+    const_reverse_iterator crbegin() const { return number_.crbegin(); }
+    const_reverse_iterator crend() const { return number_.crend(); }
 
 private:
 	void checkTemplateParameters() {
@@ -328,6 +336,7 @@ private:
 	}
 
 private:
+    // if index is increased then rank is increased
     array<IntegralType, lengthOfIntegrals> number_;
 	bool minus_;
 };
