@@ -15,6 +15,8 @@
 #include "extra_tools/maths_tools.h"
 #include "common_interfaces/comparable.h"
 
+#include "long_integer_decimal_view.h"
+
 namespace lipaboy_lib {
 
 namespace long_numbers_space {
@@ -72,6 +74,9 @@ namespace extra {
 
 }
 
+template <size_t len>
+LongIntegerDecimal<len> multiplyByKaracuba_(LongIntegerDecimalView<len> first, LongIntegerDecimalView<len> second);
+
 // Requirements: 
 // 1) TIntegral and TResult must be unsigned.
 
@@ -108,61 +113,19 @@ protected:
 public:
 	// Note: Non-initialized constructor: without filling array by zeroIntegral value.
 	explicit
-	LongIntegerDecimal() {
-		checkTemplateParameters();
-	}
+    LongIntegerDecimal() { checkTemplateParameters(); }
 	LongIntegerDecimal(int small) : minus_(small < 0) {
 		checkTemplateParameters();
 		number_[0] = std::abs(small);
 		std::fill(std::next(begin()), end(), TIntegral(0));
 	}
-
 	explicit
-	LongIntegerDecimal(string const & numberDecimalStr) : minus_(false) {
-		int last = numberDecimalStr.size();
-        int first = cutOffLeftBorder<int>(last - integralModulusDegree(), 0);
-		size_t i = 0;
-		for (; last - first > 0 && i < length(); i++) {
-			// for optimization you need to see the StringView (foly library)
-            auto sub = numberDecimalStr.substr(size_t(first), size_t(last - first));
-            int subInt = std::stoi(sub);
-            if (first <= 0 && subInt < 0)		// it means that this decoded part is last
-				minus_ = true;
-            IntegralType part = static_cast<IntegralType>(std::abs(subInt));
-			
-			number_[i] = part;
-
-            last -= integralModulusDegree();
-            first = cutOffLeftBorder<int>(first - integralModulusDegree(), 0);
-		}
-		std::fill(std::next(begin(), i), end(), zeroIntegral());
-	}
+    LongIntegerDecimal(string const & numberDecimalStr);
 
 	// TODO: calculate how much copy-constructor was called
-	LongIntegerDecimal operator+(const_reference other) const {
-		return (LongIntegerDecimal(*this) += other);
-	}
+    LongIntegerDecimal operator+(const_reference other) const { return (LongIntegerDecimal(*this) += other); }
 
-	const_reference operator+=(const_reference other) {
-		// Think_About: maybe std::partial_sum can be useful?
-
-        IntegralType remainder = zeroIntegral();
-		TSigned sign(1);
-		for (size_t i = 0; i < length(); i++) {
-			const TSignedResult doubleTemp = TSignedResult(
-				this->sign() * TSigned((*this)[i])
-				+ other.sign() * TSigned(other[i])
-                + sign * TSigned(remainder)
-			);
-
-            (*this)[i] = IntegralType(std::abs(doubleTemp) % integralModulus());
-            remainder = IntegralType(std::abs(doubleTemp) / integralModulus());
-			sign = extra::sign<TSignedResult, TSigned>(doubleTemp < 0, doubleTemp);
-		}
-		this->setSign(sign);
-
-		return *this;
-	}
+    const_reference operator+=(const_reference other);
 
 	// TODO: you can optimize it. When inverse operator is called then useless copy will be created.
 	const_reference operator-=(const_reference other) { return (*this) += -other; }
@@ -230,62 +193,17 @@ public:
         return *this;
     }
 
-    auto divide(const_reference other) const
-        -> pair<LongIntegerDecimal, LongIntegerDecimal>
-    {
-        const LongIntegerDecimal DEC(10);
-        const LongIntegerDecimal ONE(1);
-        const LongIntegerDecimal ZERO(0);
+    auto divide(const_reference other) const -> pair<LongIntegerDecimal, LongIntegerDecimal>;
 
-        LongIntegerDecimal divider(other);
-        LongIntegerDecimal res(0);
-        LongIntegerDecimal dividend(*this);
-
-        LongIntegerDecimal modulus(1);
-        // TODO: remove infinite loop
-        for ( ; ; ) {
-            divider *= DEC;
-            if (divider > dividend)
-                break;
-            modulus *= DEC;
-        }
-
-        divider.divideByDec();
-        for ( ; dividend >= divider || modulus != ONE; ) {
-            for ( ; dividend >= divider; ) {
-                dividend -= divider;
-                res += modulus;
-            }
-
-            for ( ; modulus != ONE; ) {
-                divider.divideByDec();
-                modulus.divideByDec();
-                if (divider <= dividend)
-                    break;
-            }
-        }
-        // dividend - it is equal to remainder of division
-
-        return std::make_pair(res, dividend);
+    LongIntegerDecimal multiplyByKaracuba(LongIntegerDecimal const & other) {
+        auto res = multiplyByKaracuba_<length()>(*this, other);
+        res.minus_ = false;
+        return res;
     }
 
 	//-------------Converter---------------//
 
-	string to_string() const {
-		string res = (minus_) ? "-" : "";
-		bool isFirstNonZeroMet = false;
-		for (int i = length() - 1; i >= 0; i--) {
-			if (isFirstNonZeroMet || number_[i] != zeroIntegral()) {
-                string part = std::to_string(number_[i]);
-                // (integralModulusDegree() - part.size()) cannot be < 0 by the logic of class
-				res += ((!isFirstNonZeroMet) ? "" 
-                    : string(integralModulusDegree() - part.size(), '0'))
-					+ part;
-				isFirstNonZeroMet = true;
-			}
-		}
-        return (isFirstNonZeroMet) ? res : "0";
-	}
+    string to_string() const;
 
 	//------------Setters, Getters----------//
 
@@ -325,7 +243,7 @@ public:
     static constexpr IntegralType integralModulus() { return powDozen<IntegralType>(integralModulusDegree()); }
 
 private:
-	constexpr IntegralType zeroIntegral() const { return IntegralType(0); }
+    static constexpr IntegralType zeroIntegral() { return IntegralType(0); }
 
 public:
     IntegralType divideByDec() {
@@ -340,7 +258,9 @@ public:
         return remainder;
     }
 
-private:
+    // TODO: Make private
+public:
+//private:
 	iterator begin() { return number_.begin(); }
 	iterator end() { return number_.end(); }
     reverse_iterator rbegin() { return number_.begin(); }
@@ -359,8 +279,202 @@ private:
     // if index is increased then rank is increased
     array<IntegralType, lengthOfIntegrals> number_;
 	bool minus_;
+
+    friend class LongIntegerDecimalView<lengthOfIntegrals>;
 };
 
+//-------------------------------------------------------------//
+
+template <size_t length>
+LongIntegerDecimal<length>::LongIntegerDecimal(string const & numberDecimalStr) : minus_(false) {
+    int last = numberDecimalStr.size();
+    int first = cutOffLeftBorder<int>(last - integralModulusDegree(), 0);
+    size_t i = 0;
+    for (; last - first > 0 && i < length(); i++) {
+        // for optimization you need to see the StringView (foly library)
+        auto sub = numberDecimalStr.substr(size_t(first), size_t(last - first));
+        int subInt = std::stoi(sub);
+        if (first <= 0 && subInt < 0)		// it means that this decoded part is last
+            minus_ = true;
+        IntegralType part = static_cast<IntegralType>(std::abs(subInt));
+
+        number_[i] = part;
+
+        last -= integralModulusDegree();
+        first = cutOffLeftBorder<int>(first - integralModulusDegree(), 0);
+    }
+    std::fill(std::next(begin(), i), end(), zeroIntegral());
+}
+
+//------------Arithmetic Operations-------------//
+
+template <size_t length>
+auto LongIntegerDecimal<length>::operator+=(const_reference other)
+    -> const_reference
+{
+    // Think_About: maybe std::partial_sum can be useful?
+
+    IntegralType remainder = zeroIntegral();
+    TSigned sign(1);
+    for (size_t i = 0; i < length(); i++) {
+        const TSignedResult doubleTemp = TSignedResult(
+            this->sign() * TSigned((*this)[i])
+            + other.sign() * TSigned(other[i])
+            + sign * TSigned(remainder)
+        );
+
+        (*this)[i] = IntegralType(std::abs(doubleTemp) % integralModulus());
+        remainder = IntegralType(std::abs(doubleTemp) / integralModulus());
+        sign = extra::sign<TSignedResult, TSigned>(doubleTemp < 0, doubleTemp);
+    }
+    this->setSign(sign);
+
+    return *this;
+}
+
+template <size_t length>
+auto LongIntegerDecimal<length>::divide(const_reference other) const
+    -> pair<LongIntegerDecimal, LongIntegerDecimal>
+{
+    const LongIntegerDecimal DEC(10);
+    const LongIntegerDecimal ONE(1);
+    const LongIntegerDecimal ZERO(0);
+
+    LongIntegerDecimal divider(other);
+    LongIntegerDecimal res(0);
+    LongIntegerDecimal dividend(*this);
+
+    LongIntegerDecimal modulus(1);
+    // TODO: remove infinite loop
+    for ( ; ; ) {
+        divider *= DEC;
+        if (divider > dividend)
+            break;
+        modulus *= DEC;
+    }
+
+    divider.divideByDec();
+    for ( ; dividend >= divider || modulus != ONE; ) {
+        for ( ; dividend >= divider; ) {
+            dividend -= divider;
+            res += modulus;
+        }
+
+        for ( ; modulus != ONE; ) {
+            divider.divideByDec();
+            modulus.divideByDec();
+            if (divider <= dividend)
+                break;
+        }
+    }
+    // dividend - it is equal to remainder of division
+
+    return std::make_pair(res, dividend);
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+//---------------------------------Karacuba--------------------------------//
+/////////////////////////////////////////////////////////////////////////////
+
+// Have a error
+
+template <size_t len>
+LongIntegerDecimal<len> multiplyByKaracuba_(LongIntegerDecimalView<len> first, LongIntegerDecimalView<len> second) {
+    using LongNumberT = LongIntegerDecimal<len>;
+    using LongNumberTView = LongIntegerDecimalView<len>;
+    using DoubleType = typename LongNumberT::ResultIntegralType;
+    constexpr auto integralModulus = LongNumberT::integralModulus();
+    constexpr auto integralModulusDegree = LongNumberT::integralModulusDegree();
+
+    LongIntegerDecimal<len> result;
+
+    if (first.viewLength() == 1 && second.viewLength() == 1) {
+        DoubleType mult = static_cast<DoubleType>(first[0] * second[0]);
+        result[0] = mult % integralModulus;
+        result[1] = mult / integralModulus;
+    }
+    else {
+        LongNumberTView longerPart = (first.viewLength() >= second.viewLength()) ? first : second;
+        LongNumberTView shorterPart = (first.viewLength() < second.viewLength()) ? first : second;
+        auto halfSize = longerPart.viewLength() / 2;
+
+        if (shorterPart.viewLength() > halfSize) {
+            LongNumberTView minorLong(longerPart.begin(), std::next(longerPart.begin(), halfSize));
+            LongNumberTView minorShort(shorterPart.begin(),
+                shorterPart.viewLength() > halfSize
+                    ? std::next(shorterPart.begin(), halfSize)
+                    : shorterPart.end());
+
+            // Recursive descent
+            LongNumberT minorMult = multiplyByKaracuba_(minorLong, minorShort);
+
+            LongNumberTView majorLong(std::next(longerPart.begin(), halfSize), longerPart.end());
+            LongNumberTView majorShort(std::next(shorterPart.begin(), halfSize), shorterPart.end());
+
+            // Recursive descent
+            LongNumberT majorMult = multiplyByKaracuba_(majorLong, majorShort);
+
+            LongNumberT sumLong = majorLong + minorLong;
+            LongNumberT sumShort = majorShort + minorShort;
+            // Recursive descent
+            LongNumberT multOfSums = multiplyByKaracuba_(
+                        LongNumberTView(sumLong.begin(), std::next(sumLong.begin(), halfSize)),
+                        LongNumberTView(sumShort.begin(), std::next(sumShort.begin(), halfSize)));
+
+            LongNumberT differ = multOfSums - majorMult - minorMult;
+
+            auto differShiftSize = integralModulusDegree * halfSize;
+            result = minorMult + differ * powDozen<LongNumberT>(differShiftSize)
+                    + majorMult * powDozen<LongNumberT>(2 * differShiftSize);
+        }
+        else {
+            LongNumberTView minorLong(longerPart.begin(), std::next(longerPart.begin(), halfSize));
+            LongNumberTView minorShort(shorterPart.begin(),
+                shorterPart.viewLength() > halfSize
+                    ? std::next(shorterPart.begin(), halfSize)
+                    : shorterPart.end());
+
+            // Recursive descent
+            LongNumberT minorMult = multiplyByKaracuba_(minorLong, minorShort);
+
+            LongNumberTView majorLong(std::next(longerPart.begin(), halfSize), longerPart.end());
+
+            LongNumberT sumLong = majorLong + minorLong;
+            // Recursive descent
+            LongNumberT multOfSums = multiplyByKaracuba_(
+                        LongNumberTView(sumLong.begin(), std::next(sumLong.begin(), halfSize)),
+                        minorShort);
+
+            LongNumberT differ = multOfSums - minorMult;
+
+            auto differShiftSize = integralModulusDegree  * halfSize;
+            result = minorMult + differ * powDozen<LongNumberT>(differShiftSize);
+        }
+
+    }
+
+    return result;
+}
+
+//----------------------------------------------------------------------------
+
+template <size_t length>
+string LongIntegerDecimal<length>::to_string() const {
+    string res = (minus_) ? "-" : "";
+    bool isFirstNonZeroMet = false;
+    for (int i = length() - 1; i >= 0; i--) {
+        if (isFirstNonZeroMet || number_[i] != zeroIntegral()) {
+            string part = std::to_string(number_[i]);
+            // (integralModulusDegree() - part.size()) cannot be < 0 by the logic of class
+            res += ((!isFirstNonZeroMet) ? ""
+                : string(integralModulusDegree() - part.size(), '0'))
+                + part;
+            isFirstNonZeroMet = true;
+        }
+    }
+    return (isFirstNonZeroMet) ? res : "0";
+}
 
 /////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////
