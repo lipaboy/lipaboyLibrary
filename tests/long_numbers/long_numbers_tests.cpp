@@ -203,6 +203,11 @@ TEST(LongInteger, karacuba_multiplication_simple) {
 	LongIntegerDecimal<2> num6("200000");
 
 	EXPECT_EQ(num5.multiplyByKaracuba(num6), num5 * num6);
+
+	LongIntegerDecimal<1> num7("-2");
+	LongIntegerDecimal<1> num8("2");
+
+	ASSERT_EQ(num7.multiplyByKaracuba(num8), num7 * num8);
 }
 
 //---------Operator- checking-----------//

@@ -197,7 +197,7 @@ public:
 
     LongIntegerDecimal multiplyByKaracuba(LongIntegerDecimal const & other) {
         auto res = multiplyByKaracuba_<length()>(*this, other);
-        res.minus_ = false;
+        res.setSign(sign() * other.sign());
         return res;
     }
 
@@ -287,7 +287,7 @@ private:
 
 template <size_t length>
 LongIntegerDecimal<length>::LongIntegerDecimal(string const & numberDecimalStr) : minus_(false) {
-    int last = numberDecimalStr.size();
+    int last = int(numberDecimalStr.size());
     int first = cutOffLeftBorder<int>(last - integralModulusDegree(), 0);
     size_t i = 0;
     for (; last - first > 0 && i < length(); i++) {
@@ -385,8 +385,8 @@ LongIntegerDecimal<len> multiplyByKaracuba_(LongIntegerDecimalView<len> first, L
     using LongNumberTView = LongIntegerDecimalView<len>;
     using IntegralType = typename LongNumberT::IntegralType;
     using DoubleType = typename LongNumberT::ResultIntegralType;
-    auto integralModulus = LongNumberT::integralModulus();      // TODO: make constexpr (on Windows too!)
-    auto integralModulusDegree = LongNumberT::integralModulusDegree();
+    const auto integralModulus = LongNumberT::integralModulus();
+    const auto integralModulusDegree = LongNumberT::integralModulusDegree();
 
     LongIntegerDecimal<len> result;
 
@@ -403,17 +403,17 @@ LongIntegerDecimal<len> multiplyByKaracuba_(LongIntegerDecimalView<len> first, L
         auto halfSize = longerPart.viewLength() / 2;
 
         if (shorterPart.viewLength() > halfSize) {
-            LongNumberTView minorLong(longerPart.begin(), std::next(longerPart.begin(), halfSize));
+            LongNumberTView minorLong(longerPart.begin(), std::next(longerPart.begin(), halfSize), 1);
             LongNumberTView minorShort(shorterPart.begin(),
                 shorterPart.viewLength() > halfSize
                     ? std::next(shorterPart.begin(), halfSize)
-                    : shorterPart.end());
+                    : shorterPart.end(), 1);
 
             // Recursive descent
             LongNumberT minorMult = multiplyByKaracuba_(minorLong, minorShort);
 
-            LongNumberTView majorLong(std::next(longerPart.begin(), halfSize), longerPart.end());
-            LongNumberTView majorShort(std::next(shorterPart.begin(), halfSize), shorterPart.end());
+            LongNumberTView majorLong(std::next(longerPart.begin(), halfSize), longerPart.end(), 1);
+            LongNumberTView majorShort(std::next(shorterPart.begin(), halfSize), shorterPart.end(), 1);
 
             // Recursive descent
             LongNumberT majorMult = multiplyByKaracuba_(majorLong, majorShort);
@@ -422,8 +422,8 @@ LongIntegerDecimal<len> multiplyByKaracuba_(LongIntegerDecimalView<len> first, L
             LongNumberT sumShort = majorShort + minorShort;
             // Recursive descent
             LongNumberT multOfSums = multiplyByKaracuba_(
-                        LongNumberTView(sumLong.begin(), std::next(sumLong.begin(), halfSize)),
-                        LongNumberTView(sumShort.begin(), std::next(sumShort.begin(), halfSize)));
+                        LongNumberTView(sumLong.begin(), std::next(sumLong.begin(), halfSize), 1),
+                        LongNumberTView(sumShort.begin(), std::next(sumShort.begin(), halfSize), 1));
 
             LongNumberT differ = multOfSums - majorMult - minorMult;
 
@@ -432,21 +432,21 @@ LongIntegerDecimal<len> multiplyByKaracuba_(LongIntegerDecimalView<len> first, L
                     + majorMult * powDozen<LongNumberT>(2 * differShiftSize);
         }
         else {
-            LongNumberTView minorLong(longerPart.begin(), std::next(longerPart.begin(), halfSize));
+            LongNumberTView minorLong(longerPart.begin(), std::next(longerPart.begin(), halfSize), 1);
             LongNumberTView minorShort(shorterPart.begin(),
                 shorterPart.viewLength() > halfSize
                     ? std::next(shorterPart.begin(), halfSize)
-                    : shorterPart.end());
+                    : shorterPart.end(), 1);
 
             // Recursive descent
             LongNumberT minorMult = multiplyByKaracuba_(minorLong, minorShort);
 
-            LongNumberTView majorLong(std::next(longerPart.begin(), halfSize), longerPart.end());
+            LongNumberTView majorLong(std::next(longerPart.begin(), halfSize), longerPart.end(), 1);
 
             LongNumberT sumLong = majorLong + minorLong;
             // Recursive descent
             LongNumberT multOfSums = multiplyByKaracuba_(
-                        LongNumberTView(sumLong.begin(), std::next(sumLong.begin(), halfSize)),
+                        LongNumberTView(sumLong.begin(), std::next(sumLong.begin(), halfSize), 1),
                         minorShort);
 
             LongNumberT differ = multOfSums - minorMult;
@@ -466,7 +466,7 @@ template <size_t length>
 string LongIntegerDecimal<length>::to_string() const {
     string res = (minus_) ? "-" : "";
     bool isFirstNonZeroMet = false;
-    for (int i = length() - 1; i >= 0; i--) {
+    for (int i = int(length()) - 1; i >= 0; i--) {
         if (isFirstNonZeroMet || number_[i] != zeroIntegral()) {
             string part = std::to_string(number_[i]);
             // (integralModulusDegree() - part.size()) cannot be < 0 by the logic of class
