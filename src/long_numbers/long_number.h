@@ -383,16 +383,19 @@ template <size_t len>
 LongIntegerDecimal<len> multiplyByKaracuba_(LongIntegerDecimalView<len> first, LongIntegerDecimalView<len> second) {
     using LongNumberT = LongIntegerDecimal<len>;
     using LongNumberTView = LongIntegerDecimalView<len>;
+    using IntegralType = typename LongNumberT::IntegralType;
     using DoubleType = typename LongNumberT::ResultIntegralType;
-    constexpr auto integralModulus = LongNumberT::integralModulus();
-    constexpr auto integralModulusDegree = LongNumberT::integralModulusDegree();
+    auto integralModulus = LongNumberT::integralModulus();      // TODO: make constexpr (on Windows too!)
+    auto integralModulusDegree = LongNumberT::integralModulusDegree();
 
     LongIntegerDecimal<len> result;
 
     if (first.viewLength() == 1 && second.viewLength() == 1) {
-        DoubleType mult = static_cast<DoubleType>(first[0] * second[0]);
-        result[0] = mult % integralModulus;
-        result[1] = mult / integralModulus;
+        DoubleType mult = DoubleType(first[0]) * DoubleType(second[0]);
+        result.setSign(1);
+        result[0] = IntegralType(mult % DoubleType(integralModulus));
+        if (len > 1)
+            result[1] = IntegralType(mult / DoubleType(integralModulus));
     }
     else {
         LongNumberTView longerPart = (first.viewLength() >= second.viewLength()) ? first : second;

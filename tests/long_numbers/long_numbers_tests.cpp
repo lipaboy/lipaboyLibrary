@@ -192,12 +192,17 @@ TEST(LongInteger, karacuba_multiplication_simple) {
     LongIntegerDecimal<1> num1("2");
     LongIntegerDecimal<1> num2("2");
 
-    ASSERT_EQ((num1.multiplyByKaracuba(num2)).to_string(), "4");
+    ASSERT_EQ(num1.multiplyByKaracuba(num2), num1 * num2);
 
     LongIntegerDecimal<2> num3("200000");
     LongIntegerDecimal<2> num4("200000");
 
-    EXPECT_EQ((num3.multiplyByKaracuba(num4)).to_string(), "40000000000");
+    EXPECT_EQ(num3.multiplyByKaracuba(num4), num3 * num4);
+
+	LongIntegerDecimal<2> num5("2");
+	LongIntegerDecimal<2> num6("200000");
+
+	EXPECT_EQ(num5.multiplyByKaracuba(num6), num5 * num6);
 }
 
 //---------Operator- checking-----------//
