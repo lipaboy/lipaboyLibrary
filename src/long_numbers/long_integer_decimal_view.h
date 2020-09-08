@@ -63,7 +63,7 @@ auto LongIntegerDecimalView<len>::operator+(LongIntegerDecimalView const & other
     ViewingType result;
 
     auto otherIter = other.begin();
-    for (auto iter = begin(); iter != end(); iter++) {
+    for (auto iter = begin(); iter != end(); iter++, otherIter++) {
         const TSignedResult doubleTemp = TSignedResult(
             this->sign() * TSigned(*iter)
             + other.sign() * TSigned(*otherIter)

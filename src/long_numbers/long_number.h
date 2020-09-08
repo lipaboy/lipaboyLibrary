@@ -388,7 +388,7 @@ LongIntegerDecimal<len> multiplyByKaracuba_(LongIntegerDecimalView<len> first, L
     const auto integralModulus = LongNumberT::integralModulus();
     const auto integralModulusDegree = LongNumberT::integralModulusDegree();
 
-    LongIntegerDecimal<len> result;
+    LongIntegerDecimal<len> result(0);
 
     if (first.viewLength() == 1 && second.viewLength() == 1) {
         DoubleType mult = DoubleType(first[0]) * DoubleType(second[0]);
