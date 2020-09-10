@@ -2,6 +2,13 @@
 
 namespace lipaboy_lib::numberphile {
 
+    // Results:
+    //
+    // 288888877777799  - 11 steps of digit-multiplications
+    //
+    // https://zen.yandex.ru/media/tehno_chtivo/v-chem-chislo-277777788888899-mirovoi-rekordsmen-5ede6acd9abc2748d3bbf7e2
+    //
+
     void long_digits_multiplication_searching_vectors() {
 
         auto startTime = extra::getCurrentTime();
@@ -246,13 +253,13 @@ namespace lipaboy_lib::numberphile {
     }
 
 
-    // linux: <20, 1e60> - 2 secs, <20, 1e160> - 1,5 mins, <30, 1e240> - 22 mins
+    // linux: <20, 1e60> - 2 secs, <20, 1e160> - 1,5 mins, <35, 1e300> - 33 mins
     // windows: <20, 1e90> - 2,25 mins (updated), <30, 1e40> - 13 secs (updated)
     void long_digits_multiplication_searching_long_numbers()
     {
-        using IntType = LongIntegerDecimal<30>;
+        using IntType = LongIntegerDecimal<35>;
         // info uint64_t = 64 bit, 10^19 max value, as 7 is max value, then maximum 7^22
-        constexpr uint64_t MAX = 40;
+        constexpr uint64_t MAX = 5;
         using OneDigitIntType = 
             //IntType;
             LongIntegerDecimal<1>;

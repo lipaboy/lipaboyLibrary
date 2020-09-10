@@ -8,6 +8,13 @@ namespace lipaboy_lib::long_numbers_space {
 
 using std::array;
 
+namespace extra {
+
+template <class TWord, class TSign>
+TSign sign(bool isNegative, TWord const & word);
+
+}
+
 template <size_t lengthOfIntegrals>     // count of integral type variables
 class LongIntegerDecimal;
 
