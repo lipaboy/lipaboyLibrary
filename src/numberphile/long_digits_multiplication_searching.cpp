@@ -250,9 +250,9 @@ namespace lipaboy_lib::numberphile {
     // windows: <20, 1e90> - 2,25 mins (updated), <30, 1e40> - 13 secs (updated)
     void long_digits_multiplication_searching_long_numbers()
     {
-        using IntType = LongIntegerDecimal<20>;
+        using IntType = LongIntegerDecimal<30>;
         // info uint64_t = 64 bit, 10^19 max value, as 7 is max value, then maximum 7^22
-        constexpr uint64_t MAX = 90;
+        constexpr uint64_t MAX = 40;
         using OneDigitIntType = 
             //IntType;
             LongIntegerDecimal<1>;
@@ -272,7 +272,7 @@ namespace lipaboy_lib::numberphile {
                 nums[iNum + 1] = IntType(1);
 
                 auto curr = nums[iNum];
-                for ( ; curr > IntType(0); ) {
+                for (int i = 0; curr > IntType(0); i++) {
                     nums[iNum + 1] *= IntType(curr.divideByDec());
                 }
 
@@ -325,8 +325,10 @@ namespace lipaboy_lib::numberphile {
             IntType temp7 = 1;
             for (uint64_t iSeven = 0; iSeven <= len; iSeven++) {
                 IntType temp3 = 1;
+                //#pragma omp parallel for num_threads(2) private(nums)
                 for (uint64_t iThree = 0; iThree <= len - iSeven; iThree++) {
                     IntType temp37 = temp7 * temp3;
+                    //IntType temp37 = temp7 * pow<OneDigitIntType, uint64_t, IntType>(THREE, iThree);
 
                     // twos = len - iSeven - iThree
 
