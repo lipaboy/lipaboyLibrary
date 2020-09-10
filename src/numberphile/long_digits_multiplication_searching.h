@@ -21,9 +21,9 @@ namespace lipaboy_lib::numberphile {
 
     namespace special {
 
-    template <typename T, typename IndexType = T>
-    inline T pow(T number, IndexType degree) {
-        T result = static_cast<T>(1);
+    template <typename T, typename IndexType = T, typename ResultType = T>
+    inline ResultType pow(T number, IndexType degree) {
+        ResultType result = static_cast<ResultType>(1);
         for (IndexType i = static_cast<IndexType>(0); i < degree; i++) {
             result *= number;
         }

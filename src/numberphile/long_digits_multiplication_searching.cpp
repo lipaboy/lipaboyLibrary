@@ -253,7 +253,9 @@ namespace lipaboy_lib::numberphile {
         using IntType = LongIntegerDecimal<30>;
         // info uint64_t = 64 bit, 10^19 max value, as 7 is max value, then maximum 7^22
         constexpr uint64_t MAX = 40;
-        using OneDigitIntType = IntType;//LongIntegerDecimal<1>;
+        using OneDigitIntType = 
+            IntType;
+            //LongIntegerDecimal<1>;
 
         auto startTime = extra::getCurrentTime();
 
@@ -264,6 +266,7 @@ namespace lipaboy_lib::numberphile {
         auto updateMaxSteps = [&maxSteps, &maxNumber, &nums] (uint64_t twos,
                 uint64_t threes, uint64_t fives, uint64_t sevens)
         {
+            // TODO: need optimization!
             uint64_t iNum = 0;
             for (; ; iNum++) {
                 nums[iNum + 1] = IntType(1);
@@ -331,7 +334,7 @@ namespace lipaboy_lib::numberphile {
 
                     auto iTwo = len - iSeven - iThree;
                     nums[0] = temp37 *
-                            pow<OneDigitIntType, uint64_t>(TWO, iTwo);
+                            pow<OneDigitIntType, uint64_t, IntType>(TWO, iTwo);
 
                     updateMaxSteps(iTwo, iThree, 0, iSeven);
 
@@ -339,7 +342,7 @@ namespace lipaboy_lib::numberphile {
 
                     auto iFive = len - iSeven - iThree;
                     nums[0] = temp37 *
-                            pow<OneDigitIntType, uint64_t>(FIVE, iFive);
+                            pow<OneDigitIntType, uint64_t, IntType>(FIVE, iFive);
 
                     updateMaxSteps(0, iThree, iFive, iSeven);
 

@@ -153,10 +153,13 @@ public:
         for (size_t i = 0; i < length(); i++)
         {
             IntegralType remainder = zeroIntegral();
-            for (size_t j = 0; j < other.length(); j++)
+            size_t j = 0;
+            for (; i + j < res.length(); j++)
             {
-                if (i + j >= res.length())
+                if (j >= other.length()) {
+                    res[i + j] += remainder;
                     break;
+                }
 
                 const TIntegralResult doubleTemp = TIntegralResult((*this)[i]) * other[j] + remainder;
                 // Detail #2
