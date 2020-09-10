@@ -247,15 +247,15 @@ namespace lipaboy_lib::numberphile {
 
 
     // linux: <20, 1e60> - 2 secs, <20, 1e160> - 1,5 mins, <30, 1e240> - 22 mins
-    // windows: <20, 1e60> - 2,6 mins (old), <30, 1e40> - 19 secs (updated)
+    // windows: <20, 1e90> - 2,25 mins (updated), <30, 1e40> - 13 secs (updated)
     void long_digits_multiplication_searching_long_numbers()
     {
-        using IntType = LongIntegerDecimal<30>;
+        using IntType = LongIntegerDecimal<20>;
         // info uint64_t = 64 bit, 10^19 max value, as 7 is max value, then maximum 7^22
-        constexpr uint64_t MAX = 40;
+        constexpr uint64_t MAX = 90;
         using OneDigitIntType = 
-            IntType;
-            //LongIntegerDecimal<1>;
+            //IntType;
+            LongIntegerDecimal<1>;
 
         auto startTime = extra::getCurrentTime();
 
