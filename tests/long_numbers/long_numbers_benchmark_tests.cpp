@@ -26,9 +26,12 @@ namespace long_numbers_benchmark_tests_space {
     // <158> LongIntegerDecimal<8> - 0.231 s, BigUnsigned - 16.2 s
     // <158> LongIntegerDecimal<16> - 0.306 s
     TEST(LongNumberDecimal, DISABLED_benchmark) {
-        constexpr int ROUND_TRIP = 100000;
-        constexpr int MULT_COUNT = 38 + 40 + 80;
-        using LongI = LongIntegerDecimal<16>;
+        constexpr int ROUND_TRIP = 5000//100000
+			;
+        constexpr int MULT_COUNT = 38 //+ 40 + 80
+			;
+        using LongI = LongIntegerDecimal<4//16
+		>;
 
         uint64_t num = 3;   // 3^40
         auto start1 = getCurrentTime();
@@ -42,7 +45,7 @@ namespace long_numbers_benchmark_tests_space {
         cout << "Time 1: " << diffFromNow(start1) << endl;
 
 
-        auto bu = stringToBigUnsigned("3");
+        /*auto bu = stringToBigUnsigned("3");
         auto ctemp = bu;
         auto start3 = getCurrentTime();
         for (int round = 0; round < ROUND_TRIP; round++) {
@@ -51,7 +54,7 @@ namespace long_numbers_benchmark_tests_space {
             }
             bu = ctemp;
         }
-        cout << "Time 3: " << diffFromNow(start3) << endl;
+        cout << "Time 2: " << diffFromNow(start3) << endl;*/
 
         LongI l("3");
         auto start2 = getCurrentTime();
@@ -64,8 +67,19 @@ namespace long_numbers_benchmark_tests_space {
 
         cout << "Time 3: " << diffFromNow(start2) << endl;
 
-//        string s;
-//        std::cin >> s;
+		LongI lk("3");
+		auto start4 = getCurrentTime();
+		for (int round = 0; round < ROUND_TRIP; round++) {
+			for (int i = 0; i < MULT_COUNT; i++) {
+				lk = lk.multiplyByKaracuba( LongI(3) );
+			}
+			lk = LongI(3);
+		}
+
+		cout << "Time 4: " << diffFromNow(start4) << endl;
+
+        string s;
+        std::cin >> s;
     }
 
 	TEST(BigInteger, division_speed) {

@@ -188,6 +188,39 @@ TEST(LongInteger, multiplication_simple) {
 	EXPECT_EQ((num3 * num4).to_string(), "40000000000");
 }
 
+TEST(LongInteger, karacuba_multiplication_simple) {
+    LongIntegerDecimal<1> num1("2");
+    LongIntegerDecimal<1> num2("2");
+
+    ASSERT_EQ(num1.multiplyByKaracuba(num2), num1 * num2);
+
+    LongIntegerDecimal<2> num3("200000");
+    LongIntegerDecimal<2> num4("200000");
+
+    EXPECT_EQ(num3.multiplyByKaracuba(num4), num3 * num4);
+
+	LongIntegerDecimal<3> num5("2");
+	LongIntegerDecimal<3> num6("200000");
+
+	EXPECT_EQ((num5.multiplyByKaracuba(num6)).to_string(), (num5 * num6).to_string());
+
+	LongIntegerDecimal<1> num7("-2");
+	LongIntegerDecimal<1> num8("2");
+
+	ASSERT_EQ(num7.multiplyByKaracuba(num8), num7 * num8);
+
+	num5 = 3;
+	num6 = 3;
+	for (int i = 0; i < 18; i++) {
+		num5 = num5.multiplyByKaracuba(decltype(num5)(3)) + 0;
+		num6 = num6 * decltype(num6)(3) + 0; 
+	}
+	num6 = num6 * decltype(num6)(3) + 0;
+	num5 = num5.multiplyByKaracuba(decltype(num5)(3)) + 0;
+	
+	EXPECT_EQ(num5.to_string(), num6.to_string());
+}
+
 //---------Operator- checking-----------//
 
 TEST(LongInteger, inverse_the_number) {
