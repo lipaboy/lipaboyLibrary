@@ -22,6 +22,13 @@ TEST(LongInteger, overflow) {
 
 //-----------Comparison-----------//
 
+TEST(LongInteger, comparison_different_lengths) {
+	LongIntegerDecimal<3> num1("1");
+	LongIntegerDecimal<1> num2("3");
+
+	ASSERT_TRUE(num1 < num2);
+}
+
 TEST(LongInteger, comparison_less) {
 	LongIntegerDecimal<3> num1("789100000200");
 	LongIntegerDecimal<3> num2("789100000201");
@@ -47,6 +54,16 @@ TEST(LongInteger, comparison_less) {
     LongIntegerDecimal<2> num10("200200");
 
     ASSERT_TRUE((num9 * num10) > num9 * LongIntegerDecimal<2>(1000));
+
+	num7 = -15;
+	num8 = -16;
+	ASSERT_TRUE(num7 > num8);
+	num7 = -16;
+	num8 = -16;
+	ASSERT_FALSE(num7 < num8);
+	num7 = -16;
+	num8 = -16;
+	ASSERT_TRUE(num7 <= num8);
 }
 
 //-----------Sign-----------//

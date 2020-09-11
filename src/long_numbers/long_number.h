@@ -72,23 +72,29 @@ namespace extra {
 //    template <size_t val1, size_t val2>
 //    using max = Max<val1, val2>::value;
 
+    using LengthType = size_t;
+
+    template <size_t len>
+    LongIntegerDecimal<len> multiplyByKaracuba_(LongIntegerDecimalView<len> first, LongIntegerDecimalView<len> second);
 }
 
-template <size_t len>
-LongIntegerDecimal<len> multiplyByKaracuba_(LongIntegerDecimalView<len> first, LongIntegerDecimalView<len> second);
+
+using extra::LengthType;
+
 
 // Requirements: 
 // 1) TIntegral and TResult must be unsigned.
 
-template <size_t lengthOfIntegrals>     // count of integral type variables
+template <LengthType lengthOfIntegrals>     // count of integral type variables
 class LongIntegerDecimal
-        : public ComparatorExtender<LongIntegerDecimal<lengthOfIntegrals> >
+        //: public ComparatorExtender<LongIntegerDecimal<lengthOfIntegrals> >
 {
 public:
 	using TIntegral = std::uint32_t;
     using TIntegralResult = std::uint64_t;
 	using TSigned = std::int32_t;
 	using TSignedResult = std::int64_t;
+    using LengthType = extra::LengthType;
 
     using IntegralType =
         std::remove_reference_t<
@@ -136,7 +142,7 @@ public:
 
 	LongIntegerDecimal operator-() const { return LongIntegerDecimal(number_, !minus_); }
 
-    template <size_t length2>
+    template <LengthType length2>
     auto operator*(LongIntegerDecimal<length2> const & other) const
         -> LongIntegerDecimal<extra::Max<lengthOfIntegrals, length2>::value >
     {
@@ -172,7 +178,7 @@ public:
         return res;
     }
 
-    template <size_t length2>
+    template <LengthType length2>
     const_reference operator*=(LongIntegerDecimal<length2> const & other) {
         (*this) = (*this) * other;
         return *this;
@@ -199,7 +205,7 @@ public:
     auto divide(const_reference other) const -> pair<LongIntegerDecimal, LongIntegerDecimal>;
 
     LongIntegerDecimal multiplyByKaracuba(LongIntegerDecimal const & other) {
-        auto res = multiplyByKaracuba_<length()>(*this, other);
+        auto res = extra::multiplyByKaracuba_<length()>(*this, other);
         res.setSign(sign() * other.sign());
         return res;
     }
@@ -210,7 +216,7 @@ public:
 
 	//------------Setters, Getters----------//
 
-    static constexpr size_t length() { return lengthOfIntegrals; }
+    static constexpr LengthType length() { return lengthOfIntegrals; }
 
 	// sign() - #much-costs operation because it compares *this with zero number
 	TSigned sign() const { 
@@ -225,17 +231,33 @@ public:
 
 	reference_integral operator[] (size_t index) { return number_[index]; }
 
-	//------------Comparison----------------//
+	//-------------------------Comparison---------------------------//
 
-	bool operator!= (const_reference other) const {
-		return (minus_ != other.minus_ || !std::equal(cbegin(), cend(), other.cbegin()));
+    template <LengthType lengthOther>
+	bool operator!= (LongIntegerDecimal<lengthOther> const & other) const {
+		return (minus_ != other.minus_ || !std::equal(cbegin(), cend(), other.cbegin(), other.cend()));
 	}
-	bool operator== (const_reference other) const { return !(*this != other); }
-	bool operator< (const_reference other) const {
-		if (sign() * other.sign() < TSigned(0))		// #much-costs condition because see sign()
-			return minus_;
-        return std::lexicographical_compare(crbegin(), crend(), other.crbegin(), other.crend());
+    template <LengthType lengthOther>
+    bool operator== (LongIntegerDecimal<lengthOther> const& other) const { return !(*this != other); }
+    template <LengthType lengthOther>
+    bool operator< (LongIntegerDecimal<lengthOther> const& other) const {
+        if (sign() * other.sign() < TSigned(0))		// #much-costs condition because see sign()
+            return minus_;
+        bool compare = std::lexicographical_compare(crbegin(), crend(), other.crbegin(), other.crend());
+        return minus_ && !compare || !minus_ && compare;
     }
+   
+    template <LengthType lengthOther>
+    bool operator>= (LongIntegerDecimal<lengthOther> const& other) const { return !(*this < other); }
+    template <LengthType lengthOther>
+    bool operator> (LongIntegerDecimal<lengthOther> const& other) const {
+        if (sign() * other.sign() < TSigned(0))		// #much-costs condition because see sign()
+            return minus_;
+        bool compare = std::lexicographical_compare(other.crbegin(), other.crend(), crbegin(), crend());
+        return minus_ && !compare || !minus_ && compare;
+    }
+    template <LengthType lengthOther>
+    bool operator<= (LongIntegerDecimal<lengthOther> const& other) const { return !(*this > other); }
 
 public:
     // maximum count decimal digits that can be placed into IntegralType
@@ -249,17 +271,8 @@ private:
     static constexpr IntegralType zeroIntegral() { return IntegralType(0); }
 
 public:
-    IntegralType divideByDec() {
-        constexpr IntegralType DEC(10);
-        IntegralType remainder(0);
-        for (int i = int(length()) - 1; i >= 0; i--) {
-            IntegralType newRemainder = (*this)[i] % DEC;
-            (*this)[i] /= DEC;
-            (*this)[i] += remainder * powDozen<IntegralType>(integralModulusDegree() - 1);
-            remainder = newRemainder;
-        }
-        return remainder;
-    }
+    // Return the remainder of division by 10
+    IntegralType divideByDec();
 
     // TODO: Make private
 public:
@@ -288,7 +301,7 @@ private:
 
 //-------------------------------------------------------------//
 
-template <size_t length>
+template <LengthType length>
 LongIntegerDecimal<length>::LongIntegerDecimal(string const & numberDecimalStr) : minus_(false) {
     int last = int(numberDecimalStr.size());
     int first = cutOffLeftBorder<int>(last - integralModulusDegree(), 0);
@@ -311,7 +324,7 @@ LongIntegerDecimal<length>::LongIntegerDecimal(string const & numberDecimalStr) 
 
 //------------Arithmetic Operations-------------//
 
-template <size_t length>
+template <LengthType length>
 auto LongIntegerDecimal<length>::operator+=(const_reference other)
     -> const_reference
 {
@@ -335,7 +348,7 @@ auto LongIntegerDecimal<length>::operator+=(const_reference other)
     return *this;
 }
 
-template <size_t length>
+template <LengthType length>
 auto LongIntegerDecimal<length>::divide(const_reference other) const
     -> pair<LongIntegerDecimal, LongIntegerDecimal>
 {
@@ -375,6 +388,20 @@ auto LongIntegerDecimal<length>::divide(const_reference other) const
     return std::make_pair(res, dividend);
 }
 
+template <LengthType length>
+auto LongIntegerDecimal<length>::divideByDec() 
+    -> IntegralType
+{
+    constexpr IntegralType DEC(10);
+    IntegralType remainder(0);
+    for (int i = int(length()) - 1; i >= 0; i--) {
+        IntegralType newRemainder = (*this)[i] % DEC;
+        (*this)[i] /= DEC;
+        (*this)[i] += remainder * powDozen<IntegralType>(integralModulusDegree() - 1);
+        remainder = newRemainder;
+    }
+    return remainder;
+}
 
 /////////////////////////////////////////////////////////////////////////////
 //---------------------------------Karacuba--------------------------------//
@@ -383,7 +410,8 @@ auto LongIntegerDecimal<length>::divide(const_reference other) const
 // Have a error
 
 template <size_t len>
-LongIntegerDecimal<len> multiplyByKaracuba_(LongIntegerDecimalView<len> first, LongIntegerDecimalView<len> second) {
+LongIntegerDecimal<len> extra::multiplyByKaracuba_(LongIntegerDecimalView<len> first, 
+    LongIntegerDecimalView<len> second) {
     using LongNumberT = LongIntegerDecimal<len>;
     using LongNumberTView = LongIntegerDecimalView<len>;
     using IntegralType = typename LongNumberT::IntegralType;
