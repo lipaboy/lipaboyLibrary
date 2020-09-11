@@ -1,3 +1,5 @@
+#include <omp.h>
+
 #include "long_digits_multiplication_searching.h"
 
 namespace lipaboy_lib::numberphile {
@@ -259,7 +261,7 @@ namespace lipaboy_lib::numberphile {
     {
         using IntType = LongIntegerDecimal<35>;
         // info uint64_t = 64 bit, 10^19 max value, as 7 is max value, then maximum 7^22
-        constexpr uint64_t MAX = 5;
+        constexpr uint64_t MAX = 60;
         using OneDigitIntType = 
             //IntType;
             LongIntegerDecimal<1>;
@@ -267,20 +269,24 @@ namespace lipaboy_lib::numberphile {
         auto startTime = extra::getCurrentTime();
 
         vector<IntType> nums(30, IntType(1));
-        uint64_t maxSteps = 0;
+        int64_t maxSteps = 0;
         IntType maxNumber(1);
 
-        auto updateMaxSteps = [&maxSteps, &maxNumber, &nums] (uint64_t twos,
-                uint64_t threes, uint64_t fives, uint64_t sevens)
+        auto updateMaxSteps = [] (int64_t twos,
+            int64_t threes, int64_t fives, int64_t sevens,
+            int64_t& maxSteps, IntType& maxNumber, vector<IntType>& nums)
         {
             // TODO: need optimization!
-            uint64_t iNum = 0;
+            int64_t iNum = 0;
             for (; ; iNum++) {
                 nums[iNum + 1] = IntType(1);
 
                 auto curr = nums[iNum];
+                OneDigitIntType remainder;
+                const OneDigitIntType ZERO(0);
                 for (int i = 0; curr > IntType(0); i++) {
-                    nums[iNum + 1] *= IntType(curr.divideByDec());
+                    remainder = curr.divideByDec();
+                    nums[iNum + 1] *= remainder;
                 }
 
                 if (nums[iNum + 1] < IntType(10))
@@ -290,31 +296,31 @@ namespace lipaboy_lib::numberphile {
             if (maxSteps <= iNum + 2) {
                 maxSteps = iNum + 2;
                 maxNumber = IntType(0);
-                for (uint64_t i = 0; i < twos % 2; i++) {
+                for (int64_t i = 0; i < twos % 2; i++) {
                     maxNumber *= IntType(10);
                     maxNumber += IntType(2);
                 }
-                for (uint64_t i = 0; i < (twos % 3) / 2; i++) {
+                for (int64_t i = 0; i < (twos % 3) / 2; i++) {
                     maxNumber *= IntType(10);
                     maxNumber += IntType(4);
                 }
-                for (uint64_t i = 0; i < twos / 3; i++) {
+                for (int64_t i = 0; i < twos / 3; i++) {
                     maxNumber *= IntType(10);
                     maxNumber += IntType(8);
                 }
-                for (uint64_t i = 0; i < threes % 2; i++) {
+                for (int64_t i = 0; i < threes % 2; i++) {
                     maxNumber *= IntType(10);
                     maxNumber += IntType(3);
                 }
-                for (uint64_t i = 0; i < fives; i++) {
+                for (int64_t i = 0; i < fives; i++) {
                     maxNumber *= IntType(10);
                     maxNumber += IntType(5);
                 }
-                for (uint64_t i = 0; i < sevens; i++) {
+                for (int64_t i = 0; i < sevens; i++) {
                     maxNumber *= IntType(10);
                     maxNumber += IntType(7);
                 }
-                for (uint64_t i = 0; i < threes / 2; i++) {
+                for (int64_t i = 0; i < threes / 2; i++) {
                     maxNumber *= IntType(10);
                     maxNumber += IntType(9);
                 }
@@ -327,43 +333,80 @@ namespace lipaboy_lib::numberphile {
         const OneDigitIntType THREE = 3;
         const OneDigitIntType FIVE = 5;
         const OneDigitIntType TWO = 2;
-        for (uint64_t len = 2; len <= MAX; len++) {
 
-            IntType temp7 = 1;
-            for (uint64_t iSeven = 0; iSeven <= len; iSeven++) {
-                IntType temp3 = 1;
-                //#pragma omp parallel for num_threads(2) private(nums)
-                for (uint64_t iThree = 0; iThree <= len - iSeven; iThree++) {
-                    IntType temp37 = temp7 * temp3;
-                    //IntType temp37 = temp7 * pow<OneDigitIntType, uint64_t, IntType>(THREE, iThree);
+        /*int a = 2;
+        int b = 3;
+        omp_set_num_threads(2);
+        #pragma omp parallel num_threads(2)
+        {
+            cout << "num threads: " << omp_get_num_threads() << endl;
+            #pragma omp for nowait
+            for (int64_t i = 0; i < (INT64_MAX >> 36); i++) {
+                a = a + std::rand() % 2;
+            }
+        }*/
 
-                    // twos = len - iSeven - iThree
+        #pragma omp parallel
+        {
+            int64_t maxStepsPrivate = 0;
+            IntType maxNumberPrivate(1);
+            vector<IntType> numsPrivate(30, IntType(1));
 
-                    // multiply the digits
+            // <35, 1e60> 1 thread - 32 secs, 4 threads - 36 secs, 8 threads - 50 secs
+            #pragma omp for nowait schedule(static, 1)
+            for (int64_t len = 2; len <= MAX; len++) 
+            {
+                IntType temp7 = 1;
+                //#pragma omp for schedule(static, 2) 
+                for (int64_t iSeven = 0; iSeven <= len; iSeven++)
+                {
+                    //IntType temp7 = pow<OneDigitIntType, uint64_t, IntType>(SEVEN, iSeven);
+                    IntType temp3 = 1;
+                    for (int64_t iThree = 0; iThree <= len - iSeven; iThree++)
+                    {
+                        IntType temp37 = temp7 * temp3;
+                        //IntType temp37 = temp7 * pow<OneDigitIntType, uint64_t, IntType>(THREE, iThree);
 
-                    auto iTwo = len - iSeven - iThree;
-                    nums[0] = temp37 *
-                            pow<OneDigitIntType, uint64_t, IntType>(TWO, iTwo);
+                        // twos = len - iSeven - iThree
 
-                    updateMaxSteps(iTwo, iThree, 0, iSeven);
+                        // multiply the digits
 
-                    // fives = len - iSeven - iThree
+                        auto iTwo = len - iSeven - iThree;
+                        numsPrivate[0] = temp37 *
+                            pow<OneDigitIntType, int64_t, IntType>(TWO, iTwo);
 
-                    auto iFive = len - iSeven - iThree;
-                    nums[0] = temp37 *
-                            pow<OneDigitIntType, uint64_t, IntType>(FIVE, iFive);
+                        updateMaxSteps(iTwo, iThree, 0, iSeven, maxStepsPrivate, maxNumberPrivate, numsPrivate);
 
-                    updateMaxSteps(0, iThree, iFive, iSeven);
+                        // fives = len - iSeven - iThree
 
-                    temp3 *= THREE;
+                        auto iFive = len - iSeven - iThree;
+                        numsPrivate[0] = temp37 *
+                            pow<OneDigitIntType, int64_t, IntType>(FIVE, iFive);
+
+                        updateMaxSteps(0, iThree, iFive, iSeven, maxStepsPrivate, maxNumberPrivate, numsPrivate);
+
+                        temp3 *= THREE;
+
+                    }
+
+                    temp7 *= SEVEN;
 
                 }
 
-                temp7 *= SEVEN;
+            }
 
+            
+            #pragma omp critical 
+            {
+                //auto timeCriticalSection = extra::getCurrentTime();
+                if (maxSteps < maxStepsPrivate) {
+                    maxSteps = maxStepsPrivate;
+                    maxNumber = maxNumberPrivate;
+                    nums = numsPrivate;
+                }
+                //cout << "Time of critical section: " << extra::diffFromNow(timeCriticalSection) << endl;
             }
             
-
         }
 
         cout << "Max decimal-digit count of type: "

@@ -9,6 +9,8 @@
 #include <functional>
 #include <algorithm>
 
+#include <omp.h>
+
 //#include "extra_tools/extra_tools.h"
 
 #include "stream/stream.h"
@@ -59,6 +61,26 @@ namespace {
 
 }
 
+TEST(OpenMP, merging_vector) {
+	std::vector<int> vec;
+	#pragma omp parallel num_threads(8)
+	{
+		std::vector<int> vec_private;
+		#pragma omp for nowait schedule(static)
+		for (int i = 0; i < 10; i++) {
+			vec_private.push_back(i);
+		}
+		#pragma omp for schedule(static) ordered
+		for (int i = 0; i < omp_get_num_threads(); i++) {
+			#pragma omp ordered
+			vec.insert(vec.end(), vec_private.begin(), vec_private.end());
+		}
+	}
+	int a = 0;
+	ASSERT_EQ(vec, Stream([&a]() { return a++; }) | get(10) | to_vector());
+	//ASSERT_FALSE(true);
+}
+
 
 TEST(Check, check) {
 
@@ -67,7 +89,7 @@ TEST(Check, check) {
 }
 
 
-#define LIPABOY_LIB_TESTING
+//#define LIPABOY_LIB_TESTING
 
 int main(int argc, char *argv[])
 {

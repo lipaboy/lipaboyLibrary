@@ -252,7 +252,7 @@ public:
     IntegralType divideByDec() {
         constexpr IntegralType DEC(10);
         IntegralType remainder(0);
-        for (int i = int(length() - 1); i >= 0; i--) {
+        for (int i = int(length()) - 1; i >= 0; i--) {
             IntegralType newRemainder = (*this)[i] % DEC;
             (*this)[i] /= DEC;
             (*this)[i] += remainder * powDozen<IntegralType>(integralModulusDegree() - 1);
