@@ -261,7 +261,7 @@ namespace lipaboy_lib::numberphile {
     {
         using IntType = LongIntegerDecimal<35>;
         // info uint64_t = 64 bit, 10^19 max value, as 7 is max value, then maximum 7^22
-        constexpr uint64_t MAX = 60;
+        constexpr uint64_t MAX = 90;
         using OneDigitIntType = 
             //IntType;
             LongIntegerDecimal<1>;
@@ -346,20 +346,22 @@ namespace lipaboy_lib::numberphile {
             }
         }*/
 
-        #pragma omp parallel
+        #pragma omp parallel num_threads(8)
         {
+            //cout << omp_get_num_threads() << endl;
             int64_t maxStepsPrivate = 0;
             IntType maxNumberPrivate(1);
             vector<IntType> numsPrivate(30, IntType(1));
 
-            // <35, 1e60> 1 thread - 32 secs, 4 threads - 36 secs, 8 threads - 50 secs
-            #pragma omp for nowait schedule(static, 1)
+            // <35, 1e60> 1 thread - 13 secs, 4 threads - 9 secs, 8 threads - 7,5 secs, 8 threads + static,1 = 4 secs
+            // <35, 1e90> 8 threads, dynamic,1 - 17 secs, static,1 - 18,7 secs, static,1,collapse2 - 17,7 secs
+            #pragma omp for nowait schedule(dynamic, 1) //collapse(2)
             for (int64_t len = 2; len <= MAX; len++) 
             {
                 IntType temp7 = 1;
-                //#pragma omp for schedule(static, 2) 
                 for (int64_t iSeven = 0; iSeven <= len; iSeven++)
                 {
+                    // INFO: uncomment if you using collapse in omp parallelism
                     //IntType temp7 = pow<OneDigitIntType, uint64_t, IntType>(SEVEN, iSeven);
                     IntType temp3 = 1;
                     for (int64_t iThree = 0; iThree <= len - iSeven; iThree++)
