@@ -58,11 +58,11 @@ namespace extra {
 	template <class TWord>
 	inline constexpr size_t bitsCount() { return sizeof(TWord) * 8; }
 
-	template <class TWord, class TSign>
-	TSign sign(bool isNegative, TWord const & word) {
-		return (isNegative * TSign(-1) + !isNegative * TSign(1))
-			* (word != TWord(0));
-	}
+    template <class TWord, class TSign>
+    TSign sign(bool isNegative, TWord const & word) {
+        return (isNegative * TSign(-1) + !isNegative * TSign(1))
+            * (word != TWord(0));
+    }
 
     //////////////////////////////////////////////////////////////////////////////////
     template <size_t val1, size_t val2>
@@ -218,12 +218,20 @@ public:
 
     static constexpr LengthType length() { return lengthOfIntegrals; }
 
+    // O(N) algorithm because there is comparison for word
 	// sign() - #much-costs operation because it compares *this with zero number
-	TSigned sign() const { 
-		return extra::sign<LongIntegerDecimal, TSigned>(minus_, *this);
+    TSigned sign() const {
+        return (isNegative() * TSigned(-1) + !isNegative() * TSigned(1))
+            * (!isZero());
 	}
 	void setSign(TSigned sign) { minus_ = sign < 0; }
     bool isNegative() const { return minus_; }
+    bool isZero() const {
+        for (auto iter = cbegin(); iter != cend(); iter++)
+            if (*iter != zeroIntegral())
+                return false;
+        return true;
+    }
 
 	// Question: is it normal? Two methods have the same signature and live together?? 
 	//			 Maybe operator[] is exception of rules?
@@ -236,16 +244,29 @@ public:
 private:
     template <LengthType lengthFirst, LengthType lengthSecond>
     bool isLess(LongIntegerDecimal<lengthFirst>const& first, LongIntegerDecimal<lengthSecond> const& second) const {
-        if (first.sign() * second.sign() < TSigned(0))		// #much-costs condition because see sign()
-            return isNegative();
-        bool compare = std::lexicographical_compare(first.crbegin(), first.crend(), second.crbegin(), second.crend());
-        return (first != second) && (isNegative() && !compare || !isNegative() && compare);
+        if (first.sign() * second.sign() < TSigned(0))		// #much-costs condition because see sign() -> (O(n))
+            return first.isNegative();
+        // first.isNegative() == second.isNegative() except zeros
+        bool isLessVar = true;
+        bool isEqual = true;
+        auto iterS = second.crbegin();
+        for (auto iterF = first.crbegin(); iterF != first.crend() && iterS != second.crend(); iterF++, iterS++) {
+            if (*iterF > *iterS) {
+                isLessVar = false;
+                break;
+            }
+            else if (*iterF != *iterS) {
+                isEqual = false;
+            }
+        }
+        return (!isEqual) && ((first.isNegative() && !isLessVar) || (!first.isNegative() && isLessVar));
     }
 
 public:
     template <LengthType lengthOther>
 	bool operator!= (LongIntegerDecimal<lengthOther> const & other) const {
-		return (isNegative() != other.isNegative() || !std::equal(cbegin(), cend(), other.cbegin(), other.cend()));
+        // sign() - O(n) because it contains a comparison with ZERO. O(!=) ~ O(3x equals)
+        return (sign() != other.sign() || !std::equal(cbegin(), cend(), other.cbegin(), other.cend()));
 	}
     template <LengthType lengthOther>
     bool operator== (LongIntegerDecimal<lengthOther> const& other) const { return !(*this != other); }

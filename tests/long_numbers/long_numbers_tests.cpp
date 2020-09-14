@@ -67,6 +67,13 @@ TEST(LongInteger, comparison_less) {
 	num7 = -16;
 	num8 = -16;
 	EXPECT_TRUE(num7 <= num8);
+    num7 = 0;
+    EXPECT_FALSE(num7 > LongIntegerDecimal<1>(0));
+    EXPECT_FALSE(num7 < LongIntegerDecimal<1>(0));
+    EXPECT_TRUE(num7 <= LongIntegerDecimal<1>(0));
+    num7 = -num7;
+    EXPECT_EQ(num7, LongIntegerDecimal<1>(0));
+    EXPECT_EQ(num7.to_string(), LongIntegerDecimal<1>(0).to_string());
 }
 
 //-----------Sign-----------//

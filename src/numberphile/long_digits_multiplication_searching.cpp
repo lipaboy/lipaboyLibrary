@@ -256,25 +256,37 @@ namespace lipaboy_lib::numberphile {
 
 
     // linux: <20, 1e60> - 2 secs, <20, 1e160> - 1,5 mins, <35, 1e300> - 33 mins
+    // <40, 1e150, 8 ths> - 6,3 secs, <40, 1e200, 8 ths> - 21 secs, <50, 1e400, 8ths> - 6,8 mins
+    // <60, 1e500, 8 ths> - 18,6 mins
     // windows: <20, 1e90> - 2,25 mins (updated), <30, 1e40> - 13 secs (updated)
     void long_digits_multiplication_searching_long_numbers()
     {
-        using IntType = LongIntegerDecimal<35>;
+        using IntType = LongIntegerDecimal<60>;
         // info uint64_t = 64 bit, 10^19 max value, as 7 is max value, then maximum 7^22
-        constexpr uint64_t MAX = 90;
+        constexpr int64_t MAX = 5;
         using OneDigitIntType = 
             //IntType;
             LongIntegerDecimal<1>;
+        using TArray = std::array<IntType, 30>;
+        using special::pow;
 
         auto startTime = extra::getCurrentTime();
 
-        vector<IntType> nums(30, IntType(1));
+        TArray nums;
+        nums.fill(IntType(1));
         int64_t maxSteps = 0;
         IntType maxNumber(1);
 
-        auto updateMaxSteps = [] (int64_t twos,
+        const OneDigitIntType SEVEN = 7;
+        const OneDigitIntType THREE = 3;
+        const OneDigitIntType FIVE = 5;
+        const OneDigitIntType TWO = 2;
+        const OneDigitIntType DEC = 10;
+        const OneDigitIntType ZERO = 0;
+
+        auto updateMaxSteps = [&ZERO, &DEC] (int64_t twos,
             int64_t threes, int64_t fives, int64_t sevens,
-            int64_t& maxSteps, IntType& maxNumber, vector<IntType>& nums)
+            int64_t& maxSteps, IntType& maxNumber, TArray& nums)
         {
             // TODO: need optimization!
             int64_t iNum = 0;
@@ -283,13 +295,12 @@ namespace lipaboy_lib::numberphile {
 
                 auto curr = nums[iNum];
                 OneDigitIntType remainder;
-                const OneDigitIntType ZERO(0);
-                for (int i = 0; curr > IntType(0); i++) {
+                for (int i = 0; curr > ZERO; i++) {
                     remainder = curr.divideByDec();
                     nums[iNum + 1] *= remainder;
                 }
 
-                if (nums[iNum + 1] < IntType(10))
+                if (nums[iNum + 1] < DEC)
                     break;
             }
 
@@ -327,13 +338,6 @@ namespace lipaboy_lib::numberphile {
             }
         };
 
-        using special::pow;
-
-        const OneDigitIntType SEVEN = 7;
-        const OneDigitIntType THREE = 3;
-        const OneDigitIntType FIVE = 5;
-        const OneDigitIntType TWO = 2;
-
         /*int a = 2;
         int b = 3;
         omp_set_num_threads(2);
@@ -346,12 +350,13 @@ namespace lipaboy_lib::numberphile {
             }
         }*/
 
-        #pragma omp parallel num_threads(8)
+        #pragma omp parallel num_threads(1)
         {
             //cout << omp_get_num_threads() << endl;
             int64_t maxStepsPrivate = 0;
             IntType maxNumberPrivate(1);
-            vector<IntType> numsPrivate(30, IntType(1));
+            TArray numsPrivate;
+            numsPrivate.fill(IntType(1));
 
             // <35, 1e60> 1 thread - 13 secs, 4 threads - 9 secs, 8 threads - 7,5 secs, 8 threads + static,1 = 4 secs
             // <35, 1e90> 8 threads, dynamic,1 - 17 secs, static,1 - 18,7 secs, static,1,collapse2 - 17,7 secs
