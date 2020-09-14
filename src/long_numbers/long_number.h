@@ -222,8 +222,8 @@ public:
 	TSigned sign() const { 
 		return extra::sign<LongIntegerDecimal, TSigned>(minus_, *this);
 	}
-
 	void setSign(TSigned sign) { minus_ = sign < 0; }
+    bool isNegative() const { return minus_; }
 
 	// Question: is it normal? Two methods have the same signature and live together?? 
 	//			 Maybe operator[] is exception of rules?
@@ -233,29 +233,29 @@ public:
 
 	//-------------------------Comparison---------------------------//
 
+private:
+    template <LengthType lengthFirst, LengthType lengthSecond>
+    bool isLess(LongIntegerDecimal<lengthFirst>const& first, LongIntegerDecimal<lengthSecond> const& second) const {
+        if (first.sign() * second.sign() < TSigned(0))		// #much-costs condition because see sign()
+            return isNegative();
+        bool compare = std::lexicographical_compare(first.crbegin(), first.crend(), second.crbegin(), second.crend());
+        return (first != second) && (isNegative() && !compare || !isNegative() && compare);
+    }
+
+public:
     template <LengthType lengthOther>
 	bool operator!= (LongIntegerDecimal<lengthOther> const & other) const {
-		return (minus_ != other.minus_ || !std::equal(cbegin(), cend(), other.cbegin(), other.cend()));
+		return (isNegative() != other.isNegative() || !std::equal(cbegin(), cend(), other.cbegin(), other.cend()));
 	}
     template <LengthType lengthOther>
     bool operator== (LongIntegerDecimal<lengthOther> const& other) const { return !(*this != other); }
     template <LengthType lengthOther>
-    bool operator< (LongIntegerDecimal<lengthOther> const& other) const {
-        if (sign() * other.sign() < TSigned(0))		// #much-costs condition because see sign()
-            return minus_;
-        bool compare = std::lexicographical_compare(crbegin(), crend(), other.crbegin(), other.crend());
-        return minus_ && !compare || !minus_ && compare;
-    }
+    bool operator< (LongIntegerDecimal<lengthOther> const& other) const { return this->isLess(*this, other); }
    
     template <LengthType lengthOther>
     bool operator>= (LongIntegerDecimal<lengthOther> const& other) const { return !(*this < other); }
     template <LengthType lengthOther>
-    bool operator> (LongIntegerDecimal<lengthOther> const& other) const {
-        if (sign() * other.sign() < TSigned(0))		// #much-costs condition because see sign()
-            return minus_;
-        bool compare = std::lexicographical_compare(other.crbegin(), other.crend(), crbegin(), crend());
-        return minus_ && !compare || !minus_ && compare;
-    }
+    bool operator> (LongIntegerDecimal<lengthOther> const& other) const { return this->isLess(other, *this); }
     template <LengthType lengthOther>
     bool operator<= (LongIntegerDecimal<lengthOther> const& other) const { return !(*this > other); }
 

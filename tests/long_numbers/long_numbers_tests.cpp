@@ -33,37 +33,40 @@ TEST(LongInteger, comparison_less) {
 	LongIntegerDecimal<3> num1("789100000200");
 	LongIntegerDecimal<3> num2("789100000201");
 
-	ASSERT_TRUE(num1 < num2);
+	EXPECT_TRUE(num1 < num2);
 
 	LongIntegerDecimal<3> num3("789100000200");
 	LongIntegerDecimal<3> num4("790100000200");
 
-	ASSERT_TRUE(num3 < num4);
+	EXPECT_TRUE(num3 < num4);
 
 	LongIntegerDecimal<3> num5("-23");
 	LongIntegerDecimal<3> num6("23");
 
-	ASSERT_TRUE(num5 < num6);
+	EXPECT_TRUE(num5 < num6);
 
 	LongIntegerDecimal<3> num7("0");
 	LongIntegerDecimal<3> num8("-0");
 
-	ASSERT_FALSE(num7 < num8);
+	EXPECT_FALSE(num7 < num8);
 
     LongIntegerDecimal<2> num9("200200");
     LongIntegerDecimal<2> num10("200200");
 
-    ASSERT_TRUE((num9 * num10) > num9 * LongIntegerDecimal<2>(1000));
+	EXPECT_TRUE((num9 * num10) > num9 * LongIntegerDecimal<2>(1000));
 
 	num7 = -15;
 	num8 = -16;
-	ASSERT_TRUE(num7 > num8);
+	EXPECT_TRUE(num7 > num8);
+	num7 = -15;
+	num8 = -16;
+	EXPECT_TRUE(num7 >= num8);
 	num7 = -16;
 	num8 = -16;
-	ASSERT_FALSE(num7 < num8);
+	EXPECT_FALSE(num7 < num8);
 	num7 = -16;
 	num8 = -16;
-	ASSERT_TRUE(num7 <= num8);
+	EXPECT_TRUE(num7 <= num8);
 }
 
 //-----------Sign-----------//
