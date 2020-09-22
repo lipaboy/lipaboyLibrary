@@ -7,6 +7,7 @@ namespace lipaboy_lib::numberphile {
     // Results:
     //
     // 437799 - 7 steps (22 3 3333 77)
+    // 248883999 - 9 steps
     //
     // 288888877777799  - 11 steps of digit-multiplications
     //
@@ -257,15 +258,15 @@ namespace lipaboy_lib::numberphile {
     }
 
 
-    // linux: <20, 1e60> - 2 secs, <20, 1e160> - 1,5 mins, <35, 1e300> - 33 mins
-    // <40, 1e150, 8 ths> - 6,3 secs, <40, 1e200, 8 ths> - 21 secs, <50, 1e400, 8ths> - 6,8 mins
-    // <60, 1e500, 8 ths> - 18,6 mins
+    // linux: <20, 1e60> - 2 secs, <20, 1e160> - 15 secs, <35, 1e300> - 33 mins
+    // <40, 1e150, 8 ths> - 6,3 secs, <40, 1e200, 8 ths> - 17,5 secs, <50, 1e400, 8ths> - 6,8 mins
+    // <60, 1e500, 6 ths> - 18,6 mins, <70, 1e600, 6 ths> - 51,6 mins
     // windows: <20, 1e90> - 2,25 mins (updated), <30, 1e40> - 13 secs (updated)
     void long_digits_multiplication_searching_long_numbers()
     {
-        using IntType = LongIntegerDecimal<20>;
+        using IntType = LongIntegerDecimal<70>;
         // info uint64_t = 64 bit, 10^19 max value, as 7 is max value, then maximum 7^22
-        constexpr int64_t MAX = 10;
+        constexpr int64_t MAX = 600;
         using OneDigitIntType = 
             //IntType;
             LongIntegerDecimal<1>;
@@ -352,7 +353,7 @@ namespace lipaboy_lib::numberphile {
             }
         }*/
 
-        #pragma omp parallel num_threads(1)
+        #pragma omp parallel num_threads(6)
         {
             //cout << omp_get_num_threads() << endl;
             int64_t maxStepsPrivate = 0;
@@ -381,10 +382,6 @@ namespace lipaboy_lib::numberphile {
                         // multiply the digits
 
                         auto iTwo = len - iSeven - iThree;
-
-                        if (iTwo == 2 && iThree == 5 && iSeven == 2) {
-                            cout << "kek" << endl;
-                        }
 
                         numsPrivate[0] = temp37 *
                             pow<OneDigitIntType, int64_t, IntType>(TWO, iTwo);
