@@ -253,10 +253,13 @@ private:
         for (auto iterF = first.crbegin(); iterF != first.crend() && iterS != second.crend(); iterF++, iterS++) {
             if (*iterF > *iterS) {
                 isLessVar = false;
+                isEqual = false;
                 break;
             }
-            else if (*iterF != *iterS) {
+            else if (*iterF < *iterS) {
+                isLessVar = true;
                 isEqual = false;
+                break;
             }
         }
         return (!isEqual) && ((first.isNegative() && !isLessVar) || (!first.isNegative() && isLessVar));
@@ -266,7 +269,15 @@ public:
     template <LengthType lengthOther>
 	bool operator!= (LongIntegerDecimal<lengthOther> const & other) const {
         // sign() - O(n) because it contains a comparison with ZERO. O(!=) ~ O(3x equals)
-        return (sign() != other.sign() || !std::equal(cbegin(), cend(), other.cbegin(), other.cend()));
+        bool isEqual = true;
+        auto iterO = other.cbegin();
+        for (auto iter = cbegin(); iter != cend() && iterO != other.cend(); iter++, iterO++) {
+            if (*iter != *iterO) {
+                isEqual = false;
+                break;
+            }
+        }
+        return (sign() != other.sign() || !isEqual);
 	}
     template <LengthType lengthOther>
     bool operator== (LongIntegerDecimal<lengthOther> const& other) const { return !(*this != other); }

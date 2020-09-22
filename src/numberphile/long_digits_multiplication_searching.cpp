@@ -261,9 +261,9 @@ namespace lipaboy_lib::numberphile {
     // windows: <20, 1e90> - 2,25 mins (updated), <30, 1e40> - 13 secs (updated)
     void long_digits_multiplication_searching_long_numbers()
     {
-        using IntType = LongIntegerDecimal<60>;
+        using IntType = LongIntegerDecimal<20>;
         // info uint64_t = 64 bit, 10^19 max value, as 7 is max value, then maximum 7^22
-        constexpr int64_t MAX = 5;
+        constexpr int64_t MAX = 15;
         using OneDigitIntType = 
             //IntType;
             LongIntegerDecimal<1>;

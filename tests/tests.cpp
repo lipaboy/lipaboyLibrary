@@ -89,7 +89,7 @@ TEST(Check, check) {
 }
 
 
-#define LIPABOY_LIB_TESTING
+//#define LIPABOY_LIB_TESTING
 
 int main(int argc, char *argv[])
 {
