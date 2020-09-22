@@ -6,6 +6,8 @@ namespace lipaboy_lib::numberphile {
 
     // Results:
     //
+    // 437799 - 7 steps (22 3 3333 77)
+    //
     // 288888877777799  - 11 steps of digit-multiplications
     //
     // https://zen.yandex.ru/media/tehno_chtivo/v-chem-chislo-277777788888899-mirovoi-rekordsmen-5ede6acd9abc2748d3bbf7e2
@@ -263,7 +265,7 @@ namespace lipaboy_lib::numberphile {
     {
         using IntType = LongIntegerDecimal<20>;
         // info uint64_t = 64 bit, 10^19 max value, as 7 is max value, then maximum 7^22
-        constexpr int64_t MAX = 15;
+        constexpr int64_t MAX = 10;
         using OneDigitIntType = 
             //IntType;
             LongIntegerDecimal<1>;
@@ -379,6 +381,11 @@ namespace lipaboy_lib::numberphile {
                         // multiply the digits
 
                         auto iTwo = len - iSeven - iThree;
+
+                        if (iTwo == 2 && iThree == 5 && iSeven == 2) {
+                            cout << "kek" << endl;
+                        }
+
                         numsPrivate[0] = temp37 *
                             pow<OneDigitIntType, int64_t, IntType>(TWO, iTwo);
 

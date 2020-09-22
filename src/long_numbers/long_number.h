@@ -249,17 +249,43 @@ private:
         // first.isNegative() == second.isNegative() except zeros
         bool isLessVar = true;
         bool isEqual = true;
+        bool isResultDefined = false;
+        auto iterF = first.crbegin();
         auto iterS = second.crbegin();
-        for (auto iterF = first.crbegin(); iterF != first.crend() && iterS != second.crend(); iterF++, iterS++) {
-            if (*iterF > *iterS) {
+
+        // lengthFirst - lengthSecond
+        for (int i = 0; i < int(lengthFirst) - int(lengthSecond); i++) {
+            if (*iterF != zeroIntegral()) {
                 isLessVar = false;
                 isEqual = false;
+                isResultDefined = true;
                 break;
             }
-            else if (*iterF < *iterS) {
+            iterF++;
+        }
+        // lengthSecond - lengthFirst       // must cast all the vars to int because (I don't know)
+        for (int i = 0; i < int(lengthSecond) - int(lengthFirst); i++) {
+            if (*iterS != zeroIntegral()) {
                 isLessVar = true;
                 isEqual = false;
+                isResultDefined = true;
                 break;
+            }
+            iterS++;
+        }
+
+        if (!isResultDefined) {
+            for (; iterF != first.crend() && iterS != second.crend(); iterF++, iterS++) {
+                if (*iterF > *iterS) {
+                    isLessVar = false;
+                    isEqual = false;
+                    break;
+                }
+                else if (*iterF < *iterS) {
+                    isLessVar = true;
+                    isEqual = false;
+                    break;
+                }
             }
         }
         return (!isEqual) && ((first.isNegative() && !isLessVar) || (!first.isNegative() && isLessVar));
@@ -270,11 +296,26 @@ public:
 	bool operator!= (LongIntegerDecimal<lengthOther> const & other) const {
         // sign() - O(n) because it contains a comparison with ZERO. O(!=) ~ O(3x equals)
         bool isEqual = true;
+        auto iter = cbegin();
         auto iterO = other.cbegin();
-        for (auto iter = cbegin(); iter != cend() && iterO != other.cend(); iter++, iterO++) {
+        for (; iter != cend() && iterO != other.cend(); iter++, iterO++) {
             if (*iter != *iterO) {
                 isEqual = false;
                 break;
+            }
+        }
+        if (isEqual) { // must have tests for this case
+            for (; iter != cend(); iter++) {
+                if (*iter != zeroIntegral()) {
+                    isEqual = false;
+                    break;
+                }
+            }
+            for (; iterO != other.cend(); iterO++) {
+                if (*iterO != zeroIntegral()) {
+                    isEqual = false;
+                    break;
+                }
             }
         }
         return (sign() != other.sign() || !isEqual);

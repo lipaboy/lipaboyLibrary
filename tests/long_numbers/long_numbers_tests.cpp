@@ -74,6 +74,10 @@ TEST(LongInteger, comparison_less) {
     num7 = -num7;
     EXPECT_EQ(num7, LongIntegerDecimal<1>(0));
     EXPECT_EQ(num7.to_string(), LongIntegerDecimal<1>(0).to_string());
+
+    LongIntegerDecimal<3> num11("20000000000000000000000");
+    LongIntegerDecimal<1> num12("0");
+    EXPECT_TRUE(num11 > num12);
 }
 
 //-----------Sign-----------//
