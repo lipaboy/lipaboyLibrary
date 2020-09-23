@@ -266,7 +266,7 @@ namespace lipaboy_lib::numberphile {
     {
         using IntType = LongIntegerDecimal<70>;
         // info uint64_t = 64 bit, 10^19 max value, as 7 is max value, then maximum 7^22
-        constexpr int64_t MAX = 600;
+        constexpr int64_t MAX = 30;
         using OneDigitIntType = 
             //IntType;
             LongIntegerDecimal<1>;

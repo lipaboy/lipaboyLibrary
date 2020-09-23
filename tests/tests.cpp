@@ -81,15 +81,64 @@ TEST(OpenMP, merging_vector) {
 	//ASSERT_FALSE(true);
 }
 
+int notlambda(int a) { return a * 3; }
+inline int notlambda_inline(int a) { return a * 3; }
 
 TEST(Check, check) {
+    auto lambda = [] (int a) {
+        return a * 3;
+    };
+
+    int size = int(1e2);
+
+    {
+        vector<int> vec(size);
+        for (auto & i : vec)
+            i = std::rand();
+
+        auto start = extra::getCurrentTime();
+
+        for (uint32_t i = 0; i < vec.size(); i++)
+            vec[i] = lambda(vec[rand() % vec.size()]);
+
+        cout << "Time lambda: " << extra::diffFromNow(start) << endl;
+    }
+
+    {
+        vector<int> vec(size);
+        for (auto & i : vec)
+            i = std::rand();
+
+        auto start = extra::getCurrentTime();
+
+        for (uint32_t i = 0; i < vec.size(); i++)
+            vec[i] = notlambda(vec[rand() % vec.size()]);
+
+        cout << "Time nolambda: " << extra::diffFromNow(start) << endl;
+    }
+
+    {
+        vector<int> vec(size);
+        for (auto & i : vec)
+            i = std::rand();
+
+        auto start = extra::getCurrentTime();
+
+        for (uint32_t i = 0; i < vec.size(); i++)
+            vec[i] = notlambda_inline(vec[rand() % vec.size()]);
+
+        cout << "Time inline: " << extra::diffFromNow(start) << endl;
+    }
+
+    string s;
+    std::cin >> s;
 
 }
 
 }
 
 
-//#define LIPABOY_LIB_TESTING
+#define LIPABOY_LIB_TESTING
 
 int main(int argc, char *argv[])
 {
