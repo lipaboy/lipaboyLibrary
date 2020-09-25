@@ -457,7 +457,7 @@ namespace lipaboy_lib {
 			reallocCount = 0;
 			auto res = *multiplyByKaracuba2(first, second, a);
 			deallocFromStorage(storageEndPos);
-			std::cout << "Realloc count: " << reallocCount << std::endl;
+			//std::cout << "Realloc count: " << reallocCount << std::endl;
 			return res;
 		}
 

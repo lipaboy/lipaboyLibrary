@@ -89,6 +89,23 @@ TEST(LongInteger, comparison_different_length) {
 	first = "20000000000000000000000";
 	second = "0";
 	EXPECT_TRUE(first > second);
+
+	first = "20000000000000";
+	second = "23452";
+	EXPECT_TRUE(first > second);
+	EXPECT_FALSE(first < second);
+	EXPECT_TRUE(second < first);
+
+	first = "20000";
+	second = "23452";
+	EXPECT_FALSE(first > second);
+	EXPECT_TRUE(first < second);
+	EXPECT_FALSE(second < first);
+
+	LongIntegerDecimal<2> third("20000000000000");
+	EXPECT_TRUE(first < third);
+	EXPECT_TRUE(first < third);
+	EXPECT_FALSE(third < first);
 }
 
 //-----------Sign-----------//

@@ -229,8 +229,11 @@ public:
             * (!isZero());
 	}
 	void setSign(TSigned sign) { minus_ = sign < 0; }
+        // O(N)
     bool isNegative() const { return sign() < TSigned(0); }
+        // O(N)
     bool isPositive() const { return sign() > TSigned(0); }
+        // O(N)
     bool isZero() const {
         for (auto iter = cbegin(); iter != cend(); iter++)
             if (*iter != zeroIntegral())
@@ -256,36 +259,44 @@ private:
 
 private:
     template <LengthType lengthFirst, LengthType lengthSecond>
-    bool isLess(LongIntegerDecimal<lengthFirst>const& first, LongIntegerDecimal<lengthSecond> const& second) const {
+    bool isLess(LongIntegerDecimal<lengthFirst> const & first, 
+                LongIntegerDecimal<lengthSecond> const & second) const 
+    {
+        using FirstTypeIter = typename LongIntegerDecimal<lengthFirst>::iterator;
+        using SecondTypeIter = typename LongIntegerDecimal<lengthSecond>::iterator;
+
+        bool isNegative = first.isNegative();
+
         if (first.sign() * second.sign() < TSigned(0))		// #much-costs condition because see sign() -> (O(n))
-            return first.isNegative();
-        // first.isNegative() == second.isNegative() except zeros
+            return isNegative;
+        // true: first.isNegative() == second.isNegative() == isNegative
+
         bool isLessVar = true;
         bool isEqual = true;
         bool isResultDefined = false;
         auto iterF = first.crbegin();
         auto iterS = second.crbegin();
+        auto checkHigherPartToZero =
+            [&isLessVar, &isEqual, &isResultDefined] (auto& iter, const int lenHigh, const int lenLow)
+                -> bool
+        {
+            bool partIsZero = true;
+            // must cast all the vars to int because (I don't know)
+            for (int i = 0; i < int(lenHigh) - int(lenLow); i++) {
+                if (*iter != zeroIntegral()) {
+                    partIsZero = false;
+                    isEqual = false;
+                    isResultDefined = true;
+                    break;
+                }
+                iter++;
+            }
+            return isResultDefined ? partIsZero : isLessVar;
+        };
 
-        // lengthFirst - lengthSecond
-        for (int i = 0; i < int(lengthFirst) - int(lengthSecond); i++) {
-            if (*iterF != zeroIntegral()) {
-                isLessVar = false;
-                isEqual = false;
-                isResultDefined = true;
-                break;
-            }
-            iterF++;
-        }
-        // lengthSecond - lengthFirst       // must cast all the vars to int because (I don't know)
-        for (int i = 0; i < int(lengthSecond) - int(lengthFirst); i++) {
-            if (*iterS != zeroIntegral()) {
-                isLessVar = true;
-                isEqual = false;
-                isResultDefined = true;
-                break;
-            }
-            iterS++;
-        }
+        isLessVar = checkHigherPartToZero(iterF, lengthFirst, lengthSecond);
+        if (!isResultDefined)
+            isLessVar = !checkHigherPartToZero(iterS, lengthSecond, lengthFirst);
 
         if (!isResultDefined) {
             for (; iterF != first.crend() && iterS != second.crend(); iterF++, iterS++) {
@@ -301,13 +312,12 @@ private:
                 }
             }
         }
-        return (!isEqual) && ((first.isNegative() && !isLessVar) || (!first.isNegative() && isLessVar));
+        return (!isEqual) && ((isNegative && !isLessVar) || (!isNegative && isLessVar));
     }
 
 public:
     template <LengthType lengthOther>
 	bool operator!= (LongIntegerDecimal<lengthOther> const & other) const {
-        // sign() - O(n) because it contains a comparison with ZERO. O(!=) ~ O(3x equals)
         bool isEqual = true;
         auto iter = cbegin();
         auto iterO = other.cbegin();
@@ -401,13 +411,14 @@ template <LengthType length>
 void LongIntegerDecimal<length>::assignString(string const& numberDecimalStr) {
     // TODO: add exception for zero length
     if (numberDecimalStr.length() > 0) {
+        minus_ = false;
         std::string_view numStrView = numberDecimalStr;
         numStrView.remove_prefix(
             cutOffLeftBorder<int>(0, numStrView.find_first_not_of(" "))
         );
         if (numStrView[0] == '-') {
             numStrView.remove_prefix(1);
-            minus_ = true;
+            minus_ = true; 
         }
         // round the number by integral modulus
         numStrView.remove_prefix(
