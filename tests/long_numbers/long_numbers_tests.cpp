@@ -22,13 +22,6 @@ TEST(LongInteger, overflow) {
 
 //-----------Comparison-----------//
 
-TEST(LongInteger, comparison_different_lengths) {
-	LongIntegerDecimal<3> num1("1");
-	LongIntegerDecimal<1> num2("3");
-
-	ASSERT_TRUE(num1 < num2);
-}
-
 TEST(LongInteger, comparison_less) {
 	LongIntegerDecimal<3> first("789100000200");
 	LongIntegerDecimal<3> second("789100000201");
@@ -62,8 +55,8 @@ TEST(LongInteger, comparison_more) {
 }
 
 TEST(LongInteger, comparison_diff) {
-	LongIntegerDecimal<3> first("0");
-	LongIntegerDecimal<3> second("-0");
+	LongIntegerDecimal<3> first;
+	LongIntegerDecimal<3> second;
 
 	first = -15;
 	second = -16;
@@ -77,37 +70,44 @@ TEST(LongInteger, comparison_diff) {
 	first = -16;
 	second = -16;
 	EXPECT_TRUE(first <= second);
-	first = 0;
-    EXPECT_FALSE(first > LongIntegerDecimal<1>(0));
-    EXPECT_FALSE(first < LongIntegerDecimal<1>(0));
-    EXPECT_TRUE(first <= LongIntegerDecimal<1>(0));
-	first = -first;
-    EXPECT_EQ(first, LongIntegerDecimal<1>(0));
-    EXPECT_EQ(first.to_string(), LongIntegerDecimal<1>(0).to_string());
+}
 
-    LongIntegerDecimal<3> num11("20000000000000000000000");
-    LongIntegerDecimal<1> num12("0");
-    EXPECT_TRUE(num11 > num12);
+TEST(LongInteger, comparison_different_length) {
+	LongIntegerDecimal<3> first("1");
+	LongIntegerDecimal<1> second("3");
+
+	ASSERT_TRUE(first < second);
+
+	first = 0;
+	EXPECT_FALSE(first > LongIntegerDecimal<1>(0));
+	EXPECT_FALSE(first < LongIntegerDecimal<1>(0));
+	EXPECT_TRUE(first <= LongIntegerDecimal<1>(0));
+	first = -first;
+	EXPECT_EQ(first, LongIntegerDecimal<1>(0));
+	EXPECT_EQ(first.to_string(), LongIntegerDecimal<1>(0).to_string());
+
+	first = "20000000000000000000000";
+	second = "0";
+	EXPECT_TRUE(first > second);
 }
 
 //-----------Sign-----------//
 
 TEST(LongInteger, sign) {
 	LongIntegerDecimal<1> num(-2);
-
 	ASSERT_EQ(num.sign(), -1);
 
 	LongIntegerDecimal<1> num2("-2");
-
 	ASSERT_EQ(num2.sign(), -1);
 
 	LongIntegerDecimal<2> num3("-790100000200");
-
 	ASSERT_EQ(num3.sign(), -1);
 
 	LongIntegerDecimal<2> num4("-000000000000");
-
 	ASSERT_EQ(num4.sign(), 0);
+	ASSERT_TRUE(num4.isZero());
+	ASSERT_FALSE(num4.isNegative());
+	ASSERT_FALSE(num4.isPositive());
 }
 
 //-----------Equality-----------//
