@@ -35,21 +35,21 @@ TEST(LongInteger, comparison_less) {
 
 	EXPECT_TRUE(first < second);
 
-	//first = "789100000200";
-	LongIntegerDecimal<3> num3("789100000200");
-	LongIntegerDecimal<3> num4("790100000200");
+	first  = "789100000200";
+	second = "790100000200";
 
-	EXPECT_TRUE(num3 < num4);
+	EXPECT_TRUE(first < second);
 
-	LongIntegerDecimal<3> num5("-23");
-	LongIntegerDecimal<3> num6("23");
+	first = "-23";
+	second = "23";
 
-	EXPECT_TRUE(num5 < num6);
+	EXPECT_TRUE(first < second);
 
-	LongIntegerDecimal<3> num7("0");
-	LongIntegerDecimal<3> num8("-0");
+	first = "-0";
+	second = "0";
 
-	EXPECT_FALSE(num7 < num8);
+	EXPECT_FALSE(first < second);
+	EXPECT_TRUE(first <= second);
 }
 
 TEST(LongInteger, comparison_more) {

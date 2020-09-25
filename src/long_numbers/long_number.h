@@ -225,11 +225,12 @@ public:
         // O(N) algorithm because there is comparison for word
 	    // sign() - #much-costs operation because it compares *this with zero number
     TSigned sign() const {
-        return (isNegative() * TSigned(-1) + !isNegative() * TSigned(1))
+        return (minus_ * TSigned(-1) + !minus_ * TSigned(1))
             * (!isZero());
 	}
 	void setSign(TSigned sign) { minus_ = sign < 0; }
-    bool isNegative() const { return minus_; }
+    bool isNegative() const { return sign() < TSigned(0); }
+    bool isPositive() const { return sign() > TSigned(0); }
     bool isZero() const {
         for (auto iter = cbegin(); iter != cend(); iter++)
             if (*iter != zeroIntegral())
@@ -243,9 +244,13 @@ public:
 
 	reference_integral operator[] (size_t index) { return number_[index]; }
 
-    /*const_reference operator= (string const& numberStr) {
+    const_reference operator= (string const& numberStr) {
+        this->assignString(numberStr);
+        return *this;
+    }
 
-    }*/
+private:
+    void assignString(string const& numberDecimalStr);
 
 	//-------------------------Comparison---------------------------//
 
@@ -385,10 +390,17 @@ private:
 
 template <LengthType length>
 LongIntegerDecimal<length>::LongIntegerDecimal(string const & numberDecimalStr) : minus_(false) {
-    if (numberDecimalStr.length() <= 0) {
+    checkTemplateParameters();
+    if (numberDecimalStr.length() <= 0)
         LongIntegerDecimal();
-    }
-    else {
+    else
+        assignString(numberDecimalStr);
+}
+
+template <LengthType length>
+void LongIntegerDecimal<length>::assignString(string const& numberDecimalStr) {
+    // TODO: add exception for zero length
+    if (numberDecimalStr.length() > 0) {
         std::string_view numStrView = numberDecimalStr;
         numStrView.remove_prefix(
             cutOffLeftBorder<int>(0, numStrView.find_first_not_of(" "))
@@ -406,9 +418,9 @@ LongIntegerDecimal<length>::LongIntegerDecimal(string const & numberDecimalStr) 
         int first = cutOffLeftBorder<int>(last - integralModulusDegree(), 0);
         size_t i = 0;
         int subInt;
-        
+
         for (; last - first > 0 && i < length(); i++) {
-            auto sub = numStrView.substr(size_t(first), size_t(last - first));
+            auto sub = numStrView.substr(size_t(first), size_t(last) - size_t(first));
             std::from_chars(sub.data(), sub.data() + sub.size(), subInt);
 
             number_[i] = IntegralType(std::abs(subInt));
