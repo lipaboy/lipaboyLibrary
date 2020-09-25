@@ -10,6 +10,9 @@
 #include <cmath>
 #include <tuple>
 
+#include <string_view>
+#include <charconv>
+
 #include "extra_tools/extra_tools.h"
 #include "intervals/cutoffborders.h"
 #include "extra_tools/maths_tools.h"
@@ -95,6 +98,7 @@ public:
 	using TSigned = std::int32_t;
 	using TSignedResult = std::int64_t;
     using LengthType = extra::LengthType;
+    using size_type = size_t;
 
     using IntegralType =
         std::remove_reference_t<
@@ -218,8 +222,8 @@ public:
 
     static constexpr LengthType length() { return lengthOfIntegrals; }
 
-    // O(N) algorithm because there is comparison for word
-	// sign() - #much-costs operation because it compares *this with zero number
+        // O(N) algorithm because there is comparison for word
+	    // sign() - #much-costs operation because it compares *this with zero number
     TSigned sign() const {
         return (isNegative() * TSigned(-1) + !isNegative() * TSigned(1))
             * (!isZero());
@@ -233,11 +237,15 @@ public:
         return true;
     }
 
-	// Question: is it normal? Two methods have the same signature and live together?? 
-	//			 Maybe operator[] is exception of rules?
+	    // Question: is it normal? Two methods have the same signature and live together?? 
+	    //			 Maybe operator[] is exception of rules?
 	const_reference_integral operator[] (size_t index) const { return number_[index]; }
 
 	reference_integral operator[] (size_t index) { return number_[index]; }
+
+    /*const_reference operator= (string const& numberStr) {
+
+    }*/
 
 	//-------------------------Comparison---------------------------//
 
@@ -339,6 +347,7 @@ public:
 			std::log(2) / std::log(10) * double(extra::bitsCount<IntegralType>()))); 
 	}
     static constexpr IntegralType integralModulus() { return powDozen<IntegralType>(integralModulusDegree()); }
+    static constexpr size_type maxDigitsCount() { return length() * integralModulusDegree(); }
 
 private:
     static constexpr IntegralType zeroIntegral() { return IntegralType(0); }
@@ -376,23 +385,39 @@ private:
 
 template <LengthType length>
 LongIntegerDecimal<length>::LongIntegerDecimal(string const & numberDecimalStr) : minus_(false) {
-    int last = int(numberDecimalStr.size());
-    int first = cutOffLeftBorder<int>(last - integralModulusDegree(), 0);
-    size_t i = 0;
-    for (; last - first > 0 && i < length(); i++) {
-        // for optimization you need to see the StringView (foly library)
-        auto sub = numberDecimalStr.substr(size_t(first), size_t(last - first));
-        int subInt = std::stoi(sub);
-        if (first <= 0 && subInt < 0)		// it means that this decoded part is last
-            minus_ = true;
-        IntegralType part = static_cast<IntegralType>(std::abs(subInt));
-
-        number_[i] = part;
-
-        last -= integralModulusDegree();
-        first = cutOffLeftBorder<int>(first - integralModulusDegree(), 0);
+    if (numberDecimalStr.length() <= 0) {
+        LongIntegerDecimal();
     }
-    std::fill(std::next(begin(), i), end(), zeroIntegral());
+    else {
+        std::string_view numStrView = numberDecimalStr;
+        numStrView.remove_prefix(
+            cutOffLeftBorder<int>(0, numStrView.find_first_not_of(" "))
+        );
+        if (numStrView[0] == '-') {
+            numStrView.remove_prefix(1);
+            minus_ = true;
+        }
+        // round the number by integral modulus
+        numStrView.remove_prefix(
+            cutOffLeftBorder<int>(0, TSigned(numStrView.length()) - TSigned(maxDigitsCount()))
+        );
+
+        int last = int(numStrView.length());
+        int first = cutOffLeftBorder<int>(last - integralModulusDegree(), 0);
+        size_t i = 0;
+        int subInt;
+        
+        for (; last - first > 0 && i < length(); i++) {
+            auto sub = numStrView.substr(size_t(first), size_t(last - first));
+            std::from_chars(sub.data(), sub.data() + sub.size(), subInt);
+
+            number_[i] = IntegralType(std::abs(subInt));
+
+            last -= integralModulusDegree();
+            first = cutOffLeftBorder<int>(first - integralModulusDegree(), 0);
+        }
+        std::fill(std::next(begin(), i), end(), zeroIntegral());
+    }
 }
 
 //------------Arithmetic Operations-------------//
@@ -406,11 +431,10 @@ auto LongIntegerDecimal<length>::operator+=(const_reference other)
     IntegralType remainder = zeroIntegral();
     TSigned sign(1);
     for (size_t i = 0; i < length(); i++) {
-        const TSignedResult doubleTemp = TSignedResult(
-            this->sign() * TSigned((*this)[i])
-            + other.sign() * TSigned(other[i])
-            + sign * TSigned(remainder)
-        );
+        const TSignedResult doubleTemp = 
+            TSignedResult(this->sign()) * (*this)[i]
+            + TSignedResult(other.sign()) * other[i]
+            + TSignedResult(sign) * remainder;
 
         (*this)[i] = IntegralType(std::abs(doubleTemp) % integralModulus());
         remainder = IntegralType(std::abs(doubleTemp) / integralModulus());
@@ -425,6 +449,7 @@ template <LengthType length>
 auto LongIntegerDecimal<length>::divide(const_reference other) const
     -> pair<LongIntegerDecimal, LongIntegerDecimal>
 {
+    // TODO: replace to OneDigitNumber
     const LongIntegerDecimal DEC(10);
     const LongIntegerDecimal ONE(1);
     const LongIntegerDecimal ZERO(0);
@@ -434,8 +459,8 @@ auto LongIntegerDecimal<length>::divide(const_reference other) const
     LongIntegerDecimal dividend(*this);
 
     LongIntegerDecimal modulus(1);
-    // TODO: remove infinite loop
-    for ( ; ; ) {
+    // TODO: replace infinite loop to smth else
+    while(true) {
         divider *= DEC;
         if (divider > dividend)
             break;
@@ -443,13 +468,13 @@ auto LongIntegerDecimal<length>::divide(const_reference other) const
     }
 
     divider.divideByDec();
-    for ( ; dividend >= divider || modulus != ONE; ) {
-        for ( ; dividend >= divider; ) {
+    while(dividend >= divider || modulus != ONE) {
+        while (dividend >= divider) {
             dividend -= divider;
             res += modulus;
         }
 
-        for ( ; modulus != ONE; ) {
+        while (modulus != ONE) {
             divider.divideByDec();
             modulus.divideByDec();
             if (divider <= dividend)

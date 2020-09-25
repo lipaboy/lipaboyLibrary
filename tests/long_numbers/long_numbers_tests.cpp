@@ -30,11 +30,12 @@ TEST(LongInteger, comparison_different_lengths) {
 }
 
 TEST(LongInteger, comparison_less) {
-	LongIntegerDecimal<3> num1("789100000200");
-	LongIntegerDecimal<3> num2("789100000201");
+	LongIntegerDecimal<3> first("789100000200");
+	LongIntegerDecimal<3> second("789100000201");
 
-	EXPECT_TRUE(num1 < num2);
+	EXPECT_TRUE(first < second);
 
+	//first = "789100000200";
 	LongIntegerDecimal<3> num3("789100000200");
 	LongIntegerDecimal<3> num4("790100000200");
 
@@ -49,31 +50,40 @@ TEST(LongInteger, comparison_less) {
 	LongIntegerDecimal<3> num8("-0");
 
 	EXPECT_FALSE(num7 < num8);
+}
 
-    LongIntegerDecimal<2> num9("200200");
-    LongIntegerDecimal<2> num10("200200");
+TEST(LongInteger, comparison_more) {
 
-	EXPECT_TRUE((num9 * num10) > num9 * LongIntegerDecimal<2>(1000));
+	LongIntegerDecimal<2> first("200200");
+	LongIntegerDecimal<2> second("200200");
 
-	num7 = -15;
-	num8 = -16;
-	EXPECT_TRUE(num7 > num8);
-	num7 = -15;
-	num8 = -16;
-	EXPECT_TRUE(num7 >= num8);
-	num7 = -16;
-	num8 = -16;
-	EXPECT_FALSE(num7 < num8);
-	num7 = -16;
-	num8 = -16;
-	EXPECT_TRUE(num7 <= num8);
-    num7 = 0;
-    EXPECT_FALSE(num7 > LongIntegerDecimal<1>(0));
-    EXPECT_FALSE(num7 < LongIntegerDecimal<1>(0));
-    EXPECT_TRUE(num7 <= LongIntegerDecimal<1>(0));
-    num7 = -num7;
-    EXPECT_EQ(num7, LongIntegerDecimal<1>(0));
-    EXPECT_EQ(num7.to_string(), LongIntegerDecimal<1>(0).to_string());
+	EXPECT_TRUE((first * second) > first * LongIntegerDecimal<2>(1000));
+
+}
+
+TEST(LongInteger, comparison_diff) {
+	LongIntegerDecimal<3> first("0");
+	LongIntegerDecimal<3> second("-0");
+
+	first = -15;
+	second = -16;
+	EXPECT_TRUE(first > second);
+	first = -15;
+	second = -16;
+	EXPECT_TRUE(first >= second);
+	first = -16;
+	second = -16;
+	EXPECT_FALSE(first < second);
+	first = -16;
+	second = -16;
+	EXPECT_TRUE(first <= second);
+	first = 0;
+    EXPECT_FALSE(first > LongIntegerDecimal<1>(0));
+    EXPECT_FALSE(first < LongIntegerDecimal<1>(0));
+    EXPECT_TRUE(first <= LongIntegerDecimal<1>(0));
+	first = -first;
+    EXPECT_EQ(first, LongIntegerDecimal<1>(0));
+    EXPECT_EQ(first.to_string(), LongIntegerDecimal<1>(0).to_string());
 
     LongIntegerDecimal<3> num11("20000000000000000000000");
     LongIntegerDecimal<1> num12("0");
@@ -299,7 +309,7 @@ TEST(LongInteger, sum_double_rank_by_crossing_parts) {
 }
 
 TEST(LongInteger, sum_double_rank_by_independent_parts_negative) {
-	LongIntegerDecimal<2> num1(" 789101000201");
+	LongIntegerDecimal<2> num1("789101000201");
 	LongIntegerDecimal<2> num2("-111001000001");
 
 	ASSERT_EQ("678100000200", (num1 + num2).to_string());
