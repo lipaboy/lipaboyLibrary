@@ -9,6 +9,7 @@
 #include <string>
 #include <cmath>
 #include <tuple>
+#include <iostream>
 
 #include <string_view>
 #include <charconv>
@@ -629,6 +630,11 @@ string LongIntegerDecimal<length>::to_string() const {
         }
     }
     return (isFirstNonZeroMet) ? res : "0";
+}
+
+template <size_t length>
+std::ostream& operator<<(std::ostream & out, LongIntegerDecimal<length> number) {
+    return (out << number.to_string());
 }
 
 /////////////////////////////////////////////////////////////////////////

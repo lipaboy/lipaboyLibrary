@@ -1,4 +1,5 @@
 #include <omp.h>
+#include <iterator>
 
 #include "long_digits_multiplication_searching.h"
 
@@ -21,13 +22,17 @@ namespace lipaboy_lib::numberphile {
     // <60, 1e500, 6 ths> - 18,6 mins, <70, 1e600, 6 ths> - 51,6 mins
     // windows: <20, 1e90> - 2,25 mins, <30, 1e40> - 13 secs
 
-    // 1 Error: <40, 1e200, 8 ths> - 43{7^14}9 - 2 steps but MaxSteps = 11
+    // 1 Error (3 times happened): <40, 1e200, 8 ths> - 43{7^14}9 - 2 steps but MaxSteps = 11
+    // 43777777777777779 - 11 steps (actually 2)
+    // 8777779999999999 - 11 steps (actually 2)
+    // 288888877777799 - 11 steps (actually 11)
+
     void long_digits_multiplication_searching_long_numbers()
     {
-        #define NUM_THREADS 8
-        using IntType = LongIntegerDecimal<40>;
+        #define NUM_THREADS 1
+        using IntType = LongIntegerDecimal<20>;
         // info uint64_t = 64 bit, 10^19 max value, as 7 is max value, then maximum 7^22
-        constexpr int64_t MAX = 200;
+        constexpr int64_t MAX = 60;
         using OneDigitIntType =
             //IntType;
             LongIntegerDecimal<1>;
@@ -41,6 +46,8 @@ namespace lipaboy_lib::numberphile {
         int64_t maxSteps = 0;
         IntType maxNumber(1);
 
+        vector<int64_t> stepsStat(13, 0);
+
         const OneDigitIntType SEVEN = 7;
         const OneDigitIntType THREE = 3;
         const OneDigitIntType FIVE = 5;
@@ -48,7 +55,7 @@ namespace lipaboy_lib::numberphile {
         const OneDigitIntType DEC = 10;
         const OneDigitIntType ZERO = 0;
 
-        auto updateMaxSteps = [&ZERO, &DEC](int64_t twos,
+        auto updateMaxSteps = [&ZERO, &DEC, &stepsStat](int64_t twos,
             int64_t threes, int64_t fives, int64_t sevens,
             int64_t& maxSteps, IntType& maxNumber, TArray& nums)
         {
@@ -60,8 +67,6 @@ namespace lipaboy_lib::numberphile {
                 auto curr = nums[iNum];
                 OneDigitIntType remainder;
                 for (int i = int(curr.length()) - 1; i >= 0; i--) {
-                    // TODO: optimize this one (without division all the number, only parts)
-
                     for(auto part = curr[i]; part > 0; part /= 10) {
                         remainder = part % 10;
                         nums[iNum + 1] *= remainder;
@@ -71,6 +76,8 @@ namespace lipaboy_lib::numberphile {
                 if (nums[iNum + 1] < DEC)
                     break;
             }
+
+            ++stepsStat[iNum + 2];
 
             if (maxSteps <= iNum + 2) {
                 maxSteps = iNum + 2;
@@ -102,6 +109,10 @@ namespace lipaboy_lib::numberphile {
                 for (int64_t i = 0; i < threes / 2; i++) {
                     maxNumber *= IntType(10);
                     maxNumber += IntType(9);
+                }
+
+                if (maxSteps == 11) {
+                    cout << maxNumber << endl;
                 }
             }
         };
@@ -191,6 +202,13 @@ namespace lipaboy_lib::numberphile {
             if (res <= IntType(10))
                 break;
         }
+
+        cout << "1st step of last number: " << endl;
+        std::copy(nums.begin(), std::next(nums.begin()), std::ostream_iterator<IntType>(cout, "\n"));
+
+        cout << "Statistics - count of steps:" << endl;
+        for (int i = 2; i < int(stepsStat.size()); i++)
+            cout << "(" << i << ") - " << stepsStat[i] << endl;
 
         cout << "Time elapsed: " << extra::diffFromNow(startTime) << endl;
 
