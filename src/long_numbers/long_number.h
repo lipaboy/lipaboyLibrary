@@ -10,6 +10,9 @@
 #include <cmath>
 #include <tuple>
 
+#include <string_view>
+#include <charconv>
+
 #include "extra_tools/extra_tools.h"
 #include "intervals/cutoffborders.h"
 #include "extra_tools/maths_tools.h"
@@ -95,6 +98,7 @@ public:
 	using TSigned = std::int32_t;
 	using TSignedResult = std::int64_t;
     using LengthType = extra::LengthType;
+    using size_type = size_t;
 
     using IntegralType =
         std::remove_reference_t<
@@ -218,14 +222,18 @@ public:
 
     static constexpr LengthType length() { return lengthOfIntegrals; }
 
-    // O(N) algorithm because there is comparison for word
-	// sign() - #much-costs operation because it compares *this with zero number
+        // O(N) algorithm because there is comparison for word
+	    // sign() - #much-costs operation because it compares *this with zero number
     TSigned sign() const {
-        return (isNegative() * TSigned(-1) + !isNegative() * TSigned(1))
+        return (minus_ * TSigned(-1) + !minus_ * TSigned(1))
             * (!isZero());
 	}
 	void setSign(TSigned sign) { minus_ = sign < 0; }
-    bool isNegative() const { return minus_; }
+        // O(N)
+    bool isNegative() const { return sign() < TSigned(0); }
+        // O(N)
+    bool isPositive() const { return sign() > TSigned(0); }
+        // O(N)
     bool isZero() const {
         for (auto iter = cbegin(); iter != cend(); iter++)
             if (*iter != zeroIntegral())
@@ -233,46 +241,62 @@ public:
         return true;
     }
 
-	// Question: is it normal? Two methods have the same signature and live together?? 
-	//			 Maybe operator[] is exception of rules?
+	    // Question: is it normal? Two methods have the same signature and live together?? 
+	    //			 Maybe operator[] is exception of rules?
 	const_reference_integral operator[] (size_t index) const { return number_[index]; }
 
 	reference_integral operator[] (size_t index) { return number_[index]; }
+
+    const_reference operator= (string const& numberStr) {
+        this->assignString(numberStr);
+        return *this;
+    }
+
+private:
+    void assignString(string const& numberDecimalStr);
 
 	//-------------------------Comparison---------------------------//
 
 private:
     template <LengthType lengthFirst, LengthType lengthSecond>
-    bool isLess(LongIntegerDecimal<lengthFirst>const& first, LongIntegerDecimal<lengthSecond> const& second) const {
+    bool isLess(LongIntegerDecimal<lengthFirst> const & first, 
+                LongIntegerDecimal<lengthSecond> const & second) const 
+    {
+        using FirstTypeIter = typename LongIntegerDecimal<lengthFirst>::iterator;
+        using SecondTypeIter = typename LongIntegerDecimal<lengthSecond>::iterator;
+
+        bool isNegative = first.isNegative();
+
         if (first.sign() * second.sign() < TSigned(0))		// #much-costs condition because see sign() -> (O(n))
-            return first.isNegative();
-        // first.isNegative() == second.isNegative() except zeros
+            return isNegative;
+        // true: first.isNegative() == second.isNegative() == isNegative
+
         bool isLessVar = true;
         bool isEqual = true;
         bool isResultDefined = false;
         auto iterF = first.crbegin();
         auto iterS = second.crbegin();
+        auto checkHigherPartToZero =
+            [&isLessVar, &isEqual, &isResultDefined] (auto& iter, const int lenHigh, const int lenLow)
+                -> bool
+        {
+            bool partIsZero = true;
+            // must cast all the vars to int because (I don't know)
+            for (int i = 0; i < int(lenHigh) - int(lenLow); i++) {
+                if (*iter != zeroIntegral()) {
+                    partIsZero = false;
+                    isEqual = false;
+                    isResultDefined = true;
+                    break;
+                }
+                iter++;
+            }
+            return isResultDefined ? partIsZero : isLessVar;
+        };
 
-        // lengthFirst - lengthSecond
-        for (int i = 0; i < int(lengthFirst) - int(lengthSecond); i++) {
-            if (*iterF != zeroIntegral()) {
-                isLessVar = false;
-                isEqual = false;
-                isResultDefined = true;
-                break;
-            }
-            iterF++;
-        }
-        // lengthSecond - lengthFirst       // must cast all the vars to int because (I don't know)
-        for (int i = 0; i < int(lengthSecond) - int(lengthFirst); i++) {
-            if (*iterS != zeroIntegral()) {
-                isLessVar = true;
-                isEqual = false;
-                isResultDefined = true;
-                break;
-            }
-            iterS++;
-        }
+        isLessVar = checkHigherPartToZero(iterF, lengthFirst, lengthSecond);
+        if (!isResultDefined)
+            isLessVar = !checkHigherPartToZero(iterS, lengthSecond, lengthFirst);
 
         if (!isResultDefined) {
             for (; iterF != first.crend() && iterS != second.crend(); iterF++, iterS++) {
@@ -288,13 +312,12 @@ private:
                 }
             }
         }
-        return (!isEqual) && ((first.isNegative() && !isLessVar) || (!first.isNegative() && isLessVar));
+        return (!isEqual) && ((isNegative && !isLessVar) || (!isNegative && isLessVar));
     }
 
 public:
     template <LengthType lengthOther>
 	bool operator!= (LongIntegerDecimal<lengthOther> const & other) const {
-        // sign() - O(n) because it contains a comparison with ZERO. O(!=) ~ O(3x equals)
         bool isEqual = true;
         auto iter = cbegin();
         auto iterO = other.cbegin();
@@ -339,6 +362,7 @@ public:
 			std::log(2) / std::log(10) * double(extra::bitsCount<IntegralType>()))); 
 	}
     static constexpr IntegralType integralModulus() { return powDozen<IntegralType>(integralModulusDegree()); }
+    static constexpr size_type maxDigitsCount() { return length() * integralModulusDegree(); }
 
 private:
     static constexpr IntegralType zeroIntegral() { return IntegralType(0); }
@@ -376,23 +400,47 @@ private:
 
 template <LengthType length>
 LongIntegerDecimal<length>::LongIntegerDecimal(string const & numberDecimalStr) : minus_(false) {
-    int last = int(numberDecimalStr.size());
-    int first = cutOffLeftBorder<int>(last - integralModulusDegree(), 0);
-    size_t i = 0;
-    for (; last - first > 0 && i < length(); i++) {
-        // for optimization you need to see the StringView (foly library)
-        auto sub = numberDecimalStr.substr(size_t(first), size_t(last - first));
-        int subInt = std::stoi(sub);
-        if (first <= 0 && subInt < 0)		// it means that this decoded part is last
-            minus_ = true;
-        IntegralType part = static_cast<IntegralType>(std::abs(subInt));
+    checkTemplateParameters();
+    if (numberDecimalStr.length() <= 0)
+        LongIntegerDecimal();
+    else
+        assignString(numberDecimalStr);
+}
 
-        number_[i] = part;
+template <LengthType length>
+void LongIntegerDecimal<length>::assignString(string const& numberDecimalStr) {
+    // TODO: add exception for zero length
+    if (numberDecimalStr.length() > 0) {
+        minus_ = false;
+        std::string_view numStrView = numberDecimalStr;
+        numStrView.remove_prefix(
+            cutOffLeftBorder<int>(0, numStrView.find_first_not_of(" "))
+        );
+        if (numStrView[0] == '-') {
+            numStrView.remove_prefix(1);
+            minus_ = true; 
+        }
+        // round the number by integral modulus
+        numStrView.remove_prefix(
+            cutOffLeftBorder<int>(0, TSigned(numStrView.length()) - TSigned(maxDigitsCount()))
+        );
 
-        last -= integralModulusDegree();
-        first = cutOffLeftBorder<int>(first - integralModulusDegree(), 0);
+        int last = int(numStrView.length());
+        int first = cutOffLeftBorder<int>(last - integralModulusDegree(), 0);
+        size_t i = 0;
+        int subInt;
+
+        for (; last - first > 0 && i < length(); i++) {
+            auto sub = numStrView.substr(size_t(first), size_t(last) - size_t(first));
+            std::from_chars(sub.data(), sub.data() + sub.size(), subInt);
+
+            number_[i] = IntegralType(std::abs(subInt));
+
+            last -= integralModulusDegree();
+            first = cutOffLeftBorder<int>(first - integralModulusDegree(), 0);
+        }
+        std::fill(std::next(begin(), i), end(), zeroIntegral());
     }
-    std::fill(std::next(begin(), i), end(), zeroIntegral());
 }
 
 //------------Arithmetic Operations-------------//
@@ -406,11 +454,10 @@ auto LongIntegerDecimal<length>::operator+=(const_reference other)
     IntegralType remainder = zeroIntegral();
     TSigned sign(1);
     for (size_t i = 0; i < length(); i++) {
-        const TSignedResult doubleTemp = TSignedResult(
-            this->sign() * TSigned((*this)[i])
-            + other.sign() * TSigned(other[i])
-            + sign * TSigned(remainder)
-        );
+        const TSignedResult doubleTemp = 
+            TSignedResult(this->sign()) * (*this)[i]
+            + TSignedResult(other.sign()) * other[i]
+            + TSignedResult(sign) * remainder;
 
         (*this)[i] = IntegralType(std::abs(doubleTemp) % integralModulus());
         remainder = IntegralType(std::abs(doubleTemp) / integralModulus());
@@ -425,6 +472,7 @@ template <LengthType length>
 auto LongIntegerDecimal<length>::divide(const_reference other) const
     -> pair<LongIntegerDecimal, LongIntegerDecimal>
 {
+    // TODO: replace to OneDigitNumber
     const LongIntegerDecimal DEC(10);
     const LongIntegerDecimal ONE(1);
     const LongIntegerDecimal ZERO(0);
@@ -434,8 +482,8 @@ auto LongIntegerDecimal<length>::divide(const_reference other) const
     LongIntegerDecimal dividend(*this);
 
     LongIntegerDecimal modulus(1);
-    // TODO: remove infinite loop
-    for ( ; ; ) {
+    // TODO: replace infinite loop to smth else
+    while(true) {
         divider *= DEC;
         if (divider > dividend)
             break;
@@ -443,13 +491,13 @@ auto LongIntegerDecimal<length>::divide(const_reference other) const
     }
 
     divider.divideByDec();
-    for ( ; dividend >= divider || modulus != ONE; ) {
-        for ( ; dividend >= divider; ) {
+    while(dividend >= divider || modulus != ONE) {
+        while (dividend >= divider) {
             dividend -= divider;
             res += modulus;
         }
 
-        for ( ; modulus != ONE; ) {
+        while (modulus != ONE) {
             divider.divideByDec();
             modulus.divideByDec();
             if (divider <= dividend)
