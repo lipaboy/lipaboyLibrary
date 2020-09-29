@@ -78,7 +78,7 @@ TEST(LongInteger, comparison_different_length) {
 
 	ASSERT_TRUE(first < second);
 
-	first = 0;
+    first = "0";
 	EXPECT_FALSE(first > LongIntegerDecimal<1>(0));
 	EXPECT_FALSE(first < LongIntegerDecimal<1>(0));
 	EXPECT_TRUE(first <= LongIntegerDecimal<1>(0));

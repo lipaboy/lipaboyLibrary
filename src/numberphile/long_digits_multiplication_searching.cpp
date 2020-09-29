@@ -14,15 +14,20 @@ namespace lipaboy_lib::numberphile {
     // https://zen.yandex.ru/media/tehno_chtivo/v-chem-chislo-277777788888899-mirovoi-rekordsmen-5ede6acd9abc2748d3bbf7e2
     //
 
-        // linux: <20, 1e60> - 2 secs, <20, 1e160> - 15 secs, <35, 1e300> - 33 mins
-    // <40, 1e150, 8 ths> - 6,3 secs, <40, 1e200, 8 ths> - 17,5 secs, <50, 1e400, 8ths> - 6,8 mins
+
+
+    // linux: <20, 1e60> - 0,3 secs, <20, 1e160> - 12 secs, <35, 1e300> - 33 mins
+    // <40, 1e150, 8 ths> - 6,3 secs, <40, 1e200, 8 ths> - 12,8 secs, <50, 1e400, 8ths> - 6,8 mins
     // <60, 1e500, 6 ths> - 18,6 mins, <70, 1e600, 6 ths> - 51,6 mins
-    // windows: <20, 1e90> - 2,25 mins (updated), <30, 1e40> - 13 secs (updated)
+    // windows: <20, 1e90> - 2,25 mins, <30, 1e40> - 13 secs
+
+    // 1 Error: <40, 1e200, 8 ths> - 43{7^14}9 - 2 steps but MaxSteps = 11
     void long_digits_multiplication_searching_long_numbers()
     {
-        using IntType = LongIntegerDecimal<70>;
+        #define NUM_THREADS 8
+        using IntType = LongIntegerDecimal<40>;
         // info uint64_t = 64 bit, 10^19 max value, as 7 is max value, then maximum 7^22
-        constexpr int64_t MAX = 600;
+        constexpr int64_t MAX = 200;
         using OneDigitIntType =
             //IntType;
             LongIntegerDecimal<1>;
@@ -54,10 +59,13 @@ namespace lipaboy_lib::numberphile {
 
                 auto curr = nums[iNum];
                 OneDigitIntType remainder;
-                for (int i = 0; curr > ZERO; i++) {
+                for (int i = int(curr.length()) - 1; i >= 0; i--) {
                     // TODO: optimize this one (without division all the number, only parts)
-                    remainder = curr.divideByDec();
-                    nums[iNum + 1] *= remainder;
+
+                    for(auto part = curr[i]; part > 0; part /= 10) {
+                        remainder = part % 10;
+                        nums[iNum + 1] *= remainder;
+                    }
                 }
 
                 if (nums[iNum + 1] < DEC)
@@ -98,7 +106,7 @@ namespace lipaboy_lib::numberphile {
             }
         };
 
-#pragma omp parallel num_threads(6)
+#pragma omp parallel num_threads(NUM_THREADS)
         {
             //cout << omp_get_num_threads() << endl;
             int64_t maxStepsPrivate = 0;
