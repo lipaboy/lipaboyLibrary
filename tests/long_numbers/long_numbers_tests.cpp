@@ -17,11 +17,23 @@ using std::string;
 
 //-----Any system------//
 
-TEST(LongIntegerAnyNumeration, simple) {
-	LongIntegerAnyNumeration<2, 10> first = 5,
+TEST(LongIntegerAnyBase, simple) {
+	LongIntegerAnyBase<2, 10> first = 5,
 		second = 6;
 
-	ASSERT_EQ((first + second).to_string(), "11");
+	EXPECT_EQ((first + second).to_string(), "11");
+
+	LongIntegerAnyBase<2, 3> third = 2,
+		forth = 1;
+
+	EXPECT_EQ((third + forth).to_string(), "10");
+	EXPECT_EQ(third.integralModulusDegree(), 20);
+	EXPECT_EQ(third.integralModulus(), 3486784401);
+
+	third = 2;
+	for (int i = 0; i < 14; i++)
+		third *= LongIntegerAnyBase<2, 3>(2);
+	EXPECT_EQ(third.to_string(), "1122221122");
 }
 
 //-----------Crash-----------//

@@ -66,6 +66,12 @@ namespace lipaboy_lib {
             //    template <size_t val1, size_t val2>
             //    using max = Max<val1, val2>::value;
 
+            template <size_t rank>
+            inline constexpr size_t getIntegralModulusDegree() {
+                return static_cast<size_t>(std::floor(
+                    std::log(2) / std::log(rank) * double(bitsCount<uint32_t>())));
+            }
+
             using LengthType = size_t;
         }
 
@@ -78,7 +84,7 @@ namespace lipaboy_lib {
         template <LengthType lengthOfIntegrals,     // count of integral type variables
             LengthType rankOfSystem             // characteristics of numeral system
             >
-        class LongIntegerAnyNumeration
+        class LongIntegerAnyBase
         {
         public:
             using TIntegral = std::uint32_t;
@@ -98,31 +104,31 @@ namespace lipaboy_lib {
             using const_iterator = typename ContainerType::const_iterator;
             using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-            using reference = LongIntegerAnyNumeration&;
-            using const_reference = const LongIntegerAnyNumeration&;
+            using reference = LongIntegerAnyBase&;
+            using const_reference = const LongIntegerAnyBase&;
             using reference_integral = IntegralType&;
             using const_reference_integral = const IntegralType&;
 
         protected:
-            LongIntegerAnyNumeration(ContainerType const& number, bool minus)
+            LongIntegerAnyBase(ContainerType const& number, bool minus)
                 : number_(number), minus_(minus)
             {}
 
         public:
             // Note: Non-initialized constructor: without filling array by zeroIntegral value.
             explicit
-                LongIntegerAnyNumeration() { checkTemplateParameters(); }
-            LongIntegerAnyNumeration(int small) : minus_(small < 0) {
+                LongIntegerAnyBase() { checkTemplateParameters(); }
+            LongIntegerAnyBase(int small) : minus_(small < 0) {
                 checkTemplateParameters();
                 number_[0] = std::abs(small);
                 std::fill(std::next(begin()), end(), TIntegral(0));
             }
             explicit
-                LongIntegerAnyNumeration(string const& numberDecimalStr);
+                LongIntegerAnyBase(string const& numberDecimalStr);
 
             // TODO: calculate how much copy-constructor was called
-            LongIntegerAnyNumeration operator+(const_reference other) const { 
-                return (LongIntegerAnyNumeration(*this) += other); 
+            LongIntegerAnyBase operator+(const_reference other) const { 
+                return (LongIntegerAnyBase(*this) += other); 
             }
 
             const_reference operator+=(const_reference other);
@@ -130,17 +136,17 @@ namespace lipaboy_lib {
             // TODO: you can optimize it. When inverse operator is called then useless copy will be created.
             const_reference operator-=(const_reference other) { return (*this) += -other; }
 
-            LongIntegerAnyNumeration operator-(const_reference other) const {
-                return (LongIntegerAnyNumeration(*this) += -other);
+            LongIntegerAnyBase operator-(const_reference other) const {
+                return (LongIntegerAnyBase(*this) += -other);
             }
 
-            LongIntegerAnyNumeration operator-() const { return LongIntegerAnyNumeration(number_, !minus_); }
+            LongIntegerAnyBase operator-() const { return LongIntegerAnyBase(number_, !minus_); }
 
             template <LengthType length2>
-            auto operator*(LongIntegerAnyNumeration<length2, rankOfSystem> const& other) const
-                -> LongIntegerAnyNumeration<extra1::Max<lengthOfIntegrals, length2>::value, rankOfSystem >
+            auto operator*(LongIntegerAnyBase<length2, rankOfSystem> const& other) const
+                -> LongIntegerAnyBase<extra1::Max<lengthOfIntegrals, length2>::value, rankOfSystem >
             {
-                using ResultType = LongIntegerAnyNumeration<extra1::Max<lengthOfIntegrals, length2>::value, rank() >;
+                using ResultType = LongIntegerAnyBase<extra1::Max<lengthOfIntegrals, length2>::value, rank() >;
                 ResultType res(0);
                 //		// This chapter has two parts
                 //		// First part. Bisecting the result by two portions: main and overflow ones
@@ -173,12 +179,12 @@ namespace lipaboy_lib {
             }
 
             template <LengthType length2>
-            const_reference operator*=(LongIntegerAnyNumeration<length2, rankOfSystem> const& other) {
+            const_reference operator*=(LongIntegerAnyBase<length2, rankOfSystem> const& other) {
                 (*this) = (*this) * other;
                 return *this;
             }
 
-            LongIntegerAnyNumeration operator/(const_reference other) const {
+            LongIntegerAnyBase operator/(const_reference other) const {
                 return this->divide(other).first;
             }
 
@@ -187,7 +193,7 @@ namespace lipaboy_lib {
                 return *this;
             }
 
-            LongIntegerAnyNumeration operator%(const_reference other) const {
+            LongIntegerAnyBase operator%(const_reference other) const {
                 return this->divide(other).second;
             }
 
@@ -196,7 +202,7 @@ namespace lipaboy_lib {
                 return *this;
             }
 
-            auto divide(const_reference other) const->pair<LongIntegerAnyNumeration, LongIntegerAnyNumeration>;
+            auto divide(const_reference other) const->pair<LongIntegerAnyBase, LongIntegerAnyBase>;
 
             //-------------Converter---------------//
 
@@ -244,11 +250,11 @@ namespace lipaboy_lib {
 
         private:
             template <LengthType lengthFirst, LengthType lengthSecond>
-            bool isLess(LongIntegerAnyNumeration<lengthFirst, rank()> const& first,
-                LongIntegerAnyNumeration<lengthSecond, rank()> const& second) const
+            bool isLess(LongIntegerAnyBase<lengthFirst, rank()> const& first,
+                LongIntegerAnyBase<lengthSecond, rank()> const& second) const
             {
-                using FirstTypeIter = typename LongIntegerAnyNumeration<lengthFirst, rank()>::iterator;
-                using SecondTypeIter = typename LongIntegerAnyNumeration<lengthSecond, rank()>::iterator;
+                using FirstTypeIter = typename LongIntegerAnyBase<lengthFirst, rank()>::iterator;
+                using SecondTypeIter = typename LongIntegerAnyBase<lengthSecond, rank()>::iterator;
 
                 bool isNegative = first.isNegative();
 
@@ -302,7 +308,7 @@ namespace lipaboy_lib {
 
         public:
             template <LengthType lengthOther>
-            bool operator!= (LongIntegerAnyNumeration<lengthOther, rank()> const& other) const {
+            bool operator!= (LongIntegerAnyBase<lengthOther, rank()> const& other) const {
                 bool isEqual = true;
                 auto iter = cbegin();
                 auto iterO = other.cbegin();
@@ -329,24 +335,24 @@ namespace lipaboy_lib {
                 return (sign() != other.sign() || !isEqual);
             }
             template <LengthType lengthOther>
-            bool operator== (LongIntegerAnyNumeration<lengthOther, rank()> const& other) const { return !(*this != other); }
+            bool operator== (LongIntegerAnyBase<lengthOther, rank()> const& other) const { return !(*this != other); }
             template <LengthType lengthOther>
-            bool operator< (LongIntegerAnyNumeration<lengthOther, rank()> const& other) const { return this->isLess(*this, other); }
+            bool operator< (LongIntegerAnyBase<lengthOther, rank()> const& other) const { return this->isLess(*this, other); }
 
             template <LengthType lengthOther>
-            bool operator>= (LongIntegerAnyNumeration<lengthOther, rank()> const& other) const { return !(*this < other); }
+            bool operator>= (LongIntegerAnyBase<lengthOther, rank()> const& other) const { return !(*this < other); }
             template <LengthType lengthOther>
-            bool operator> (LongIntegerAnyNumeration<lengthOther, rank()> const& other) const { return this->isLess(other, *this); }
+            bool operator> (LongIntegerAnyBase<lengthOther, rank()> const& other) const { return this->isLess(other, *this); }
             template <LengthType lengthOther>
-            bool operator<= (LongIntegerAnyNumeration<lengthOther, rank()> const& other) const { return !(*this > other); }
+            bool operator<= (LongIntegerAnyBase<lengthOther, rank()> const& other) const { return !(*this > other); }
 
         public:
             // maximum count decimal digits that can be placed into IntegralType
             static constexpr IntegralType integralModulusDegree() {
                 return static_cast<IntegralType>(std::floor(
-                    std::log(2) / std::log(10) * double(extra1::bitsCount<IntegralType>())));
+                    std::log(2) / std::log(rankOfSystem) * double(extra1::bitsCount<IntegralType>())));
             }
-            static constexpr IntegralType integralModulus() { return powDozen<IntegralType>(integralModulusDegree()); }
+            static constexpr IntegralType integralModulus() { return special::pow<IntegralType, rankOfSystem>(integralModulusDegree()); }
             static constexpr size_type maxDigitsCount() { return length() * integralModulusDegree(); }
 
         private:
@@ -371,7 +377,8 @@ namespace lipaboy_lib {
         private:
             void checkTemplateParameters() {
                 static_assert(lengthOfIntegrals > 0, "Wrong length of LongInteger");
-                static_assert(rankOfSystem > 1, "Wrong numeral system's characteristics of LongIntegerAnyNumeration");  
+                static_assert(rankOfSystem > 1, "Wrong numeral system's characteristics \
+                    of LongIntegerAnyBase");  
             }
 
         private:
@@ -384,18 +391,18 @@ namespace lipaboy_lib {
         //-------------------------------------------------------------//
 
         template <LengthType length, LengthType rank>
-        LongIntegerAnyNumeration<length, rank>::LongIntegerAnyNumeration(string const& numberDecimalStr) 
+        LongIntegerAnyBase<length, rank>::LongIntegerAnyBase(string const& numberDecimalStr) 
             : minus_(false) 
         {
             checkTemplateParameters();
             if (numberDecimalStr.length() <= 0)
-                LongIntegerAnyNumeration();
+                LongIntegerAnyBase();
             else
                 assignString(numberDecimalStr);
         }
 
         template <LengthType length, LengthType rank>
-        void LongIntegerAnyNumeration<length, rank>::assignString(string const& numberDecimalStr) {
+        void LongIntegerAnyBase<length, rank>::assignString(string const& numberDecimalStr) {
             // TODO: add exception for zero length
             if (numberDecimalStr.length() > 0) {
                 minus_ = false;
@@ -433,7 +440,7 @@ namespace lipaboy_lib {
         //------------Arithmetic Operations-------------//
 
         template <LengthType length, LengthType rank>
-        auto LongIntegerAnyNumeration<length, rank>::operator+=(const_reference other)
+        auto LongIntegerAnyBase<length, rank>::operator+=(const_reference other)
             -> const_reference
         {
             // Think_About: maybe std::partial_sum can be useful?
@@ -456,8 +463,8 @@ namespace lipaboy_lib {
         }
 
         template <LengthType length, LengthType rank>
-        auto LongIntegerAnyNumeration<length, rank>::divide(const_reference other) const
-            -> pair<LongIntegerAnyNumeration, LongIntegerAnyNumeration>
+        auto LongIntegerAnyBase<length, rank>::divide(const_reference other) const
+            -> pair<LongIntegerAnyBase, LongIntegerAnyBase>
         {
             // TODO: replace to OneDigitNumber
             const LongIntegerDecimal DEC(10);
@@ -497,7 +504,7 @@ namespace lipaboy_lib {
         }
 
         template <LengthType length, LengthType rank>
-        auto LongIntegerAnyNumeration<length, rank>::divideByDec()
+        auto LongIntegerAnyBase<length, rank>::divideByDec()
             -> IntegralType
         {
             constexpr IntegralType DEC(10);
@@ -515,12 +522,13 @@ namespace lipaboy_lib {
         //----------------------------------------------------------------------------
 
         template <size_t length, LengthType rank>
-        string LongIntegerAnyNumeration<length, rank>::to_string() const {
+        string LongIntegerAnyBase<length, rank>::to_string() const {
             string res = (minus_) ? "-" : "";
             bool isFirstNonZeroMet = false;
+            //constexpr size_t digitsCount = extra1::getIntegralModulusDegree<rank>();
             for (int i = int(length()) - 1; i >= 0; i--) {
                 if (isFirstNonZeroMet || number_[i] != zeroIntegral()) {
-                    string part = std::to_string(number_[i]);
+                    string part = base::intToChars<rank()>(number_[i]);
                     // (integralModulusDegree() - part.size()) cannot be < 0 by the logic of class
                     res += ((!isFirstNonZeroMet) ? ""
                         : string(integralModulusDegree() - part.size(), '0'))
