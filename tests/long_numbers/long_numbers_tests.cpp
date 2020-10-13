@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "long_numbers/long_number.h"
+#include "long_numbers/long_integer_any_numeration.h"
 
 namespace long_numbers_tests {
 
@@ -13,6 +14,15 @@ using namespace long_numbers_space;
 using std::cout;
 using std::endl;
 using std::string;
+
+//-----Any system------//
+
+TEST(LongIntegerAnyNumeration, simple) {
+	LongIntegerAnyNumeration<2, 10> first = 5,
+		second = 6;
+
+	ASSERT_EQ((first + second).to_string(), "11");
+}
 
 //-----------Crash-----------//
 

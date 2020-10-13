@@ -35,6 +35,9 @@ set(LIB_LIPABOY_LIB_SOURCE_FILES
     # Long Numbers
     long_numbers/long_number.h
     long_numbers/long_integer_decimal_view.h
+
+    long_numbers/long_integer_any_numeration.h
+
     # BigUnsigned and BigInteger
     long_numbers/big_integer.cpp
     long_numbers/big_integer.h
