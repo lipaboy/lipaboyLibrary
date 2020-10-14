@@ -4,7 +4,7 @@
 #include <iostream>
 
 #include "long_numbers/long_number.h"
-#include "long_numbers/long_integer_any_numeration.h"
+#include "long_numbers/long_unsigned.h"
 
 namespace long_numbers_tests {
 
