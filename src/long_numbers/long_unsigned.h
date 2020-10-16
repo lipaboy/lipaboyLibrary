@@ -129,13 +129,11 @@ namespace lipaboy_lib {
             const_reference operator+=(const_reference other);
 
             // TODO: you can optimize it. When inverse operator is called then useless copy will be created.
-            const_reference operator-=(const_reference other) { return (*this) += -other; }
+            const_reference operator-=(const_reference other);
 
             LongUnsigned operator-(const_reference other) const {
-                return (LongUnsigned(*this) += -other);
+                return (LongUnsigned(*this) -= other);
             }
-
-            LongUnsigned operator-() const { return LongUnsigned(number_, !minus_); }
 
             template <LengthType length2>
             auto operator*(LongUnsigned<length2> const& other) const
@@ -168,7 +166,6 @@ namespace lipaboy_lib {
                         remainder = IntegralType(doubleTemp / integralModulus());
                     }
                 }
-                res.setSign(sign() * other.sign());
 
                 return res;
             }
@@ -198,6 +195,9 @@ namespace lipaboy_lib {
             }
 
             auto divide(const_reference other) const->pair<LongUnsigned, LongUnsigned>;
+
+            const_reference shiftLeft(unsigned int count);
+            const_reference shiftRight(unsigned int count);
 
             //-------------Converter---------------//
 
@@ -238,7 +238,7 @@ namespace lipaboy_lib {
             }
 
         private:
-            void assignString(string const& numberDecimalStr);
+            void assignString(string const& numberDecimalStr, unsigned int base = 10);
 
             //-------------------------Comparison---------------------------//
 
@@ -249,12 +249,6 @@ namespace lipaboy_lib {
             {
                 using FirstTypeIter = typename LongUnsigned<lengthFirst>::iterator;
                 using SecondTypeIter = typename LongUnsigned<lengthSecond>::iterator;
-
-                bool isNegative = first.isNegative();
-
-                if (first.sign() * second.sign() < TSigned(0))		// #much-costs condition because see sign() -> (O(n))
-                    return isNegative;
-                // true: first.isNegative() == second.isNegative() == isNegative
 
                 bool isLessVar = true;
                 bool isEqual = true;
@@ -297,7 +291,7 @@ namespace lipaboy_lib {
                         }
                     }
                 }
-                return (!isEqual) && ((isNegative && !isLessVar) || (!isNegative && isLessVar));
+                return (!isEqual) && isLessVar;
             }
 
         public:
@@ -326,7 +320,7 @@ namespace lipaboy_lib {
                         }
                     }
                 }
-                return (sign() != other.sign() || !isEqual);
+                return !isEqual;
             }
             template <LengthType lengthOther>
             bool operator== (LongUnsigned<lengthOther> const& other) const { return !(*this != other); }
@@ -342,11 +336,8 @@ namespace lipaboy_lib {
 
         public:
             // maximum count decimal digits that can be placed into IntegralType
-            static constexpr IntegralType integralModulusDegree() {
-                return static_cast<IntegralType>(std::floor(
-                    std::log(2) / std::log(10) * double(extra1::bitsCount<IntegralType>())));
-            }
-            static constexpr IntegralType integralModulus() { return special::pow<IntegralType, 10>(integralModulusDegree()); }
+            static constexpr IntegralType integralModulusDegree() { return extra1::bitsCount<IntegralType>(); }
+            static constexpr ResultIntegralType integralModulus() { return std::numeric_limits<IntegralType>::max(); }
             static constexpr size_type maxDigitsCount() { return length() * integralModulusDegree(); }
 
         private:
@@ -354,7 +345,7 @@ namespace lipaboy_lib {
 
         public:
             // Return the remainder of division by 10
-            IntegralType divideByDec();
+            //IntegralType divideByDec();
 
             // TODO: Make private
         public:
@@ -394,38 +385,41 @@ namespace lipaboy_lib {
         }
 
         template <LengthType length>
-        void LongUnsigned<length>::assignString(string const& numberDecimalStr) {
+        void LongUnsigned<length>::assignString(string const& numberDecimalStr, unsigned int base) {
             // TODO: add exception for zero length
             if (numberDecimalStr.length() > 0) {
-                minus_ = false;
                 std::string_view numStrView = numberDecimalStr;
                 numStrView.remove_prefix(
                     cutOffLeftBorder<int>(0, numStrView.find_first_not_of(" "))
                 );
-                if (numStrView[0] == '-') {
-                    numStrView.remove_prefix(1);
-                    minus_ = true;
-                }
                 // round the number by integral modulus
                 numStrView.remove_prefix(
                     cutOffLeftBorder<int>(0, TSigned(numStrView.length()) - TSigned(maxDigitsCount()))
                 );
 
+                const int integralModulusDegreeOfBase = 
+                    int(std::log(2) / std::log(base) * integralModulusDegree());
                 int last = int(numStrView.length());
-                int first = cutOffLeftBorder<int>(last - integralModulusDegree(), 0);
+                int first = cutOffLeftBorder<int>(last - integralModulusDegreeOfBase, 0);
                 size_t i = 0;
+                LongUnsigned iBase = 1;
                 int subInt;
 
+                std::fill(begin(), end(), zeroIntegral());
                 for (; last - first > 0 && i < length(); i++) {
                     auto sub = numStrView.substr(size_t(first), size_t(last) - size_t(first));
                     std::from_chars(sub.data(), sub.data() + sub.size(), subInt);
 
-                    number_[i] = IntegralType(std::abs(subInt));
+                    subInt = std::abs(subInt);
+                    while (subInt > 0) {
+                        (*this) += LongUnsigned(subInt % base) * iBase;
+                        iBase *= LongUnsigned(base);
+                        subInt /= base;
+                    }
 
-                    last -= integralModulusDegree();
-                    first = cutOffLeftBorder<int>(first - integralModulusDegree(), 0);
+                    last -= integralModulusDegreeOfBase;
+                    first = cutOffLeftBorder<int>(first - integralModulusDegreeOfBase, 0);
                 }
-                std::fill(std::next(begin(), i), end(), zeroIntegral());
             }
         }
 
@@ -440,16 +434,35 @@ namespace lipaboy_lib {
             IntegralType remainder = zeroIntegral();
             TSigned sign(1);
             for (size_t i = 0; i < length(); i++) {
-                const TSignedResult doubleTemp =
-                    TSignedResult(this->sign()) * (*this)[i]
-                    + TSignedResult(other.sign()) * other[i]
-                    + TSignedResult(sign) * remainder;
+                const TIntegralResult doubleTemp =
+                    TIntegralResult((*this)[i])
+                    + TIntegralResult(other[i])
+                    + TIntegralResult(remainder);
 
-                (*this)[i] = IntegralType(std::abs(doubleTemp) % integralModulus());
-                remainder = IntegralType(std::abs(doubleTemp) / integralModulus());
-                sign = extra::sign<TSignedResult, TSigned>(doubleTemp < 0, doubleTemp);
+                (*this)[i] = IntegralType(doubleTemp & integralModulus());
+                remainder = IntegralType(doubleTemp >> integralModulusDegree());
             }
-            this->setSign(sign);
+
+            return *this;
+        }
+
+        template <LengthType length>
+        auto LongUnsigned<length>::operator-=(const_reference other)
+            -> const_reference
+        {
+            // Think_About: maybe std::partial_sum can be useful?
+
+            IntegralType remainder = zeroIntegral();
+            TSigned sign(1);
+            for (size_t i = 0; i < length(); i++) {
+                const TIntegralResult doubleTemp =
+                    TIntegralResult((*this)[i])
+                    - TIntegralResult(other[i])
+                    - TIntegralResult(remainder);
+
+                (*this)[i] = IntegralType(doubleTemp & integralModulus());
+                remainder = IntegralType(doubleTemp >> (2 * integralModulusDegree() - 1));
+            }
 
             return *this;
         }
@@ -459,24 +472,24 @@ namespace lipaboy_lib {
             -> pair<LongUnsigned, LongUnsigned>
         {
             // TODO: replace to OneDigitNumber
-            const LongIntegerDecimal DEC(10);
-            const LongIntegerDecimal ONE(1);
-            const LongIntegerDecimal ZERO(0);
+            const LongUnsigned DEC(10);
+            const LongUnsigned ONE(1);
+            const LongUnsigned ZERO(0);
 
-            LongIntegerDecimal divider(other);
-            LongIntegerDecimal res(0);
-            LongIntegerDecimal dividend(*this);
+            LongUnsigned divider(other);
+            LongUnsigned res(0);
+            LongUnsigned dividend(*this);
 
-            LongIntegerDecimal modulus(1);
+            LongUnsigned modulus(1);
             // TODO: replace infinite loop to smth else
             while (true) {
-                divider *= DEC;
+                divider.shiftLeft(1);
                 if (divider > dividend)
                     break;
-                modulus *= DEC;
+                modulus.shiftLeft(1);
             }
 
-            divider.divideByDec();
+            divider.shiftRight(1);
             while (dividend >= divider || modulus != ONE) {
                 while (dividend >= divider) {
                     dividend -= divider;
@@ -484,8 +497,8 @@ namespace lipaboy_lib {
                 }
 
                 while (modulus != ONE) {
-                    divider.divideByDec();
-                    modulus.divideByDec();
+                    divider.shiftRight(1);
+                    modulus.shiftRight(1);
                     if (divider <= dividend)
                         break;
                 }
@@ -495,7 +508,55 @@ namespace lipaboy_lib {
             return std::make_pair(res, dividend);
         }
 
+        // TODO: test it
         template <LengthType length>
+        auto LongUnsigned<length>::shiftLeft(unsigned int count)
+            -> const_reference
+        {
+            // 1    0    - indices
+            // 1234 5678 - number
+            if (count >= length() * integralModulusDegree()) {
+                *this = 0;
+            }
+            else {
+                auto& current = *this;
+                int blocksShift = count / integralModulusDegree();
+                int bitsShift = count % integralModulusDegree();
+                for (int i = length() - 1; i >= 0; i--) {
+                    auto high = (i - blocksShift < 0) ? 0 : (current[i - blocksShift] << bitsShift);
+                    auto less = (i - blocksShift - 1 < 0) ? 0 : 
+                        (current[i - blocksShift - 1] >> (integralModulusDegree() - bitsShift));
+                    auto res = high | less;
+                    current[i] = res;
+                }
+            }
+            return *this;
+        }
+
+        template <LengthType length>
+        auto LongUnsigned<length>::shiftRight(unsigned int count)
+            -> const_reference
+        {
+            if (count >= length() * integralModulusDegree()) {
+                *this = 0;
+            }
+            else {
+                auto& current = *this;
+                int blocksShift = count / integralModulusDegree();
+                int bitsShift = count % integralModulusDegree();
+                for (size_type i = 0; i < length(); i++) {
+                    auto less = (i + blocksShift >= length()) 
+                        ? 0 : (current[i + blocksShift] >> bitsShift);
+                    auto high = (i + blocksShift + 1 >= length()) 
+                        ? 0 : (current[i + blocksShift + 1] << (integralModulusDegree() - bitsShift));
+                    auto res = high | less;
+                    current[i] = res;
+                }
+            }
+            return *this;
+        }
+
+        /*template <LengthType length>
         auto LongUnsigned<length>::divideByDec()
             -> IntegralType
         {
@@ -508,27 +569,22 @@ namespace lipaboy_lib {
                 remainder = newRemainder;
             }
             return remainder;
-        }
+        }*/
         
 
         //----------------------------------------------------------------------------
 
         template <size_t length>
         string LongUnsigned<length>::to_string(unsigned int base) const {
-            string res = (minus_) ? "-" : "";
-            bool isFirstNonZeroMet = false;
+            string res = "";
+            LongUnsigned temp = *this;
             //constexpr size_t digitsCount = extra1::getIntegralModulusDegree<rank>();
-            for (int i = int(length()) - 1; i >= 0; i--) {
-                if (isFirstNonZeroMet || number_[i] != zeroIntegral()) {
-                    string part = base::intToChars(number_[i], base);
-                    // (integralModulusDegree() - part.size()) cannot be < 0 by the logic of class
-                    res += ((!isFirstNonZeroMet) ? ""
-                        : string(integralModulusDegree() - part.size(), '0'))
-                        + part;
-                    isFirstNonZeroMet = true;
-                }
-            }
-            return (isFirstNonZeroMet) ? res : "0";
+            do {
+                auto pair = temp.divide(LongUnsigned(base));
+                temp = pair.first;
+                res += std::to_string((pair.second)[0]);
+            } while (temp > LongUnsigned<1>(0));
+            return std::string(res.rbegin(), res.rend());
         }
 
         
