@@ -8,10 +8,11 @@ set(TEST_SOURCE
 
 	# Algebra
     common_interfaces/algebra_tests.cpp
+    intervals/interval_tests.cpp
 
 	# Long Numbers
+    long_numbers/long_unsigned_tests.cpp
     long_numbers/long_numbers_tests.cpp
-    intervals/interval_tests.cpp
     long_numbers/big_integer_tests.cpp
     long_numbers/long_numbers_benchmark_tests.cpp
 
