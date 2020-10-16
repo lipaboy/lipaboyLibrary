@@ -44,8 +44,7 @@ namespace lipaboy_lib {
 
 		using StringType = std::string;
 
-		template <size_t base>
-		StringType intToChars(uint32_t number) {
+		inline StringType intToChars(uint32_t number, unsigned int base) {
 			StringType res;
 			int i = 0;
 			while (number > 0) {
