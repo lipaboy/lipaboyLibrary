@@ -8,6 +8,7 @@
 
 #include "stream/stream.h"
 #include "long_numbers/long_number.h"
+#include "extra_tools/maths_tools.h"
 
 namespace lipaboy_lib::numberphile {
 
@@ -18,20 +19,6 @@ namespace lipaboy_lib::numberphile {
     using namespace lipaboy_lib::stream_space;
     using namespace lipaboy_lib::stream_space::operators;
     using lipaboy_lib::long_numbers_space::LongIntegerDecimal;
-
-    namespace special {
-
-    template <typename T, typename IndexType = T, typename ResultType = T>
-    inline ResultType pow(T number, IndexType degree) {
-        ResultType result = static_cast<ResultType>(1);
-        for (IndexType i = static_cast<IndexType>(0); i < degree; i++) {
-            result *= number;
-        }
-        return result;
-    }
-
-    }
-
 
     void long_digits_multiplication_searching_vectors();
 

@@ -253,6 +253,13 @@ public:
         return *this;
     }
 
+    const_reference operator= (int small) {
+        minus_ = (small < 0);
+        number_[0] = std::abs(small);
+        std::fill(std::next(number_.begin()), number_.end(), zeroIntegral());
+        return *this;
+    }
+
 private:
     void assignString(string const& numberDecimalStr);
 
@@ -263,9 +270,6 @@ private:
     bool isLess(LongIntegerDecimal<lengthFirst> const & first, 
                 LongIntegerDecimal<lengthSecond> const & second) const 
     {
-        using FirstTypeIter = typename LongIntegerDecimal<lengthFirst>::iterator;
-        using SecondTypeIter = typename LongIntegerDecimal<lengthSecond>::iterator;
-
         bool isNegative = first.isNegative();
 
         if (first.sign() * second.sign() < TSigned(0))		// #much-costs condition because see sign() -> (O(n))

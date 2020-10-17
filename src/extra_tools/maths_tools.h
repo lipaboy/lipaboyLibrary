@@ -30,7 +30,16 @@ namespace lipaboy_lib {
 					T(1. / value) * pow<T, value>(power + IntegerType(1)))
 				: ((power < IntegerType(1)) ? T(1) : T(value)
 					* pow<T, value>(power - IntegerType(1)));
-		}
+        }
+
+        template <typename T, typename IndexType = T, typename ResultType = T>
+        inline ResultType pow(T number, IndexType degree) {
+            ResultType result = static_cast<ResultType>(1);
+            for (IndexType i = static_cast<IndexType>(0); i < degree; i++) {
+                result *= number;
+            }
+            return result;
+        }
 
 	}
 

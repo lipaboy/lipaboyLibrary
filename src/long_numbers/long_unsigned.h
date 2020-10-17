@@ -113,10 +113,10 @@ namespace lipaboy_lib {
             // Note: Non-initialized constructor: without filling array by zeroIntegral value.
             explicit
                 LongUnsigned() { checkTemplateParameters(); }
-            LongUnsigned(int small) : minus_(small < 0) {
+            LongUnsigned(IntegralType small) {
                 checkTemplateParameters();
-                number_[0] = std::abs(small);
-                std::fill(std::next(begin()), end(), TIntegral(0));
+                number_[0] = small;
+                std::fill(std::next(begin()), end(), zeroIntegral());
             }
             explicit
                 LongUnsigned(string const& numberDecimalStr);
@@ -160,10 +160,10 @@ namespace lipaboy_lib {
                             break;
                         }
 
-                        const TIntegralResult doubleTemp = TIntegralResult((*this)[i]) * other[j] + remainder;
+                        const TIntegralResult dualTemp = TIntegralResult((*this)[i]) * other[j] + remainder;
                         // Detail #2
-                        res[i + j] += IntegralType(doubleTemp % integralModulus());
-                        remainder = IntegralType(doubleTemp / integralModulus());
+                        res[i + j] += IntegralType(dualTemp & integralModulus());
+                        remainder = IntegralType(dualTemp >> integralModulusDegree());
                     }
                 }
 
@@ -234,6 +234,12 @@ namespace lipaboy_lib {
 
             const_reference operator= (string const& numberStr) {
                 this->assignString(numberStr);
+                return *this;
+            }
+
+            const_reference operator= (IntegralType small) {
+                number_[0] = small;
+                std::fill(std::next(number_.begin()), number_.end(), zeroIntegral());
                 return *this;
             }
 
@@ -411,12 +417,14 @@ namespace lipaboy_lib {
                     std::from_chars(sub.data(), sub.data() + sub.size(), subInt);
 
                     subInt = std::abs(subInt);
+                    LongUnsigned jBase = iBase;
                     while (subInt > 0) {
-                        (*this) += LongUnsigned(subInt % base) * iBase;
-                        iBase *= LongUnsigned(base);
+                        (*this) += LongUnsigned(subInt % base) * jBase;
+                        jBase *= LongUnsigned(base);
                         subInt /= base;
                     }
 
+                    iBase *= special::pow<LongUnsigned<1>, int, LongUnsigned>(LongUnsigned<1>(base), last - first);
                     last -= integralModulusDegreeOfBase;
                     first = cutOffLeftBorder<int>(first - integralModulusDegreeOfBase, 0);
                 }
@@ -434,13 +442,13 @@ namespace lipaboy_lib {
             IntegralType remainder = zeroIntegral();
             TSigned sign(1);
             for (size_t i = 0; i < length(); i++) {
-                const TIntegralResult doubleTemp =
+                const TIntegralResult dualTemp =
                     TIntegralResult((*this)[i])
                     + TIntegralResult(other[i])
                     + TIntegralResult(remainder);
 
-                (*this)[i] = IntegralType(doubleTemp & integralModulus());
-                remainder = IntegralType(doubleTemp >> integralModulusDegree());
+                (*this)[i] = IntegralType(dualTemp & integralModulus());
+                remainder = IntegralType(dualTemp >> integralModulusDegree());
             }
 
             return *this;
@@ -455,13 +463,13 @@ namespace lipaboy_lib {
             IntegralType remainder = zeroIntegral();
             TSigned sign(1);
             for (size_t i = 0; i < length(); i++) {
-                const TIntegralResult doubleTemp =
+                const TIntegralResult dualTemp =
                     TIntegralResult((*this)[i])
                     - TIntegralResult(other[i])
                     - TIntegralResult(remainder);
 
-                (*this)[i] = IntegralType(doubleTemp & integralModulus());
-                remainder = IntegralType(doubleTemp >> (2 * integralModulusDegree() - 1));
+                (*this)[i] = IntegralType(dualTemp & integralModulus());
+                remainder = IntegralType(dualTemp >> (2 * integralModulusDegree() - 1));
             }
 
             return *this;

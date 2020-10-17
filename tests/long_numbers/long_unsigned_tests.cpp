@@ -17,7 +17,7 @@ namespace long_numbers_tests {
 	//-----Any system------//
 
 	TEST(LongUnsigned, simple) {
-		LongUnsigned<2> null = 4;
+        LongUnsigned<2> null = 4u;
 		null.shiftLeft(1);
 		EXPECT_EQ(null, LongUnsigned<2>(8));
 
@@ -40,6 +40,9 @@ namespace long_numbers_tests {
 		EXPECT_EQ(first.to_string(), "2000000000");
 		first *= LongUnsigned<2>(4);
 		EXPECT_EQ(first.to_string(), "8000000000");
+        first -= LongUnsigned<2>(1);
+        first /= LongUnsigned<2>(4);
+        EXPECT_EQ(first.to_string(), "1999999999");
 
 		first = "789100000200";
 		EXPECT_EQ(first.to_string(), "789100000200");
@@ -146,110 +149,110 @@ namespace long_numbers_tests {
 		ASSERT_EQ(num1, num2);
 	}
 
-	////---------Operator/ checking-----------//
+    //---------Operator/ checking-----------//
 
-	//TEST(LongUnsigned, division_double) {
-	//	LongUnsigned<2> num3("200200");
-	//	LongUnsigned<2> num4("200200");
+    TEST(LongUnsigned, division_double) {
+        LongUnsigned<2> num3("200200");
+        LongUnsigned<2> num4("200200");
 
-	//	EXPECT_EQ((num3 / num4).to_string(), "1");
+        EXPECT_EQ((num3 / num4).to_string(), "1");
 
-	//	num3 *= num4;
+        num3 *= num4;
 
-	//	EXPECT_EQ((num3 / num4).to_string(), "200200");
-	//}
+        EXPECT_EQ((num3 / num4).to_string(), "200200");
+    }
 
-	////---------Operator% checking-----------//
+    //---------Operator% checking-----------//
 
-	//TEST(LongUnsigned, remainder_double) {
-	//	LongUnsigned<2> num3("200201");
-	//	LongUnsigned<2> num4("200200");
+    TEST(LongUnsigned, remainder_double) {
+        LongUnsigned<2> num3("200201");
+        LongUnsigned<2> num4("200200");
 
-	//	EXPECT_EQ((num3 % num4).to_string(), "1");
+        EXPECT_EQ((num3 % num4).to_string(), "1");
 
-	//	num3 *= num4;
+        num3 *= num4;
 
-	//	EXPECT_EQ((num3 % num4).to_string(), "0");
-	//}
+        EXPECT_EQ((num3 % num4).to_string(), "0");
+    }
 
-	////---------Operator* checking-----------//
+    //---------Operator* checking-----------//
 
-	//TEST(LongUnsigned, multiplication_by_different_lengths) {
-	//	LongUnsigned<1> num1("2");
-	//	LongUnsigned<4> num2("10000010000");
+    TEST(LongUnsigned, multiplication_by_different_lengths) {
+        LongUnsigned<1> num1("2");
+        LongUnsigned<4> num2("10000010000");
 
-	//	EXPECT_EQ((num1 * num2).to_string(), "20000020000");
+        EXPECT_EQ((num1 * num2).to_string(), "20000020000");
 
-	//	LongUnsigned<4> num3("2");
-	//	LongUnsigned<4> num4("10000010000");
+        LongUnsigned<4> num3("2");
+        LongUnsigned<4> num4("10000010000");
 
-	//	for (int i = 0; i < 25; i++) {
-	//		num2 *= num1;
-	//		num4 *= num3;
-	//	}
-	//	ASSERT_EQ(num2.to_string(), num4.to_string());
-	//}
+        for (int i = 0; i < 25; i++) {
+            num2 *= num1;
+            num4 *= num3;
+        }
+        ASSERT_EQ(num2.to_string(), num4.to_string());
+    }
 
-	//TEST(LongUnsigned, multiplication_double_rank_by_independent_parts) {
-	//	LongUnsigned<2> num3("200200");
-	//	LongUnsigned<2> num4("200200");
+    TEST(LongUnsigned, multiplication_double_rank_by_independent_parts) {
+        LongUnsigned<2> num3("200200");
+        LongUnsigned<2> num4("200200");
 
-	//	EXPECT_EQ((num3 * num4).to_string(), "40080040000");
+        EXPECT_EQ((num3 * num4).to_string(), "40080040000");
 
-	//	num3 *= num4;
+        num3 *= num4;
 
-	//	EXPECT_EQ(num3.to_string(), "40080040000");
+        EXPECT_EQ(num3.to_string(), "40080040000");
 
-	//	LongUnsigned<1> num5("10");
-	//	EXPECT_EQ((num4 * num5).to_string(), "2002000");
-	//}
+        LongUnsigned<1> num5("10");
+        EXPECT_EQ((num4 * num5).to_string(), "2002000");
+    }
 
-	//TEST(LongUnsigned, multiplication_simple) {
-	//	LongUnsigned<1> num1("2");
-	//	LongUnsigned<1> num2("2");
+    TEST(LongUnsigned, multiplication_simple) {
+        LongUnsigned<1> num1("2");
+        LongUnsigned<1> num2("2");
 
-	//	ASSERT_EQ((num1 * num2).to_string(), "4");
+        ASSERT_EQ((num1 * num2).to_string(), "4");
 
-	//	LongUnsigned<2> num3("200000");
-	//	LongUnsigned<2> num4("200000");
+        LongUnsigned<2> num3("200000");
+        LongUnsigned<2> num4("200000");
 
-	//	EXPECT_EQ((num3 * num4).to_string(), "40000000000");
-	//}
+        EXPECT_EQ((num3 * num4).to_string(), "40000000000");
+    }
 
-	////---------Operator+ checking-----------//
+    //---------Operator+ checking-----------//
 
-	//TEST(LongUnsigned, sum_triple_rank_simple) {
-	//	LongUnsigned<3> num1("22000000789100000200");
-	//	LongUnsigned<3> num2("23000000111901000001");
+    TEST(LongUnsigned, sum_triple_rank_simple) {
+        LongUnsigned<3> num1("22000000789100000200");
+        LongUnsigned<3> num2("23000000111901000001");
 
-	//	ASSERT_EQ("45000000901001000201", (num1 + num2).to_string());
-	//	ASSERT_EQ("45000000901001000201", (num2 + num1).to_string());
-	//}
+        ASSERT_EQ("45000000901001000201", (num1 + num2).to_string());
+        ASSERT_EQ("45000000901001000201", (num2 + num1).to_string());
+    }
 
 
-	//TEST(LongUnsigned, sum_double_rank_by_crossing_parts) {
-	//	LongUnsigned<2> num1("789100000200");
-	//	LongUnsigned<2> num2("111901000001");
+    TEST(LongUnsigned, sum_double_rank_by_crossing_parts) {
+        LongUnsigned<2> num1("789100000200");
+        LongUnsigned<2> num2("111901000001");
 
-	//	ASSERT_EQ("901001000201", (num1 + num2).to_string());
-	//	ASSERT_EQ("901001000201", (num2 + num1).to_string());
-	//	/*interesting::Summarize<2, 0>::sum(num1, num2, 0);
-	//	ASSERT_EQ("901001000201", (num1).to_string());*/
-	//}
+        ASSERT_EQ("901001000201", (num1 + num2).to_string());
+        ASSERT_EQ("901001000201", (num2 + num1).to_string());
+        /*interesting::Summarize<2, 0>::sum(num1, num2, 0);
+        ASSERT_EQ("901001000201", (num1).to_string());*/
+    }
 
-	//TEST(LongUnsigned, sum_double_rank_by_independent_parts) {
-	//	LongUnsigned<2> num1("789100000200");
-	//	LongUnsigned<2> num2("111001000001");
+    TEST(LongUnsigned, sum_double_rank_by_independent_parts) {
+        LongUnsigned<2> num1("789100000200");
+        LongUnsigned<2> num2("111001000001");
 
-	//	ASSERT_EQ("900101000201", (num1 + num2).to_string());
-	//}
+        ASSERT_EQ("900101000201", (num1 + num2).to_string());
+    }
 
-	//TEST(LongUnsigned, sum_single_rank) {
-	//	LongUnsigned<1> num1("100000200");
-	//	LongUnsigned<1> num2("  1000001");
+    TEST(LongUnsigned, sum_single_rank) {
+        LongUnsigned<1> num1("100000200");
+        LongUnsigned<1> num2("  1000001");
 
-	//	ASSERT_EQ("101000201", (num1 + num2).to_string());
-	//}
+        ASSERT_EQ("101000201", (num1 + num2).to_string());
+    }
 
 
 }
