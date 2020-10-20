@@ -236,8 +236,6 @@ namespace long_numbers_tests {
 
         ASSERT_EQ("901001000201", (num1 + num2).to_string());
         ASSERT_EQ("901001000201", (num2 + num1).to_string());
-        /*interesting::Summarize<2, 0>::sum(num1, num2, 0);
-        ASSERT_EQ("901001000201", (num1).to_string());*/
     }
 
     TEST(LongUnsigned, sum_double_rank_by_independent_parts) {

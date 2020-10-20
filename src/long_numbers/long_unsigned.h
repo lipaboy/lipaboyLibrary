@@ -46,16 +46,10 @@ namespace lipaboy_lib {
 
         ////////////////////////////////////////////////////////////////////////////////////////
 
-        namespace extra1 {
+        namespace extra {
 
             template <class TWord>
             inline constexpr size_t bitsCount() { return sizeof(TWord) * 8; }
-
-            template <class TWord, class TSign>
-            TSign sign(bool isNegative, TWord const& word) {
-                return (isNegative * TSign(-1) + !isNegative * TSign(1))
-                    * (word != TWord(0));
-            }
 
             //////////////////////////////////////////////////////////////////////////////////
             template <size_t val1, size_t val2>
@@ -63,17 +57,11 @@ namespace lipaboy_lib {
                 static constexpr size_t value = (val1 < val2) ? val2 : val1;
             };
 
-            template <size_t rank>
-            inline constexpr size_t getIntegralModulusDegree() {
-                return static_cast<size_t>(std::floor(
-                    std::log(2) / std::log(rank) * double(bitsCount<uint32_t>())));
-            }
-
             using LengthType = size_t;
         }
 
 
-        using extra1::LengthType;
+        using extra::LengthType;
 
         // Requirements: 
         // 1) TIntegral and TResult must be unsigned.
@@ -86,7 +74,7 @@ namespace lipaboy_lib {
             using TIntegralResult = std::uint64_t;
             using TSigned = std::int32_t;
             using TSignedResult = std::int64_t;
-            using LengthType = extra1::LengthType;
+            using LengthType = extra::LengthType;
             using size_type = size_t;
 
             using IntegralType =
@@ -105,8 +93,8 @@ namespace lipaboy_lib {
             using const_reference_integral = const IntegralType&;
 
         protected:
-            LongUnsigned(ContainerType const& number, bool minus)
-                : number_(number), minus_(minus)
+            LongUnsigned(ContainerType const& number)
+                : number_(number)
             {}
 
         public:
@@ -137,9 +125,9 @@ namespace lipaboy_lib {
 
             template <LengthType length2>
             auto operator*(LongUnsigned<length2> const& other) const
-                -> LongUnsigned<extra1::Max<lengthOfIntegrals, length2>::value >
+                -> LongUnsigned<extra::Max<lengthOfIntegrals, length2>::value >
             {
-                using ResultType = LongUnsigned<extra1::Max<lengthOfIntegrals, length2>::value >;
+                using ResultType = LongUnsigned<extra::Max<lengthOfIntegrals, length2>::value >;
                 ResultType res(0);
                 //		// This chapter has two parts
                 //		// First part. Bisecting the result by two portions: main and overflow ones
@@ -207,18 +195,6 @@ namespace lipaboy_lib {
 
             static constexpr LengthType length() { return lengthOfIntegrals; }
 
-            // O(N) algorithm because there is comparison for word
-            // sign() - #much-costs operation because it compares *this with zero number
-            TSigned sign() const {
-                return (minus_ * TSigned(-1) + !minus_ * TSigned(1))
-                    * (!isZero());
-            }
-            void setSign(TSigned sign) { minus_ = sign < 0; }
-            // O(N)
-            bool isNegative() const { return sign() < TSigned(0); }
-            // O(N)
-            bool isPositive() const { return sign() > TSigned(0); }
-            // O(N)
             bool isZero() const {
                 for (auto iter = cbegin(); iter != cend(); iter++)
                     if (*iter != zeroIntegral())
@@ -342,16 +318,12 @@ namespace lipaboy_lib {
 
         public:
             // maximum count decimal digits that can be placed into IntegralType
-            static constexpr IntegralType integralModulusDegree() { return extra1::bitsCount<IntegralType>(); }
+            static constexpr IntegralType integralModulusDegree() { return extra::bitsCount<IntegralType>(); }
             static constexpr ResultIntegralType integralModulus() { return std::numeric_limits<IntegralType>::max(); }
             static constexpr size_type maxDigitsCount() { return length() * integralModulusDegree(); }
 
         private:
             static constexpr IntegralType zeroIntegral() { return IntegralType(0); }
-
-        public:
-            // Return the remainder of division by 10
-            //IntegralType divideByDec();
 
             // TODO: Make private
         public:
@@ -373,15 +345,12 @@ namespace lipaboy_lib {
         private:
             // if index is increased then rank is increased
             array<IntegralType, lengthOfIntegrals> number_;
-            bool minus_;
-
         };
 
         //-------------------------------------------------------------//
 
         template <LengthType length>
         LongUnsigned<length>::LongUnsigned(string const& numberDecimalStr) 
-            : minus_(false) 
         {
             checkTemplateParameters();
             if (numberDecimalStr.length() <= 0)
@@ -586,7 +555,7 @@ namespace lipaboy_lib {
         string LongUnsigned<length>::to_string(unsigned int base) const {
             string res = "";
             LongUnsigned temp = *this;
-            //constexpr size_t digitsCount = extra1::getIntegralModulusDegree<rank>();
+            //constexpr size_t digitsCount = extra::getIntegralModulusDegree<rank>();
             do {
                 auto pair = temp.divide(LongUnsigned(base));
                 temp = pair.first;
