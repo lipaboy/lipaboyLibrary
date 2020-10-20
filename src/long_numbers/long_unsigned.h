@@ -467,31 +467,40 @@ namespace lipaboy_lib {
             -> pair<LongUnsigned, LongUnsigned>
         {
             // TODO: replace to OneDigitNumber
-            const LongUnsigned DEC(10);
-            const LongUnsigned ONE(1);
-            const LongUnsigned ZERO(0);
+            const LongUnsigned<1> DEC(10);
+            const LongUnsigned<1> ONE(1);
+            const LongUnsigned<1> ZERO(0);
 
-            LongUnsigned divider(other);
-            LongUnsigned res(0);
+#ifdef _DEBUG
+            // TODO: replace to throw exception
+            if (other == ZERO) {
+                std::cerr << "Runtime Error (LongUnsigned): division by zero" << std::endl;
+                exit(1);
+            }
+#endif
+
+            LongUnsigned quotient(0);
             LongUnsigned dividend(*this);
-
+            LongUnsigned divider(other);
             LongUnsigned modulus(1);
 
-            //auto bitpos = dividend.majorBitPosition();
+            int dividendMajorBit = dividend.majorBitPosition().value_or(0);
+            int dividerMajorBit = divider.majorBitPosition().value_or(0);
 
-            // TODO: replace to finding the major bit
-            while (true) {
-                divider.shiftLeft(1);
-                if (divider > dividend)
-                    break;
-                modulus.shiftLeft(1);
+            int diff = dividendMajorBit - dividerMajorBit;
+            if (diff > 0) {
+                divider.shiftLeft(diff);
+                modulus.shiftLeft(diff);
+                if (divider > dividend) {
+                    divider.shiftRight(1);
+                    modulus.shiftRight(1);
+                }
             }
 
-            divider.shiftRight(1);
             while (dividend >= divider || modulus != ONE) {
                 while (dividend >= divider) {
                     dividend -= divider;
-                    res += modulus;
+                    quotient += modulus;
                 }
 
                 while (modulus != ONE) {
@@ -503,7 +512,7 @@ namespace lipaboy_lib {
             }
             // dividend - it is equal to remainder of division
 
-            return std::make_pair(res, dividend);
+            return std::make_pair(quotient, dividend);
         }
 
         // TODO: test it

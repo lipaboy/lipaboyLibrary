@@ -152,28 +152,58 @@ namespace long_numbers_tests {
     //---------Operator/ checking-----------//
 
     TEST(LongUnsigned, division_double) {
-        LongUnsigned<2> num3("200200");
-        LongUnsigned<2> num4("200200");
+        LongUnsigned<2> first("200200");
+        LongUnsigned<2> second("200200");
 
-        EXPECT_EQ((num3 / num4).to_string(), "1");
+        EXPECT_EQ((first / second).to_string(), "1");
 
-        num3 *= num4;
+		first *= second;
 
-        EXPECT_EQ((num3 / num4).to_string(), "200200");
+        EXPECT_EQ((first / second).to_string(), "200200");
     }
+
+	TEST(LongUnsigned, division_single) {
+		LongUnsigned<2> first("1");
+		LongUnsigned<2> second("200200");
+
+		EXPECT_EQ((first / second).to_string(), "0");
+
+		first *= second;
+
+		EXPECT_EQ((first / second).to_string(), "1");
+	}
+
+	TEST(LongUnsigned, division_filled_number) {
+		LongUnsigned<2> first(2);
+		LongUnsigned<2> second(6);
+
+		first -= second;
+		ASSERT_NO_THROW(first / LongUnsigned<2>(10));
+
+		first = LongUnsigned<2>(0) - LongUnsigned<2>(1);
+		first /= (first - LongUnsigned<2>(1));
+		ASSERT_EQ(first.to_string(), "1");
+	}
 
     //---------Operator% checking-----------//
 
     TEST(LongUnsigned, remainder_double) {
-        LongUnsigned<2> num3("200201");
-        LongUnsigned<2> num4("200200");
+        LongUnsigned<2> first("200201");
+        LongUnsigned<2> second("200200");
 
-        EXPECT_EQ((num3 % num4).to_string(), "1");
+        EXPECT_EQ((first % second).to_string(), "1");
 
-        num3 *= num4;
+		first *= second;
 
-        EXPECT_EQ((num3 % num4).to_string(), "0");
+        EXPECT_EQ((first % second).to_string(), "0");
     }
+
+	TEST(LongUnsigned, remainder_filled_number) {
+		LongUnsigned<2> first(0);
+		first -= LongUnsigned<2>(1);
+		first %= (first - LongUnsigned<2>(1));
+		ASSERT_EQ(first.to_string(), "1");
+	}
 
     //---------Operator* checking-----------//
 
@@ -221,14 +251,12 @@ namespace long_numbers_tests {
 
 	//---------Operator- checking-----------//
 
-	//TEST(LongUnsigned, check) {
-	//	LongUnsigned<2> first(std::numeric_limits<uint32_t>::max() + 3u);
-	//	LongUnsigned<2> second(6);
+	TEST(LongUnsigned, substract_overflow) {
+		LongUnsigned<2> first(2);
+		LongUnsigned<2> second(6);
 
-	//	first -= second;
-	//	first.divide(LongUnsigned<2>(10));
-	//	ASSERT_TRUE(false);
-	//}
+		ASSERT_NO_THROW(first -= second);
+	}
 
 	TEST(LongUnsigned, substract_double_rank) {
 		LongUnsigned<2> first (std::numeric_limits<uint32_t>::max());
