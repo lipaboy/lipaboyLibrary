@@ -221,6 +221,15 @@ namespace long_numbers_tests {
 
     //---------Operator+ checking-----------//
 
+	TEST(LongUnsigned, sum_different_length) {
+		LongUnsigned<2> first (std::numeric_limits<uint32_t>::max() - 3);
+		LongUnsigned<1> second("6");
+
+		first += second;
+		ASSERT_EQ(std::to_string(uint64_t(std::numeric_limits<uint32_t>::max()) + uint64_t(3u)), 
+			first.to_string());
+	}
+
     TEST(LongUnsigned, sum_triple_rank_simple) {
         LongUnsigned<3> num1("22000000789100000200");
         LongUnsigned<3> num2("23000000111901000001");

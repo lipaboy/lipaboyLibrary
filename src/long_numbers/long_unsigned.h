@@ -30,6 +30,9 @@ namespace lipaboy_lib {
         // PLAN
         // ----
         // See LongIntegerDecimal
+        // 1) Write new Algebra with another realization: instead of use method 'getNumber()'
+        //      for wrapper class you need to cast the primary type to wrapper class.
+        //      Like: (*this) + LongUnsigned(value)
 
         using std::array;
         using std::string;
@@ -114,7 +117,29 @@ namespace lipaboy_lib {
                 return (LongUnsigned(*this) += other); 
             }
 
-            const_reference operator+=(const_reference other);
+            template <LengthType length2>
+            auto operator+=(LongUnsigned<length2> const & other)
+                -> const_reference
+            {
+                constexpr auto MIN_LENGTH = std::min(lengthOfIntegrals, length2);
+                IntegralType remainder = zeroIntegral();
+                TSigned sign(1);
+                size_t i = 0;
+                for (; i < MIN_LENGTH; i++) {
+                    const TIntegralResult dualTemp =
+                        TIntegralResult((*this)[i])
+                        + TIntegralResult(other[i])
+                        + TIntegralResult(remainder);
+
+                    (*this)[i] = IntegralType(dualTemp & integralModulus());
+                    remainder = IntegralType(dualTemp >> integralModulusDegree());
+                }
+                if constexpr (length() > MIN_LENGTH) {
+                    (*this)[i] = remainder;
+                }
+
+                return *this;
+            }
 
             // TODO: you can optimize it. When inverse operator is called then useless copy will be created.
             const_reference operator-=(const_reference other);
@@ -227,7 +252,7 @@ namespace lipaboy_lib {
         private:
             template <LengthType lengthFirst, LengthType lengthSecond>
             bool isLess(LongUnsigned<lengthFirst> const& first,
-                LongUnsigned<lengthSecond> const& second) const
+                        LongUnsigned<lengthSecond> const& second) const
             {
                 using FirstTypeIter = typename LongUnsigned<lengthFirst>::iterator;
                 using SecondTypeIter = typename LongUnsigned<lengthSecond>::iterator;
@@ -403,27 +428,6 @@ namespace lipaboy_lib {
         //------------Arithmetic Operations-------------//
 
         template <LengthType length>
-        auto LongUnsigned<length>::operator+=(const_reference other)
-            -> const_reference
-        {
-            // Think_About: maybe std::partial_sum can be useful?
-
-            IntegralType remainder = zeroIntegral();
-            TSigned sign(1);
-            for (size_t i = 0; i < length(); i++) {
-                const TIntegralResult dualTemp =
-                    TIntegralResult((*this)[i])
-                    + TIntegralResult(other[i])
-                    + TIntegralResult(remainder);
-
-                (*this)[i] = IntegralType(dualTemp & integralModulus());
-                remainder = IntegralType(dualTemp >> integralModulusDegree());
-            }
-
-            return *this;
-        }
-
-        template <LengthType length>
         auto LongUnsigned<length>::operator-=(const_reference other)
             -> const_reference
         {
@@ -564,7 +568,7 @@ namespace lipaboy_lib {
             return std::string(res.rbegin(), res.rend());
         }
 
-        
+
 
 
     }
