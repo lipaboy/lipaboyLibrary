@@ -219,11 +219,37 @@ namespace long_numbers_tests {
         EXPECT_EQ((num3 * num4).to_string(), "40000000000");
     }
 
+	//---------Operator- checking-----------//
+
+	//TEST(LongUnsigned, check) {
+	//	LongUnsigned<2> first(std::numeric_limits<uint32_t>::max() + 3u);
+	//	LongUnsigned<2> second(6);
+
+	//	first -= second;
+	//	first.divide(LongUnsigned<2>(10));
+	//	ASSERT_TRUE(false);
+	//}
+
+	TEST(LongUnsigned, substract_double_rank) {
+		LongUnsigned<2> first (std::numeric_limits<uint32_t>::max());
+		LongUnsigned<2> second(6);
+		first += LongUnsigned<2>(3);
+		ASSERT_EQ(std::to_string(std::numeric_limits<uint32_t>::max() - 3u), 
+			(first - second).to_string());
+	}
+
+	TEST(LongUnsigned, substract_single_rank) {
+		LongUnsigned<1> first ("101000200");
+		LongUnsigned<1> second("  1000001");
+
+		ASSERT_EQ("100000199", (first - second).to_string());
+	}
+
     //---------Operator+ checking-----------//
 
 	TEST(LongUnsigned, sum_different_length) {
 		LongUnsigned<2> first (std::numeric_limits<uint32_t>::max() - 3);
-		LongUnsigned<1> second("6");
+		LongUnsigned<1> second(6);
 
 		first += second;
 		ASSERT_EQ(std::to_string(uint64_t(std::numeric_limits<uint32_t>::max()) + uint64_t(3u)), 
@@ -261,6 +287,45 @@ namespace long_numbers_tests {
         ASSERT_EQ("101000201", (num1 + num2).to_string());
     }
 
+	//---------Operator shift-----------//
+
+	TEST(LongUnsigned, shift_single_rank) {
+		LongUnsigned<1> first("100000200");
+		first.shiftLeft(1);
+		ASSERT_EQ("200000400", first.to_string());
+		first.shiftRight(1);
+		ASSERT_EQ("100000200", first.to_string());
+	}
+
+	TEST(LongUnsigned, shift_double_rank) {
+		LongUnsigned<2> first("1000002000");
+		first.shiftLeft(3);
+		ASSERT_EQ("8000016000", first.to_string());
+		first.shiftRight(3);
+		ASSERT_EQ("1000002000", first.to_string());
+	}
+
+	//---------Other-----------//
+
+	TEST(LongUnsigned, major_bit_position_single_rank) {
+		LongUnsigned<1> first(std::numeric_limits<uint32_t>::max());
+		EXPECT_EQ(8 * sizeof(typename LongUnsigned<1>::IntegralType) - 1, first.majorBitPosition());
+		first.shiftRight(1);
+		EXPECT_EQ(8 * sizeof(typename LongUnsigned<1>::IntegralType) - 2, first.majorBitPosition());
+	}
+
+	TEST(LongUnsigned, major_bit_position_double_rank) {
+		LongUnsigned<2> first(std::numeric_limits<uint32_t>::max());
+		first.shiftLeft(1);
+		EXPECT_EQ(8 * sizeof(typename LongUnsigned<2>::IntegralType), first.majorBitPosition().value());
+		first.shiftRight(1);
+		EXPECT_EQ(8 * sizeof(typename LongUnsigned<2>::IntegralType) - 1, first.majorBitPosition().value());
+
+		first = 0;
+		EXPECT_FALSE(first.majorBitPosition().has_value());
+		first += LongUnsigned<2>(1);
+		EXPECT_EQ(0, first.majorBitPosition().value());
+	}
 
 }
 

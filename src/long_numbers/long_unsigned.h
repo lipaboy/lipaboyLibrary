@@ -9,6 +9,7 @@
 #include <string>
 #include <cmath>
 #include <tuple>
+#include <optional>
 
 #include <string_view>
 #include <charconv>
@@ -123,7 +124,6 @@ namespace lipaboy_lib {
             {
                 constexpr auto MIN_LENGTH = std::min(lengthOfIntegrals, length2);
                 IntegralType remainder = zeroIntegral();
-                TSigned sign(1);
                 size_t i = 0;
                 for (; i < MIN_LENGTH; i++) {
                     const TIntegralResult dualTemp =
@@ -142,7 +142,24 @@ namespace lipaboy_lib {
             }
 
             // TODO: you can optimize it. When inverse operator is called then useless copy will be created.
-            const_reference operator-=(const_reference other);
+            template <LengthType length2>
+            auto operator-=(LongUnsigned<length2> const& other)
+                -> const_reference
+            {
+                constexpr auto MIN_LENGTH = std::min(lengthOfIntegrals, length2);
+                IntegralType remainder = zeroIntegral();
+                for (size_t i = 0; i < MIN_LENGTH; i++) {
+                    const TIntegralResult dualTemp =
+                        TIntegralResult((*this)[i])
+                        - TIntegralResult(other[i])
+                        - TIntegralResult(remainder);
+
+                    (*this)[i] = IntegralType(dualTemp & integralModulus());
+                    remainder = IntegralType(dualTemp >> (2 * integralModulusDegree() - 1));
+                }
+
+                return *this;
+            }
 
             LongUnsigned operator-(const_reference other) const {
                 return (LongUnsigned(*this) -= other);
@@ -342,6 +359,24 @@ namespace lipaboy_lib {
             bool operator<= (LongUnsigned<lengthOther> const& other) const { return !(*this > other); }
 
         public:
+            auto majorBitPosition() const 
+                -> std::optional<size_type>
+            {
+                for (int i = int(length()) - 1; i >= 0; i--) {
+                    auto curr = (*this)[i];
+                    if (curr > 0) {
+                        size_type bitpos = 0;
+                        while (curr > 0) {
+                            curr >>= 1;
+                            bitpos++;
+                        }
+                        return (bitpos - 1) + i * 8 * sizeof(IntegralType);
+                    }
+                }
+                return std::nullopt;
+            }
+
+        public:
             // maximum count decimal digits that can be placed into IntegralType
             static constexpr IntegralType integralModulusDegree() { return extra::bitsCount<IntegralType>(); }
             static constexpr ResultIntegralType integralModulus() { return std::numeric_limits<IntegralType>::max(); }
@@ -428,27 +463,6 @@ namespace lipaboy_lib {
         //------------Arithmetic Operations-------------//
 
         template <LengthType length>
-        auto LongUnsigned<length>::operator-=(const_reference other)
-            -> const_reference
-        {
-            // Think_About: maybe std::partial_sum can be useful?
-
-            IntegralType remainder = zeroIntegral();
-            TSigned sign(1);
-            for (size_t i = 0; i < length(); i++) {
-                const TIntegralResult dualTemp =
-                    TIntegralResult((*this)[i])
-                    - TIntegralResult(other[i])
-                    - TIntegralResult(remainder);
-
-                (*this)[i] = IntegralType(dualTemp & integralModulus());
-                remainder = IntegralType(dualTemp >> (2 * integralModulusDegree() - 1));
-            }
-
-            return *this;
-        }
-
-        template <LengthType length>
         auto LongUnsigned<length>::divide(const_reference other) const
             -> pair<LongUnsigned, LongUnsigned>
         {
@@ -462,7 +476,10 @@ namespace lipaboy_lib {
             LongUnsigned dividend(*this);
 
             LongUnsigned modulus(1);
-            // TODO: replace infinite loop to smth else
+
+            //auto bitpos = dividend.majorBitPosition();
+
+            // TODO: replace to finding the major bit
             while (true) {
                 divider.shiftLeft(1);
                 if (divider > dividend)
