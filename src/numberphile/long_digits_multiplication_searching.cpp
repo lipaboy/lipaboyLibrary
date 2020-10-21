@@ -1,7 +1,10 @@
 #include <omp.h>
 #include <iterator>
+#include <cmath>
+#include <fstream>
 
 #include "long_digits_multiplication_searching.h"
+#include "stream/stream.h"
 
 namespace lipaboy_lib::numberphile {
 
@@ -22,7 +25,7 @@ namespace lipaboy_lib::numberphile {
     // <60, 1e500, 6 ths> - 18,6 mins, <70, 1e600, 6 ths> - 51,6 mins
     // windows: <20, 1e90> - 2,25 mins, <30, 1e40> - 13 secs
 
-    // 1 Error (3 times happened): <40, 1e200, 8 ths> - 43{7^14}9 - 2 steps but MaxSteps = 11
+    // Error (3 times happened): <40, 1e200, 8 ths> - 43{7^14}9 - 2 steps but MaxSteps = 11
     // 43777777777777779 - 11 steps (actually 2)
     // 8777779999999999 - 11 steps (actually 2)
     // 288888877777799 - 11 steps (actually 11)
@@ -214,6 +217,46 @@ namespace lipaboy_lib::numberphile {
 
     }
 
+
+    void long_digits_multiplication_searching_factorization() {
+
+        using stream_space::Stream;
+        using namespace stream_space::operators;
+
+        // find all the primes numbers till sqrt(998888887777772)
+
+        using ContainerOfPrimes = vector<uint64_t>;
+        ContainerOfPrimes primes;
+        double big = 998888887777772.;
+
+        //uint64_t bigRoot = uint64_t(std::sqrt(big));
+        ////cout << bigRoot << endl;
+        //primes.resize(bigRoot);
+        //for (int i = 0; i < int(primes.size()); i++)
+        //    primes[i] = i;
+
+        //// sieve of Eratosthenes 
+
+        //for (uint64_t i = 2; i < uint64_t(primes.size() / 2); i++) {
+        //    if (primes[i] > 0) {
+        //        for (uint64_t j = i * i; j < uint64_t(primes.size()); j += i) {
+        //            primes[j] = 0;
+        //        }
+        //    }
+        //}
+
+        //std::ofstream outFile;
+        //outFile.open("primes.dat");
+        //Stream(primes) 
+        //    | skip(2) 
+        //    | filter([](auto i) { return i > 0; }) 
+        //    | print_to(outFile, " ");
+
+        //outFile.close();
+
+
+
+    }
 
     //==============================================================//
     //============        Other algorithms           ===============//
