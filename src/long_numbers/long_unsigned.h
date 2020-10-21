@@ -114,7 +114,8 @@ namespace lipaboy_lib {
                 LongUnsigned(string const& numberDecimalStr);
 
             // TODO: calculate how much copy-constructor was called
-            LongUnsigned operator+(const_reference other) const { 
+            template <LengthType length2>
+            LongUnsigned operator+(LongUnsigned<length2> const& other) const {
                 return (LongUnsigned(*this) += other); 
             }
 
@@ -150,6 +151,11 @@ namespace lipaboy_lib {
 
             // TODO: you can optimize it. When inverse operator is called then useless copy will be created.
             template <LengthType length2>
+            LongUnsigned operator-(LongUnsigned<length2> const& other) const {
+                return (LongUnsigned(*this) -= other);
+            }
+
+            template <LengthType length2>
             auto operator-=(LongUnsigned<length2> const& other)
                 -> const_reference
             {
@@ -177,10 +183,6 @@ namespace lipaboy_lib {
                 }
 
                 return *this;
-            }
-
-            LongUnsigned operator-(const_reference other) const {
-                return (LongUnsigned(*this) -= other);
             }
 
             template <LengthType length2>

@@ -297,6 +297,7 @@ namespace long_numbers_tests {
 		first -= second;
 		first += second;
 		EXPECT_EQ("1" + string(2 * first.integralModulusDegree(), '0'), first.to_string(2));
+		EXPECT_EQ("1" + string(2 * first.integralModulusDegree(), '0'), ((first - second) + second).to_string(2));
 	}
 
     TEST(LongUnsigned, sum_triple_rank_simple) {
