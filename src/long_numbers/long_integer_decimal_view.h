@@ -8,7 +8,7 @@ namespace lipaboy_lib::long_numbers_space {
 
 using std::array;
 
-namespace extra {
+namespace extra2 {
 
 template <class TWord, class TSign>
 TSign sign(bool isNegative, TWord const & word);
@@ -79,7 +79,7 @@ auto LongIntegerDecimalView<len>::operator+(LongIntegerDecimalView const & other
 
         result = IntegralType(std::abs(doubleTemp) % ViewingType::integralModulus());
         remainder = IntegralType(std::abs(doubleTemp) / ViewingType::integralModulus());
-        sign = extra::sign<TSignedResult, TSigned>(doubleTemp < 0, doubleTemp);
+        sign = extra2::sign<TSignedResult, TSigned>(doubleTemp < 0, doubleTemp);
     }
     result.setSign(sign);
 

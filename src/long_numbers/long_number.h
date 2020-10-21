@@ -57,7 +57,7 @@ using lipaboy_lib::ComparatorExtender;
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-namespace extra {
+namespace extra2 {
 
 	template <class TWord>
 	inline constexpr size_t bitsCount() { return sizeof(TWord) * 8; }
@@ -83,7 +83,7 @@ namespace extra {
 }
 
 
-using extra::LengthType;
+using extra2::LengthType;
 
 
 // Requirements: 
@@ -98,7 +98,7 @@ public:
     using TIntegralResult = std::uint64_t;
 	using TSigned = std::int32_t;
 	using TSignedResult = std::int64_t;
-    using LengthType = extra::LengthType;
+    using LengthType = extra2::LengthType;
     using size_type = size_t;
 
     using IntegralType =
@@ -149,9 +149,9 @@ public:
 
     template <LengthType length2>
     auto operator*(LongIntegerDecimal<length2> const & other) const
-        -> LongIntegerDecimal<extra::Max<lengthOfIntegrals, length2>::value >
+        -> LongIntegerDecimal<extra2::Max<lengthOfIntegrals, length2>::value >
     {
-        using ResultType = LongIntegerDecimal<extra::Max<lengthOfIntegrals, length2>::value >;
+        using ResultType = LongIntegerDecimal<extra2::Max<lengthOfIntegrals, length2>::value >;
         ResultType res(0);
         //		// This chapter has two parts
         //		// First part. Bisecting the result by two portions: main and overflow ones
@@ -210,7 +210,7 @@ public:
     auto divide(const_reference other) const -> pair<LongIntegerDecimal, LongIntegerDecimal>;
 
     LongIntegerDecimal multiplyByKaracuba(LongIntegerDecimal const & other) {
-        auto res = extra::multiplyByKaracuba_<length()>(*this, other);
+        auto res = extra2::multiplyByKaracuba_<length()>(*this, other);
         res.setSign(sign() * other.sign());
         return res;
     }
@@ -253,6 +253,13 @@ public:
         return *this;
     }
 
+    const_reference operator= (int small) {
+        minus_ = (small < 0);
+        number_[0] = std::abs(small);
+        std::fill(std::next(number_.begin()), number_.end(), zeroIntegral());
+        return *this;
+    }
+
 private:
     void assignString(string const& numberDecimalStr);
 
@@ -263,9 +270,6 @@ private:
     bool isLess(LongIntegerDecimal<lengthFirst> const & first, 
                 LongIntegerDecimal<lengthSecond> const & second) const 
     {
-        using FirstTypeIter = typename LongIntegerDecimal<lengthFirst>::iterator;
-        using SecondTypeIter = typename LongIntegerDecimal<lengthSecond>::iterator;
-
         bool isNegative = first.isNegative();
 
         if (first.sign() * second.sign() < TSigned(0))		// #much-costs condition because see sign() -> (O(n))
@@ -360,7 +364,7 @@ public:
     // maximum count decimal digits that can be placed into IntegralType
     static constexpr IntegralType integralModulusDegree() {
 		return static_cast<IntegralType>(std::floor(
-			std::log(2) / std::log(10) * double(extra::bitsCount<IntegralType>()))); 
+			std::log(2) / std::log(10) * double(extra2::bitsCount<IntegralType>()))); 
 	}
     static constexpr IntegralType integralModulus() { return powDozen<IntegralType>(integralModulusDegree()); }
     static constexpr size_type maxDigitsCount() { return length() * integralModulusDegree(); }
@@ -462,7 +466,7 @@ auto LongIntegerDecimal<length>::operator+=(const_reference other)
 
         (*this)[i] = IntegralType(std::abs(doubleTemp) % integralModulus());
         remainder = IntegralType(std::abs(doubleTemp) / integralModulus());
-        sign = extra::sign<TSignedResult, TSigned>(doubleTemp < 0, doubleTemp);
+        sign = extra2::sign<TSignedResult, TSigned>(doubleTemp < 0, doubleTemp);
     }
     this->setSign(sign);
 
@@ -532,7 +536,7 @@ auto LongIntegerDecimal<length>::divideByDec()
 // Have a error
 
 template <size_t len>
-LongIntegerDecimal<len> extra::multiplyByKaracuba_(LongIntegerDecimalView<len> first, 
+LongIntegerDecimal<len> extra2::multiplyByKaracuba_(LongIntegerDecimalView<len> first, 
     LongIntegerDecimalView<len> second) {
     using LongNumberT = LongIntegerDecimal<len>;
     using LongNumberTView = LongIntegerDecimalView<len>;

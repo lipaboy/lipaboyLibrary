@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "long_numbers/big_integer_library.h"
+#include "long_numbers/big_integer/big_integer_library.h"
 
 #include <string>
 #include <iostream>
