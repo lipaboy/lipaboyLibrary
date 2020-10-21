@@ -251,6 +251,14 @@ namespace long_numbers_tests {
 
 	//---------Operator- checking-----------//
 
+	TEST(LongUnsigned, substract_different_rank) {
+		LongUnsigned<3> first(1);
+		LongUnsigned<1> second(1);
+		first.shiftLeft(first.integralModulusDegree() * 3 - 1);
+		first -= second;
+		ASSERT_EQ(string(first.integralModulusDegree() * 3 - 1, '1'), first.to_string(2));
+	}
+
 	TEST(LongUnsigned, substract_overflow) {
 		LongUnsigned<2> first(2);
 		LongUnsigned<2> second(6);
@@ -331,6 +339,12 @@ namespace long_numbers_tests {
 		ASSERT_EQ("8000016000", first.to_string());
 		first.shiftRight(3);
 		ASSERT_EQ("1000002000", first.to_string());
+	}
+
+	TEST(LongUnsigned, shift_triple_rank) {
+		LongUnsigned<3> first(2);
+		first.shiftLeft(32);
+		EXPECT_EQ("2" + string(first.integralModulusDegree() / 2, '0'), first.to_string(4));
 	}
 
 	//---------Other-----------//

@@ -135,7 +135,14 @@ namespace lipaboy_lib {
                     remainder = IntegralType(dualTemp >> integralModulusDegree());
                 }
                 if constexpr (length() > MIN_LENGTH) {
-                    (*this)[i] = remainder;
+                    for (; i < length(); i++) {
+                        const TIntegralResult dualTemp =
+                            TIntegralResult((*this)[i])
+                            + TIntegralResult(remainder);
+
+                        (*this)[i] = IntegralType(dualTemp & integralModulus());
+                        remainder = IntegralType(dualTemp >> integralModulusDegree());
+                    }
                 }
 
                 return *this;
@@ -148,7 +155,8 @@ namespace lipaboy_lib {
             {
                 constexpr auto MIN_LENGTH = std::min(lengthOfIntegrals, length2);
                 IntegralType remainder = zeroIntegral();
-                for (size_t i = 0; i < MIN_LENGTH; i++) {
+                size_t i = 0;
+                for (; i < MIN_LENGTH; i++) {
                     const TIntegralResult dualTemp =
                         TIntegralResult((*this)[i])
                         - TIntegralResult(other[i])
@@ -156,6 +164,16 @@ namespace lipaboy_lib {
 
                     (*this)[i] = IntegralType(dualTemp & integralModulus());
                     remainder = IntegralType(dualTemp >> (2 * integralModulusDegree() - 1));
+                }
+                if constexpr (length() > MIN_LENGTH) {
+                    for (; i < length(); i++) {
+                        const TIntegralResult dualTemp =
+                            TIntegralResult((*this)[i])
+                            - TIntegralResult(remainder);
+
+                        (*this)[i] = IntegralType(dualTemp & integralModulus());
+                        remainder = IntegralType(dualTemp >> (2 * integralModulusDegree() - 1));
+                    }
                 }
 
                 return *this;
@@ -532,7 +550,9 @@ namespace lipaboy_lib {
                 for (int i = length() - 1; i >= 0; i--) {
                     auto high = (i - blocksShift < 0) ? 0 : (current[i - blocksShift] << bitsShift);
                     auto less = (i - blocksShift - 1 < 0) ? 0 : 
-                        (current[i - blocksShift - 1] >> (integralModulusDegree() - bitsShift));
+                        ((current[i - blocksShift - 1] >> (integralModulusDegree() - bitsShift - 1))
+                            >> 1);      // INFO: this crutch must be because you cannot shift uint32_t >> 32 bits
+                                        //       only 0 to 31.
                     auto res = high | less;
                     current[i] = res;
                 }
@@ -585,11 +605,16 @@ namespace lipaboy_lib {
         string LongUnsigned<length>::to_string(unsigned int base) const {
             string res = "";
             LongUnsigned temp = *this;
+            int i = 0;
             //constexpr size_t digitsCount = extra::getIntegralModulusDegree<rank>();
             do {
+                if (i == 61) {
+                    cout << "kek";
+                }
                 auto pair = temp.divide(LongUnsigned(base));
                 temp = pair.first;
                 res += std::to_string((pair.second)[0]);
+                i++;
             } while (temp > LongUnsigned<1>(0));
             return std::string(res.rbegin(), res.rend());
         }
