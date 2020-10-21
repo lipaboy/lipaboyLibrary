@@ -219,18 +219,18 @@ namespace lipaboy_lib::numberphile {
 
 
     void long_digits_multiplication_searching_factorization() {
-
         using stream_space::Stream;
         using namespace stream_space::operators;
+
+        auto startTime = extra::getCurrentTime();
 
         // find all the primes numbers till sqrt(998888887777772)
 
         using ContainerOfPrimes = vector<uint64_t>;
-        ContainerOfPrimes primes;
+        //ContainerOfPrimes primes;
         double big = 998888887777772.;
 
         //uint64_t bigRoot = uint64_t(std::sqrt(big));
-        ////cout << bigRoot << endl;
         //primes.resize(bigRoot);
         //for (int i = 0; i < int(primes.size()); i++)
         //    primes[i] = i;
@@ -245,17 +245,107 @@ namespace lipaboy_lib::numberphile {
         //    }
         //}
 
-        //std::ofstream outFile;
-        //outFile.open("primes.dat");
-        //Stream(primes) 
-        //    | skip(2) 
-        //    | filter([](auto i) { return i > 0; }) 
-        //    | print_to(outFile, " ");
+        //primes = Stream(primes)
+        //    | skip(2)
+        //    | filter([](auto i) { return i > 0; })
+        //    | to_vector();
 
-        //outFile.close();
+        //cout << "Time elapsed of sieves: " << extra::diffFromNow(startTime) << endl;
+        //startTime = extra::getCurrentTime();
+
+        //uint64_t number = uint64_t(big);
+        //for (auto& i : primes) {
+        //    if (number % i == 0) {
+        //        cout << i << " ";
+        //        number /= i;
+        //        if (number <= i)
+        //            break;
+        //    }
+        //}
+        //cout << number << endl;
+        //cout << "Time elapsed of factorization: " << extra::diffFromNow(startTime) << endl;
 
 
+        int64_t number = 
+            // 277777788888899;
+            //12777; // 5! / 3!
+            // 122333333777777;
+            // 1099511627776;
+            // 1277777788888899;
+            // 11277777788888899;
+            // 2247777778888899;
+            // 22227777778888899;
+            // 222224777777888899;
+               222233777777888889;
+        auto getDigit = [&number](int index) -> int
+        {
+            auto temp = number / powDozen<int64_t>(index);
+            return temp % 10;
+        }; 
+        auto setDigit = [&number, &getDigit](int index, int digit) -> void
+        {
+            auto old = getDigit(index);
+            number = number + int64_t(digit - old) * powDozen<int64_t>(index);
+        };
+        constexpr std::array<int, 4> primes{ 2, 3, 5, 7 };
+        auto checkFact = [&number, &primes]() {
+            auto temp = number;
+            for (int k = 0; k < primes.size(); k++) {
+                while (temp % primes[k] == 0) {
+                    temp /= primes[k];
+                }
+            }
+            if (temp < 10) {
+                cout << number << endl;
+            }
+        };
 
+        //cout << number << endl;
+        int64_t counter = 1;
+        int64_t limit = int64_t(1e8);
+        int length = int(std::log(number * 1.) / std::log(10.)) + 1;
+
+        checkFact();
+        for (int i = 0; i < length - 1; ) {
+            int right = getDigit(i);
+            int left = getDigit(i + 1);
+            if (left < right) {
+                int next;
+                int j = 0;
+                for (; j < length; j++) {
+                    next = getDigit(j);
+                    if (next > left)
+                        break;
+                }
+                //swap
+                setDigit(i + 1, next);
+                setDigit(j, left);
+                for (int k = 0; k < (i + 1) / 2; k++) {
+                    int first = getDigit(k);
+                    int second = getDigit(i - k);
+                    setDigit(k, second);
+                    setDigit(i - k, first);
+                }
+                i = 0;
+                //cout << number << endl;
+                counter++;
+                if (counter > limit) {
+                    int64_t newLimit;
+                    cout << "Time elapsed of factorization: " << extra::diffFromNow(startTime) << endl;
+                    cout << "continue: ";
+                    std::cin >> newLimit;
+                    if (newLimit <= 0)
+                        break;
+                    limit += powDozen<int64_t>(newLimit);
+                    auto startTime = extra::getCurrentTime();
+                }
+
+                checkFact();
+            }
+            else
+                i++;
+        }
+        cout << "counter: " << counter << endl;
     }
 
     //==============================================================//
