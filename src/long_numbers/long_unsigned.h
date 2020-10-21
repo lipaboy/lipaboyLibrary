@@ -546,7 +546,7 @@ namespace lipaboy_lib {
             else {
                 auto& current = *this;
                 int blocksShift = count / integralModulusDegree();
-                int bitsShift = count % integralModulusDegree();
+                int bitsShift = count % integralModulusDegree();    // 0 to 31
                 for (int i = length() - 1; i >= 0; i--) {
                     auto high = (i - blocksShift < 0) ? 0 : (current[i - blocksShift] << bitsShift);
                     auto less = (i - blocksShift - 1 < 0) ? 0 : 
@@ -570,12 +570,14 @@ namespace lipaboy_lib {
             else {
                 auto& current = *this;
                 int blocksShift = count / integralModulusDegree();
-                int bitsShift = count % integralModulusDegree();
+                int bitsShift = count % integralModulusDegree();    // 0 to 31
                 for (size_type i = 0; i < length(); i++) {
                     auto less = (i + blocksShift >= length()) 
                         ? 0 : (current[i + blocksShift] >> bitsShift);
                     auto high = (i + blocksShift + 1 >= length()) 
-                        ? 0 : (current[i + blocksShift + 1] << (integralModulusDegree() - bitsShift));
+                        ? 0 : ((current[i + blocksShift + 1] << (integralModulusDegree() - bitsShift - 1))
+                            << 1);      // INFO: this crutch must be because you cannot shift uint32_t << 32 bits
+                                        //       only 0 to 31.
                     auto res = high | less;
                     current[i] = res;
                 }

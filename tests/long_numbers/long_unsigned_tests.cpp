@@ -284,12 +284,19 @@ namespace long_numbers_tests {
     //---------Operator+ checking-----------//
 
 	TEST(LongUnsigned, sum_different_length) {
-		LongUnsigned<2> first (std::numeric_limits<uint32_t>::max() - 3);
+		LongUnsigned<3> first (std::numeric_limits<uint32_t>::max() - 3);
 		LongUnsigned<1> second(6);
 
 		first += second;
-		ASSERT_EQ(std::to_string(uint64_t(std::numeric_limits<uint32_t>::max()) + uint64_t(3u)), 
+		EXPECT_EQ(std::to_string(uint64_t(std::numeric_limits<uint32_t>::max()) + uint64_t(3u)), 
 			first.to_string());
+
+		first = LongUnsigned<3>(1);
+		second = LongUnsigned<1>(1);
+		first.shiftLeft(2 * first.integralModulusDegree());
+		first -= second;
+		first += second;
+		EXPECT_EQ("1" + string(2 * first.integralModulusDegree(), '0'), first.to_string(2));
 	}
 
     TEST(LongUnsigned, sum_triple_rank_simple) {
@@ -343,8 +350,10 @@ namespace long_numbers_tests {
 
 	TEST(LongUnsigned, shift_triple_rank) {
 		LongUnsigned<3> first(2);
-		first.shiftLeft(32);
+		first.shiftLeft(first.integralModulusDegree());
 		EXPECT_EQ("2" + string(first.integralModulusDegree() / 2, '0'), first.to_string(4));
+		first.shiftRight(first.integralModulusDegree());
+		EXPECT_EQ("2", first.to_string(4));
 	}
 
 	//---------Other-----------//
