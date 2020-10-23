@@ -59,6 +59,8 @@ endfunction()
 enable_cxx_compiler_flag_if_supported("-std=c++17")
 #enable_cxx_compiler_flag_if_supported("-Woverflow=off")
 
+set_directory_properties(PROPERTIES COMPILE_DEFINITIONS_DEBUG "_DEBUG")
+
 if (WIN32)
     if (MSVC_VERSION GREATER_EQUAL "1900")
         include(CheckCXXCompilerFlag)

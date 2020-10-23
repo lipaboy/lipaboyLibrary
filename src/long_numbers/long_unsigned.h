@@ -491,11 +491,10 @@ namespace lipaboy_lib {
             const LongUnsigned<1> ONE(1);
             const LongUnsigned<1> ZERO(0);
 
-#ifdef _DEBUG
+#if (defined(WIN32) && defined(DEBUG_)) || (defined(__linux__) && !defined(NDEBUG))
             // TODO: replace to throw exception
             if (other == ZERO) {
-                std::cerr << "Runtime Error (LongUnsigned): division by zero" << std::endl;
-                exit(1);
+                throw std::runtime_error("Runtime Error (LongUnsigned): division by zero");
             }
 #endif
 

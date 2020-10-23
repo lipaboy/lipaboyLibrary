@@ -50,6 +50,12 @@ namespace long_numbers_tests {
 
 	//-----------Crash-----------//
 
+#if (defined(WIN32) && defined(DEBUG_)) || (defined(__linux__) && !defined(NDEBUG))
+    TEST(LongUnsigned, division_by_zero) {
+        ASSERT_ANY_THROW(LongUnsigned<1>(1) / LongUnsigned<1>(0));
+    }
+#endif
+
 	TEST(LongUnsigned, overflow) {
 		ASSERT_NO_THROW(LongUnsigned<1> num1("789100000200"));
 	}
