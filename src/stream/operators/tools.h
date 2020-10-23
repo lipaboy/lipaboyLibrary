@@ -138,34 +138,6 @@ namespace lipaboy_lib {
 
 		}
 
-		namespace shortening {
-
-			//---------------StreamTypeExtender---------------//
-
-			template <class TStream, class TOperator>
-			struct StreamTypeExtender {
-				using type = typename std::remove_reference_t<TStream>::
-					template ExtendedStreamType<std::remove_reference_t<TOperator> >;
-			};
-
-			/*template <class TIterator>
-			struct StreamTypeExtender<void, TIterator> {
-			using type = Stream<TIterator>;
-			};*/
-
-			template <class TStream, class TOperator>
-			using StreamTypeExtender_t = typename StreamTypeExtender<TStream, TOperator>::type;
-
-			template <class TStream, class TOperator>
-			struct TerminatedOperatorTypeApply {
-                using type = std::remove_reference_t<TOperator>;
-			};
-
-			template <class TStream, class TOperator>
-			using TerminatedOperatorTypeApply_t = 
-				typename TerminatedOperatorTypeApply<TStream, TOperator>::type;
-		}
-
 	}
 
 }

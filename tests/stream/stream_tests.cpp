@@ -38,6 +38,32 @@ using namespace lipaboy_lib::stream_space::operators;
 
 //-------------------------------------//
 
+TEST(StreamTest, paired_stream_diff_types) {
+    vector<int> vec = {4, 5, 6};
+    auto first = Stream({1, 2, 3});
+    auto second = Stream(vec);
+    auto vec2 = to_pair(first, second) | to_vector();
+    int i = 0;
+    for (auto &elem : vec2) {
+        EXPECT_EQ(elem.first, i + 1);
+        EXPECT_EQ(elem.second, i + 4);
+        i++;
+    }
+}
+
+TEST(StreamTest, paired_stream_same_types) {
+    // Cannot do it
+//    auto first = Stream({1, 2, 3});
+//    auto second = Stream({4, 5, 6});
+//    auto vec2 = to_pair(first, second) | to_vector();
+//    int i = 0;
+//    for (auto &elem : vec2) {
+//        EXPECT_EQ(elem.first, i + 1);
+//        EXPECT_EQ(elem.second, i + 4);
+//        i++;
+//    }
+}
+
 
 //----------Constructor-----------//
 

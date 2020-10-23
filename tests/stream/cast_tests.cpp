@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <cmath>
 
 #include <gtest/gtest.h>
 
@@ -80,8 +81,7 @@ namespace stream_tests {
 				return -5;
 			}
 		};
-		
-		int a = 0;
+
 		auto res = Stream([]() { return std::make_shared<B>(); })
 			| cast_to<shared_ptr<A> >()
 			| get(3)
@@ -111,7 +111,7 @@ namespace stream_tests {
 
 		double a = 0.;
 		Stream([&a]() { return a++; })
-			| map(static_cast<double (*)(double)>(&std::floor))
+            | map(static_cast<double (*)(double)>(&std::floor))
 			| get(3)
 			| sum();
 

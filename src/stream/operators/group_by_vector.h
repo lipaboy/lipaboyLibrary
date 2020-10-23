@@ -14,10 +14,7 @@ namespace lipaboy_lib {
 		namespace operators {
 
 			using std::vector;
-			using std::shared_ptr;
-
-			using std::cout;
-			using std::endl;
+            using std::shared_ptr;
 
 			using lipaboy_lib::function_traits;
 

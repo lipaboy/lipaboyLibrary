@@ -1,6 +1,7 @@
 #pragma once
 
 #include "tools.h"
+#include "stream/extenders.h"
 
 #include <memory>
 

@@ -31,7 +31,7 @@ namespace lipaboy_lib {
 			using OperatorType = TOperator;
 			using SubType = StreamBase<Rest...>;
 			using ConstSubType = const SubType;
-			using iterator = typename SubType::outside_iterator;
+            using outside_iterator = typename SubType::outside_iterator;
 			using SubTypePtr = SubType * ;
 			using ConstSubTypePtr = const SubType *;
 			using ValueType = typename SubType::ValueType;
@@ -41,6 +41,9 @@ namespace lipaboy_lib {
 		public:
 			template <class Functor>
 			using ExtendedStreamType = StreamBase<Functor, OperatorType, Rest...>;
+
+//            template <class Functor>
+//            using PairExtendedStreamType = StreamPairedBase<Functor, OperatorType, Rest...>;
 
 			using ResultValueType = typename TOperator::template RetType<
 				typename SubType::ResultValueType>;

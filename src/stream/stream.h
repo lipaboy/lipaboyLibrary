@@ -1,8 +1,13 @@
 #pragma once
 
 #include "operators/operators.h"
+
+#include "stream_paired.h"
 #include "stream_extended.h"
 #include "stream_base.h"
+#include "to_pair.h"
+#include "extenders.h"
+
 #include "extra_tools/initializer_list_iterator.h"
 #include "extra_tools/producing_iterator.h"
 
