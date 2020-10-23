@@ -18,6 +18,9 @@ namespace lipaboy_lib::stream_space {
 
     using operators::get;
 
+    // PLAN:
+    //  1) replace inheritance to aggregation
+
     //-----------------Stream Extended class----------------------//
 
     template <class TOperator, class FirstSuperStream, class SecondSuperStream>
