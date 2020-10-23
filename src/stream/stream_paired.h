@@ -20,6 +20,7 @@ namespace lipaboy_lib::stream_space {
 
     // PLAN:
     //  1) replace inheritance to aggregation
+    //  2) remove StreamPairedBase and create operator that will storage the second stream into it own.
 
     //-----------------Stream Extended class----------------------//
 
