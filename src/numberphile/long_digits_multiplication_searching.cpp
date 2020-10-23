@@ -12,7 +12,7 @@ namespace lipaboy_lib::numberphile {
     //
     // 437799 - 7 steps (22 3 3333 77)
     // 248883999 - 9 steps
-    //
+    // 3778888999 - 10 steps
     // 288888877777799  - 11 steps of digit-multiplications
     //
     // https://zen.yandex.ru/media/tehno_chtivo/v-chem-chislo-277777788888899-mirovoi-rekordsmen-5ede6acd9abc2748d3bbf7e2
@@ -29,13 +29,14 @@ namespace lipaboy_lib::numberphile {
     // 43777777777777779 - 11 steps (actually 2)
     // 8777779999999999 - 11 steps (actually 2)
     // 288888877777799 - 11 steps (actually 11)
+    // 34888999        - cannot find (actually 9)
 
     void long_digits_multiplication_searching_long_numbers()
     {
-        #define NUM_THREADS 1
-        using IntType = LongIntegerDecimal<20>;
+        #define NUM_THREADS 6
+        using IntType = LongIntegerDecimal<40>;
         // info uint64_t = 64 bit, 10^19 max value, as 7 is max value, then maximum 7^22
-        constexpr int64_t MAX = 60;
+        constexpr int64_t MAX = 200;
         using OneDigitIntType =
             //IntType;
             LongIntegerDecimal<1>;
@@ -48,6 +49,8 @@ namespace lipaboy_lib::numberphile {
         nums.fill(IntType(1));
         int64_t maxSteps = 0;
         IntType maxNumber(1);
+        vector<int64_t> maxStepsVec;
+        vector<IntType> maxNumberVec;
 
         vector<int64_t> stepsStat(13, 0);
 
@@ -60,30 +63,10 @@ namespace lipaboy_lib::numberphile {
 
         auto updateMaxSteps = [&ZERO, &DEC, &stepsStat](int64_t twos,
             int64_t threes, int64_t fives, int64_t sevens,
-            int64_t& maxSteps, IntType& maxNumber, TArray& nums)
+            int64_t& maxSteps, IntType& maxNumber, TArray& nums,
+            auto& maxStepsVec, auto& maxNumberVec)
         {
-            // TODO: need optimization!
-            int64_t iNum = 0;
-            for (; ; iNum++) {
-                nums[iNum + 1] = IntType(1);
-
-                auto curr = nums[iNum];
-                OneDigitIntType remainder;
-                for (int i = int(curr.length()) - 1; i >= 0; i--) {
-                    for(auto part = curr[i]; part > 0; part /= 10) {
-                        remainder = part % 10;
-                        nums[iNum + 1] *= remainder;
-                    }
-                }
-
-                if (nums[iNum + 1] < DEC)
-                    break;
-            }
-
-            ++stepsStat[iNum + 2];
-
-            if (maxSteps <= iNum + 2) {
-                maxSteps = iNum + 2;
+            auto convertToNumber = [&] () {
                 maxNumber = IntType(0);
                 for (int64_t i = 0; i < twos % 2; i++) {
                     maxNumber *= IntType(10);
@@ -113,6 +96,35 @@ namespace lipaboy_lib::numberphile {
                     maxNumber *= IntType(10);
                     maxNumber += IntType(9);
                 }
+            };
+            // TODO: need optimization!
+            int64_t iNum = 0;
+            for (; ; iNum++) {
+                nums[iNum + 1] = IntType(1);
+
+                auto curr = nums[iNum];
+                OneDigitIntType remainder;
+                for (int i = int(curr.length()) - 1; i >= 0; i--) {
+                    for(auto part = curr[i]; part > 0; part /= 10) {
+                        remainder = part % 10;
+                        nums[iNum + 1] *= remainder;
+                    }
+                }
+
+                if (nums[iNum + 1] < DEC)
+                    break;
+            }
+
+            ++stepsStat[iNum + 2];
+
+            if (iNum + 2 >= 9) {
+                convertToNumber();
+                maxNumberVec.push_back(maxNumber);
+                maxStepsVec.push_back(iNum + 2);
+            }
+            if (maxSteps <= iNum + 2) {
+                maxSteps = iNum + 2;
+                convertToNumber();
 
                 if (maxSteps == 11) {
                     cout << maxNumber << endl;
@@ -125,6 +137,8 @@ namespace lipaboy_lib::numberphile {
             //cout << omp_get_num_threads() << endl;
             int64_t maxStepsPrivate = 0;
             IntType maxNumberPrivate(1);
+            vector<int64_t> maxStepsVecPrivate;
+            vector<IntType> maxNumberVecPrivate;
             TArray numsPrivate;
             numsPrivate.fill(IntType(1));
 
@@ -153,7 +167,8 @@ namespace lipaboy_lib::numberphile {
                         numsPrivate[0] = temp37 *
                             pow<OneDigitIntType, int64_t, IntType>(TWO, iTwo);
 
-                        updateMaxSteps(iTwo, iThree, 0, iSeven, maxStepsPrivate, maxNumberPrivate, numsPrivate);
+                        updateMaxSteps(iTwo, iThree, 0, iSeven, maxStepsPrivate,
+                                       maxNumberPrivate, numsPrivate, maxStepsVecPrivate, maxNumberVecPrivate);
 
                         // fives = len - iSeven - iThree
 
@@ -161,7 +176,8 @@ namespace lipaboy_lib::numberphile {
                         numsPrivate[0] = temp37 *
                             pow<OneDigitIntType, int64_t, IntType>(FIVE, iFive);
 
-                        updateMaxSteps(0, iThree, iFive, iSeven, maxStepsPrivate, maxNumberPrivate, numsPrivate);
+                        updateMaxSteps(0, iThree, iFive, iSeven, maxStepsPrivate,
+                                       maxNumberPrivate, numsPrivate, maxStepsVecPrivate, maxNumberVecPrivate);
 
                         temp3 *= THREE;
 
@@ -182,9 +198,51 @@ namespace lipaboy_lib::numberphile {
                     maxNumber = maxNumberPrivate;
                     nums = numsPrivate;
                 }
+                maxStepsVec.insert(maxStepsVec.end(), maxStepsVecPrivate.begin(), maxStepsVecPrivate.end());
+                maxNumberVec.insert(maxNumberVec.end(), maxNumberVecPrivate.begin(), maxNumberVecPrivate.end());
                 //cout << "Time of critical section: " << extra::diffFromNow(timeCriticalSection) << endl;
             }
 
+        }
+        maxStepsVec.push_back(9);
+        maxNumberVec.push_back(IntType("34888999"));
+        cout << "list: " << endl;
+        for (int i = 0; i < int(maxStepsVec.size()); i++) {
+            auto maxNum = maxNumberVec[i];
+
+            int j = 1;
+            for (; ; j++) {
+                IntType res(1);
+                for (int i = 0; ; i++) {
+                    if (maxNum <= IntType(0))
+                        break;
+                    auto digit = maxNum.divideByDec();
+                    res = res * IntType(digit);
+                }
+                maxNum = res;
+                //cout << res.to_string() << endl;
+                if (res <= IntType(10))
+                    break;
+            }
+
+            if (j >= maxStepsVec[i]) {
+                auto maxNum = maxNumberVec[i];
+                cout << maxNum << "\t\t - " << maxStepsVec[i] << endl;
+                j = 0;
+                for (; ; j++) {
+                    IntType res(1);
+                    for (int i = 0; ; i++) {
+                        if (maxNum <= IntType(0))
+                            break;
+                        auto digit = maxNum.divideByDec();
+                        res = res * IntType(digit);
+                    }
+                    maxNum = res;
+                    cout << res.to_string() << endl;
+                    if (res <= IntType(10))
+                        break;
+                }
+            }
         }
 
         cout << "Max decimal-digit count of type: "
@@ -276,7 +334,8 @@ namespace lipaboy_lib::numberphile {
             // 2247777778888899;
             // 22227777778888899;
             // 222224777777888899;
-               222233777777888889;
+//               222233777777888889;
+                334468899;
         auto getDigit = [&number](int index) -> int
         {
             auto temp = number / powDozen<int64_t>(index);
