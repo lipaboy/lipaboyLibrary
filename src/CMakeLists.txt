@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 2.8.2)
 project(Lipaboy_Library_Source)
 
 set(LIB_LIPABOY_LIB_SOURCE_FILES
-    #lipaboy_test.cpp
-    #lipaboy_test.h
 
     # Common Intefaces
     common_interfaces/algebra.h

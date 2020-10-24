@@ -41,9 +41,12 @@ set(TEST_SOURCE
 
 	# Maths
     maths/fixed_precision_number_tests.cpp
+
+    # Container
+    containers/bit_vector_benchmark.cpp
 )
 
-add_executable(${MODULE_NAME}_tests ${TEST_SOURCE})
+add_executable(${MODULE_NAME}_tests ${TEST_SOURCE} "containers/bit_vector_benchmark.cpp")
 target_link_libraries(${MODULE_NAME}_tests 
 	LIPABOY_LIB 
 	gtest 
