@@ -60,7 +60,7 @@ public:
     Stream (TFunctor_&& functor, StreamSuperType_&& obj) noexcept
         : SubType(std::forward<StreamSuperType_>(obj)), operator_(std::forward<TFunctor_>(functor))
     {
-#ifdef LOL_DEBUG_NOISY
+#ifdef DEBUG_STREAM_WITH_NOISY
         if constexpr (std::is_rvalue_reference<StreamSuperType_&&>::value)
                 cout << "   Stream is extended by move-constructor" << endl;
         else
@@ -72,7 +72,7 @@ public:
         : SubType(static_cast<ConstSubType&>(obj)),
         operator_(obj.operator_)
     {
-#ifdef LOL_DEBUG_NOISY
+#ifdef DEBUG_STREAM_WITH_NOISY
         cout << "   StreamEx copy-constructed" << endl;
 #endif
     }
@@ -80,7 +80,7 @@ public:
         : SubType(std::move(obj)),
         operator_(std::move(obj.operator_))
     {
-#ifdef LOL_DEBUG_NOISY
+#ifdef DEBUG_STREAM_WITH_NOISY
         cout << "   StreamEx move-constructed" << endl;
 #endif
     }

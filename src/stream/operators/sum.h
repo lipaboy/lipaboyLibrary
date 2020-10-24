@@ -1,43 +1,36 @@
 #pragma once
 
-#include <any>
 #include "tools.h"
 
-namespace lipaboy_lib {
+namespace lipaboy_lib::stream_space {
 
-	namespace stream_space {
+	namespace operators {
 
-		namespace operators {
+		// Question: what's shit is it doing here, void* ? (Replace to optional is not trivial)
 
-			// Question: what's shit is it doing here, void* ?
+		template <class TInit = void*>
+		struct sum : TReturnSameType, TerminatedOperator
+		{
+            sum(TInit init = nullptr) {
+				init_ = init;
+			}
 
-			template <class TInit = void*>
-			struct sum : TReturnSameType {
-				static constexpr OperatorMetaTypeEnum metaInfo = SUM;
-                static constexpr bool isTerminated = true;
+			template <class TStream>
+			auto apply(TStream & stream) -> typename TStream::ResultValueType
+			{
+				using TResult = typename TStream::ResultValueType;
+				TResult result;
+				if constexpr (std::is_same_v<TInit, void*>)
+					result = TResult();
+				else
+					result = init_;
+				while (stream.hasNext())
+					result += stream.nextElem();
+				return result;
+			}
 
-                sum(TInit init = nullptr) {
-					init_ = init;
-				}
-
-				template <class TStream>
-				auto apply(TStream & stream) -> typename TStream::ResultValueType
-				{
-					using TResult = typename TStream::ResultValueType;
-					TResult result;
-					if constexpr (std::is_same_v<TInit, void *>)
-						result = TResult();
-					else
-						result = init_;
-					while (stream.hasNext())
-						result += stream.nextElem();
-					return result;
-				}
-
-				TInit init_;
-			};
-
-		}
+			TInit init_;
+		};
 
 	}
 

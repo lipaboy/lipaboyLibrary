@@ -17,15 +17,17 @@ set(TEST_SOURCE
     long_numbers/long_numbers_benchmark_tests.cpp
 
 	# Stream
+    stream/stream_tests.cpp
+    stream/stream_test.h
+    stream/benchmarks/stream_vs_fast_stream.cpp
+
+    stream/paired_stream_tests.cpp
     stream/nop_tests.cpp
     stream/nth_tests.cpp
     stream/filter_tests.cpp
     stream/reduce_tests.cpp
     stream/max_tests.cpp
     stream/split_tests.cpp
-    stream/stream_tests.cpp
-    stream/stream_test.h
-    stream/benchmarks/stream_vs_fast_stream.cpp
     "stream/cast_tests.cpp"
 
 	# HashMap

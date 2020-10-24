@@ -71,66 +71,71 @@ namespace lipaboy_lib {
 	};
 
 
-	// fast one
+	namespace special {
 
-	// WRONG: bug with comparing end()
-	template <class T>
-	class ProducingIterator2 {
-	public:
-		using GeneratorType = std::function<T(void)>;
-		using value_type = T;
-		using CurrentValueType = value_type;
-		using CurrentValueTypePtr = std::shared_ptr<CurrentValueType>;
-		using reference = T & ;
-		using const_reference = const reference;
-		using pointer = T * ;
-		using const_pointer = const pointer;
-		using iterator_category = std::input_iterator_tag;
-		// It is type of measuring the distance between iterators (nothing else).
-		// It is commented because ProducingIterator is not a real iterator. You can't count the distance
-		// between iterators
-		using difference_type = std::ptrdiff_t;
+		// fast one
 
-	public:
-		ProducingIterator2()
-			: generator_(nullptr), elem_(CurrentValueType())
-		{}
-		ProducingIterator2(GeneratorType gen)
-			: generator_(gen), elem_(gen())
-		{}
-		ProducingIterator2(ProducingIterator2 const & obj)
-			: generator_(obj.generator_),
-			elem_(obj.elem_)
-		{}
+		// WRONG: bug with comparing end()
+		template <class T>
+		class ProducingIterator2 {
+		public:
+			using GeneratorType = std::function<T(void)>;
+			using value_type = T;
+			using CurrentValueType = value_type;
+			using CurrentValueTypePtr = std::shared_ptr<CurrentValueType>;
+			using reference = T&;
+			using const_reference = const reference;
+			using pointer = T*;
+			using const_pointer = const pointer;
+			using iterator_category = std::input_iterator_tag;
+			// It is type of measuring the distance between iterators (nothing else).
+			// It is commented because ProducingIterator is not a real iterator. You can't count the distance
+			// between iterators
+			using difference_type = std::ptrdiff_t;
 
-		//const_reference
-		value_type operator*() { return elem_; }
-		const_pointer operator->() { return &elem_; }
+		public:
+			ProducingIterator2()
+				: generator_(nullptr), elem_(CurrentValueType())
+			{}
+			ProducingIterator2(GeneratorType gen)
+				: generator_(gen), elem_(gen())
+			{}
+			ProducingIterator2(ProducingIterator2 const& obj)
+				: generator_(obj.generator_),
+				elem_(obj.elem_)
+			{}
 
-		// Note: not strong condition (maybe add counter to distinguishing the different iterators)
-		bool operator== (ProducingIterator2 & other) {
-			return generator_.template target<T(*)(void)>()
-				== other.generator_.template target<T(*)(void)>()
-				&& elem_ == other.elem_;
-		}
-		bool operator!= (ProducingIterator2 & other) { return !((*this) == other); }
+			//const_reference
+			value_type operator*() { return elem_; }
+			const_pointer operator->() { return &elem_; }
 
-		ProducingIterator2 operator++() {
-			elem_ = std::move(generator_());
-			return *this;
-		}
-		// Info: Return type is void because you cannot return previous iterator.
-		//		 You cannot return previous iterator because pCurrentElem_ of different copies [iterators]
-		//		 point to the same variable. If we don't have pointer to current elem then
-		//		 we must have storage it directly (as a field). But copy constructor of iterator will be expensive.
-		void operator++(int) {
-			elem_ = std::move(generator_());
-		}
+			// Note: not strong condition (maybe add counter to distinguishing the different iterators)
+			bool operator== (ProducingIterator2& other) {
+				return generator_.template target<T(*)(void)>()
+					== other.generator_.template target<T(*)(void)>()
+					&& elem_ == other.elem_;
+			}
+			bool operator!= (ProducingIterator2& other) { return !((*this) == other); }
 
-	private:
-		GeneratorType generator_;
-		CurrentValueType elem_;
-	};
+			ProducingIterator2 operator++() {
+				elem_ = std::move(generator_());
+				return *this;
+			}
+			// Info: Return type is void because you cannot return previous iterator.
+			//		 You cannot return previous iterator because pCurrentElem_ of different copies [iterators]
+			//		 point to the same variable. If we don't have pointer to current elem then
+			//		 we must have storage it directly (as a field). But copy constructor of iterator will be expensive.
+			void operator++(int) {
+				elem_ = std::move(generator_());
+			}
+
+		private:
+			GeneratorType generator_;
+			CurrentValueType elem_;
+		};
+
+	}
+
 }
 
 

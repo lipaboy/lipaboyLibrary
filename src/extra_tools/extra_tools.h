@@ -3,7 +3,6 @@
 #include <type_traits>
 #include <tuple>
 #include <functional>
-#include <memory>
 
 namespace lipaboy_lib {
 
@@ -75,24 +74,43 @@ static inline auto forward(
 
 namespace useless {
 
-// it means that we forward variable of ForwardingType relative to variable of RelativeToType
-template <class RelativeToType, class ForwardingType>
-constexpr inline auto relativeForward(std::remove_reference_t<RelativeToType>& s,
-                                      std::remove_reference_t<ForwardingType>& t) noexcept
-    -> std::remove_reference_t<ForwardingType>&
-{
-    return static_cast<std::remove_reference_t<ForwardingType>&>(t);
+    // it means that we forward variable of ForwardingType relative to variable of RelativeToType
+    template <class RelativeToType, class ForwardingType>
+    constexpr inline auto relativeForward(std::remove_reference_t<RelativeToType>& s,
+                                          std::remove_reference_t<ForwardingType>& t) noexcept
+        -> std::remove_reference_t<ForwardingType>&
+    {
+        return static_cast<std::remove_reference_t<ForwardingType>&>(t);
+    }
+
+    template <class RelativeToType, class ForwardingType>
+    constexpr inline auto relativeForward(std::remove_reference_t<RelativeToType>&& s,
+                                          std::remove_reference_t<ForwardingType>& t) noexcept
+        -> std::remove_reference_t<ForwardingType>&&
+    {
+        static_assert(!std::is_lvalue_reference<RelativeToType>::value,
+                      "Can not forward an rvalue as an lvalue.");
+        return static_cast<std::remove_reference_t<ForwardingType>&&>(t);
+    }
+
 }
 
-template <class RelativeToType, class ForwardingType>
-constexpr inline auto relativeForward(std::remove_reference_t<RelativeToType>&& s,
-                                      std::remove_reference_t<ForwardingType>& t) noexcept
-    -> std::remove_reference_t<ForwardingType>&&
-{
-    static_assert(!std::is_lvalue_reference<RelativeToType>::value,
-                  "Can not forward an rvalue as an lvalue.");
-    return static_cast<std::remove_reference_t<ForwardingType>&&>(t);
-}
+namespace experimental {
+
+    // smth interesting
+
+    template <class T, class RelativeTo>
+    struct relative_const {
+        using type = T;
+    };
+
+    template <class T, class RelativeTo>
+    struct relative_const<T, const RelativeTo> {
+        using type = const T;
+    };
+
+    template <class T, class RelativeTo>
+    using relative_const_t = typename relative_const<T, RelativeTo>::type;
 
 }
 

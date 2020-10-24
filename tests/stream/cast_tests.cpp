@@ -101,7 +101,7 @@ namespace stream_tests {
 	bool isKek(int) { return true; }
 	bool isKek(double) { return false; }
 	int isLol(double) { return 2; }
-	bool isLol2(double) { return 2; }
+	bool isLol2(double) { return bool(2); }
 	template <class Predicate>
 	void foo(Predicate p) {
 		static_cast<bool (*)(double)>(&p);

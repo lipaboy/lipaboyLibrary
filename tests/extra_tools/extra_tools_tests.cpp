@@ -23,7 +23,7 @@ class A {
 public:
     using value_type = T;
 public:
-    A() {}
+    A() : n(T()) {}
 
     template <class A_>
     A(int e, A_&& a)

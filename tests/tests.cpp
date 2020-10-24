@@ -29,7 +29,6 @@ using std::endl;
 using std::vector;
 using std::string;
 using std::unique_ptr;
-using std::any;
 
 using namespace lipaboy_lib;
 using namespace lipaboy_lib::stream_space;
@@ -91,7 +90,7 @@ TEST(Check, check) {
 }
 
 
-//#define LIPABOY_LIB_TESTING
+#define LIPABOY_LIB_TESTING
 
 int main(int argc, char *argv[])
 {

@@ -61,13 +61,13 @@ public:
 
     Stream(Stream const & obj) : range_(obj.range_)
     {
-#ifdef LOL_DEBUG_NOISY
+#ifdef DEBUG_STREAM_WITH_NOISY
         cout << "   StreamBase copy-constructed" << endl;
 #endif
     }
     Stream(Stream&& obj) noexcept : range_(std::move(obj.range_))
     {
-#ifdef LOL_DEBUG_NOISY
+#ifdef DEBUG_STREAM_WITH_NOISY
         cout << "   StreamBase move-constructed" << endl;
 #endif
     }

@@ -32,7 +32,7 @@ namespace operators_space {
 	using std::cout;
 	using std::endl;
 
-	//#define LOL_DEBUG_NOISY
+	//#define DEBUG_STREAM_WITH_NOISY
 
 	using lipaboy_lib::function_traits;
 	

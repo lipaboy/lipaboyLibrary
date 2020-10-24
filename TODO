@@ -105,3 +105,5 @@
 Linux problems:
 
 	1) (FixedPrecisionNumber and EitherComparable) fix ambigious error with kek1 <= kek2
+
+	2) (Stream) Check distinct operator under Linux
