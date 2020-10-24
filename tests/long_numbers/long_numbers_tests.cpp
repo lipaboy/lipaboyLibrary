@@ -23,45 +23,108 @@ TEST(LongInteger, overflow) {
 //-----------Comparison-----------//
 
 TEST(LongInteger, comparison_less) {
-	LongIntegerDecimal<3> num1("789100000200");
-	LongIntegerDecimal<3> num2("789100000201");
+	LongIntegerDecimal<3> first("789100000200");
+	LongIntegerDecimal<3> second("789100000201");
 
-	ASSERT_TRUE(num1 < num2);
+	EXPECT_TRUE(first < second);
 
-	LongIntegerDecimal<3> num3("789100000200");
-	LongIntegerDecimal<3> num4("790100000200");
+	first  = "789100000200";
+	second = "790100000200";
 
-	ASSERT_TRUE(num3 < num4);
+	EXPECT_TRUE(first < second);
 
-	LongIntegerDecimal<3> num5("-23");
-	LongIntegerDecimal<3> num6("23");
+	first = "-23";
+	second = "23";
 
-	ASSERT_TRUE(num5 < num6);
+	EXPECT_TRUE(first < second);
 
-	LongIntegerDecimal<3> num7("0");
-	LongIntegerDecimal<3> num8("-0");
+	first = "-0";
+	second = "0";
 
-	ASSERT_FALSE(num7 < num8);
+	EXPECT_FALSE(first < second);
+	EXPECT_TRUE(first <= second);
+}
+
+TEST(LongInteger, comparison_more) {
+
+	LongIntegerDecimal<2> first("200200");
+	LongIntegerDecimal<2> second("200200");
+
+	EXPECT_TRUE((first * second) > first * LongIntegerDecimal<2>(1000));
+
+}
+
+TEST(LongInteger, comparison_diff) {
+	LongIntegerDecimal<3> first;
+	LongIntegerDecimal<3> second;
+
+	first = -15;
+	second = -16;
+	EXPECT_TRUE(first > second);
+	first = -15;
+	second = -16;
+	EXPECT_TRUE(first >= second);
+	first = -16;
+	second = -16;
+	EXPECT_FALSE(first < second);
+	first = -16;
+	second = -16;
+	EXPECT_TRUE(first <= second);
+}
+
+TEST(LongInteger, comparison_different_length) {
+	LongIntegerDecimal<3> first("1");
+	LongIntegerDecimal<1> second("3");
+
+	ASSERT_TRUE(first < second);
+
+	first = 0;
+	EXPECT_FALSE(first > LongIntegerDecimal<1>(0));
+	EXPECT_FALSE(first < LongIntegerDecimal<1>(0));
+	EXPECT_TRUE(first <= LongIntegerDecimal<1>(0));
+	first = -first;
+	EXPECT_EQ(first, LongIntegerDecimal<1>(0));
+	EXPECT_EQ(first.to_string(), LongIntegerDecimal<1>(0).to_string());
+
+	first = "20000000000000000000000";
+	second = "0";
+	EXPECT_TRUE(first > second);
+
+	first = "20000000000000";
+	second = "23452";
+	EXPECT_TRUE(first > second);
+	EXPECT_FALSE(first < second);
+	EXPECT_TRUE(second < first);
+
+	first = "20000";
+	second = "23452";
+	EXPECT_FALSE(first > second);
+	EXPECT_TRUE(first < second);
+	EXPECT_FALSE(second < first);
+
+	LongIntegerDecimal<2> third("20000000000000");
+	EXPECT_TRUE(first < third);
+	EXPECT_TRUE(first < third);
+	EXPECT_FALSE(third < first);
 }
 
 //-----------Sign-----------//
 
 TEST(LongInteger, sign) {
 	LongIntegerDecimal<1> num(-2);
-
 	ASSERT_EQ(num.sign(), -1);
 
 	LongIntegerDecimal<1> num2("-2");
-
 	ASSERT_EQ(num2.sign(), -1);
 
 	LongIntegerDecimal<2> num3("-790100000200");
-
 	ASSERT_EQ(num3.sign(), -1);
 
 	LongIntegerDecimal<2> num4("-000000000000");
-
 	ASSERT_EQ(num4.sign(), 0);
+	ASSERT_TRUE(num4.isZero());
+	ASSERT_FALSE(num4.isNegative());
+	ASSERT_FALSE(num4.isPositive());
 }
 
 //-----------Equality-----------//
@@ -116,7 +179,49 @@ TEST(LongInteger, division_by_dec) {
     EXPECT_EQ(remainder, 0);
 }
 
+//---------Operator/ checking-----------//
+
+TEST(LongInteger, division_double) {
+    LongIntegerDecimal<2> num3("200200");
+    LongIntegerDecimal<2> num4("200200");
+
+    EXPECT_EQ((num3 / num4).to_string(), "1");
+
+    num3 *= num4;
+
+    EXPECT_EQ((num3 / num4).to_string(), "200200");
+}
+
+//---------Operator% checking-----------//
+
+TEST(LongInteger, remainder_double) {
+    LongIntegerDecimal<2> num3("200201");
+    LongIntegerDecimal<2> num4("200200");
+
+    EXPECT_EQ((num3 % num4).to_string(), "1");
+
+    num3 *= num4;
+
+    EXPECT_EQ((num3 % num4).to_string(), "0");
+}
+
 //---------Operator* checking-----------//
+
+TEST(LongInteger, multiplication_by_different_lengths) {
+	LongIntegerDecimal<1> num1("2");
+	LongIntegerDecimal<4> num2("10000010000");
+	
+	EXPECT_EQ((num1 * num2).to_string(), "20000020000");
+
+	LongIntegerDecimal<4> num3("2");
+	LongIntegerDecimal<4> num4("10000010000");
+
+	for (int i = 0; i < 25; i++) {
+		num2 *= num1;
+		num4 *= num3;
+	}
+	ASSERT_EQ(num2.to_string(), num4.to_string());
+}
 
 TEST(LongInteger, multiplication_double_rank_by_independent_parts) {
 	LongIntegerDecimal<2> num3("200200");
@@ -157,6 +262,40 @@ TEST(LongInteger, multiplication_simple) {
 	EXPECT_EQ((num3 * num4).to_string(), "40000000000");
 }
 
+// have some errors
+TEST(LongInteger, DISABLED_karacuba_multiplication_simple) {
+    LongIntegerDecimal<1> num1("2");
+    LongIntegerDecimal<1> num2("2");
+
+    ASSERT_EQ(num1.multiplyByKaracuba(num2), num1 * num2);
+
+    LongIntegerDecimal<2> num3("200000");
+    LongIntegerDecimal<2> num4("200000");
+
+    EXPECT_EQ(num3.multiplyByKaracuba(num4), num3 * num4);
+
+	LongIntegerDecimal<3> num5("2");
+	LongIntegerDecimal<3> num6("200000");
+
+	EXPECT_EQ((num5.multiplyByKaracuba(num6)).to_string(), (num5 * num6).to_string());
+
+	LongIntegerDecimal<1> num7("-2");
+	LongIntegerDecimal<1> num8("2");
+
+	ASSERT_EQ(num7.multiplyByKaracuba(num8), num7 * num8);
+
+	num5 = 3;
+	num6 = 3;
+	for (int i = 0; i < 18; i++) {
+		num5 = num5.multiplyByKaracuba(decltype(num5)(3)) + 0;
+		num6 = num6 * decltype(num6)(3) + 0; 
+	}
+	num6 = num6 * decltype(num6)(3) + 0;
+	num5 = num5.multiplyByKaracuba(decltype(num5)(3)) + 0;
+	
+	EXPECT_EQ(num5.to_string(), num6.to_string());
+}
+
 //---------Operator- checking-----------//
 
 TEST(LongInteger, inverse_the_number) {
@@ -187,7 +326,7 @@ TEST(LongInteger, sum_double_rank_by_crossing_parts) {
 }
 
 TEST(LongInteger, sum_double_rank_by_independent_parts_negative) {
-	LongIntegerDecimal<2> num1(" 789101000201");
+	LongIntegerDecimal<2> num1("789101000201");
 	LongIntegerDecimal<2> num2("-111001000001");
 
 	ASSERT_EQ("678100000200", (num1 + num2).to_string());

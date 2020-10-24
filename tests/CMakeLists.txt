@@ -8,10 +8,11 @@ set(TEST_SOURCE
 
 	# Algebra
     common_interfaces/algebra_tests.cpp
+    intervals/interval_tests.cpp
 
 	# Long Numbers
+    long_numbers/long_unsigned_tests.cpp
     long_numbers/long_numbers_tests.cpp
-    intervals/interval_tests.cpp
     long_numbers/big_integer_tests.cpp
     long_numbers/long_numbers_benchmark_tests.cpp
 
@@ -46,7 +47,14 @@ set(TEST_SOURCE
     containers/bit_vector_benchmark.cpp
 )
 
-add_executable(${MODULE_NAME}_tests ${TEST_SOURCE} "containers/bit_vector_benchmark.cpp")
+find_package(OpenMP)
+if (OPENMP_FOUND)
+    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
+
+add_executable(${MODULE_NAME}_tests ${TEST_SOURCE})
+
 target_link_libraries(${MODULE_NAME}_tests 
 	LIPABOY_LIB 
 	gtest 

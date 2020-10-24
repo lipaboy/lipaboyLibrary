@@ -32,19 +32,23 @@ set(LIB_LIPABOY_LIB_SOURCE_FILES
 
     # Long Numbers
     long_numbers/long_number.h
+    long_numbers/long_integer_decimal_view.h
+    # New Long Numbers
+    long_numbers/long_unsigned.h
 
-    long_numbers/big_integer.cpp
-    long_numbers/big_integer.h
-    long_numbers/big_integer_algorithms.cpp
-    long_numbers/big_integer_algorithms.h
-    long_numbers/big_integer_library.h
-    long_numbers/big_integer_utils.cpp
-    long_numbers/big_integer_utils.h
-    long_numbers/big_unsigned.cpp
-    long_numbers/big_unsigned.h
-    long_numbers/big_unsigned_view.h
-    long_numbers/big_unsigned_in_a_base.cpp
-    long_numbers/big_unsigned_in_a_base.h
+    # BigUnsigned and BigInteger
+    "long_numbers/big_integer/big_integer.cpp"
+    "long_numbers/big_integer/big_integer.h"
+    "long_numbers/big_integer/big_integer_algorithms.cpp"
+    "long_numbers/big_integer/big_integer_algorithms.h"
+    "long_numbers/big_integer/big_integer_library.h"
+    "long_numbers/big_integer/big_integer_utils.cpp"
+    "long_numbers/big_integer/big_integer_utils.h"
+    "long_numbers/big_integer/big_unsigned.cpp"
+    "long_numbers/big_integer/big_unsigned.h"
+    "long_numbers/big_integer/big_unsigned_view.h"
+    "long_numbers/big_integer/big_unsigned_in_a_base.cpp"
+    "long_numbers/big_integer/big_unsigned_in_a_base.h"
 
     # Stream
     stream/stream_extended.h
@@ -119,6 +123,12 @@ set(LIB_LIPABOY_LIB_SOURCE_FILES
 add_library(LIPABOY_LIB STATIC
     ${LIB_LIPABOY_LIB_SOURCE_FILES}
 )
+
+find_package(OpenMP)
+    if (OPENMP_FOUND)
+        set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    endif()
 
 	# BOOST library connection
 

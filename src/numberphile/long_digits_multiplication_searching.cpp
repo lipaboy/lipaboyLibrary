@@ -1,7 +1,197 @@
+#include <omp.h>
+
 #include "long_digits_multiplication_searching.h"
 
-
 namespace lipaboy_lib::numberphile {
+
+    // Results:
+    //
+    // 437799 - 7 steps (22 3 3333 77)
+    // 248883999 - 9 steps
+    //
+    // 288888877777799  - 11 steps of digit-multiplications
+    //
+    // https://zen.yandex.ru/media/tehno_chtivo/v-chem-chislo-277777788888899-mirovoi-rekordsmen-5ede6acd9abc2748d3bbf7e2
+    //
+
+        // linux: <20, 1e60> - 2 secs, <20, 1e160> - 15 secs, <35, 1e300> - 33 mins
+    // <40, 1e150, 8 ths> - 6,3 secs, <40, 1e200, 8 ths> - 17,5 secs, <50, 1e400, 8ths> - 6,8 mins
+    // <60, 1e500, 6 ths> - 18,6 mins, <70, 1e600, 6 ths> - 51,6 mins
+    // windows: <20, 1e90> - 2,25 mins (updated), <30, 1e40> - 13 secs (updated)
+    void long_digits_multiplication_searching_long_numbers()
+    {
+        using IntType = LongIntegerDecimal<70>;
+        // info uint64_t = 64 bit, 10^19 max value, as 7 is max value, then maximum 7^22
+        constexpr int64_t MAX = 600;
+        using OneDigitIntType =
+            //IntType;
+            LongIntegerDecimal<1>;
+        using TArray = std::array<IntType, 30>;
+        using special::pow;
+
+        auto startTime = extra::getCurrentTime();
+
+        TArray nums;
+        nums.fill(IntType(1));
+        int64_t maxSteps = 0;
+        IntType maxNumber(1);
+
+        const OneDigitIntType SEVEN = 7;
+        const OneDigitIntType THREE = 3;
+        const OneDigitIntType FIVE = 5;
+        const OneDigitIntType TWO = 2;
+        const OneDigitIntType DEC = 10;
+        const OneDigitIntType ZERO = 0;
+
+        auto updateMaxSteps = [&ZERO, &DEC](int64_t twos,
+            int64_t threes, int64_t fives, int64_t sevens,
+            int64_t& maxSteps, IntType& maxNumber, TArray& nums)
+        {
+            // TODO: need optimization!
+            int64_t iNum = 0;
+            for (; ; iNum++) {
+                nums[iNum + 1] = IntType(1);
+
+                auto curr = nums[iNum];
+                OneDigitIntType remainder;
+                for (int i = 0; curr > ZERO; i++) {
+                    // TODO: optimize this one (without division all the number, only parts)
+                    remainder = curr.divideByDec();
+                    nums[iNum + 1] *= remainder;
+                }
+
+                if (nums[iNum + 1] < DEC)
+                    break;
+            }
+
+            if (maxSteps <= iNum + 2) {
+                maxSteps = iNum + 2;
+                maxNumber = IntType(0);
+                for (int64_t i = 0; i < twos % 2; i++) {
+                    maxNumber *= IntType(10);
+                    maxNumber += IntType(2);
+                }
+                for (int64_t i = 0; i < (twos % 3) / 2; i++) {
+                    maxNumber *= IntType(10);
+                    maxNumber += IntType(4);
+                }
+                for (int64_t i = 0; i < twos / 3; i++) {
+                    maxNumber *= IntType(10);
+                    maxNumber += IntType(8);
+                }
+                for (int64_t i = 0; i < threes % 2; i++) {
+                    maxNumber *= IntType(10);
+                    maxNumber += IntType(3);
+                }
+                for (int64_t i = 0; i < fives; i++) {
+                    maxNumber *= IntType(10);
+                    maxNumber += IntType(5);
+                }
+                for (int64_t i = 0; i < sevens; i++) {
+                    maxNumber *= IntType(10);
+                    maxNumber += IntType(7);
+                }
+                for (int64_t i = 0; i < threes / 2; i++) {
+                    maxNumber *= IntType(10);
+                    maxNumber += IntType(9);
+                }
+            }
+        };
+
+#pragma omp parallel num_threads(6)
+        {
+            //cout << omp_get_num_threads() << endl;
+            int64_t maxStepsPrivate = 0;
+            IntType maxNumberPrivate(1);
+            TArray numsPrivate;
+            numsPrivate.fill(IntType(1));
+
+            // <35, 1e60> 1 thread - 13 secs, 4 threads - 9 secs, 8 threads - 7,5 secs, 8 threads + static,1 = 4 secs
+            // <35, 1e90> 8 threads, dynamic,1 - 17 secs, static,1 - 18,7 secs, static,1,collapse2 - 17,7 secs
+#pragma omp for nowait schedule(dynamic, 1) //collapse(2)
+            for (int64_t len = 2; len <= MAX; len++)
+            {
+                IntType temp7 = 1;
+                for (int64_t iSeven = 0; iSeven <= len; iSeven++)
+                {
+                    // INFO: uncomment if you using collapse in omp parallelism
+                    //IntType temp7 = pow<OneDigitIntType, uint64_t, IntType>(SEVEN, iSeven);
+                    IntType temp3 = 1;
+                    for (int64_t iThree = 0; iThree <= len - iSeven; iThree++)
+                    {
+                        IntType temp37 = temp7 * temp3;
+                        //IntType temp37 = temp7 * pow<OneDigitIntType, uint64_t, IntType>(THREE, iThree);
+
+                        // twos = len - iSeven - iThree
+
+                        // multiply the digits
+
+                        auto iTwo = len - iSeven - iThree;
+
+                        numsPrivate[0] = temp37 *
+                            pow<OneDigitIntType, int64_t, IntType>(TWO, iTwo);
+
+                        updateMaxSteps(iTwo, iThree, 0, iSeven, maxStepsPrivate, maxNumberPrivate, numsPrivate);
+
+                        // fives = len - iSeven - iThree
+
+                        auto iFive = len - iSeven - iThree;
+                        numsPrivate[0] = temp37 *
+                            pow<OneDigitIntType, int64_t, IntType>(FIVE, iFive);
+
+                        updateMaxSteps(0, iThree, iFive, iSeven, maxStepsPrivate, maxNumberPrivate, numsPrivate);
+
+                        temp3 *= THREE;
+
+                    }
+
+                    temp7 *= SEVEN;
+
+                }
+
+            }
+
+
+#pragma omp critical 
+            {
+                //auto timeCriticalSection = extra::getCurrentTime();
+                if (maxSteps < maxStepsPrivate) {
+                    maxSteps = maxStepsPrivate;
+                    maxNumber = maxNumberPrivate;
+                    nums = numsPrivate;
+                }
+                //cout << "Time of critical section: " << extra::diffFromNow(timeCriticalSection) << endl;
+            }
+
+        }
+
+        cout << "Max decimal-digit count of type: "
+            << IntType::integralModulusDegree() * IntType::length() << endl;
+        cout << "Max steps: " << maxSteps << endl
+            << "Number: " << maxNumber.to_string() << endl;
+
+        for (int j = 0; ; j++) {
+            IntType res(1);
+            for (int i = 0; ; i++) {
+                if (maxNumber <= IntType(0))
+                    break;
+                auto digit = maxNumber.divideByDec();
+                res = res * IntType(digit);
+            }
+            maxNumber = res;
+            cout << res.to_string() << endl;
+            if (res <= IntType(10))
+                break;
+        }
+
+        cout << "Time elapsed: " << extra::diffFromNow(startTime) << endl;
+
+    }
+
+
+    //==============================================================//
+    //============        Other algorithms           ===============//
+    //==============================================================//
 
     void long_digits_multiplication_searching_vectors() {
 
@@ -193,6 +383,8 @@ namespace lipaboy_lib::numberphile {
             }
         };
 
+        using special::pow;
+
         for (uint64_t len = 2; len <= MAX; len++) {
 
             for (uint64_t iTwo = 0; iTwo <= len; iTwo++) {
@@ -243,6 +435,9 @@ namespace lipaboy_lib::numberphile {
 //        std::cin >> str;
 
     }
+
+
+
 
 }
 
