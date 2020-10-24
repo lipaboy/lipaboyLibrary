@@ -28,6 +28,8 @@ namespace lipaboy_lib::numberphile {
 
     void long_digits_multiplication_searching_long_numbers();
 
+    void long_digits_multiplication_searching_factorization();
+
 }
 
 
