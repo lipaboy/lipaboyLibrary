@@ -1,39 +1,33 @@
 #pragma once
 
 #include "tools.h"
+#include "extra_tools/extra_tools.h"
 
-namespace lipaboy_lib {
+namespace lipaboy_lib::stream_space {
 
-	namespace stream_space {
+	namespace operators {
 
-		namespace operators {
+		template <class Transform>
+		struct map : public FunctorHolder<Transform> {
+		public:
+			template <class T>
+			using RetType = std::invoke_result_t <Transform, T>;
+		public:
+			map(Transform functor) : FunctorHolder<Transform>(functor) {}
 
-			template <class Transform>
-			struct map : public FunctorHolder<Transform> {
-			public:
-				template <class T>
-				using RetType = typename std::result_of<Transform(T)>::type;
+			template <class TSubStream>
+			auto nextElem(TSubStream& stream) 
+				-> RetType<typename TSubStream::ResultValueType> 
+			{
+				return std::move(FunctorHolder<Transform>::functor()(stream.nextElem()));
+			}
 
-				static constexpr OperatorMetaTypeEnum metaInfo = MAP;
-				static constexpr bool isTerminated = false;
-			public:
-				map(Transform functor) : FunctorHolder<Transform>(functor) {}
+			template <class TSubStream>
+			void incrementSlider(TSubStream& stream) { stream.incrementSlider(); }
 
-				template <class TSubStream>
-				auto nextElem(TSubStream& stream) 
-					-> RetType<typename TSubStream::ResultValueType> 
-				{
-					return std::move(FunctorHolder<Transform>::functor()(stream.nextElem()));
-				}
-
-				template <class TSubStream>
-				void incrementSlider(TSubStream& stream) { stream.incrementSlider(); }
-
-				template <class TSubStream>
-				bool hasNext(TSubStream& stream) { return stream.hasNext(); }
-			};
-
-		}
+			template <class TSubStream>
+			bool hasNext(TSubStream& stream) { return stream.hasNext(); }
+		};
 
 	}
 

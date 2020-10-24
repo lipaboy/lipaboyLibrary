@@ -5,12 +5,13 @@
 #include <type_traits>
 #include <functional>
 #include <memory>
-#include <algorithm>
 #include <iterator>
 #include <vector>
 
 namespace lipaboy_lib {
 
+	// PLAN:
+	// 1) replace vector to array<N>
 
 	// unreal iterator because we can't make make_iterator from it
 template <class T>

@@ -50,10 +50,10 @@ set(LIB_LIPABOY_LIB_SOURCE_FILES
     stream/stream_extended.h
     "stream/stream_base.h"
     stream/stream.h
-    stream/to_pair.h
-    stream/stream_paired.h
-    stream/extenders.h
+    stream/light_stream.h
+    
     # Operators
+    "stream/operators/to_pair.h"
     stream/operators/distinct.h
     "stream/operators/filter.h"
     "stream/operators/get.h"

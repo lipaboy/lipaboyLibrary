@@ -7,10 +7,9 @@ namespace lipaboy_lib::stream_space {
 	namespace operators {
 
 		template <class TypeCastTo>
-		class cast_to {
+		class cast_to 
+		{
 		public:
-			static constexpr bool isTerminated = false;
-
 			template <class T>
 			using RetType = TypeCastTo; // return the same type
 
@@ -38,8 +37,6 @@ namespace lipaboy_lib::stream_space {
 		template <class TypeCastTo>
 		class cast_static {
 		public:
-			static constexpr bool isTerminated = false;
-
 			template <class T>
 			using RetType = TypeCastTo; // return the same type
 
@@ -67,8 +64,6 @@ namespace lipaboy_lib::stream_space {
 		template <class TypeCastTo>
 		class cast_dynamic {
 		public:
-			static constexpr bool isTerminated = false;
-
 			template <class T>
 			using RetType = TypeCastTo; // return the same type
 

@@ -38,30 +38,19 @@ using namespace lipaboy_lib::stream_space::operators;
 
 //-------------------------------------//
 
-TEST(StreamTest, paired_stream_diff_types) {
-    vector<int> vec = {4, 5, 6};
-    auto first = Stream({1, 2, 3});
-    auto second = Stream(vec);
-    auto vec2 = to_pair(first, second) | to_vector();
-    int i = 0;
-    for (auto &elem : vec2) {
-        EXPECT_EQ(elem.first, i + 1);
-        EXPECT_EQ(elem.second, i + 4);
-        i++;
-    }
-}
+// Cannot do it because result type of std::bind doesn't specify
 
-TEST(StreamTest, paired_stream_same_types) {
-    // Cannot do it
-//    auto first = Stream({1, 2, 3});
-//    auto second = Stream({4, 5, 6});
-//    auto vec2 = to_pair(first, second) | to_vector();
-//    int i = 0;
-//    for (auto &elem : vec2) {
-//        EXPECT_EQ(elem.first, i + 1);
-//        EXPECT_EQ(elem.second, i + 4);
-//        i++;
-//    }
+TEST(StreamTest, bind) {
+    using namespace std::placeholders;
+    auto f = std::bind(static_cast<double(&)(double, double)>(std::pow), _1, 2.);
+    auto res = 
+        Stream(1, 2, 3) | cast_to<double>() 
+        | map<std::function<double(double)> >(f)
+        //| map<double(double)>(f)      // Error
+        //| map(f)                      // Error
+        | cast_to<int>()
+        | to_vector();
+    ASSERT_EQ(res, decltype(res)({ 1, 4, 9 }));
 }
 
 
@@ -398,7 +387,7 @@ TEST(StreamTest, noisy) {
     try {
         //-------------Noisy Test---------------//
 
-#ifdef LOL_DEBUG_NOISY
+#ifdef DEBUG_STREAM_WITH_NOISY
 
 		vector<Noisy> vec(1);
 		cout << "\tstart streaming" << endl;

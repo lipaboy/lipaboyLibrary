@@ -4,35 +4,30 @@
 
 #include <vector>
 
-namespace lipaboy_lib {
+namespace lipaboy_lib::stream_space {
 
-	namespace stream_space {
+	namespace operators {
 
-		namespace operators {
+		using std::vector;
 
-			using std::vector;
+		struct to_vector : TerminatedOperator
+		{
+		public:
+			template <class T>
+			using RetType = std::vector<T>;
+		public:
 
-			struct to_vector {
-			public:
-				template <class T>
-				using RetType = std::vector<T>;
+			template <class Stream_>
+			auto apply(Stream_ & obj) -> vector<typename Stream_::ResultValueType>
+			{
+				using ToVectorType = vector<typename Stream_::ResultValueType>;
+				ToVectorType toVector;
+				for (; obj.hasNext(); )
+					toVector.push_back(obj.nextElem());
+				return std::move(toVector);
+			}
 
-				static constexpr OperatorMetaTypeEnum metaInfo = TO_VECTOR;
-				static constexpr bool isTerminated = true;
-			public:
-
-				template <class Stream_>
-				auto apply(Stream_ & obj) -> vector<typename Stream_::ResultValueType>
-				{
-					using ToVectorType = vector<typename Stream_::ResultValueType>;
-					ToVectorType toVector;
-					for (; obj.hasNext(); )
-						toVector.push_back(obj.nextElem());
-					return std::move(toVector);
-				}
-			};
-
-		}
+		};
 
 	}
 

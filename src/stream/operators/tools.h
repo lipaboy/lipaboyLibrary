@@ -7,136 +7,154 @@
 #include <typeinfo>
 #include <type_traits>
 
-#include <optional>
+namespace lipaboy_lib::stream_space {
 
-namespace lipaboy_lib {
+	namespace operators {
 
-	namespace stream_space {
+		using std::function;
 
-		namespace operators {
+		//#define DEBUG_STREAM_WITH_NOISY
 
-			// What's stream at all?
-			// Answer: Stream is not iterator (because can't return current element). 
-			//		   Single-pass. Save sequence of elements (periphrase).
-
-			// PLAN FOR STREAM:
-			//-----------------
-			// TODO: Think about allocators (in Range when happen copying and creating own container)
-			//       (maybe too partical case?)
-			// TODO: test different lambdas (with const&T in return type, with T& in argument type)
-			// TODO: make Noisy test for reduce operation
-			// TODO: think about writing iterators for Stream 
-			//			- Iterator must be storage temporary current values.
-			//			- Interesting fact: all the std::algorithms are terminated operations.
-			// TODO: write advises for them who will write operators for Stream, for example:
-			//			- When you write operator and you have inner fields that must be initialized
-			//			  by Stream's elem then you should do it into hasNext<>() because
-			//			  likely it is first that called by all the terminated operations (or clients).
-			//			  And furthermore you likely will call hasNext<>() into nextElem<>() and incrementSlider<>().
-			//			  Or you can write private method init<>().
-			//			- Note: if client call the hasNext<>() then he start using Stream. 
-			//					It means that you can use all the API functions of Stream interface.
+		using lipaboy_lib::function_traits;
+		using lipaboy_lib::WrapBySTDFunctionType;
 
 
+		//---------------Special structs--------------//
 
-			using std::function;
+		struct TReturnSameType {
+			template <class T>
+			using RetType = T;
+		};
 
-			//#define LOL_DEBUG_NOISY
+		struct FixSizeOperator {};
 
-			using lipaboy_lib::function_traits;
-			using lipaboy_lib::WrapBySTDFunctionType;
+		struct TerminatedOperator {};
 
-			enum OperatorMetaTypeEnum {
-				FILTER,
-				MAP,
-				REDUCE,
-				GET,
-				SKIP,
-				PRINT_TO,
-				GROUP_BY_VECTOR,
-				SUM,
-				TO_VECTOR,
-				NTH,
-				UNGROUP_BY_BIT,
+		template <class Functor>
+		struct FunctorMetaType {
+			using GetMetaType = Functor;
+		};
 
-				DISTINCT,
-				SPLIT,
-				MAX
-			};
+		template <class Functor>
+		struct FunctorHolderDirectly : FunctorMetaType<Functor> {
+			using FunctorType = Functor;
+			FunctorHolderDirectly(FunctorType func) : functor_(func) {}
+
+			FunctorType functor() const { return functor_; }
+			void setFunctor(FunctorType op) { functor_ = op; }
+		private:
+			FunctorType functor_;
+		};
+
+		// Wrap almost all the functions by std::function 
+		// (except lambda with auto arguments and etc.)
+		template <class Functor>
+		struct FunctorHolderWrapper 
+			: FunctorMetaType< WrapBySTDFunctionType<Functor> > 
+		{
+			using FunctorType = WrapBySTDFunctionType<Functor>;
+			FunctorHolderWrapper(FunctorType func) : functor_(func) {}
+
+			FunctorType functor() const { return functor_; }
+			void setFunctor(FunctorType op) { functor_ = op; }
+		private:
+			FunctorType functor_;
+		};
+
+		template <>
+		struct FunctorHolderWrapper< std::function<void(void)> >
+		{
+			FunctorHolderWrapper() {}
+		};
+
+		template <class Functor>
+		struct FunctorHolderWrapperExcludeLambda 
+			: FunctorMetaType< WrapBySTDFunctionExcludeLambdaType<Functor> > 
+		{
+			using FunctorType = WrapBySTDFunctionExcludeLambdaType<Functor>;
+			FunctorHolderWrapperExcludeLambda(FunctorType func) : functor_(func) {}
+
+			FunctorType functor() const { return functor_; }
+			void setFunctor(FunctorType op) { functor_ = op; }
+		private:
+			FunctorType functor_;
+		};
+
+		template <class Functor>
+		struct FunctorHolder
+				//     : FunctorHolderWrapper<Functor>
+			//: FunctorHolderDirectly<Functor>
+			: FunctorHolderWrapperExcludeLambda<Functor>
+		{
+			using Base = FunctorHolderWrapperExcludeLambda<Functor>;
+			//       : FunctorHolderWrapper<Functor>(func)
+				//: FunctorHolderDirectly<Functor>(func)
+			FunctorHolder(typename Base::FunctorType func) 
+				: Base(func)
+			{}
+		};
+
+	}
 
 
-			//---------------Special structs--------------//
+	namespace shortening {
 
-			struct TReturnSameType {
-				template <class T>
-				using RetType = T;
-			};
+		//---------------StreamTypeExtender---------------//
 
-			template <class Functor>
-			struct FunctorMetaType {
-				using GetMetaType = Functor;
-			};
+		template <class TStream, class TOperator>
+		struct StreamTypeExtender {
+			using type = typename std::remove_reference_t<TStream>::
+				template ExtendedStreamType<std::remove_reference_t<TOperator> >;
+		};
 
-			template <class Functor>
-			struct FunctorHolderDirectly : FunctorMetaType<Functor> {
-				using FunctorType = Functor;
-				FunctorHolderDirectly(FunctorType func) : functor_(func) {}
+		template <class TStream, class TOperator>
+		using StreamTypeExtender_t = typename StreamTypeExtender<TStream, TOperator>::type;
 
-				FunctorType functor() const { return functor_; }
-				void setFunctor(FunctorType op) { functor_ = op; }
-			private:
-				FunctorType functor_;
-			};
+		template <class TStream, class TOperator>
+		struct TerminatedOperatorTypeApply {
+			using type = std::remove_reference_t<TOperator>;
+		};
 
-			// Wrap almost all the functions by std::function 
-			// (except lambda with auto arguments and etc.)
-			template <class Functor>
-			struct FunctorHolderWrapper 
-				: FunctorMetaType< WrapBySTDFunctionType<Functor> > 
-			{
-				using FunctorType = WrapBySTDFunctionType<Functor>;
-				FunctorHolderWrapper(FunctorType func) : functor_(func) {}
+		template <class TStream, class TOperator>
+		using TerminatedOperatorTypeApply_t =
+			typename TerminatedOperatorTypeApply<TStream, TOperator>::type;
 
-				FunctorType functor() const { return functor_; }
-				void setFunctor(FunctorType op) { functor_ = op; }
-			private:
-				FunctorType functor_;
-			};
+		//------------------------------------------------------------------//
+		//-------------------------Useful aliases---------------------------//
+		//------------------------------------------------------------------//
 
-			template <>
-			struct FunctorHolderWrapper< std::function<void(void)> >
-			{
-				FunctorHolderWrapper() {}
-			};
+		template <class TFunction>
+		using GetFirstArgumentType = typename function_traits<
+			lipaboy_lib::WrapBySTDFunctionType<TFunction> >::template arg<0>::type;
 
-			template <class Functor>
-			struct FunctorHolderWrapperExcludeLambda 
-				: FunctorMetaType< WrapBySTDFunctionExcludeLambdaType<Functor> > 
-			{
-				using FunctorType = WrapBySTDFunctionExcludeLambdaType<Functor>;
-				FunctorHolderWrapperExcludeLambda(FunctorType func) : functor_(func) {}
+		template <class TFunction>
+		using GetSecondArgumentType = typename function_traits<
+			lipaboy_lib::WrapBySTDFunctionType<TFunction> >::template arg<1>::type;
 
-				FunctorType functor() const { return functor_; }
-				void setFunctor(FunctorType op) { functor_ = op; }
-			private:
-				FunctorType functor_;
-			};
+		template <class TFunction>
+		constexpr size_t GetArgumentCount = function_traits<
+			lipaboy_lib::WrapBySTDFunctionType<TFunction> >::nargs;
 
-			template <class Functor>
-			struct FunctorHolder
-				   //     : FunctorHolderWrapper<Functor>
-				//: FunctorHolderDirectly<Functor>
-				: FunctorHolderWrapperExcludeLambda<Functor>
-			{
-				using Base = FunctorHolderWrapperExcludeLambda<Functor>;
-				//       : FunctorHolderWrapper<Functor>(func)
-					//: FunctorHolderDirectly<Functor>(func)
-				FunctorHolder(typename Base::FunctorType func) 
-					: Base(func)
-				{}
-			};
+		// TODO: replace on std::false_type
+		using FalseType =
+			//std::false_type;
+			std::function<void(void)>;
 
-		}
+		//
+
+		template <class T>
+		struct result_of_else {
+		};
+		template <class F, class T>
+		struct result_of_else<F(T)> {
+			using type = typename std::invoke_result<F, T>::type;
+		};
+		template <class T>
+		struct result_of_else<FalseType(T)>
+			: std::false_type
+		{};
+		template <class T>
+		using result_of_else_t = typename result_of_else<T>::type;
 
 	}
 

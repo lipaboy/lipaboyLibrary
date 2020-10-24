@@ -37,7 +37,7 @@ namespace operators_space {
 
 	using std::function;
 
-	//#define LOL_DEBUG_NOISY
+	//#define DEBUG_STREAM_WITH_NOISY
 
 	using lipaboy_lib::function_traits;
 	using lipaboy_lib::WrapBySTDFunctionType;
