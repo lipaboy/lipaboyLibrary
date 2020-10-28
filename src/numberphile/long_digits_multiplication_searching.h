@@ -8,6 +8,7 @@
 
 #include "stream/stream.h"
 #include "long_numbers/long_number.h"
+#include "long_numbers/long_unsigned.h"
 #include "extra_tools/maths_tools.h"
 
 namespace lipaboy_lib::numberphile {
@@ -19,6 +20,7 @@ namespace lipaboy_lib::numberphile {
     using namespace lipaboy_lib::stream_space;
     using namespace lipaboy_lib::stream_space::operators;
     using lipaboy_lib::long_numbers_space::LongIntegerDecimal;
+    using lipaboy_lib::long_numbers_space::LongUnsigned;
 
     void long_digits_multiplication_searching_vectors();
 
@@ -27,6 +29,8 @@ namespace lipaboy_lib::numberphile {
     void long_digits_multiplication_searching_optimized();
 
     void long_digits_multiplication_searching_long_numbers();
+
+    void long_digits_multiplication_searching_long_unsigned();
 
     void long_digits_multiplication_searching_factorization();
 

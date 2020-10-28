@@ -13,6 +13,7 @@ namespace lipaboy_lib::numberphile {
     // 437799 - 7 steps (22 3 3333 77)
     // 248883999 - 9 steps
     // 3778888999 - 10 steps
+    // 27777789999999999 - 11 steps
     // 288888877777799  - 11 steps of digit-multiplications
     //
     // https://zen.yandex.ru/media/tehno_chtivo/v-chem-chislo-277777788888899-mirovoi-rekordsmen-5ede6acd9abc2748d3bbf7e2
@@ -33,10 +34,10 @@ namespace lipaboy_lib::numberphile {
 
     void long_digits_multiplication_searching_long_numbers()
     {
-        #define NUM_THREADS 6
-        using IntType = LongIntegerDecimal<40>;
+        #define NUM_THREADS 1
+        using IntType = LongIntegerDecimal<20>;
         // info uint64_t = 64 bit, 10^19 max value, as 7 is max value, then maximum 7^22
-        constexpr int64_t MAX = 200;
+        constexpr int64_t MAX_LEN = 30;
         using OneDigitIntType =
             //IntType;
             LongIntegerDecimal<1>;
@@ -61,39 +62,40 @@ namespace lipaboy_lib::numberphile {
         const OneDigitIntType DEC = 10;
         const OneDigitIntType ZERO = 0;
 
-        auto updateMaxSteps = [&ZERO, &DEC, &stepsStat](int64_t twos,
+        auto updateMaxSteps = [&DEC, &stepsStat](int64_t twos,
             int64_t threes, int64_t fives, int64_t sevens,
             int64_t& maxSteps, IntType& maxNumber, TArray& nums,
             auto& maxStepsVec, auto& maxNumberVec)
         {
-            auto convertToNumber = [&] () {
+            auto convertToNumber = [&] ()
+            {
                 maxNumber = IntType(0);
-                for (int64_t i = 0; i < twos % 2; i++) {
-                    maxNumber *= IntType(10);
+                for (int64_t i = 0; i < (twos % 3) % 2; i++) {
+                    maxNumber *= OneDigitIntType(10);
                     maxNumber += IntType(2);
                 }
-                for (int64_t i = 0; i < (twos % 3) / 2; i++) {
-                    maxNumber *= IntType(10);
-                    maxNumber += IntType(4);
-                }
-                for (int64_t i = 0; i < twos / 3; i++) {
-                    maxNumber *= IntType(10);
-                    maxNumber += IntType(8);
-                }
                 for (int64_t i = 0; i < threes % 2; i++) {
-                    maxNumber *= IntType(10);
+                    maxNumber *= OneDigitIntType(10);
                     maxNumber += IntType(3);
                 }
+                for (int64_t i = 0; i < (twos % 3) / 2; i++) {
+                    maxNumber *= OneDigitIntType(10);
+                    maxNumber += IntType(4);
+                }
                 for (int64_t i = 0; i < fives; i++) {
-                    maxNumber *= IntType(10);
+                    maxNumber *= OneDigitIntType(10);
                     maxNumber += IntType(5);
                 }
                 for (int64_t i = 0; i < sevens; i++) {
-                    maxNumber *= IntType(10);
+                    maxNumber *= OneDigitIntType(10);
                     maxNumber += IntType(7);
                 }
+                for (int64_t i = 0; i < twos / 3; i++) {
+                    maxNumber *= OneDigitIntType(10);
+                    maxNumber += IntType(8);
+                }
                 for (int64_t i = 0; i < threes / 2; i++) {
-                    maxNumber *= IntType(10);
+                    maxNumber *= OneDigitIntType(10);
                     maxNumber += IntType(9);
                 }
             };
@@ -127,6 +129,8 @@ namespace lipaboy_lib::numberphile {
                 convertToNumber();
 
                 if (maxSteps == 11) {
+                    if (maxNumber.to_string() == "34777777777777779")
+                        bool kek = true;
                     cout << maxNumber << endl;
                 }
             }
@@ -145,7 +149,7 @@ namespace lipaboy_lib::numberphile {
             // <35, 1e60> 1 thread - 13 secs, 4 threads - 9 secs, 8 threads - 7,5 secs, 8 threads + static,1 = 4 secs
             // <35, 1e90> 8 threads, dynamic,1 - 17 secs, static,1 - 18,7 secs, static,1,collapse2 - 17,7 secs
 #pragma omp for nowait schedule(dynamic, 1) //collapse(2)
-            for (int64_t len = 2; len <= MAX; len++)
+            for (int64_t len = 2; len <= MAX_LEN; len++)
             {
                 IntType temp7 = 1;
                 for (int64_t iSeven = 0; iSeven <= len; iSeven++)
@@ -204,8 +208,8 @@ namespace lipaboy_lib::numberphile {
             }
 
         }
-        maxStepsVec.push_back(9);
-        maxNumberVec.push_back(IntType("34888999"));
+//        maxStepsVec.push_back(9);
+//        maxNumberVec.push_back(IntType("34888999"));
         cout << "list: " << endl;
         for (int i = 0; i < int(maxStepsVec.size()); i++) {
             auto maxNum = maxNumberVec[i];
@@ -266,6 +270,246 @@ namespace lipaboy_lib::numberphile {
 
         cout << "1st step of last number: " << endl;
         std::copy(nums.begin(), std::next(nums.begin()), std::ostream_iterator<IntType>(cout, "\n"));
+
+        cout << "Statistics - count of steps:" << endl;
+        for (int i = 2; i < int(stepsStat.size()); i++)
+            cout << "(" << i << ") - " << stepsStat[i] << endl;
+
+        cout << "Time elapsed: " << extra::diffFromNow(startTime) << endl;
+
+    }
+
+
+    void long_digits_multiplication_searching_long_unsigned()
+    {
+        #define NUM_THREADS_UNSIGNED 1
+        constexpr int64_t MAX_LEN = 20;
+        // = MAX_LEN * log(7) / log(2^32) + 1
+        constexpr int64_t CONTAINER_DIMENSION = int64_t(2.81 * double(MAX_LEN) / 32.) + 1;
+        using NumType = LongUnsigned<CONTAINER_DIMENSION>;
+        // = MAX_LEN / (log(2^32) / log(10)) + 1
+        constexpr int64_t MAX_NUMBER_CONTAINER_DIMENSION = int64_t(double(MAX_LEN) / 0.3 / 32.) + 1;
+        using MaxNumType = LongUnsigned<MAX_NUMBER_CONTAINER_DIMENSION>;
+
+        // info uint64_t = 64 bit, 10^19 max value, as 7 is max value, then maximum 7^22
+        using OneDigitNumType =
+            //IntType;
+            LongUnsigned<1>;
+        using TArray = std::array<NumType, 30>;
+        using special::pow;
+
+        auto startTime = extra::getCurrentTime();
+
+        TArray nums;
+        nums.fill(NumType(1));
+        int64_t maxSteps = 0;
+        MaxNumType maxNumber(1);
+        vector<int64_t> maxStepsVec;
+        vector<MaxNumType> maxNumberVec;
+
+        vector<int64_t> stepsStat(13, 0);
+
+        const OneDigitNumType SEVEN = 7;
+        const OneDigitNumType THREE = 3;
+        const OneDigitNumType FIVE = 5;
+        const OneDigitNumType TWO = 2;
+        const OneDigitNumType DEC = 10;
+        const OneDigitNumType ZERO = 0;
+
+        auto updateMaxSteps = [&ZERO, &DEC, &stepsStat](int64_t twos,
+            int64_t threes, int64_t fives, int64_t sevens,
+            int64_t& maxSteps, MaxNumType& maxNumber, TArray& nums,
+            auto& maxStepsVec, auto& maxNumberVec)
+        {
+            auto convertToNumber = [&] ()
+            {
+                maxNumber = MaxNumType(0);
+                for (int64_t i = 0; i < (twos % 3) % 2; i++) {
+                    maxNumber *= OneDigitNumType(10);
+                    maxNumber += OneDigitNumType(2);
+                }
+                for (int64_t i = 0; i < threes % 2; i++) {
+                    maxNumber *= OneDigitNumType(10);
+                    maxNumber += OneDigitNumType(3);
+                }
+                for (int64_t i = 0; i < (twos % 3) / 2; i++) {
+                    maxNumber *= OneDigitNumType(10);
+                    maxNumber += OneDigitNumType(4);
+                }
+                for (int64_t i = 0; i < fives; i++) {
+                    maxNumber *= OneDigitNumType(10);
+                    maxNumber += OneDigitNumType(5);
+                }
+                for (int64_t i = 0; i < sevens; i++) {
+                    maxNumber *= OneDigitNumType(10);
+                    maxNumber += OneDigitNumType(7);
+                }
+                for (int64_t i = 0; i < twos / 3; i++) {
+                    maxNumber *= OneDigitNumType(10);
+                    maxNumber += OneDigitNumType(8);
+                }
+                for (int64_t i = 0; i < threes / 2; i++) {
+                    maxNumber *= OneDigitNumType(10);
+                    maxNumber += OneDigitNumType(9);
+                }
+            };
+            // TODO: need optimization!
+            int64_t iNum = 0;
+            for (; ; iNum++) {
+                nums[iNum + 1] = NumType(1);
+
+                auto curr = nums[iNum];
+//                IntType remainder;
+                while(curr > ZERO) {
+                    auto res = curr.divide(NumType(10));
+                    nums[iNum + 1] *= res.second;
+                    curr = res.first;
+                }
+//                for (int i = int(curr.length()) - 1; i >= 0; i--) {
+//                    for(auto part = curr[i]; part > 0; part /= 10) {
+//                        remainder = part % 10;
+//                        nums[iNum + 1] *= remainder;
+//                    }
+//                }
+
+                if (nums[iNum + 1] < DEC)
+                    break;
+            }
+
+            ++stepsStat[iNum + 2];
+
+            if (iNum + 2 >= 9) {
+                convertToNumber();
+                maxNumberVec.push_back(maxNumber);
+                maxStepsVec.push_back(iNum + 2);
+            }
+            if (maxSteps <= iNum + 2) {
+                maxSteps = iNum + 2;
+                convertToNumber();
+
+                if (maxSteps == 11) {
+                    cout << maxNumber.to_string() << endl;
+                }
+            }
+        };
+
+        #pragma omp parallel num_threads(NUM_THREADS_UNSIGNED)
+        {
+            //cout << omp_get_num_threads() << endl;
+            int64_t maxStepsPrivate = 0;
+            MaxNumType maxNumberPrivate(1);
+            vector<int64_t> maxStepsVecPrivate;
+            vector<MaxNumType> maxNumberVecPrivate;
+            TArray numsPrivate;
+            numsPrivate.fill(NumType(1));
+
+            // <35, 1e60> 1 thread - 13 secs, 4 threads - 9 secs, 8 threads - 7,5 secs, 8 threads + static,1 = 4 secs
+            // <35, 1e90> 8 threads, dynamic,1 - 17 secs, static,1 - 18,7 secs, static,1,collapse2 - 17,7 secs
+            #pragma omp for nowait schedule(dynamic, 1) //collapse(2)
+            for (int64_t len = 2; len <= MAX_LEN; len++)
+            {
+                NumType temp7 = 1;
+                for (int64_t iSeven = 0; iSeven <= len; iSeven++)
+                {
+                    // INFO: uncomment if you using collapse in omp parallelism
+                    //IntType temp7 = pow<OneDigitIntType, uint64_t, IntType>(SEVEN, iSeven);
+                    NumType temp3 = 1;
+                    for (int64_t iThree = 0; iThree <= len - iSeven; iThree++)
+                    {
+                        NumType temp37 = temp7 * temp3;
+                        //IntType temp37 = temp7 * pow<OneDigitIntType, uint64_t, IntType>(THREE, iThree);
+
+                        // twos = len - iSeven - iThree
+
+                        // multiply the digits
+
+                        auto iTwo = len - iSeven - iThree;
+
+                        numsPrivate[0] = temp37 *
+                            pow<OneDigitNumType, int64_t, NumType>(TWO, iTwo);
+
+                        updateMaxSteps(iTwo, iThree, 0, iSeven, maxStepsPrivate,
+                                       maxNumberPrivate, numsPrivate, maxStepsVecPrivate, maxNumberVecPrivate);
+
+                        // fives = len - iSeven - iThree
+
+                        auto iFive = len - iSeven - iThree;
+                        numsPrivate[0] = temp37 *
+                            pow<OneDigitNumType, int64_t, NumType>(FIVE, iFive);
+
+                        updateMaxSteps(0, iThree, iFive, iSeven, maxStepsPrivate,
+                                       maxNumberPrivate, numsPrivate, maxStepsVecPrivate, maxNumberVecPrivate);
+
+                        temp3 *= THREE;
+
+                    }
+
+                    temp7 *= SEVEN;
+
+                }
+
+            }
+
+
+            #pragma omp critical
+            {
+                if (maxSteps < maxStepsPrivate) {
+                    maxSteps = maxStepsPrivate;
+                    maxNumber = maxNumberPrivate;
+                    nums = numsPrivate;
+                }
+                maxStepsVec.insert(maxStepsVec.end(), maxStepsVecPrivate.begin(), maxStepsVecPrivate.end());
+                maxNumberVec.insert(maxNumberVec.end(), maxNumberVecPrivate.begin(), maxNumberVecPrivate.end());
+            }
+
+        }
+
+        cout << "list: " << endl;
+        for (int i = 0; i < int(maxStepsVec.size()); i++) {
+            auto maxNum = maxNumberVec[i];
+            cout << maxNum.to_string() << "\t\t - " << maxStepsVec[i] << endl;
+
+            int j = 1;
+            for (; ; j++) {
+                MaxNumType res(1);
+                for (int i = 0; ; i++) {
+                    if (maxNum <= MaxNumType(0))
+                        break;
+                    auto pair = maxNum.divide(MaxNumType(10));
+                    auto digit = pair.second;
+                    maxNum = pair.first;
+                    res = res * MaxNumType(digit);
+                }
+                maxNum = res;
+                cout << res.to_string() << endl;
+                if (res <= MaxNumType(10))
+                    break;
+            }
+        }
+
+        cout << "Max decimal-digit count of type: "
+            << int(CONTAINER_DIMENSION * 32. * std::log(2) / std::log(10))<< endl;
+        cout << "Max steps: " << maxSteps << endl
+            << "Number: " << maxNumber.to_string() << endl;
+
+        for (int j = 0; ; j++) {
+            MaxNumType res(1);
+            for (int i = 0; ; i++) {
+                if (maxNumber <= MaxNumType(0))
+                    break;
+                auto pair = maxNumber.divide(MaxNumType(10));
+                auto digit = pair.second;
+                maxNumber = pair.first;
+                res = res * MaxNumType(digit);
+            }
+            maxNumber = res;
+            cout << res.to_string() << endl;
+            if (res <= MaxNumType(10))
+                break;
+        }
+
+        cout << "1st step of last number: " << endl;
+        std::copy(nums.begin(), std::next(nums.begin()), std::ostream_iterator<NumType>(cout, "\n"));
 
         cout << "Statistics - count of steps:" << endl;
         for (int i = 2; i < int(stepsStat.size()); i++)
