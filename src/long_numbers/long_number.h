@@ -388,6 +388,8 @@ public:
     const_reverse_iterator crbegin() const { return number_.crbegin(); }
     const_reverse_iterator crend() const { return number_.crend(); }
 
+    IntegralType back() const { return number_.back(); }
+
 private:
 	void checkTemplateParameters() {
 		static_assert(lengthOfIntegrals > 0, "Wrong length of LongInteger");

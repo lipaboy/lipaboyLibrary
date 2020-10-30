@@ -263,6 +263,18 @@ namespace long_numbers_tests {
 		first.shiftLeft(first.integralModulusDegree() * 3 - 1);
 		first -= second;
 		ASSERT_EQ(string(first.integralModulusDegree() * 3 - 1, '1'), first.to_string(2));
+
+        LongUnsigned<2> third(0);
+
+        first = "123456789012";
+        third = "123000000000";
+        ASSERT_EQ((first - third).to_string(), "456789012");
+
+        first =  "123456789012";
+        second =    "500000000";
+        for (int i = 0; i < 123 * 2; i++)
+            first -= second;
+        ASSERT_EQ((first).to_string(), "456789012");
 	}
 
 	TEST(LongUnsigned, substract_overflow) {
@@ -288,6 +300,14 @@ namespace long_numbers_tests {
 	}
 
     //---------Operator+ checking-----------//
+
+    TEST(LongUnsigned, sum_different_length_to_check_result_type) {
+        LongUnsigned<3> first (1);
+        LongUnsigned<1> second(1);
+
+        auto res = second + first;
+        EXPECT_TRUE(res.length() == 3);
+    }
 
 	TEST(LongUnsigned, sum_different_length) {
 		LongUnsigned<3> first (std::numeric_limits<uint32_t>::max() - 3);
