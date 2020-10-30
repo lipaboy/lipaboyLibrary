@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 
+#include "extra_tools/maths_tools.h"
 #include "long_numbers/long_number.h"
 
 namespace long_numbers_tests {
@@ -208,19 +209,29 @@ TEST(LongInteger, remainder_double) {
 //---------Operator* checking-----------//
 
 TEST(LongInteger, multiplication_by_different_lengths) {
-	LongIntegerDecimal<1> num1("2");
-	LongIntegerDecimal<4> num2("10000010000");
+    LongIntegerDecimal<1> num1("2");
+    LongIntegerDecimal<4> num2("10000010000");
+
+    EXPECT_EQ((num1 * num2).to_string(), "20000020000");
+
+    LongIntegerDecimal<4> num3("2");
+    LongIntegerDecimal<4> num4("10000010000");
+
+    for (int i = 0; i < 25; i++) {
+        num2 *= num1;
+        num4 *= num3;
+    }
+    ASSERT_EQ(num2.to_string(), num4.to_string());
+}
+
+TEST(LongInteger, multiplication_double_rank_by_dependent_parts) {
+    LongIntegerDecimal<2> three(3);
+    LongIntegerDecimal<2> seven(7);
 	
-	EXPECT_EQ((num1 * num2).to_string(), "20000020000");
+    three = special::pow<decltype(three), int>(three, 3);
+    seven = special::pow<decltype(three), int>(seven, 14);
 
-	LongIntegerDecimal<4> num3("2");
-	LongIntegerDecimal<4> num4("10000010000");
-
-	for (int i = 0; i < 25; i++) {
-		num2 *= num1;
-		num4 *= num3;
-	}
-	ASSERT_EQ(num2.to_string(), num4.to_string());
+    EXPECT_EQ((seven * three).to_string(), "18312022966923");
 }
 
 TEST(LongInteger, multiplication_double_rank_by_independent_parts) {

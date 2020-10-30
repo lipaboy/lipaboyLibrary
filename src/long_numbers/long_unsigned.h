@@ -184,9 +184,9 @@ namespace lipaboy_lib::long_numbers_space {
 
         template <LengthType length2>
         auto operator*(LongUnsigned<length2> const& other) const
-            -> LongUnsigned<extra::Max<lengthOfIntegrals, length2>::value >
+            -> LongUnsigned< extra::Max<lengthOfIntegrals, length2>::value >
         {
-            using ResultType = LongUnsigned<extra::Max<lengthOfIntegrals, length2>::value >;
+            using ResultType = LongUnsigned< extra::Max<lengthOfIntegrals, length2>::value >;
             ResultType res(0);
             //		// This chapter has two parts
             //		// First part. Bisecting the result by two portions: main and overflow ones
