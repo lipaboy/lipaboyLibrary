@@ -21,19 +21,25 @@ namespace lipaboy_lib::numberphile {
 
 
 
-    // linux: <20, 1e60> - 0,3 secs, <20, 1e160> - 12 secs, <35, 1e300> - 33 mins
-    // <40, 1e150, 8 ths> - 6,3 secs, <40, 1e200, 8 ths> - 12,8 secs, <50, 1e400, 8ths> - 6,8 mins
-    // <60, 1e500, 6 ths> - 18,6 mins, <70, 1e600, 6 ths> - 51,6 mins
-    // windows: <20, 1e90> - 2,25 mins, <30, 1e40> - 13 secs
+    // linux: <1e60> - 0,3 secs, <1e160> - 12 secs, <1e300> - 33 mins
+    // <1e150, 8 ths> - 6,3 secs, <1e200, 8 ths> - 12,8 secs, <1e400, 8ths> - 6,8 mins
+    // <1e500, 6 ths> - 18,6 mins, <1e600, 6 ths> - 51,6 mins, <1e700, 6ths> - 58,3 mins
+    // <1e700-705, 6ths> - 6,5 mins
+    // windows: <1e90> - 2,25 mins, <1e40> - 13 secs
 
     void long_digits_multiplication_searching_long_numbers()
     {
-        #define NUM_THREADS 1
-        using IntType = LongIntegerDecimal<5>;
-        // info uint64_t = 64 bit, 10^19 max value, as 7 is max value, then maximum 7^22
-        constexpr int64_t MAX_LEN = 30;
+        // PLAN:
+        // 1) make type for MaxNumber
+        // 2) add continue for calculating
+
+        #define NUM_THREADS 6
+        constexpr int64_t FIRST_LEN = 2;
+        constexpr int64_t MAX_LEN = 20;
+        constexpr size_t CONTAINER_DIMENSION = MAX_LEN / 9 + ((MAX_LEN % 9 == 0) ? 0 : 1);
+
+        using IntType = LongIntegerDecimal<CONTAINER_DIMENSION>;
         using OneDigitIntType =
-            //IntType;
             LongIntegerDecimal<1>;
         using TArray = std::array<IntType, 16>;
         using special::pow;
@@ -54,7 +60,6 @@ namespace lipaboy_lib::numberphile {
         const OneDigitIntType FIVE = 5;
         const OneDigitIntType TWO = 2;
         const OneDigitIntType DEC = 10;
-        const OneDigitIntType ZERO = 0;
 
         auto updateMaxSteps = [&DEC, &stepsStat](int64_t twos,
             int64_t threes, int64_t fives, int64_t sevens,
@@ -137,12 +142,12 @@ namespace lipaboy_lib::numberphile {
                     cout << maxNumber << endl;
                 }
             }
-            if (iNum + 2 >= 9) {
-                IntType number;
-                convertToNumber(number);
-                maxNumberVec.push_back(number);
-                maxStepsVec.push_back(iNum + 2);
-            }
+//            if (iNum + 2 == 8) {
+//                IntType number;
+//                convertToNumber(number);
+//                maxNumberVec.push_back(number);
+//                maxStepsVec.push_back(iNum + 2);
+//            }
         };
 
 #pragma omp parallel num_threads(NUM_THREADS)
@@ -158,7 +163,7 @@ namespace lipaboy_lib::numberphile {
             // <35, 1e60> 1 thread - 13 secs, 4 threads - 9 secs, 8 threads - 7,5 secs, 8 threads + static,1 = 4 secs
             // <35, 1e90> 8 threads, dynamic,1 - 17 secs, static,1 - 18,7 secs, static,1,collapse2 - 17,7 secs
 #pragma omp for nowait schedule(dynamic, 1) //collapse(2)
-            for (int64_t len = 2; len <= MAX_LEN; len++)
+            for (int64_t len = FIRST_LEN; len <= MAX_LEN; len++)
             {
                 IntType temp7 = 1;
                 for (int64_t iSeven = 0; iSeven <= len; iSeven++)
@@ -208,7 +213,6 @@ namespace lipaboy_lib::numberphile {
 
 #pragma omp critical 
             {
-                //auto timeCriticalSection = extra::getCurrentTime();
                 if (maxSteps < maxStepsPrivate) {
                     maxSteps = maxStepsPrivate;
                     maxNumber = maxNumberPrivate;
@@ -216,12 +220,9 @@ namespace lipaboy_lib::numberphile {
                 }
                 maxStepsVec.insert(maxStepsVec.end(), maxStepsVecPrivate.begin(), maxStepsVecPrivate.end());
                 maxNumberVec.insert(maxNumberVec.end(), maxNumberVecPrivate.begin(), maxNumberVecPrivate.end());
-                //cout << "Time of critical section: " << extra::diffFromNow(timeCriticalSection) << endl;
             }
 
         }
-//        maxStepsVec.push_back(9);
-//        maxNumberVec.push_back(IntType("34888999"));
         cout << "list: " << endl;
         for (int i = 0; i < int(maxStepsVec.size()); i++) {
             auto maxNum = maxNumberVec[i];
@@ -524,43 +525,6 @@ namespace lipaboy_lib::numberphile {
 
         using ContainerOfPrimes = vector<uint64_t>;
         //ContainerOfPrimes primes;
-        double big = 998888887777772.;
-
-        //uint64_t bigRoot = uint64_t(std::sqrt(big));
-        //primes.resize(bigRoot);
-        //for (int i = 0; i < int(primes.size()); i++)
-        //    primes[i] = i;
-
-        //// sieve of Eratosthenes 
-
-        //for (uint64_t i = 2; i < uint64_t(primes.size() / 2); i++) {
-        //    if (primes[i] > 0) {
-        //        for (uint64_t j = i * i; j < uint64_t(primes.size()); j += i) {
-        //            primes[j] = 0;
-        //        }
-        //    }
-        //}
-
-        //primes = Stream(primes)
-        //    | skip(2)
-        //    | filter([](auto i) { return i > 0; })
-        //    | to_vector();
-
-        //cout << "Time elapsed of sieves: " << extra::diffFromNow(startTime) << endl;
-        //startTime = extra::getCurrentTime();
-
-        //uint64_t number = uint64_t(big);
-        //for (auto& i : primes) {
-        //    if (number % i == 0) {
-        //        cout << i << " ";
-        //        number /= i;
-        //        if (number <= i)
-        //            break;
-        //    }
-        //}
-        //cout << number << endl;
-        //cout << "Time elapsed of factorization: " << extra::diffFromNow(startTime) << endl;
-
 
         int64_t number = 
             // 277777788888899;
@@ -574,6 +538,7 @@ namespace lipaboy_lib::numberphile {
             // 222224777777888899;
 //               222233777777888889;
                 334468899;
+//                233777778999999999;
         auto getDigit = [&number](int index) -> int
         {
             auto temp = number / powDozen<int64_t>(index);
@@ -587,7 +552,7 @@ namespace lipaboy_lib::numberphile {
         constexpr std::array<int, 4> primes{ 2, 3, 5, 7 };
         auto checkFact = [&number, &primes]() {
             auto temp = number;
-            for (int k = 0; k < primes.size(); k++) {
+            for (int k = 0; k < int(primes.size()); k++) {
                 while (temp % primes[k] == 0) {
                     temp /= primes[k];
                 }
@@ -634,7 +599,7 @@ namespace lipaboy_lib::numberphile {
                     if (newLimit <= 0)
                         break;
                     limit += powDozen<int64_t>(newLimit);
-                    auto startTime = extra::getCurrentTime();
+                    startTime = extra::getCurrentTime();
                 }
 
                 checkFact();
