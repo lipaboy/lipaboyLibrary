@@ -157,6 +157,18 @@ namespace long_numbers_tests {
 
     //---------Operator/ checking-----------//
 
+    TEST(LongUnsigned, division_by_different_lengths) {
+        LongUnsigned<2> first("200200");
+        LongUnsigned<1> second("200200");
+
+        auto res = first.divide(second).first;
+        EXPECT_EQ(res.to_string(), "1");
+
+//        first *= second;
+
+//        EXPECT_EQ((first / second).to_string(), "200200");
+    }
+
     TEST(LongUnsigned, division_double) {
         LongUnsigned<2> first("200200");
         LongUnsigned<2> second("200200");

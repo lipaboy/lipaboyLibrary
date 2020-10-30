@@ -251,8 +251,55 @@ namespace lipaboy_lib::long_numbers_space {
             return *this;
         }
 
-        auto divide(const_reference other) const->pair<LongUnsigned, LongUnsigned>;
+        template <LengthType length2>
+        auto divide(LongUnsigned<length2> const & other) const->pair<LongUnsigned, LongUnsigned>
+        {
+            // TODO: replace to OneDigitNumber
+            const LongUnsigned<1> DEC(10);
+            const LongUnsigned<1> ONE(1);
+            const LongUnsigned<1> ZERO(0);
 
+            #if (defined(WIN32) && defined(DEBUG_)) || (defined(__linux__) && !defined(NDEBUG))
+                if (other == ZERO) {
+                    throw std::runtime_error("Runtime Error (LongUnsigned): division by zero");
+                }
+            #endif
+
+            LongUnsigned quotient(0);
+            LongUnsigned dividend(*this);
+            LongUnsigned divider(other);
+            LongUnsigned modulus(1);
+
+            int dividendMajorBit = dividend.majorBitPosition().value_or(0);
+            int dividerMajorBit = divider.majorBitPosition().value_or(0);
+
+            int diff = dividendMajorBit - dividerMajorBit;
+            if (diff > 0) {
+                divider.shiftLeft(diff);
+                modulus.shiftLeft(diff);
+                if (divider > dividend) {
+                    divider.shiftRight(1);
+                    modulus.shiftRight(1);
+                }
+            }
+
+            while (dividend >= divider || modulus != ONE) {
+                while (dividend >= divider) {
+                    dividend -= divider;
+                    quotient += modulus;
+                }
+
+                while (modulus != ONE) {
+                    divider.shiftRight(1);
+                    modulus.shiftRight(1);
+                    if (divider <= dividend)
+                        break;
+                }
+            }
+            // dividend - it is equal to remainder of division
+
+            return std::make_pair(quotient, dividend);
+        }
         const_reference shiftLeft(unsigned int count);
         const_reference shiftRight(unsigned int count);
 
@@ -494,56 +541,6 @@ namespace lipaboy_lib::long_numbers_space {
 
     //------------Arithmetic Operations-------------//
 
-    template <LengthType length>
-    auto LongUnsigned<length>::divide(const_reference other) const
-        -> pair<LongUnsigned, LongUnsigned>
-    {
-        // TODO: replace to OneDigitNumber
-        const LongUnsigned<1> DEC(10);
-        const LongUnsigned<1> ONE(1);
-        const LongUnsigned<1> ZERO(0);
-
-#if (defined(WIN32) && defined(DEBUG_)) || (defined(__linux__) && !defined(NDEBUG))
-            if (other == ZERO) {
-                throw std::runtime_error("Runtime Error (LongUnsigned): division by zero");
-            }
-#endif
-
-        LongUnsigned quotient(0);
-        LongUnsigned dividend(*this);
-        LongUnsigned divider(other);
-        LongUnsigned modulus(1);
-
-        int dividendMajorBit = dividend.majorBitPosition().value_or(0);
-        int dividerMajorBit = divider.majorBitPosition().value_or(0);
-
-        int diff = dividendMajorBit - dividerMajorBit;
-        if (diff > 0) {
-            divider.shiftLeft(diff);
-            modulus.shiftLeft(diff);
-            if (divider > dividend) {
-                divider.shiftRight(1);
-                modulus.shiftRight(1);
-            }
-        }
-
-        while (dividend >= divider || modulus != ONE) {
-            while (dividend >= divider) {
-                dividend -= divider;
-                quotient += modulus;
-            }
-
-            while (modulus != ONE) {
-                divider.shiftRight(1);
-                modulus.shiftRight(1);
-                if (divider <= dividend)
-                    break;
-            }
-        }
-        // dividend - it is equal to remainder of division
-
-        return std::make_pair(quotient, dividend);
-    }
 
     // TODO: test it
     template <LengthType length>
