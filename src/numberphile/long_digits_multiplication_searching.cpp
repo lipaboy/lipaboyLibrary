@@ -21,7 +21,7 @@ namespace lipaboy_lib::numberphile {
 
 
 
-    // linux: <1e60> - 0,3 secs, <1e160> - 12 secs, <1e300> - 33 mins
+    // linux: <1e60> - 0,3 secs, <1e160> - 12 secs
     // <1e150, 8 ths> - 6,3 secs, <1e200, 8 ths> - 12,8 secs, <1e400, 8ths> - 6,8 mins
     // <1e500, 6 ths> - 18,6 mins, <1e600, 6 ths> - 51,6 mins, <1e700, 6ths> - 58,3 mins
     // <1e700-705, 6ths> - 6,5 mins
@@ -275,9 +275,14 @@ namespace lipaboy_lib::numberphile {
     }
 
 
+
+    // Results:
+    // Linux
+    // <1e100, 6ths> - 13 secs, <1e130, 6ths> - 1,6 mins
+
     void long_digits_multiplication_searching_long_unsigned()
     {
-        #define NUM_THREADS_UNSIGNED 1
+        #define NUM_THREADS_UNSIGNED 6
         constexpr int64_t MAX_LEN = 20;
         // = MAX_LEN * log(7) / log(2^32) + 1
         constexpr int64_t CONTAINER_DIMENSION = int64_t(2.81 * double(MAX_LEN) / 32.) + 1;
@@ -290,7 +295,7 @@ namespace lipaboy_lib::numberphile {
         using OneDigitNumType =
             //IntType;
             LongUnsigned<1>;
-        using TArray = std::array<NumType, 30>;
+        using TArray = std::array<NumType, 16>;
         using special::pow;
 
         auto startTime = extra::getCurrentTime();
@@ -354,18 +359,12 @@ namespace lipaboy_lib::numberphile {
                 nums[iNum + 1] = NumType(1);
 
                 auto curr = nums[iNum];
-//                IntType remainder;
+                // TODO: optimize: make divide method with self-altering (/=, but with returning remainder)
                 while(curr > ZERO) {
                     auto res = curr.divide(NumType(10));
                     nums[iNum + 1] *= res.second;
                     curr = res.first;
                 }
-//                for (int i = int(curr.length()) - 1; i >= 0; i--) {
-//                    for(auto part = curr[i]; part > 0; part /= 10) {
-//                        remainder = part % 10;
-//                        nums[iNum + 1] *= remainder;
-//                    }
-//                }
 
                 if (nums[iNum + 1] < DEC)
                     break;
