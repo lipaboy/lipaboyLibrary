@@ -8,12 +8,17 @@
 
 namespace lipaboy_lib::numberphile {
 
+    // 3rd base: 
+    // 22, 121, 2^15 -> 1122221122 (3 steps), 222 -> 22 (3 steps)
+    // 4th base:
+    // 333 -> 123 -> 12 -> 2 (3 steps)
+
     void long_digits_multiplication_searching_long_unsigned_in_any_base()
     {
-        #define NUM_THREADS_UNSIGNED 1
-        constexpr unsigned int BASE = 3;
-        constexpr int64_t MAX_LEN = 120;
-        using NumType = LongUnsigned<9>;
+        //#define NUM_THREADS_UNSIGNED 1
+        constexpr unsigned int BASE = 4;
+        constexpr int64_t MAX_LEN = 10;
+        using NumType = LongUnsigned<40>;
         using MaxNumType = //LongUnsigned<1>;
             NumType;
 
@@ -23,7 +28,8 @@ namespace lipaboy_lib::numberphile {
         using special::pow;
 
         using PrimeType = std::array<int, 6>;
-        constexpr PrimeType primes = { 2, 3, 5, 7, 11, 13 };
+        constexpr PrimeType primes = { //2,  // remove for 4th base
+            3, 5, 7, 11, 13 };
 
         auto startTime = extra::getCurrentTime();
 
@@ -40,9 +46,9 @@ namespace lipaboy_lib::numberphile {
             OneDigitNumType currPrime = *iterPrime;
             if (iterPrime == primes.begin()) { // TODO: replace to if constexpr()
                 NumType whole = prevPart * pow<OneDigitNumType, int64_t, NumType>(currPrime, count);
-                string outStr = //view + string(count, '0' + *iterPrime) 
-                   // + "\n" 
-                    //+ 
+                string outStr = view + string(count, '0' + *iterPrime) 
+                    + "\n\t\t" 
+                    + 
                     whole.to_string(BASE);
                 bool flag = true;
                 for (int j = 0; j < outStr.length(); j++)
@@ -51,7 +57,8 @@ namespace lipaboy_lib::numberphile {
                         break;
                     }
                 if (flag)
-                    cout << counter++ << ") " << outStr << endl;
+                    cout << counter << ") " << outStr << endl;
+                counter++;
             }
             else {
                 NumType tempPrime = 1;
@@ -75,10 +82,15 @@ namespace lipaboy_lib::numberphile {
         for (int64_t len = 2; len <= MAX_LEN; len++) {
             traverseThePrime(iterFirst, len, NumType(1), "");
         }
+        if (BASE == 4) {
+            for (int64_t len = 2; len <= MAX_LEN; len++) {
+                traverseThePrime(iterFirst, len, NumType(2), "2");
+            }
+        }
 
         cout << endl;
 
-
+        cout << "Max digits of type: " << NumType::max().to_string(BASE).size() << endl;
 
 
 

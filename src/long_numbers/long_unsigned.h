@@ -444,7 +444,7 @@ namespace lipaboy_lib::long_numbers_space {
                         curr >>= 1;
                         bitpos++;
                     }
-                    return (bitpos - 1) + i * 8 * sizeof(IntegralType);
+                    return (bitpos - 1) + size_type(i) * 8 * sizeof(IntegralType);
                 }
             }
             return std::nullopt;
