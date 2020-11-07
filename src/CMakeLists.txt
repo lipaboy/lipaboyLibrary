@@ -114,6 +114,7 @@ set(LIB_LIPABOY_LIB_SOURCE_FILES
     # Numberphile
     numberphile/long_digits_multiplication_searching.h
     numberphile/long_digits_multiplication_searching.cpp
+    numberphile/long_digits_multiplication_searching_in_any_base.cpp
 )
 
 # Declare the library

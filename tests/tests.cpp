@@ -91,7 +91,7 @@ TEST(Check, check) {
 }
 
 
-#define LIPABOY_LIB_TESTING
+//#define LIPABOY_LIB_TESTING
 
 int main(int argc, char *argv[])
 {
@@ -104,7 +104,8 @@ int main(int argc, char *argv[])
     using namespace lipaboy_lib::numberphile;
 
 //    long_digits_multiplication_searching_long_numbers();
-    long_digits_multiplication_searching_long_unsigned();
+    //long_digits_multiplication_searching_long_unsigned();
+	long_digits_multiplication_searching_long_unsigned_in_any_base();
 //    long_digits_multiplication_searching_factorization();
 //    long_digits_multiplication_searching_vectors();
 //    long_digits_multiplication_searching_uint64_t();

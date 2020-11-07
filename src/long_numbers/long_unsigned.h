@@ -619,9 +619,6 @@ namespace lipaboy_lib::long_numbers_space {
         int i = 0;
         //constexpr size_t digitsCount = extra::getIntegralModulusDegree<rank>();
         do {
-            if (i == 61) {
-                cout << "kek";
-            }
             auto pair = temp.divide(LongUnsigned(base));
             temp = pair.first;
             res += std::to_string((pair.second)[0]);

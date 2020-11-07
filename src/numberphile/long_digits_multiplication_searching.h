@@ -32,6 +32,8 @@ namespace lipaboy_lib::numberphile {
 
     void long_digits_multiplication_searching_long_unsigned();
 
+    void long_digits_multiplication_searching_long_unsigned_in_any_base();
+
     void long_digits_multiplication_searching_factorization();
 
 }
