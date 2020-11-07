@@ -66,6 +66,16 @@ namespace long_numbers_tests {
 		ASSERT_EQ(first.to_string(2), "10");
 	}
 
+	TEST(LongUnsigned, assign_str_other_base) {
+		LongUnsigned<1> first;
+		for (int i = 2; i <= 9; i++) {
+			string numStr(2, '0' + i);
+			auto base = i + 1;
+			first.assignStr(numStr, base);
+			ASSERT_EQ(first.to_string(base), numStr);
+		}
+	}
+
 	//-----Any system------//
 
 	TEST(LongUnsigned, simple) {
