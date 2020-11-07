@@ -107,7 +107,7 @@ namespace lipaboy_lib::long_numbers_space {
             std::fill(std::next(begin()), end(), zeroIntegral());
         }
         explicit
-            LongUnsigned(string const& numberDecimalStr);
+            LongUnsigned(string const& numberStr, unsigned int base = 10);
         template <LengthType length2>
             explicit
             LongUnsigned(LongUnsigned<length2> const & other) {
@@ -325,7 +325,7 @@ namespace lipaboy_lib::long_numbers_space {
         reference_integral operator[] (size_t index) { return number_[index]; }
 
         const_reference operator= (string const& numberStr) {
-            this->assignString(numberStr);
+            this->assignStr(numberStr);
             return *this;
         }
 
@@ -335,8 +335,8 @@ namespace lipaboy_lib::long_numbers_space {
             return *this;
         }
 
-    private:
-        void assignString(string const& numberDecimalStr, unsigned int base = 10);
+    public:
+        void assignStr(string const& numberStr, unsigned int base = 10);
 
         //-------------------------Comparison---------------------------//
 
@@ -488,23 +488,23 @@ namespace lipaboy_lib::long_numbers_space {
     //-------------------------------------------------------------//
 
     template <LengthType length>
-    LongUnsigned<length>::LongUnsigned(string const& numberDecimalStr)
+    LongUnsigned<length>::LongUnsigned(string const& numberStr, unsigned int base)
     {
         checkTemplateParameters();
-        if (numberDecimalStr.length() <= 0)
+        if (numberStr.length() <= 0 || base < 2)
             LongUnsigned();
         else
-            assignString(numberDecimalStr);
+            assignStr(numberStr, base);
     }
 
     template <LengthType length>
-    void LongUnsigned<length>::assignString(string const& numberDecimalStr, unsigned int base) {
+    void LongUnsigned<length>::assignStr(string const& numberStr, unsigned int base) {
         // TODO: add exception for zero length
-        if (numberDecimalStr.length() > 0) {
+        if (numberStr.length() > 0) {
             const int integralModulusDegreeOfBase =
                 int(std::log(2) / std::log(base) * integralModulusDegree());
 
-            std::string_view numStrView = numberDecimalStr;
+            std::string_view numStrView = numberStr;
             numStrView.remove_prefix(
                 cutOffLeftBorder<int>(0, numStrView.find_first_not_of(" "))
             );
@@ -513,28 +513,28 @@ namespace lipaboy_lib::long_numbers_space {
                 cutOffLeftBorder<int>(0, TSigned(numStrView.length()) - TSigned(integralModulusDegreeOfBase * length()))
             );
 
-            int last = int(numStrView.length());
-            int first = cutOffLeftBorder<int>(last - integralModulusDegreeOfBase, 0);
-            size_t i = 0;
-            LongUnsigned iBase = 1;
+            int blockLen = (base == 2) ? integralModulusDegreeOfBase - 1 : integralModulusDegreeOfBase;
+            int last = int(numStrView.length());        // last variable is not included into segment [0, len - 1]
+            int first = cutOffLeftBorder<int>(last - blockLen, 0);
+            LongUnsigned<length()> iBase = 1;
             int subInt;
 
             std::fill(begin(), end(), zeroIntegral());
-            for (; last - first > 0 && i < length(); i++) {
+            while (last - first > 0) {
                 auto sub = numStrView.substr(size_t(first), size_t(last) - size_t(first));
-                std::from_chars(sub.data(), sub.data() + sub.size(), subInt);
+                std::from_chars(sub.data(), sub.data() + sub.size(), subInt, base);
 
                 subInt = std::abs(subInt);
-                LongUnsigned jBase = iBase;
+                auto jBase = iBase;
                 while (subInt > 0) {
-                    (*this) += LongUnsigned(subInt % base) * jBase;
-                    jBase *= LongUnsigned(base);
+                    (*this) += LongUnsigned<1>(subInt % base) * jBase;
+                    jBase *= LongUnsigned<1>(base);
                     subInt /= base;
                 }
 
-                iBase *= special::pow<LongUnsigned<1>, int, LongUnsigned>(LongUnsigned<1>(base), last - first);
-                last -= integralModulusDegreeOfBase;
-                first = cutOffLeftBorder<int>(first - integralModulusDegreeOfBase, 0);
+                iBase *= special::pow< LongUnsigned<1>, int, LongUnsigned<length()> >(LongUnsigned<1>(base), last - first);
+                last -= blockLen;
+                first = cutOffLeftBorder<int>(first - blockLen, 0);
             }
         }
     }

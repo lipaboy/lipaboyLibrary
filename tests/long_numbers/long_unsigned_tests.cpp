@@ -14,6 +14,58 @@ namespace long_numbers_tests {
 	using std::endl;
 	using std::string;
 
+
+	//-------------------------------------------------------------------//
+	//----------------------------to_string()----------------------------//
+	//-------------------------------------------------------------------//
+
+	TEST(LongUnsigned, to_string_decimal) {
+		LongUnsigned<1> first(2);
+		ASSERT_EQ(first.to_string(), "2");
+
+		string numStr(16, '1');
+		LongUnsigned<2> second(numStr);
+		ASSERT_EQ(numStr, second.to_string());
+		
+		numStr = string(10, '1');
+		second = numStr;
+		ASSERT_EQ(numStr, second.to_string());
+
+		numStr = string(18, '1');
+		second = numStr;
+		ASSERT_EQ(numStr, second.to_string());
+	}
+
+	TEST(LongUnsigned, to_string_binary) {
+		LongUnsigned<1> first(2);
+		ASSERT_EQ(first.to_string(2), "10");
+
+		string numRes(64, '0');
+		numRes[64 - 58] = '1';
+		LongUnsigned<2> second(numRes, 2);
+		ASSERT_EQ(numRes, string(64 - 58, '0') + second.to_string(2));
+
+		numRes[64 - 58] = '0';
+		numRes[32 - 1] = '1';
+		second.assignStr(numRes, 2);
+		ASSERT_EQ(numRes, string(32 - 1, '0') + second.to_string(2));
+
+		numRes[32 - 1] = '0';
+		numRes[0] = '1';
+		second.assignStr(numRes, 2);
+		ASSERT_EQ(numRes, second.to_string(2));
+	}
+
+	//-------------------------------------------------------------------//
+	//----------------------------assignStr()----------------------------//
+	//-------------------------------------------------------------------//
+
+	TEST(LongUnsigned, assign_str_binary) {
+		LongUnsigned<1> first;
+		first.assignStr("10", 2);
+		ASSERT_EQ(first.to_string(2), "10");
+	}
+
 	//-----Any system------//
 
 	TEST(LongUnsigned, simple) {
@@ -47,6 +99,7 @@ namespace long_numbers_tests {
 		first = "789100000200";
 		EXPECT_EQ(first.to_string(), "789100000200");
 	}
+
 
 	//-----------Crash-----------//
 

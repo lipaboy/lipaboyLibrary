@@ -282,7 +282,7 @@ namespace lipaboy_lib::numberphile {
 
     void long_digits_multiplication_searching_long_unsigned()
     {
-        #define NUM_THREADS_UNSIGNED 6
+        #define NUM_THREADS_UNSIGNED 1
         constexpr int64_t MAX_LEN = 20;
         // = MAX_LEN * log(7) / log(2^32) + 1
         constexpr int64_t CONTAINER_DIMENSION = int64_t(2.81 * double(MAX_LEN) / 32.) + 1;
