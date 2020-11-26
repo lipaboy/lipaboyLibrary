@@ -93,7 +93,7 @@ namespace lipaboy_lib::long_numbers_space {
         using const_reference_integral = const IntegralType&;
 
     public:
-        template <LengthType otherLen> 
+        template <LengthType otherLengthOfIntegrals> 
         friend class LongUnsigned;
 
     protected:
@@ -112,9 +112,9 @@ namespace lipaboy_lib::long_numbers_space {
         }
         explicit
             LongUnsigned(string const& numberStr, unsigned int base = 10);
-        template <LengthType length2>
+        template <LengthType otherLen>
             explicit
-            LongUnsigned(LongUnsigned<length2> const & other) {
+            LongUnsigned(LongUnsigned<otherLen> const & other) {
                 checkTemplateParameters();
                 auto minLen = (other.length() > length()) ? length() : other.length();
                 std::copy_n(other.cbegin(), minLen, std::begin(number_));
@@ -122,19 +122,19 @@ namespace lipaboy_lib::long_numbers_space {
             }
 
         // TODO: calculate how much copy-constructor was called
-        template <LengthType length2>
-        auto operator+(LongUnsigned<length2> const& other) const
-            -> LongUnsigned< extra::Max<lengthOfIntegrals, length2>::value >
+        template <LengthType otherLen>
+        auto operator+(LongUnsigned<otherLen> const& other) const
+            -> LongUnsigned< extra::Max<lengthOfIntegrals, otherLen>::value >
         {
-            using ResultType = LongUnsigned< extra::Max<lengthOfIntegrals, length2>::value >;
+            using ResultType = LongUnsigned< extra::Max<lengthOfIntegrals, otherLen>::value >;
             return (ResultType(*this) += other);
         }
 
-        template <LengthType length2>
-        auto operator+=(LongUnsigned<length2> const & other)
+        template <LengthType otherLen>
+        auto operator+=(LongUnsigned<otherLen> const & other)
             -> const_reference
         {
-            constexpr auto MIN_LENGTH = std::min(lengthOfIntegrals, length2);
+            constexpr auto MIN_LENGTH = std::min(lengthOfIntegrals, otherLen);
             IntegralType remainder = zeroIntegral();
             size_t i = 0;
             for (; i < MIN_LENGTH; i++) {
@@ -161,16 +161,16 @@ namespace lipaboy_lib::long_numbers_space {
         }
 
         // TODO: you can optimize it. When inverse operator is called then useless copy will be created.
-        template <LengthType length2>
-        LongUnsigned operator-(LongUnsigned<length2> const& other) const {
+        template <LengthType otherLen>
+        LongUnsigned operator-(LongUnsigned<otherLen> const& other) const {
             return (LongUnsigned(*this) -= other);
         }
 
-        template <LengthType length2>
-        auto operator-=(LongUnsigned<length2> const& other)
+        template <LengthType otherLen>
+        auto operator-=(LongUnsigned<otherLen> const& other)
             -> const_reference
         {
-            constexpr auto MIN_LENGTH = std::min(lengthOfIntegrals, length2);
+            constexpr auto MIN_LENGTH = std::min(lengthOfIntegrals, otherLen);
             IntegralType remainder = zeroIntegral();
             size_t i = 0;
             for (; i < MIN_LENGTH; i++) {
@@ -196,11 +196,11 @@ namespace lipaboy_lib::long_numbers_space {
             return *this;
         }
 
-        template <LengthType length2>
-        auto operator*(LongUnsigned<length2> const& other) const
-            -> LongUnsigned< extra::Max<lengthOfIntegrals, length2>::value >
+        template <LengthType otherLen>
+        auto operator*(LongUnsigned<otherLen> const& other) const
+            -> LongUnsigned< extra::Max<lengthOfIntegrals, otherLen>::value >
         {
-            using ResultType = LongUnsigned< extra::Max<lengthOfIntegrals, length2>::value >;
+            using ResultType = LongUnsigned< extra::Max<lengthOfIntegrals, otherLen>::value >;
             ResultType res(0);
             //		// This chapter has two parts
             //		// First part. Bisecting the result by two portions: main and overflow ones
@@ -231,8 +231,8 @@ namespace lipaboy_lib::long_numbers_space {
             return res;
         }
 
-        template <LengthType length2>
-        const_reference operator*=(LongUnsigned<length2> const& other) {
+        template <LengthType otherLen>
+        const_reference operator*=(LongUnsigned<otherLen> const& other) {
             (*this) = (*this) * other;
             return *this;
         }
@@ -255,8 +255,8 @@ namespace lipaboy_lib::long_numbers_space {
             return *this;
         }
 
-        template <LengthType length2>
-        auto divide(LongUnsigned<length2> const & other) const->pair<LongUnsigned, LongUnsigned>
+        template <LengthType otherLen>
+        auto divide(LongUnsigned<otherLen> const & other) const->pair<LongUnsigned, LongUnsigned>
         {
             // TODO: replace to OneDigitNumber
             const LongUnsigned<1> DEC(10);
@@ -397,8 +397,8 @@ namespace lipaboy_lib::long_numbers_space {
         }
 
     public:
-        template <LengthType lengthOther>
-        bool operator!= (LongUnsigned<lengthOther> const& other) const {
+        template <LengthType otherLen>
+        bool operator!= (LongUnsigned<otherLen> const& other) const {
             bool isEqual = true;
             auto iter = cbegin();
             auto iterO = other.cbegin();
@@ -424,17 +424,17 @@ namespace lipaboy_lib::long_numbers_space {
             }
             return !isEqual;
         }
-        template <LengthType lengthOther>
-        bool operator== (LongUnsigned<lengthOther> const& other) const { return !(*this != other); }
-        template <LengthType lengthOther>
-        bool operator< (LongUnsigned<lengthOther> const& other) const { return this->isLess(*this, other); }
+        template <LengthType otherLen>
+        bool operator== (LongUnsigned<otherLen> const& other) const { return !(*this != other); }
+        template <LengthType otherLen>
+        bool operator< (LongUnsigned<otherLen> const& other) const { return this->isLess(*this, other); }
 
-        template <LengthType lengthOther>
-        bool operator>= (LongUnsigned<lengthOther> const& other) const { return !(*this < other); }
-        template <LengthType lengthOther>
-        bool operator> (LongUnsigned<lengthOther> const& other) const { return this->isLess(other, *this); }
-        template <LengthType lengthOther>
-        bool operator<= (LongUnsigned<lengthOther> const& other) const { return !(*this > other); }
+        template <LengthType otherLen>
+        bool operator>= (LongUnsigned<otherLen> const& other) const { return !(*this < other); }
+        template <LengthType otherLen>
+        bool operator> (LongUnsigned<otherLen> const& other) const { return this->isLess(other, *this); }
+        template <LengthType otherLen>
+        bool operator<= (LongUnsigned<otherLen> const& other) const { return !(*this > other); }
 
     public:
         auto majorBitPosition() const
@@ -537,7 +537,8 @@ namespace lipaboy_lib::long_numbers_space {
                     subInt /= base;
                 }
 
-                iBase *= special::pow< LongUnsigned<1>, int, LongUnsigned<length()> >(LongUnsigned<1>(base), last - first);
+                iBase *= special::pow< LongUnsigned<1>, int, LongUnsigned<length()> >
+                    (LongUnsigned<1>(base), last - first);
                 last -= blockLen;
                 first = cutOffLeftBorder<int>(first - blockLen, 0);
             }
@@ -546,8 +547,6 @@ namespace lipaboy_lib::long_numbers_space {
 
     //------------Arithmetic Operations-------------//
 
-
-    // TODO: test it
     template <LengthType length>
     auto LongUnsigned<length>::shiftLeft(unsigned int count)
         -> const_reference
@@ -598,22 +597,6 @@ namespace lipaboy_lib::long_numbers_space {
         }
         return *this;
     }
-
-    /*template <LengthType length>
-    auto LongUnsigned<length>::divideByDec()
-        -> IntegralType
-    {
-        constexpr IntegralType DEC(10);
-        IntegralType remainder(0);
-        for (int i = int(length()) - 1; i >= 0; i--) {
-            IntegralType newRemainder = (*this)[i] % DEC;
-            (*this)[i] /= DEC;
-            (*this)[i] += remainder * powDozen<IntegralType>(integralModulusDegree() - 1);
-            remainder = newRemainder;
-        }
-        return remainder;
-    }*/
-
 
     //----------------------------------------------------------------------------
 
