@@ -120,10 +120,42 @@ namespace long_numbers_tests {
 #endif
 
 	TEST(LongUnsigned, overflow) {
-		ASSERT_NO_THROW(LongUnsigned<1> num1("789100000200"));
+		ASSERT_NO_THROW(LongUnsigned<1> num("789100000200"));
 	}
 
 	//-----------Comparison-----------//
+
+	TEST(LongUnsigned, comparison_equal) {
+		LongUnsigned<1> first("228");
+		LongUnsigned<1> second("228");
+
+		EXPECT_TRUE(first == second);
+	}
+
+	TEST(LongUnsigned, comparison_equal_from_overflow) {
+		LongUnsigned<1> first("0");
+		LongUnsigned<1> second("0");
+
+		second -= LongUnsigned<1>(1);
+		second += LongUnsigned<1>(1);
+
+		EXPECT_TRUE(first == second);
+	}
+
+	TEST(LongUnsigned, comparison_equal_different_ranks) {
+		LongUnsigned<2> first("228");
+		LongUnsigned<1> second("228");
+
+		EXPECT_TRUE(first == second);
+		EXPECT_TRUE(second == first);
+
+		first = "229";
+		EXPECT_TRUE(first != second);
+		first = "10000000228";
+		EXPECT_TRUE(second != first);
+		first -= LongUnsigned<2>("10000000000");
+		EXPECT_TRUE(first == second);
+	}
 
 	TEST(LongUnsigned, comparison_less) {
 		LongUnsigned<3> first("789100000200");

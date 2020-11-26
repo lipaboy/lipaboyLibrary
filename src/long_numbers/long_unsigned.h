@@ -30,8 +30,6 @@ namespace lipaboy_lib::long_numbers_space {
     // 1) Write new Algebra with another realization: instead of use method 'getNumber()'
     //      for wrapper class you need to cast the primary type to wrapper class.
     //      Like: (*this) + LongUnsigned(value)
-    //
-    // 2) must have tests for case '#1'
 
     using std::array;
     using std::string;
@@ -410,7 +408,6 @@ namespace lipaboy_lib::long_numbers_space {
                     break;
                 }
             }
-            // #1
             if (isEqual) { 
                 for (; iter != cend(); iter++) {
                     if (*iter != zeroIntegral()) {
@@ -470,7 +467,7 @@ namespace lipaboy_lib::long_numbers_space {
     private:
         static constexpr IntegralType zeroIntegral() { return IntegralType(0); }
 
-    private:
+    protected:
         iterator begin() { return number_.begin(); }
         iterator end() { return number_.end(); }
         reverse_iterator rbegin() { return number_.begin(); }
