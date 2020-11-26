@@ -3,6 +3,8 @@ set(MODULE_NAME Lipaboy_Library)
 include_directories("${CMAKE_SOURCE_DIR}/tests")
 include_directories("${CMAKE_SOURCE_DIR}/src")
 
+set_directory_properties(PROPERTIES COMPILE_DEFINITIONS_DEBUG "_DEBUG")
+
 set(TEST_SOURCE
     tests.cpp
 

@@ -14,6 +14,68 @@ namespace long_numbers_tests {
 	using std::endl;
 	using std::string;
 
+
+	//-------------------------------------------------------------------//
+	//----------------------------to_string()----------------------------//
+	//-------------------------------------------------------------------//
+
+	TEST(LongUnsigned, to_string_decimal) {
+		LongUnsigned<1> first(2);
+		ASSERT_EQ(first.to_string(), "2");
+
+		string numStr(16, '1');
+		LongUnsigned<2> second(numStr);
+		ASSERT_EQ(numStr, second.to_string());
+		
+		numStr = string(10, '1');
+		second = numStr;
+		ASSERT_EQ(numStr, second.to_string());
+
+		numStr = string(18, '1');
+		second = numStr;
+		ASSERT_EQ(numStr, second.to_string());
+	}
+
+	TEST(LongUnsigned, to_string_binary) {
+		LongUnsigned<1> first(2);
+		ASSERT_EQ(first.to_string(2), "10");
+
+		string numRes(64, '0');
+		numRes[64 - 58] = '1';
+		LongUnsigned<2> second(numRes, 2);
+		ASSERT_EQ(numRes, string(64 - 58, '0') + second.to_string(2));
+
+		numRes[64 - 58] = '0';
+		numRes[32 - 1] = '1';
+		second.assignStr(numRes, 2);
+		ASSERT_EQ(numRes, string(32 - 1, '0') + second.to_string(2));
+
+		numRes[32 - 1] = '0';
+		numRes[0] = '1';
+		second.assignStr(numRes, 2);
+		ASSERT_EQ(numRes, second.to_string(2));
+	}
+
+	//-------------------------------------------------------------------//
+	//----------------------------assignStr()----------------------------//
+	//-------------------------------------------------------------------//
+
+	TEST(LongUnsigned, assign_str_binary) {
+		LongUnsigned<1> first;
+		first.assignStr("10", 2);
+		ASSERT_EQ(first.to_string(2), "10");
+	}
+
+	TEST(LongUnsigned, assign_str_other_base) {
+		LongUnsigned<1> first;
+		for (int i = 2; i <= 9; i++) {
+			string numStr(2, '0' + i);
+			auto base = i + 1;
+			first.assignStr(numStr, base);
+			ASSERT_EQ(first.to_string(base), numStr);
+		}
+	}
+
 	//-----Any system------//
 
 	TEST(LongUnsigned, simple) {
@@ -48,7 +110,14 @@ namespace long_numbers_tests {
 		EXPECT_EQ(first.to_string(), "789100000200");
 	}
 
+
 	//-----------Crash-----------//
+
+#if (defined(WIN32) && defined(DEBUG_)) || (defined(__linux__) && !defined(NDEBUG))
+    TEST(LongUnsigned, division_by_zero) {
+        ASSERT_ANY_THROW(LongUnsigned<1>(1) / LongUnsigned<1>(0));
+    }
+#endif
 
 	TEST(LongUnsigned, overflow) {
 		ASSERT_NO_THROW(LongUnsigned<1> num1("789100000200"));
@@ -150,6 +219,18 @@ namespace long_numbers_tests {
 	}
 
     //---------Operator/ checking-----------//
+
+    TEST(LongUnsigned, division_by_different_lengths) {
+        LongUnsigned<2> first("200200");
+        LongUnsigned<1> second("200200");
+
+        auto res = first.divide(second).first;
+        EXPECT_EQ(res.to_string(), "1");
+
+//        first *= second;
+
+//        EXPECT_EQ((first / second).to_string(), "200200");
+    }
 
     TEST(LongUnsigned, division_double) {
         LongUnsigned<2> first("200200");
@@ -257,6 +338,18 @@ namespace long_numbers_tests {
 		first.shiftLeft(first.integralModulusDegree() * 3 - 1);
 		first -= second;
 		ASSERT_EQ(string(first.integralModulusDegree() * 3 - 1, '1'), first.to_string(2));
+
+        LongUnsigned<2> third(0);
+
+        first = "123456789012";
+        third = "123000000000";
+        ASSERT_EQ((first - third).to_string(), "456789012");
+
+        first =  "123456789012";
+        second =    "500000000";
+        for (int i = 0; i < 123 * 2; i++)
+            first -= second;
+        ASSERT_EQ((first).to_string(), "456789012");
 	}
 
 	TEST(LongUnsigned, substract_overflow) {
@@ -282,6 +375,14 @@ namespace long_numbers_tests {
 	}
 
     //---------Operator+ checking-----------//
+
+    TEST(LongUnsigned, sum_different_length_to_check_result_type) {
+        LongUnsigned<3> first (1);
+        LongUnsigned<1> second(1);
+
+        auto res = second + first;
+        EXPECT_TRUE(res.length() == 3);
+    }
 
 	TEST(LongUnsigned, sum_different_length) {
 		LongUnsigned<3> first (std::numeric_limits<uint32_t>::max() - 3);

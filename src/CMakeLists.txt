@@ -117,6 +117,7 @@ set(LIB_LIPABOY_LIB_SOURCE_FILES
     # Numberphile
     numberphile/long_digits_multiplication_searching.h
     numberphile/long_digits_multiplication_searching.cpp
+    numberphile/long_digits_multiplication_searching_in_any_base.cpp
 )
 
 # Declare the library
@@ -152,5 +153,7 @@ find_package(OpenMP)
 target_include_directories(LIPABOY_LIB PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+set_directory_properties(PROPERTIES COMPILE_DEFINITIONS_DEBUG "_DEBUG")
 
 
