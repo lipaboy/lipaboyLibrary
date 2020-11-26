@@ -30,6 +30,8 @@ namespace lipaboy_lib::long_numbers_space {
     // 1) Write new Algebra with another realization: instead of use method 'getNumber()'
     //      for wrapper class you need to cast the primary type to wrapper class.
     //      Like: (*this) + LongUnsigned(value)
+    //
+    // 2) must have tests for case '#1'
 
     using std::array;
     using std::string;
@@ -91,6 +93,10 @@ namespace lipaboy_lib::long_numbers_space {
         using const_reference = const LongUnsigned&;
         using reference_integral = IntegralType&;
         using const_reference_integral = const IntegralType&;
+
+    public:
+        template <LengthType otherLen> 
+        friend class LongUnsigned;
 
     protected:
         LongUnsigned(ContainerType const& number)
@@ -270,8 +276,8 @@ namespace lipaboy_lib::long_numbers_space {
             LongUnsigned divider(other);
             LongUnsigned modulus(1);
 
-            int dividendMajorBit = dividend.majorBitPosition().value_or(0);
-            int dividerMajorBit = divider.majorBitPosition().value_or(0);
+            int dividendMajorBit = int(dividend.majorBitPosition().value_or(0));
+            int dividerMajorBit = int(divider.majorBitPosition().value_or(0));
 
             int diff = dividendMajorBit - dividerMajorBit;
             if (diff > 0) {
@@ -404,7 +410,8 @@ namespace lipaboy_lib::long_numbers_space {
                     break;
                 }
             }
-            if (isEqual) { // must have tests for this case
+            // #1
+            if (isEqual) { 
                 for (; iter != cend(); iter++) {
                     if (*iter != zeroIntegral()) {
                         isEqual = false;
@@ -452,20 +459,18 @@ namespace lipaboy_lib::long_numbers_space {
 
     public:
         // maximum count decimal digits that can be placed into IntegralType
-        static constexpr IntegralType integralModulusDegree() { return extra::bitsCount<IntegralType>(); }
+        static constexpr IntegralType integralModulusDegree() { return IntegralType(extra::bitsCount<IntegralType>()); }
         static constexpr ResultIntegralType integralModulus() { return std::numeric_limits<IntegralType>::max(); }
         static LongUnsigned max() {
             LongUnsigned max(1);
-            max.shiftLeft(integralModulusDegree() * length() - 1);
+            max.shiftLeft(unsigned int(integralModulusDegree() * length() - 1));
             return max;
         }
 
     private:
         static constexpr IntegralType zeroIntegral() { return IntegralType(0); }
 
-        // TODO: Make private
-    public:
-        //private:
+    private:
         iterator begin() { return number_.begin(); }
         iterator end() { return number_.end(); }
         reverse_iterator rbegin() { return number_.begin(); }
@@ -483,9 +488,12 @@ namespace lipaboy_lib::long_numbers_space {
     private:
         // if index is increased then rank is increased
         array<IntegralType, lengthOfIntegrals> number_;
+
     };
 
-    //-------------------------------------------------------------//
+    //------------------------------------------------------------------------------------------//
+    //-------------------------------      Methods     -----------------------------------------//
+    //------------------------------------------------------------------------------------------//
 
     template <LengthType length>
     LongUnsigned<length>::LongUnsigned(string const& numberStr, unsigned int base)
@@ -506,11 +514,11 @@ namespace lipaboy_lib::long_numbers_space {
 
             std::string_view numStrView = numberStr;
             numStrView.remove_prefix(
-                cutOffLeftBorder<int>(0, numStrView.find_first_not_of(" "))
+                cutOffLeftBorder<int>(0, int(numStrView.find_first_not_of(" ")))
             );
             // round the number by integral modulus
             numStrView.remove_prefix(
-                cutOffLeftBorder<int>(0, TSigned(numStrView.length()) - TSigned(integralModulusDegreeOfBase * length()))
+                cutOffLeftBorder<int>(0, int(numStrView.length()) - int(integralModulusDegreeOfBase * length()))
             );
 
             int blockLen = (base == 2) ? integralModulusDegreeOfBase - 1 : integralModulusDegreeOfBase;
@@ -556,7 +564,7 @@ namespace lipaboy_lib::long_numbers_space {
             auto& current = *this;
             int blocksShift = count / integralModulusDegree();
             int bitsShift = count % integralModulusDegree();    // 0 to 31
-            for (int i = length() - 1; i >= 0; i--) {
+            for (int i = int(length()) - 1; i >= 0; i--) {
                 auto high = (i - blocksShift < 0) ? 0 : (current[i - blocksShift] << bitsShift);
                 auto less = (i - blocksShift - 1 < 0) ? 0 :
                     ((current[i - blocksShift - 1] >> (integralModulusDegree() - bitsShift - 1))

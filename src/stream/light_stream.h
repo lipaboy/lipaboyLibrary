@@ -11,6 +11,8 @@
 
 namespace lipaboy_lib::stream_space {
 
+	// HINT: light_stream.h - because without operators
+
 	// What's stream at all?
 	// Answer 1: Stream is not iterator (because can't return current element). 
 	//		   Single-pass. Save sequence of elements (periphrase).
