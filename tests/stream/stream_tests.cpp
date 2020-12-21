@@ -38,7 +38,11 @@ using namespace lipaboy_lib::stream_space::operators;
 
 //-------------------------------------//
 
-TEST(StreamTest, check) {
+TEST(StreamTest, sequence_iter) {
+    
+}
+
+TEST(StreamTest, sequence) {
     int x0 = -2;
     auto res = 
         (Stream([&]() {

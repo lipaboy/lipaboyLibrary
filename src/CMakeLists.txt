@@ -17,6 +17,7 @@ set(LIB_LIPABOY_LIB_SOURCE_FILES
     extra_tools/initializer_list_iterator.h
     extra_tools/maths_tools.h
     extra_tools/producing_iterator.h
+    extra_tools/sequence_producing_iterator.h
     extra_tools/detect_time_duration.h
 
     # HashMap

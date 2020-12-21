@@ -10,8 +10,6 @@ namespace lipaboy_lib {
 	//---------------------PRODUCING ITERATOR BY FUNCTION--------------------//
 	//-----------------------------------------------------------------------//
 
-	// TODO: think about incrementing without saving value
-
 	template <class T>
 	class ProducingIterator {
 	public:
@@ -34,7 +32,7 @@ namespace lipaboy_lib {
 			: generator_(nullptr), pCurrentElem_(nullptr)
 		{}
 		ProducingIterator(GeneratorType gen)
-			: generator_(gen), pCurrentElem_(std::make_shared<CurrentValueType>(std::move(gen())))
+			: generator_(gen), pCurrentElem_(std::make_shared<CurrentValueType>(gen()))
 		{}
 		ProducingIterator(ProducingIterator const & obj)
 			: generator_(obj.generator_),
@@ -54,7 +52,7 @@ namespace lipaboy_lib {
 		bool operator!= (ProducingIterator & other) { return !((*this) == other); }
 
 		ProducingIterator operator++() {
-			*pCurrentElem_ = std::move(generator_());
+			*pCurrentElem_ = generator_();
 			return *this;
 		}
 		// Info: Return type is void because you cannot return previous iterator.
@@ -62,7 +60,7 @@ namespace lipaboy_lib {
 		//		 point to the same variable. If we don't have pointer to current elem then
 		//		 we must have storage it directly (as a field). But copy constructor of iterator will be expensive.
 		void operator++(int) {
-			*pCurrentElem_ = std::move(generator_());
+			*pCurrentElem_ = generator_();
 		}
 
 	private:

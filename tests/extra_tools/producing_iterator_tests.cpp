@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "extra_tools/producing_iterator.h"
+#include "extra_tools/sequence_producing_iterator.h"
 
 namespace stream_tests {
 
@@ -31,6 +32,15 @@ namespace stream_tests {
 		/*auto lol = std::is_same<typename std::iterator_traits<ProducingIterator<int> >::iterator_category,
 		std::input_iterator_tag>::value;
 		ASSERT_TRUE(lol);*/
+	}
+
+	TEST(SequenceProducingIterator, simple) {
+		SequenceProducingIterator<int> it(0, [](int prev) { return prev + 1; });
+		for (int i = 0; i < 3; i++)
+			it++;
+		ASSERT_EQ(*it, 3);
+		for (int i = 0; i < 3; i++)
+			EXPECT_EQ(*(++it), i + 4);
 	}
 
 }
