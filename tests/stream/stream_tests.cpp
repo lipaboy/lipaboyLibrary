@@ -38,7 +38,31 @@ using namespace lipaboy_lib::stream_space::operators;
 
 //-------------------------------------//
 
-// Cannot do it because result type of std::bind doesn't specify
+TEST(StreamTest, check) {
+    int x0 = -2;
+    auto res = 
+        (Stream([&]() {
+            static int x = x0;
+            x *= std::abs(x) * (-1);
+            return x;
+        })
+        &
+        Stream([] {
+            static int d = 4;
+            d *= 2;
+            return d;
+        })
+        ) | map([&x0](auto pair) {
+            return pair.first * std::abs(x0) / pair.second;
+        }) | get(3)
+           | sum();
+    //ASSERT_EQ(res, 11);
+}
+
+// INFO: 
+// 1) Cannot do it because result type of std::bind doesn't specify
+// 2) Cannot wrap std::bind by the std::function inside of FunctorHolder because
+//      operator() doesn't specified by this one.
 
 TEST(StreamTest, bind) {
     using namespace std::placeholders;

@@ -21,23 +21,23 @@ namespace lipaboy_lib::stream_space {
             {}
 
             template <class StreamType>
-            auto nextElem(StreamType& stream)
+            auto nextElem(StreamType& first)
                 -> RetType<typename StreamType::ResultValueType>
             {
-                return std::make_pair(stream.nextElem(), second_.nextElem());
+                return std::make_pair(first.nextElem(), second_.nextElem());
             }
 
             template <class StreamType>
-            void incrementElem(StreamType& stream)
+            void incrementElem(StreamType& first)
             {
-                stream.incrementElem();
+                first.incrementElem();
                 second_.nextElem();
             }
 
             template <class StreamType>
-            bool hasNext(StreamType& stream)
+            bool hasNext(StreamType& first)
             {
-                return stream.hasNext() && second_.hasNext();
+                return first.hasNext() && second_.hasNext();
             }
 
         private:
