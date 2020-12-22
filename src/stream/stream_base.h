@@ -22,7 +22,8 @@ namespace lipaboy_lib::stream_space {
 		using ValueType = T;
 		using size_type = size_t;
 		using outside_iterator = TIterator;
-		using GeneratorTypePtr = std::function<ValueType(void)>;
+		using GeneratorType = std::function<ValueType(void)>;
+		using SequenceGeneratorType = std::function<ValueType(ValueType)>;
 
 	public:
 		template <class Functor>
@@ -52,8 +53,13 @@ namespace lipaboy_lib::stream_space {
 				end_ = begin_.endIter();
 		}
 		explicit
-			StreamBase(GeneratorTypePtr generator)
+			StreamBase(GeneratorType generator)
 				: begin_(generator),
+				end_()
+		{}
+		explicit
+			StreamBase(ValueType initValue, SequenceGeneratorType generator)
+				: begin_(initValue, generator),
 				end_()
 		{}
 

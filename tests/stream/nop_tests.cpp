@@ -23,7 +23,7 @@ namespace stream_tests {
 	//---------------------------------Tests-------------------------------//
 
 	TEST(Stream_nop, simple) {
-        int zero = Stream(1, 2, 3, 4, 5)
+		int zero = Stream(1, 2, 3, 4, 5)
             | nop()
             | return_zero();
         ASSERT_EQ(zero, 0);

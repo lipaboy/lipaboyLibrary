@@ -38,29 +38,25 @@ using namespace lipaboy_lib::stream_space::operators;
 
 //-------------------------------------//
 
-TEST(StreamTest, sequence_iter) {
-    
-}
 
-TEST(StreamTest, sequence) {
+
+//-----------Sequence Producing Generator-------------//
+
+TEST(StreamTest, sequence_iter) {
     int x0 = -2;
-    auto res = 
-        (Stream([&]() {
-            static int x = x0;
-            x *= std::abs(x) * (-1);
-            return x;
-        })
+    auto res = Stream(0, [](int x) { return x + 1; }) | get(3) | sum();
+    ASSERT_EQ(res, 3);
+
+    auto res2 =
+        (Stream(x0, [](int x) { return x * std::abs(x) * -1; })
         &
-        Stream([] {
-            static int d = 4;
-            d *= 2;
-            return d;
-        })
-        ) | map([&x0](auto pair) {
-            return pair.first * std::abs(x0) / pair.second;
+        Stream(2, [](int d) { return d * 2; })
+        ) | map([&](auto pair) {
+            return pair.first / pair.second;
         }) | get(3)
-           | sum();
-    //ASSERT_EQ(res, 11);
+            | sum();
+
+    ASSERT_EQ(res2, -2);
 }
 
 // INFO: 
@@ -72,7 +68,7 @@ TEST(StreamTest, bind) {
     using namespace std::placeholders;
     auto f = std::bind(static_cast<double(&)(double, double)>(std::pow), _1, 2.);
     auto res = 
-        Stream(1, 2, 3) | cast_to<double>() 
+        Stream({ 1, 2, 3 }) | cast_to<double>()
         | map<std::function<double(double)> >(f)
         //| map<double(double)>(f)      // Error
         //| map(f)                      // Error

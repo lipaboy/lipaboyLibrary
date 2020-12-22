@@ -6,6 +6,7 @@
 
 #include "extra_tools/initializer_list_iterator.h"
 #include "extra_tools/producing_iterator.h"
+#include "extra_tools/sequence_producing_iterator.h"
 
 #include <type_traits>
 
@@ -51,6 +52,9 @@ namespace lipaboy_lib::stream_space {
 	template <class Generator>
 	using StreamOfGenerator = StreamBase<ProducingIterator<typename std::result_of<Generator(void)>::type> >;
 
+	template <class ValueType>
+	using StreamOfSequenceGenerator = StreamBase<SequenceProducingIterator<ValueType> >;
+
 
 	//-------------------Wrappers-----------------------//
 
@@ -75,29 +79,18 @@ namespace lipaboy_lib::stream_space {
 		return StreamOfInitializingList<T>({ elem, args... });
 	}
 
-	// Note: such approach doesn't match for second constructor. 
-	//		 For more information try to explore
-
-	//template <class T>
-	//auto Stream(std::initializer_list<T> init)
-	//	-> StreamOfOutsideIterators<typename std::initializer_list<T>::iterator>
-	//{
-	//	return StreamOfOutsideIterators<typename std::initializer_list<T>::iterator>(
-	//		begin(init), end(init));
-	//}
-
-	//template <class T, class... Args>
-	//auto Stream(T elem, Args... args)
-	//	-> StreamOfOutsideIterators<typename std::initializer_list<T>::iterator>
-	//{
-	//	return Stream({ elem, args... });
-	//}
-
 	template <class Generator>
 	auto Stream(Generator&& generator)
 		-> StreamOfGenerator<Generator>
 	{
 		return StreamOfGenerator<Generator>(std::forward<Generator>(generator));
+	}
+
+	template <class ValueType, class Generator>
+	auto Stream(ValueType initValue, Generator generator)
+		-> StreamOfSequenceGenerator<ValueType>
+	{
+		return StreamOfSequenceGenerator<ValueType>(initValue, generator);
 	}
 
 	template <class T, size_t size>
@@ -109,6 +102,8 @@ namespace lipaboy_lib::stream_space {
 			std::make_move_iterator<T*>(std::end(init))
 			);
 	}
+
+	//----------Allocating----------//
 
 	template <class TIterator>
 	auto allocateStream(TIterator begin, TIterator end)
@@ -146,6 +141,23 @@ namespace lipaboy_lib::stream_space {
 			cbegin(container), cend(container));
 	}
 
+	// Note: such approach doesn't match for second constructor. 
+	//		 For more information try to explore
+
+	//template <class T>
+	//auto Stream(std::initializer_list<T> init)
+	//	-> StreamOfOutsideIterators<typename std::initializer_list<T>::iterator>
+	//{
+	//	return StreamOfOutsideIterators<typename std::initializer_list<T>::iterator>(
+	//		begin(init), end(init));
+	//}
+
+	//template <class T, class... Args>
+	//auto Stream(T elem, Args... args)
+	//	-> StreamOfOutsideIterators<typename std::initializer_list<T>::iterator>
+	//{
+	//	return Stream({ elem, args... });
+	//}
 
 
 	//--------------------------------------------------------------------------//
