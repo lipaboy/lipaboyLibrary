@@ -23,21 +23,44 @@ namespace stream_tests {
 
     //---------------------------------Tests-------------------------------//
 
-    TEST(StreamTest, paired_stream_check) {
+    TEST(StreamTest, paired_stream_simple) {
+        auto first = Stream(-1, [](int p) { return p - 1; }) | get(5);
+        auto second = Stream(1, 2, 3, 4, 5);
+
+        auto res = (first & second)
+                | map([](auto pair) { return pair.first + pair.second; })
+                | sum();
+
+        EXPECT_EQ(res, 0);
+    }
+
+    TEST(StreamTest, paired_stream_rvalue) {
         int a = 0;
         vector<int> vec = { 1, 2, 3, 4, 5 };
 
-        auto res = 
+        auto res =
             (Stream([&a]() { return a++; })
                 | filter([](auto& a) { return a % 3 == 0; }))
             &
             (Stream(vec)
                 | map([](int b) { return b - 3; }))
-            | map([](auto& pair) { return pair.first * pair.second; })
+            | map([](auto pair) { return pair.first * pair.second; })
+                //| map([](auto& pair) { return pair.first * pair.second; })        // Error under Linux
             | get(5)
             | to_vector();
 
         EXPECT_EQ(res, decltype(res)({ 0, -3, 0, 9, 24 }));
+    }
+
+    TEST(StreamTest, pseudoinfinite_stream) {
+//        auto first = Stream(-1, [](int p) { return p - 1; });
+//        auto second = Stream(1, 2, 3, 4, 5);
+
+//        auto res = (first & second)
+//                | map([](auto pair) { return pair.first + pair.second; })
+//                | sum();
+
+//        EXPECT_EQ(res, 0);
     }
 
     TEST(StreamTest, paired_stream_diff_types) {

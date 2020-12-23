@@ -64,6 +64,7 @@ TEST(StreamTest, sequence_iter) {
 // 2) Cannot wrap std::bind by the std::function inside of FunctorHolder because
 //      operator() doesn't specified by this one.
 
+#ifdef WIN32
 TEST(StreamTest, bind) {
     using namespace std::placeholders;
     auto f = std::bind(static_cast<double(&)(double, double)>(std::pow), _1, 2.);
@@ -76,6 +77,7 @@ TEST(StreamTest, bind) {
         | to_vector();
     ASSERT_EQ(res, decltype(res)({ 1, 4, 9 }));
 }
+#endif
 
 
 //----------Constructor-----------//

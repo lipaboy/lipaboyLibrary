@@ -220,7 +220,7 @@ namespace lipaboy_lib::stream_space {
 	//-------------------Paired Stream---------------------//
 
 	template <class ...ArgsFirst, class ...ArgsSecond>
-	auto operator&(StreamBase<ArgsFirst...>& first, StreamBase<ArgsSecond...>& second)
+    auto operator&(StreamBase<ArgsFirst...> first, StreamBase<ArgsSecond...> second)
 		-> shortening::StreamTypeExtender_t<StreamBase<ArgsFirst...>,
 		operators::paired< StreamBase<ArgsSecond...> > >
 	{
@@ -228,11 +228,29 @@ namespace lipaboy_lib::stream_space {
 	}
 
 	template <class ...ArgsFirst, class ...ArgsSecond>
-	auto to_pair(StreamBase<ArgsFirst...>& first, StreamBase<ArgsSecond...>& second)
+    auto to_pair(StreamBase<ArgsFirst...> first, StreamBase<ArgsSecond...> second)
 		-> shortening::StreamTypeExtender_t<StreamBase<ArgsFirst...>,
 		operators::paired< StreamBase<ArgsSecond...> > >
 	{
 		return first & second;
 	}
+
+    // Move-semantics
+
+//    template <class ...ArgsFirst, class ...ArgsSecond>
+//    auto operator&(StreamBase<ArgsFirst...>&& first, StreamBase<ArgsSecond...>&& second)
+//        -> shortening::StreamTypeExtender_t<StreamBase<ArgsFirst...>,
+//        operators::paired< StreamBase<ArgsSecond...> > >
+//    {
+//        return (first | operators::paired< StreamBase<ArgsSecond...> >(std::move(second)));
+//    }
+
+//    template <class ...ArgsFirst, class ...ArgsSecond>
+//    auto to_pair(StreamBase<ArgsFirst...>&& first, StreamBase<ArgsSecond...>&& second)
+//        -> shortening::StreamTypeExtender_t<StreamBase<ArgsFirst...>,
+//        operators::paired< StreamBase<ArgsSecond...> > >
+//    {
+//        return std::move(first) & std::move(second);
+//    }
 
 }

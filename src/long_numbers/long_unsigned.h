@@ -460,7 +460,7 @@ namespace lipaboy_lib::long_numbers_space {
         static constexpr ResultIntegralType integralModulus() { return std::numeric_limits<IntegralType>::max(); }
         static LongUnsigned max() {
             LongUnsigned max(1);
-            max.shiftLeft(unsigned int(integralModulusDegree() * length() - 1));
+            max.shiftLeft((unsigned int)(integralModulusDegree() * length() - 1));
             return max;
         }
 

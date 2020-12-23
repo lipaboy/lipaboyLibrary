@@ -3,6 +3,7 @@
 #include "stream_extended.h"
 #include "extra_tools/producing_iterator.h"
 #include "extra_tools/initializer_list_iterator.h"
+#include "extra_tools/sequence_producing_iterator.h"
 
 #include <functional>
 #include <iterator>
@@ -12,6 +13,7 @@ namespace lipaboy_lib::stream_space {
 
 	using lipaboy_lib::ProducingIterator;
 	using lipaboy_lib::InitializerListIterator;
+    using lipaboy_lib::SequenceProducingIterator;
 
 	//--------------------------Stream Base (specialization class)----------------------//
 
@@ -68,7 +70,8 @@ namespace lipaboy_lib::stream_space {
 	protected:
 		static constexpr bool isNoFixSizeOperatorBefore() { return true; }
 		static constexpr bool isGeneratorProducing() {
-			return std::is_same_v<TIterator, ProducingIterator<ValueType> >;
+            return std::is_same_v<TIterator, ProducingIterator<ValueType> >
+                    || std::is_same_v<TIterator, SequenceProducingIterator<ValueType> >;
 		}
 		static constexpr bool isInitializingListCreation() {
 			return std::is_same_v<TIterator, InitializerListIterator<ValueType>

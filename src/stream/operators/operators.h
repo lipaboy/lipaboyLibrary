@@ -132,6 +132,7 @@ namespace lipaboy_lib::stream_space {
 		// Terminated operator
 		class return_zero : TerminatedOperator
 		{
+        public:
 			template <class T>
 			using RetType = int;
 
