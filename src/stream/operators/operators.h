@@ -2,7 +2,7 @@
 
 #include "tools.h"
 
-// non-terminated operations
+// non-terminated operators
 #include "filter.h"
 #include "group_by_vector.h"
 #include "get.h"
@@ -12,9 +12,11 @@
 #include "distinct.h"
 #include "split.h"
 #include "cast.h"
+//     special operators
 #include "to_pair.h"
+#include "tupled.h"
 
-//	   terminated operations
+//	   terminated operators
 #include "nth.h"
 #include "print_to.h"
 #include "reduce.h"

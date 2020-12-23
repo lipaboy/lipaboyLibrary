@@ -23,6 +23,7 @@ set(TEST_SOURCE
     stream/stream_test.h
     stream/benchmarks/stream_vs_fast_stream.cpp
 
+    stream/tupled_stream_tests.cpp
     stream/paired_stream_tests.cpp
     stream/nop_tests.cpp
     stream/nth_tests.cpp

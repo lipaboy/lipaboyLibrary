@@ -12,30 +12,30 @@ namespace lipaboy_lib::stream_space {
             using SecondSubType = SecondStreamT;
 
             template <class TFirst>
-            using RetType = std::pair<TFirst, typename SecondStreamT::ResultValueType>; // return the same type
+            using RetType = std::pair<TFirst, typename SecondStreamT::ResultValueType>;
 
         public:
             template <class _SecondStreamT_>
             paired(_SecondStreamT_ second)
-                : second_(std::forward<_SecondStreamT_>(second)) 
+                : second_(second) 
             {}
 
-            template <class StreamType>
-            auto nextElem(StreamType& first)
-                -> RetType<typename StreamType::ResultValueType>
+            template <class FirstStreamT>
+            auto nextElem(FirstStreamT& first)
+                -> RetType<typename FirstStreamT::ResultValueType>
             {
                 return std::make_pair(first.nextElem(), second_.nextElem());
             }
 
-            template <class StreamType>
-            void incrementElem(StreamType& first)
+            template <class FirstStreamT>
+            void incrementElem(FirstStreamT& first)
             {
                 first.incrementElem();
-                second_.nextElem();
+                second_.incrementElem();
             }
 
-            template <class StreamType>
-            bool hasNext(StreamType& first)
+            template <class FirstStreamT>
+            bool hasNext(FirstStreamT& first)
             {
                 return first.hasNext() && second_.hasNext();
             }
