@@ -28,10 +28,10 @@ namespace lipaboy_lib::stream_space {
             }
 
             template <class FirstStreamT>
-            void incrementElem(FirstStreamT& first)
+            void incrementSlider(FirstStreamT& first)
             {
-                first.incrementElem();
-                second_.incrementElem();
+                first.incrementSlider();
+                second_.incrementSlider();
             }
 
             template <class FirstStreamT>

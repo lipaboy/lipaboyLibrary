@@ -117,9 +117,9 @@ namespace lipaboy_lib::stream_space {
 			}
 
 			template <class StreamType>
-			void incrementElem(StreamType & stream)
+			void incrementSlider(StreamType & stream)
 			{
-				stream.incrementElem();
+				stream.incrementSlider();
 			}
 
 			template <class StreamType>

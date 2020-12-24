@@ -23,6 +23,8 @@ namespace stream_tests {
     using namespace lipaboy_lib::stream_space;
     using namespace lipaboy_lib::stream_space::operators;
 
+    // TODO: wrap the tuple by the concrete struct (like {name:, age:})
+
     //---------------------------------Tests-------------------------------//
 
     TEST(StreamTest, tupled_stream_double) {
@@ -44,6 +46,17 @@ namespace stream_tests {
             | sum(0);
 
         ASSERT_EQ(12, res);
+    }
+
+    TEST(StreamTest, tupled_increment) {
+        auto first = Stream(2, 2, 8);
+        auto second = Stream(1, 2, 3);
+        auto res = first | tupled<decltype(second)>(second)
+            | skip(2)
+            | map([](auto tuple) { return get<0>(tuple) + get<1>(tuple); })
+            | sum(0);
+
+        ASSERT_EQ(res, 11);
     }
 
     //--------------------Context---------------------//

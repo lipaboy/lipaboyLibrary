@@ -35,42 +35,29 @@ namespace lipaboy_lib::stream_space {
                 return std::make_tuple(
                         base.nextElem(), 
                         stream_.nextElem(),
-                        ((tupled<Rest> *)this)->stream_.nextElem()...
+                        ((tupled<Rest> *)this)->stream().nextElem()...
                     );
             }
 
             template <class BaseStreamT>
-            void incrementElem(BaseStreamT& base)
+            void incrementSlider(BaseStreamT& base)
             {
-                base.incrementElem();
-                increment();
+                base.incrementSlider();
+                stream().incrementSlider();
+                (((tupled<Rest>*)this)->stream().incrementSlider(), ...);
             }
 
             template <class BaseStreamT>
             bool hasNext(BaseStreamT& base)
             {
-                return base.hasNext() && has();
+                return base.hasNext() && stream().hasNext() && 
+                    (((tupled<Rest>*)this)->stream().hasNext() && ...);
             }
 
         public:
-            auto next() -> typename TStream::ResultValueType
-            {
-                return stream_.nextElem();
-            }
+            CurrentStreamType& stream() { return stream_; }
 
-            void increment()
-            {
-                stream_.incrementElem();
-                SubType::increment();
-            }
-
-            bool has()
-            {
-                return stream_.hasNext() && SubType::has();
-            }
-
-
-        public:
+        protected:
             CurrentStreamType stream_;
         };
 
@@ -100,10 +87,10 @@ namespace lipaboy_lib::stream_space {
             }
 
             template <class BaseStreamT>
-            void incrementElem(BaseStreamT& base)
+            void incrementSlider(BaseStreamT& base)
             {
-                base.incrementElem();
-                stream_.incrementElem();
+                base.incrementSlider();
+                stream_.incrementSlider();
             }
 
             template <class BaseStreamT>
@@ -113,22 +100,9 @@ namespace lipaboy_lib::stream_space {
             }
 
         public:
-            auto next() -> SecondValueType
-            {
-                return stream_.nextElem();
-            }
+            SecondStreamT& stream() { return stream_; }
 
-            void increment()
-            {
-                stream_.incrementElem();
-            }
-
-            bool has()
-            {
-                return stream_.hasNext();
-            }
-
-        public:
+        protected:
             SecondStreamT stream_;
         };
 

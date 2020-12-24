@@ -40,8 +40,6 @@
     
     8) (Numberphile searching) need to develop my long_numbers with templates (maybe not global, only for tasks)
 
-	9) (Stream) rename incrementElem to increment or skipElem
-
 ----Local TODOs:
 
 	2) (FixedPrecisionNumber) write tests for comparing numbers. (check if all are right)
