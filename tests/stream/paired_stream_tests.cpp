@@ -55,6 +55,19 @@ namespace stream_tests {
         EXPECT_EQ(res, decltype(res)({ 0, -3, 0, 9, 24 }));
     }
 
+    TEST(StreamTest, paired_stream_second_rvalue) {
+        auto first = Stream(-1, [](int p) { return p - 1; }) | get(5);
+
+        auto res = (first & Stream(1, 2, 3, 4, 5))
+            | map([](auto pair) { return pair.first + pair.second; })
+            | sum();
+
+        EXPECT_EQ(res, 0);
+
+        //std::pair<int, int> abc = { 2, 4 };
+        //auto [fir, sec] = abc;
+    }
+
     TEST(StreamTest, pseudoinfinite_stream) {
 //        auto first = Stream(-1, [](int p) { return p - 1; });
 //        auto second = Stream(1, 2, 3, 4, 5);

@@ -2,6 +2,7 @@
 
 #include <tuple>
 
+
 namespace lipaboy_lib::stream_space {
 
     namespace operators {
@@ -23,7 +24,7 @@ namespace lipaboy_lib::stream_space {
             tupled() = default;
 
             template <class _TStream_, class... _Rest_>
-            tupled(_TStream_ stream, _Rest_... rest)
+            tupled(_TStream_ stream, _Rest_ ...rest)
                 : stream_(stream), SubType(rest...)
             {}
 
@@ -74,6 +75,10 @@ namespace lipaboy_lib::stream_space {
                 typename SecondStreamT::ResultValueType>;
 
         public:
+            /*template <class... ArgsSecond>
+            tupled(StreamBase stream)
+                : stream_(std::forward<_SecondStreamT_>(stream))
+            {}*/
             template <class _SecondStreamT_>
             tupled(_SecondStreamT_ stream)
                 : stream_(stream)

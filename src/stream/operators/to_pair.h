@@ -1,6 +1,7 @@
 #pragma once
 
 #include <tuple>
+#include "stream/stream_base.h"
 
 namespace lipaboy_lib::stream_space {
 
@@ -15,9 +16,13 @@ namespace lipaboy_lib::stream_space {
             using RetType = std::pair<TFirst, typename SecondStreamT::ResultValueType>;
 
         public:
-            template <class _SecondStreamT_>
-            paired(_SecondStreamT_ second)
+            template <class... ArgsSecond>
+            paired(StreamBase<ArgsSecond...> const & second)
                 : second_(second) 
+            {}
+            template <class... ArgsSecond>
+            paired(StreamBase<ArgsSecond...>&& second)
+                : second_(std::move(second))
             {}
 
             template <class FirstStreamT>
