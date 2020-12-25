@@ -18,6 +18,8 @@
 
 ----Global TODOs:
 
+	-1) Описать на русском как работает стрим, и как с ним обращаться. Сделать полное описание
+
 	0) Write instruction to use:
 		- Algebra Interfaces
 		- FixedPrecisionNumber class

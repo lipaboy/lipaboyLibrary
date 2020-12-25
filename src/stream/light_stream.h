@@ -17,7 +17,7 @@ namespace lipaboy_lib::stream_space {
 	// What's stream at all?
 	// Answer 1: Stream is not iterator (because can't return current element). 
 	//		   Single-pass. Save sequence of elements (periphrase).
-	// Answer 2: Lazy - {1, 2, 3} | map(square) | sum() -> transform to: (1^2 + 2^2 + 3^2)
+	// Answer 2: Lazy - { 1, 2, 3 } | map(square) | sum() -> transform to: (1^2 + 2^2 + 3^2)
 
 	// PLAN FOR STREAM:
 	//-----------------
@@ -235,7 +235,17 @@ namespace lipaboy_lib::stream_space {
 		return first & second;
 	}
 
-    // Move-semantics
+	//-------------------Tupled Stream---------------------//
+
+	template <class ...ArgsBase, class ...StreamRest>
+	auto to_tuple(StreamBase<ArgsBase...> streamBase, StreamRest ...streamRest)
+		-> shortening::StreamTypeExtender_t<StreamBase<ArgsBase...>,
+		operators::tupled<StreamRest...> >
+	{
+		return (streamBase | operators::tupled<StreamRest...>(streamRest...));
+	}
+
+    // Move-semantics for Paired Stream
 
 //    template <class ...ArgsFirst, class ...ArgsSecond>
 //    auto operator&(StreamBase<ArgsFirst...>&& first, StreamBase<ArgsSecond...>&& second)

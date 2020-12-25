@@ -25,13 +25,13 @@ namespace stream_tests {
 
     // TODO: wrap the tuple by the concrete struct (like {name:, age:})
 
-    //---------------------------------Tests-------------------------------//
+    //------------------------------Tests-------------------------------//
 
     TEST(StreamTest, tupled_stream_double) {
         auto first = Stream(1, 2, 3);
         auto second = Stream(-1, -2, -3);
-        auto res = first | tupled<decltype(second)>(second)
-            | map([](auto tuple) { return get<0>(tuple) + get<1>(tuple); })
+        auto res = to_tuple(first, second)
+            | map([](auto t) { return get<0>(t) + get<1>(t); })
             | sum(0);
 
         ASSERT_EQ(0, res);
@@ -41,8 +41,8 @@ namespace stream_tests {
         auto first = Stream(2, 2, 8);
         auto second = Stream(1, 2, 3);
         auto third = Stream(-1, -2, -3);
-        auto res = first | tupled<decltype(second), decltype(third)>(second, third)
-            | map([](auto tuple) { return get<0>(tuple) + get<1>(tuple) + get<2>(tuple); })
+        auto res = to_tuple(first, second, third)
+            | map([](auto t) { return get<0>(t) + get<1>(t) + get<2>(t); })
             | sum(0);
 
         ASSERT_EQ(12, res);
@@ -51,15 +51,15 @@ namespace stream_tests {
     TEST(StreamTest, tupled_increment) {
         auto first = Stream(2, 2, 8);
         auto second = Stream(1, 2, 3);
-        auto res = first | tupled<decltype(second)>(second)
+        auto res = to_tuple(first, second)
             | skip(2)
-            | map([](auto tuple) { return get<0>(tuple) + get<1>(tuple); })
+            | map([](auto t) { return get<0>(t) + get<1>(t); })
             | sum(0);
 
         ASSERT_EQ(res, 11);
     }
 
-    //--------------------Context---------------------//
+    //--------------------Context of tupled realization---------------------//
 
     namespace {
 
