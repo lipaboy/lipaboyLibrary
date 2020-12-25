@@ -313,6 +313,7 @@ namespace lipaboy_lib {
 			return part1 | part2;
 		}
 
+#ifdef WIN32
 		/*namespace {
 			using ContainerType = typename BigUnsigned::BlockContainer;
 
@@ -460,6 +461,7 @@ namespace lipaboy_lib {
 			//std::cout << "Realloc count: " << reallocCount << std::endl;
 			return res;
 		}
+#endif
 
 		// TODO: Replace this macros on smth else
 #define DTRT_ALIASED(cond, op) \
