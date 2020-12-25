@@ -46,7 +46,8 @@
 
 	3) (Stream) rename shortening namespace to shortenings (or better shorteners)
 
-	4) (Stream) Edit distinct operator by replacing the std::refs on value_type values.
+	4) (Stream) Make distinct work with std::unique_ptr and have a choice to work with only std::ref
+			instead of copy
 
 	5) (Stream) make 'assertOnInfinite' method invisible for clients
 
