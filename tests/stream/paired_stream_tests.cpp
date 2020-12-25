@@ -32,6 +32,9 @@ namespace stream_tests {
                 | sum();
 
         EXPECT_EQ(res, 0);
+
+        //std::pair<int, int> abc = { 2, 4 };
+        //auto [fir, sec] = abc;
     }
 
     TEST(StreamTest, paired_stream_rvalue) {

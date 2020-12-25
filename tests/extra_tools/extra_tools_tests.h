@@ -28,28 +28,33 @@ struct NoisyMove : NoisyHash {
     NoisyMove(NoisyMove &&) noexcept { cout << "Move-Constructed" << endl; }
 };
 
-// NoisyD - Noisy without notifying of destruction
-struct NoisyD : 
-	virtual NoisyCon, 
-	virtual NoisyCopy, 
-	virtual NoisyMove 
-{
-    NoisyD() {}
-    NoisyD(NoisyD const & obj) : NoisyCopy(obj), NoisyCon(obj) {}
-    NoisyD(NoisyD&& obj) noexcept : NoisyMove(std::move(obj)), NoisyCon(std::move(obj)) {}
+namespace {
+	static int id = 0;
+}
 
-    const NoisyD& operator= (const NoisyD&) {
+// NoisyND - Noisy No notifying of Destruction
+struct NoisyND
+{
+    NoisyND() : id_(++id) { cout << "Constructed " << id_ << endl; }
+    NoisyND(NoisyND const & obj) : id_(++id) { cout << "Copy-Constructed " << id_ << endl; }
+    NoisyND(NoisyND&& obj) noexcept : id_(++id) { cout << "Move-Constructed " << id_ << endl; }
+
+    const NoisyND& operator= (const NoisyND&) {
         return *this;
     }
-    const NoisyD& operator= (const NoisyD&&) noexcept {
+    const NoisyND& operator= (const NoisyND&&) noexcept {
         return *this;
     }
+
+	int id_;
 };
 
-struct Noisy : NoisyD {
+struct Noisy : 
+	virtual NoisyND 
+{
 	Noisy() {}
-	Noisy(Noisy const & obj) : NoisyD(obj) {}
-	Noisy(Noisy&& obj) noexcept : NoisyD(std::move(obj)) {}
+	Noisy(Noisy const & obj) : NoisyND(obj) {}
+	Noisy(Noisy&& obj) noexcept : NoisyND(std::move(obj)) {}
 
 	bool operator==(Noisy const &) const { return false; }
 	bool operator!=(Noisy const & other) const { return !((*this) == other); }
@@ -61,7 +66,7 @@ struct Noisy : NoisyD {
 		return *this;
 	}
 
-    virtual ~Noisy() { cout << "Destructed" << endl; }
+    virtual ~Noisy() { cout << "Destructed " << id_ << endl; }
 };
 
 }

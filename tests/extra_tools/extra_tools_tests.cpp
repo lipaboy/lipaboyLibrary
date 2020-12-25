@@ -62,7 +62,7 @@ bool isRValueRef(A_&& a) {
 }
 
 TEST(RelativeForward, noisy_test) {
-//    using type = A<NoisyD>;
+//    using type = A<NoisyND>;
 //    type a;
 //    type a2 = type(5, a);
 //    type a3 = type(3, std::move(a));
