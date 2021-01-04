@@ -336,11 +336,13 @@ namespace lipaboy_lib {
 
 		BigUnsigned operator +(BigUnsignedView first, BigUnsignedView second);
 		BigUnsigned operator -(BigUnsignedView first, BigUnsignedView second);
+#ifdef WIN32
 		std::shared_ptr<BigUnsigned> multiplyByKaracuba2(BigUnsignedView first, BigUnsignedView second, long long&);
 		BigUnsigned multiplyByKaracuba(BigUnsignedView first, BigUnsignedView second);
 		/*BigUnsigned multiplyByKaracuba(const BigUnsigned &first, const BigUnsigned &second) {
 			return multiplyByKaracuba(BigUnsignedView(first), BigUnsignedView(second));
 		}*/
+#endif
 
 		/* Implementing the return-by-value and assignment operators in terms of the
 		 * copy-less operations.  The copy-less operations are responsible for making

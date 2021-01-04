@@ -60,25 +60,27 @@ namespace {
 
 }
 
+#if (defined(WIN32) && !defined(DEBUG_)) || (defined(__linux__) && defined(NDEBUG))
 TEST(OpenMP, merging_vector) {
-	std::vector<int> vec;
-	#pragma omp parallel num_threads(8)
-	{
-		std::vector<int> vec_private;
-		#pragma omp for nowait schedule(static)
-		for (int i = 0; i < 10; i++) {
-			vec_private.push_back(i);
-		}
-		#pragma omp for schedule(static) ordered
-		for (int i = 0; i < omp_get_num_threads(); i++) {
-			#pragma omp ordered
-			vec.insert(vec.end(), vec_private.begin(), vec_private.end());
-		}
-	}
-	int a = 0;
-	ASSERT_EQ(vec, Stream([&a]() { return a++; }) | get(10) | to_vector());
-	//ASSERT_FALSE(true);
+    std::vector<int> vec;
+    #pragma omp parallel num_threads(8)
+    {
+        std::vector<int> vec_private;
+        #pragma omp for nowait schedule(static)
+        for (int i = 0; i < 10; i++) {
+            vec_private.push_back(i);
+        }
+        #pragma omp for schedule(static) ordered
+        for (int i = 0; i < omp_get_num_threads(); i++) {
+            #pragma omp ordered
+            vec.insert(vec.end(), vec_private.begin(), vec_private.end());
+        }
+    }
+    int a = 0;
+    ASSERT_EQ(vec, Stream([&a]() { return a++; }) | get(10) | to_vector());
+    //ASSERT_FALSE(true);
 }
+#endif
 
 int notlambda(int a) { return a * 3; }
 inline int notlambda_inline(int a) { return a * 3; }

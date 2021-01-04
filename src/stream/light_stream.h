@@ -8,6 +8,9 @@
 #include "extra_tools/producing_iterator.h"
 #include "extra_tools/sequence_producing_iterator.h"
 
+#include "operators/to_pair.h"
+#include "operators/tupled.h"
+
 #include <type_traits>
 
 namespace lipaboy_lib::stream_space {
