@@ -7,6 +7,7 @@ namespace lipaboy_lib::stream_space {
 	namespace operators {
 
 		// Question: what's shit is it doing here, void* ? (Replace to optional is not trivial)
+		// Why I cannot make std::getopt as result type??
 
 		template <class TInit = void*>
 		struct sum : TReturnSameType, TerminatedOperator

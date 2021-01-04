@@ -39,6 +39,16 @@ using namespace lipaboy_lib::stream_space::operators;
 
 //-------------------------------------//
 
+TEST(StreamTest, check) {
+
+    auto res = Stream(1, 2, 3, 4, 5) 
+        | map([](int a) { return a * a;  })
+        | sum();
+
+    
+}
+
+
 TEST(StreamTest, try_to_convert_the_tuple_to_struct) {
 
     // Result: you cannot use union because it isn't normal constructed and destructed.
