@@ -24,23 +24,14 @@ namespace stream_tests {
 
 	TEST(Stream_Split, strings) {
 		string str = "hello, world!!";
-        auto outStr = Stream(str.begin(), str.end())
-			| split_impl(
-				[](char ch) -> bool 
-				{ 
-					return ch == ' '; 
-				}) 
-            | sum();
-		ASSERT_EQ(outStr, "hello,world!!");
-
-		auto outStr2 = Stream(str.begin(), str.end()) 
+		auto outStr = Stream(str.begin(), str.end()) 
 			| split<string>(
 				[](char ch) -> bool 
 				{ 
 					return ch == ' ' || ch == ',' || ch == '!'; 
 				}) 
 			| to_vector();
-		ASSERT_EQ(outStr2, vector<string>({ "hello", "world", "" }));
+		ASSERT_EQ(outStr, vector<string>({ "hello", "world", "" }));
 	}
 
 	TEST(Stream_Split, vectors) {

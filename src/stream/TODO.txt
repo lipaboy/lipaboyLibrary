@@ -4,6 +4,17 @@
 	2) (Stream) Write SelectMany(v -> v.ToWords).GroupBy(v -> v).ToDictionary(v -> v.count)
 		to count the frequency of words in any text.
 
+		inFile.open(filename, std::ios::out | std::ios:trunc);
+		auto fileStream = 
+			Stream(inFile)
+				| split<string>(
+					[](char ch) -> bool 
+					{ 
+						return ch == ' ' || ch == ',' || ch == '!'; 
+					}) 
+				| group(words & count)
+				| to_dictionary(v -> v.count)
+
 	3) (Stream) Stream as container of pair<Iter> : stream(b1, e1).hook_back(b2, e2) | split(by::DIGITS) | to_vector();
 		// hook_back - it's like connect one stream to another (one pair of iters to another one).
 		Realize the merging streams :
