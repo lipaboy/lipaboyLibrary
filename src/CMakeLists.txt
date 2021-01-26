@@ -75,6 +75,7 @@ set(LIB_LIPABOY_LIB_SOURCE_FILES
     stream/operators/tools.h
     stream/operators/ungroup_by_bit.h
     stream/operators/split.h
+    stream/operators/min.h
     stream/operators/max.h
     stream/operators/cast.h
 

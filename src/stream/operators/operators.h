@@ -23,6 +23,7 @@
 #include "sum.h"
 #include "to_vector.h"
 #include "max.h"
+#include "min.h"
 
 namespace lipaboy_lib::stream_space {
 

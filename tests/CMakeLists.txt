@@ -29,7 +29,7 @@ set(TEST_SOURCE
     stream/nth_tests.cpp
     stream/filter_tests.cpp
     stream/reduce_tests.cpp
-    stream/max_tests.cpp
+    stream/max_min_tests.cpp
     stream/split_tests.cpp
     "stream/cast_tests.cpp"
 
