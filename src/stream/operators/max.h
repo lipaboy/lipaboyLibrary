@@ -12,8 +12,6 @@ namespace lipaboy_lib::stream_space {
 
 	namespace operators {
 
-		// TODO: replace Error69 to smth normal
-
 		namespace {
 			template <class T>
 			using TSelfReduce = reduce_impl<std::function<T (T const &, T const &)> >;
@@ -43,8 +41,9 @@ namespace lipaboy_lib::stream_space {
 			template <class Stream_>
 			auto apply(Stream_ & obj) -> typename TSelfReduce<T>::template RetType<T>
 			{
-				static_assert(std::is_same_v<typename TSelfReduce<T>::template RetType<T>, std::optional<T> >,
-					"Error69");
+				// Q: what's situation where is necessary use it?
+				//static_assert(std::is_same_v<typename TSelfReduce<T>::template RetType<T>, std::optional<T> >,
+					//"Error69");
 				return TSelfReduce<T>::template apply<Stream_>(obj);
 			}
 

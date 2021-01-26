@@ -7,7 +7,7 @@ namespace lipaboy_lib::fast_stream {
 
 	namespace operators {
 
-		using SuperType = stream_space::operators::template sum<>;
+		using SuperType = stream_space::operators::sum;
 
 		struct sum : public SuperType
 		{

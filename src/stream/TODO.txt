@@ -1,0 +1,68 @@
+
+----Ideas:
+
+	2) (Stream) Write SelectMany(v -> v.ToWords).GroupBy(v -> v).ToDictionary(v -> v.count)
+		to count the frequency of words in any text.
+
+	3) (Stream) Stream as container of pair<Iter> : stream(b1, e1).hook_back(b2, e2) | split(by::DIGITS) | to_vector();
+		// hook_back - it's like connect one stream to another (one pair of iters to another one).
+		Realize the merging streams :
+		- Stream(vector).merge(Stream(vector)) | sum()
+		F.A.Q. Where do you storage result of this merging ? Output containers ? 
+		Or we say only about building the chain of some streams ?
+
+----Global TODOs:
+
+	-1) Описать на русском как работает стрим, и как с ним обращаться. Сделать полное описание
+
+	2) (Stream & FastStream) think how union common methods and types of different Stream (main and fast ones).
+		- Write static "interface" (static polymorphism) with these common methods (next, hasNext, increment) and 
+			transfer it to operators ones in argument.
+
+	3) (FastStream) use Stream's tests to test the fast_stream::Stream.
+
+	4) (Stream) write group_by(to any container like vector, list, string and so on (IIterable))
+
+	6) (Stream) add cast operator: stream | cast<int>() | print_to(cout, "");
+		- Also static, dynamic casts.
+		
+    7) (Stream) add reverse operator (maybe primitive with saving at vector)
+
+----Local TODOs:
+
+	3) (Stream) rename shortening namespace to shortenings (or better shorteners)
+
+	4) (Stream) Make distinct work with std::unique_ptr and have a choice to work with only std::ref
+			instead of copy
+
+	5) (Stream) make 'assertOnInfinite' method invisible for clients
+
+	6) (Stream.Reduce) add compile-assert to check if client passes only one argument to lambda in Accumulator of Reduce
+		Process: 
+			- add interlayer between reduce operator and initializing of it to catch the moment of error origin.
+				But adding static_assert into constructor doesn't make any effect.
+
+----Think about:
+
+	5) (Stream) Think about optimizing Stream by adding ability to doPreliminary and Postliminary actions 
+		like previous version of Stream.
+		- For example, you have terminated operator sum(). You don't want to write the same code
+			with adding the only line (doPreliminaryActions();). You want to write wrapper 
+			around first sum(). 
+		- It is similar that your Stream have different levels of abstraction. 
+			First: nextElem(), hasNext(), incrementSlider().
+			Second: First + [ doPreliminaryActions() or init() ].
+		- maybe divide the nextElem(), hasNext(), initialize() methods by different classes 
+			that have responsibility to call them 
+
+	6) (Stream) How to simplify 'filter' operator ??
+
+	9) (Stream.Sum) Think how fight with uninitialized accumulator of sum<>() ?
+
+	10) (StreamBase) Think about creating cStream for copy-value logic from container and 
+		Stream as move-value logic from container. It enables using unique_ptr into Stream.
+
+
+Linux problems:
+
+	2) (Stream) Check distinct operator under Linux

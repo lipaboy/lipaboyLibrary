@@ -4,33 +4,34 @@
 
 namespace lipaboy_lib::stream_space {
 
+	// NOTE: why is sum operator inherit from reduce operator?
+	//		Because I think that such realization is faster than with lambda one. Maybe test it ?
+
 	namespace operators {
 
-		// Question: what's shit is it doing here, void* ? (Replace to optional is not trivial)
-		// Why I cannot make std::getopt as result type??
-
-		template <class TInit = void*>
-		struct sum : TReturnSameType, TerminatedOperator
+		struct sum : TerminatedOperator
 		{
-            sum(TInit init = nullptr) {
-				init_ = init;
-			}
+		public:
+			template <class T>
+			using RetType = std::optional<T>;
+
+		public:
 
 			template <class TStream>
-			auto apply(TStream & stream) -> typename TStream::ResultValueType
+			auto apply(TStream & stream) -> RetType<typename TStream::ResultValueType>
 			{
 				using TResult = typename TStream::ResultValueType;
 				TResult result;
-				if constexpr (std::is_same_v<TInit, void*>)
-					result = TResult();
-				else
-					result = init_;
+
+				if (!stream.hasNext())
+					return std::nullopt;
+
+				result = stream.nextElem();
 				while (stream.hasNext())
 					result += stream.nextElem();
 				return result;
 			}
 
-			TInit init_;
 		};
 
 	}

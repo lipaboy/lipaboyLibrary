@@ -32,7 +32,7 @@ namespace stream_tests {
         auto second = Stream(-1, -2, -3);
         auto res = to_tuple(first, second)
             | map([](auto t) { return get<0>(t) + get<1>(t); })
-            | sum(0);
+            | sum();
 
         ASSERT_EQ(0, res);
     }
@@ -43,7 +43,7 @@ namespace stream_tests {
         auto third = Stream(-1, -2, -3);
         auto res = to_tuple(first, second, third)
             | map([](auto t) { return get<0>(t) + get<1>(t) + get<2>(t); })
-            | sum(0);
+            | sum();
 
         ASSERT_EQ(12, res);
     }
@@ -54,7 +54,7 @@ namespace stream_tests {
         auto res = to_tuple(first, second)
             | skip(2)
             | map([](auto t) { return get<0>(t) + get<1>(t); })
-            | sum(0);
+            | sum();
 
         ASSERT_EQ(res, 11);
     }

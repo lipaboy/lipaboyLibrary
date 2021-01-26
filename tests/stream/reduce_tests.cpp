@@ -83,7 +83,7 @@ namespace stream_tests {
 		int a = 0;
 		auto res = Stream([&a]() { return a++; })
 			| get(4)
-            | sum<>();
+            | sum();
 		ASSERT_EQ(res, 6);
 	}
 
@@ -91,16 +91,16 @@ namespace stream_tests {
 		int a = 1;
 		auto res = Stream([&a]() { return a++; })
 			| get(0)
-			| sum(-1);
-		ASSERT_EQ(res, -1);
+			| sum();
+		ASSERT_FALSE(res.has_value());
 	}
 
 	TEST(Stream_Sum, Empty_string) {
 		string a = "";
 		auto res = Stream([&a]() { return a + "2"; })
 			| get(0)
-			| sum("a");
-		ASSERT_EQ(res, "a");
+			| sum();
+		ASSERT_FALSE(res.has_value());
 	}
 
 }
