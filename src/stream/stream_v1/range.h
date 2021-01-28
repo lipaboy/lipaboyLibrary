@@ -10,8 +10,6 @@
 #include <iterator>
 #include <type_traits>
 
-#include <iostream>
-
 namespace lipaboy_lib {
 
 namespace stream_v1_space {
@@ -21,10 +19,6 @@ using std::pair;
 using std::string;
 using std::unique_ptr;
 using std::shared_ptr;
-
-// For debugging
-using std::cout;
-using std::endl;
 
 //--------------------RangeType-----------------------//
 

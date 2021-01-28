@@ -13,8 +13,6 @@
 
 #include <typeinfo>
 
-#include <iostream>
-
 namespace lipaboy_lib {
 
 namespace stream_v1_space {
@@ -22,9 +20,6 @@ namespace stream_v1_space {
 using std::vector;
 using std::pair;
 using std::string;
-
-using std::cout;
-
 
 //--------------------------Stream Base (specialization class)----------------------//
 

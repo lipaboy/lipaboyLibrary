@@ -1,8 +1,5 @@
 #pragma once
 
-//#ifndef DETECT_TIME_DURATION_H
-//#define DETECT_TIME_DURATION_H
-
 #include <chrono>
 
 namespace lipaboy_lib::extra {
@@ -18,6 +15,4 @@ namespace lipaboy_lib::extra {
     }
 
 }
-
-//#endif //DETECT_TIME_DURATION_H
 

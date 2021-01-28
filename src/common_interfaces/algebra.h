@@ -1,10 +1,6 @@
 #ifndef ALGEBRA_H
 #define ALGEBRA_H
 
-#include <ostream>
-
-#include <iostream>
-
 namespace lipaboy_lib {
 
 	//-----------------------------------------------------//

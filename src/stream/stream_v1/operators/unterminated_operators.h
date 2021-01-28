@@ -14,8 +14,6 @@
 
 #include <any>
 
-#include <iostream>
-
 namespace lipaboy_lib {
 
 namespace stream_v1_space {
@@ -27,10 +25,7 @@ namespace operators_space {
 	using std::pair;
 	using std::ostream;
 	using std::string;
-	using std::function;
-
-	using std::cout;
-	using std::endl;
+    using std::function;
 
 	//#define DEBUG_STREAM_WITH_NOISY
 

@@ -14,9 +14,6 @@
 #include <utility>
 #include <cmath>
 
-#include <iostream>
-
-
 #define IS_GTEST_HASH_MAP_RUN
 
 #ifdef IS_GTEST_HASH_MAP_RUN
@@ -33,9 +30,6 @@ namespace hash_map_space {
 using std::vector;
 using std::forward_list;
 using std::pair;
-
-using std::cout;
-using std::endl;
 
 // PLAN TODO
 // INFO: Wrong HashMap with Allocator logic

@@ -13,8 +13,6 @@
 #include <ostream>
 #include <type_traits>
 
-#include <iostream>
-
 namespace lipaboy_lib {
 
 namespace stream_v1_space {
@@ -25,10 +23,7 @@ namespace operators_space {
 	using std::pair;
 	using std::ostream;
 	using std::string;
-	using std::function;
-
-	using std::cout;
-	using std::endl;
+    using std::function;
 
 
 	//---------------------------------------------------------------------------------------------------//

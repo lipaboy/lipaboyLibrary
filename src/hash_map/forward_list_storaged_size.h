@@ -4,12 +4,8 @@
 #include <forward_list>
 #include <memory>
 
-#include <iostream>
-
 namespace hash_map_space {
 
-using std::cout;
-using std::endl;
 using std::forward_list;
 
 template <class T,

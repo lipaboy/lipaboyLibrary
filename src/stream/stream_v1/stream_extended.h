@@ -11,8 +11,6 @@
 
 #include <typeinfo>
 
-#include <iostream>
-
 namespace lipaboy_lib {
 
 namespace stream_v1_space {
@@ -24,9 +22,6 @@ using std::unique_ptr;
 using std::shared_ptr;
 
 using namespace operators_space;
-
-using std::cout;
-using std::endl;
 
 //-----------------Stream Extended class----------------------//
 

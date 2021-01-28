@@ -18,7 +18,7 @@ namespace lipaboy_lib {
 		using CurrentValueType = value_type;
 		using CurrentValueTypePtr = std::shared_ptr<CurrentValueType>;
 		using reference = T & ;
-		using const_reference = const reference;
+        using const_reference = const T & ;
 		using pointer = T * ;
 		using const_pointer = const pointer;
 		using iterator_category = std::input_iterator_tag;
