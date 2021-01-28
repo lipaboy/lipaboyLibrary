@@ -1,8 +1,8 @@
 #ifndef ACCURACY_NUMBER_H
 #define ACCURACY_NUMBER_H
 
-#include "../common_interfaces/comparable.h"
-#include "../common_interfaces/either_comparable.h"
+#include "../common_interfaces/comparator_extender.h"
+#include "../common_interfaces/another_type_comparing_extender.h"
 #include "../common_interfaces/algebra.h"
 
 #include <ostream>

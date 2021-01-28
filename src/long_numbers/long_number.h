@@ -17,7 +17,7 @@
 #include "extra_tools/extra_tools.h"
 #include "intervals/cutoffborders.h"
 #include "extra_tools/maths_tools.h"
-#include "common_interfaces/comparable.h"
+#include "common_interfaces/comparator_extender.h"
 
 #include "long_integer_decimal_view.h"
 

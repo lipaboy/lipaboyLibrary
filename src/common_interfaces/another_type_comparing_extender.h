@@ -1,19 +1,14 @@
-#ifndef EITHER_COMPARABLE_H
-#define EITHER_COMPARABLE_H
-
-#include "comparable.h"
+#pragma once
 
 //Lipa std
 namespace lipaboy_lib {
 
+    /*------------Compare with objects of another type------------*/
 
-	/*------------Too a lot of code production (but more flexible)------------*/
+    // Too a lot of code production (but more flexible)
 
-	// TODO: swap (*this) and other by places (more beautifully)
-
-	// EitherComparable with other object types
     template <class T, class TDerived>
-	class EitherComparable {
+    class AnotherTypeComparingExtender {
     public:
         using DerivedType = TDerived;
         using ValueType = T;
@@ -36,18 +31,17 @@ namespace lipaboy_lib {
 	};
 
     template <class T, class TDerived>
-    bool operator< (const T& other, const EitherComparable<T, TDerived>& obj) { return (obj > other); }
+    bool operator< (const T& other, const AnotherTypeComparingExtender<T, TDerived>& obj) { return (obj > other); }
     template <class T, class TDerived>
-    bool operator<= (const T& other, const EitherComparable<T, TDerived>& obj) { return (obj >= other); }
+    bool operator<= (const T& other, const AnotherTypeComparingExtender<T, TDerived>& obj) { return (obj >= other); }
     template <class T, class TDerived>
-    bool operator== (const T& other, const EitherComparable<T, TDerived>& obj) { return (obj == other); }
+    bool operator== (const T& other, const AnotherTypeComparingExtender<T, TDerived>& obj) { return (obj == other); }
     template <class T, class TDerived>
-    bool operator> (const T& other, const EitherComparable<T, TDerived>& obj) { return (obj < other); }
+    bool operator> (const T& other, const AnotherTypeComparingExtender<T, TDerived>& obj) { return (obj < other); }
     template <class T, class TDerived>
-    bool operator>= (const T& other, const EitherComparable<T, TDerived>& obj) { return (obj <= other); }
+    bool operator>= (const T& other, const AnotherTypeComparingExtender<T, TDerived>& obj) { return (obj <= other); }
     template <class T, class TDerived>
-    bool operator!= (const T& other, const EitherComparable<T, TDerived>& obj) { return (obj != other); }
+    bool operator!= (const T& other, const AnotherTypeComparingExtender<T, TDerived>& obj) { return (obj != other); }
 
 }
 
-#endif //EITHER_COMPARABLE_H

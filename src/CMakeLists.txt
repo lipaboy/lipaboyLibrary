@@ -5,9 +5,9 @@ set(LIB_LIPABOY_LIB_SOURCE_FILES
 
     # Common Intefaces
     common_interfaces/algebra.h
-    common_interfaces/comparable.h
-    common_interfaces/containable.h
-    common_interfaces/either_comparable.h
+    common_interfaces/comparator_extender.h
+    common_interfaces/contain_api_extender.h
+    common_interfaces/another_type_comparing_extender.h
 
     # Containers
     containers/bit_vector.h

@@ -1,15 +1,8 @@
 #pragma once
 
-// debugging
-#include <iostream>
 #include <string>
 
 namespace lipaboy_lib {
-
-	using std::cout;
-	using std::endl;
-
-
 
 	// TODO: write tests
 	template <typename T, typename IntegerType = int>

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../common_interfaces/containable.h"
-#include "../common_interfaces/either_comparable.h"
+#include "common_interfaces/contain_api_extender.h"
+#include "common_interfaces/another_type_comparing_extender.h"
 
 #include <functional>
 
@@ -11,14 +11,14 @@ namespace lipaboy_lib {
 	// TODO: put off Infinity into own file
 
     template <class T>
-    class Infinity : public EitherComparable<T, Infinity<T> > {};
+    class Infinity : public AnotherTypeComparingExtender<T, Infinity<T> > {};
 
     template <class T>
     class PositiveInfinity : public Infinity<T> {
     public:
-        bool operator< (const T& number) const { return false; }
-        bool operator<= (const T& number) const { return false; }
-        bool operator== (const T& number) const { return false; }
+        bool operator< (const T&) const { return false; }
+        bool operator<= (const T&) const { return false; }
+        bool operator== (const T&) const { return false; }
 
 	public:
 		struct less {
@@ -34,9 +34,9 @@ namespace lipaboy_lib {
     template <class T>
     class NegativeInfinity : public Infinity<T> {
     public:
-        bool operator< (const T& number) const { return true; }
-        bool operator<= (const T& number) const { return true; }
-        bool operator== (const T& number) const { return true; }
+        bool operator< (const T&) const { return true; }
+        bool operator<= (const T&) const { return true; }
+        bool operator== (const T&) const { return true; }
 
 	public:
 		struct less {

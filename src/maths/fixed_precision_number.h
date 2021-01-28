@@ -1,27 +1,26 @@
 #ifndef FIXED_PRECISION_NUMBER_H
 #define FIXED_PRECISION_NUMBER_H
 
-#include "common_interfaces/comparable.h"
-#include "common_interfaces/either_comparable.h"
+#include "common_interfaces/comparator_extender.h"
+#include "common_interfaces/another_type_comparing_extender.h"
 #include "common_interfaces/algebra.h"
 #include "extra_tools/maths_tools.h"
 
 #include <typeinfo>
 
 namespace lipaboy_lib {
-	
-	// TODO: overload operator<< for ostream
 
 	template <typename T, typename IntegerPrecisionType, 
 		IntegerPrecisionType fraction, IntegerPrecisionType dozenPower>
 	class FixedPrecisionNumberBase : 
         public ComparatorExtender<FixedPrecisionNumberBase<T, IntegerPrecisionType, fraction, dozenPower> >,
-        public EitherComparable<T, FixedPrecisionNumberBase<T, IntegerPrecisionType, fraction, dozenPower> >,
+        public AnotherTypeComparingExtender<T, FixedPrecisionNumberBase<T, IntegerPrecisionType, fraction, dozenPower> >,
 		public OperationAlgebra<T, FixedPrecisionNumberBase<T, IntegerPrecisionType, fraction, dozenPower> >,
         public SelfOperationAlgebra<T, FixedPrecisionNumberBase<T, IntegerPrecisionType, fraction, dozenPower> >
 	{
     public:
         using ValueType = std::remove_reference_t<T>;
+        using CurrentType = FixedPrecisionNumberBase<T, IntegerPrecisionType, fraction, dozenPower>;
 
     public:
 		FixedPrecisionNumberBase(T _number = T()) noexcept
@@ -30,9 +29,9 @@ namespace lipaboy_lib {
         bool operator<(const ValueType& val) const noexcept { 
 			return (getNumber() < val - static_cast<ValueType>(epsilon()));
 		}
-//      bool operator<=(const ValueType& val) const noexcept { 
-//			return (getNumber() <= val + static_cast<ValueType>(epsilon())); 
-//		}
+        bool operator<=(const ValueType& val) const noexcept {
+            return (getNumber() <= val + static_cast<ValueType>(epsilon()));
+        }
         bool operator==(const ValueType& val) const noexcept {
             return (getNumber() >= val - static_cast<ValueType>(epsilon()))
                 && (getNumber() <= val + static_cast<ValueType>(epsilon()));
@@ -60,14 +59,14 @@ namespace lipaboy_lib {
 		T number;
 
     public:
-        using ComparatorExtender<FixedPrecisionNumberBase<T, IntegerPrecisionType, fraction, dozenPower> >::operator<=;
-        using ComparatorExtender<FixedPrecisionNumberBase<T, IntegerPrecisionType, fraction, dozenPower> >::operator!=;
-        using ComparatorExtender<FixedPrecisionNumberBase<T, IntegerPrecisionType, fraction, dozenPower> >::operator>=;
-        using ComparatorExtender<FixedPrecisionNumberBase<T, IntegerPrecisionType, fraction, dozenPower> >::operator>;
-        using EitherComparable<T, FixedPrecisionNumberBase<T, IntegerPrecisionType, fraction, dozenPower> >::operator<=;
-        using EitherComparable<T, FixedPrecisionNumberBase<T, IntegerPrecisionType, fraction, dozenPower> >::operator!=;
-        using EitherComparable<T, FixedPrecisionNumberBase<T, IntegerPrecisionType, fraction, dozenPower> >::operator>=;
-        using EitherComparable<T, FixedPrecisionNumberBase<T, IntegerPrecisionType, fraction, dozenPower> >::operator>;
+        using ComparatorExtender<CurrentType>::operator<=;
+        using ComparatorExtender<CurrentType>::operator!=;
+        using ComparatorExtender<CurrentType>::operator>=;
+        using ComparatorExtender<CurrentType>::operator>;
+        using AnotherTypeComparingExtender<T, CurrentType>::operator<=;
+        using AnotherTypeComparingExtender<T, CurrentType>::operator!=;
+        using AnotherTypeComparingExtender<T, CurrentType>::operator>=;
+        using AnotherTypeComparingExtender<T, CurrentType>::operator>;
 	};
 
 
