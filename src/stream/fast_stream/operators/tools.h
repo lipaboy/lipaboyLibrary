@@ -1,6 +1,7 @@
 #pragma once
 
 #include "extra_tools/extra_tools.h"
+#include "stream/operators/operators.h"
 
 #include <functional>
 #include <iterator>

@@ -9,6 +9,7 @@ namespace lipaboy_lib::fast_stream {
 		struct get :
 			public lipaboy_lib::stream_space::operators::get
 		{
+            static constexpr bool isTerminated = false;
 		public:
 			get(size_type size) : lipaboy_lib::stream_space::operators::get(size) {}
 

@@ -1,6 +1,8 @@
 #ifndef EITHER_COMPARABLE_H
 #define EITHER_COMPARABLE_H
 
+#include "comparable.h"
+
 //Lipa std
 namespace lipaboy_lib {
 
@@ -16,18 +18,20 @@ namespace lipaboy_lib {
         using DerivedType = TDerived;
         using ValueType = T;
 	public:
+        // core
         bool operator< (const ValueType& other) const {
             return static_cast<DerivedType const *>(this)->operator< (other);
         }
-        bool operator<= (const ValueType& other) const {
-			return ((*this) < other) || ((*this) == other);
-		}
         bool operator== (const ValueType& other) const {
             return static_cast<DerivedType const *>(this)->operator== (other);
         }
 
-		bool operator> (const ValueType& other) const { return !((*this) <= other); }
-		bool operator>= (const ValueType& other) const { return !((*this) < other); }
+        // extending
+        bool operator<= (const ValueType& other) const {
+            return ((*this) < other) || ((*this) == other);
+        }
+        bool operator> (const ValueType& other) const { return !((*this) <= other); }
+        bool operator>= (const ValueType& other) const { return !((*this) < other); }
         bool operator!= (const ValueType& other) const { return !((*this) == other); }
 	};
 
@@ -43,8 +47,6 @@ namespace lipaboy_lib {
     bool operator>= (const T& other, const EitherComparable<T, TDerived>& obj) { return (obj <= other); }
     template <class T, class TDerived>
     bool operator!= (const T& other, const EitherComparable<T, TDerived>& obj) { return (obj != other); }
-
-
 
 }
 

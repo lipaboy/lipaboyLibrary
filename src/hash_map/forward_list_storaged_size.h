@@ -6,10 +6,6 @@
 
 #include <iostream>
 
-//#ifdef WIN32
-//#define _ENFORCE_MATCHING_ALLOCATORS 1
-//#endif
-
 namespace hash_map_space {
 
 using std::cout;

@@ -60,9 +60,6 @@ namespace stream_tests {
 		ASSERT_EQ(minVal.has_value(), false);
 	}
 
-    // NOTE: on linux error is placed in FixedPrecisionNumber (howerer it is compiler err)
-
-#ifdef WIN32
 	TEST(Stream_max_min, fixed_precision_numbers) {
         using FixedDouble = lipaboy_lib::FixedPrecisionNumber<double, 1, -3>;
 
@@ -79,8 +76,7 @@ namespace stream_tests {
 			| min();
 
 		ASSERT_EQ(minVal.value(), 0.);
-	}
-#endif
+    }
 
 }
 
