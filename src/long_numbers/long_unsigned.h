@@ -73,8 +73,6 @@ namespace lipaboy_lib::long_numbers_space {
     public:
         using TIntegral = std::uint32_t;
         using TIntegralResult = std::uint64_t;
-        using TSigned = std::int32_t;
-        using TSignedResult = std::int64_t;
         using LengthType = extra::LengthType;
         using size_type = size_t;
 

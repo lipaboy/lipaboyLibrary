@@ -17,13 +17,13 @@ using std::string;
 
 //-----------Crash-----------//
 
-TEST(LongInteger, overflow) {
+TEST(LongIntegerDecimal, overflow) {
 	ASSERT_NO_THROW(LongIntegerDecimal<1> num1("789100000200"));
 }
 
 //-----------Comparison-----------//
 
-TEST(LongInteger, comparison_less) {
+TEST(LongIntegerDecimal, comparison_less) {
 	LongIntegerDecimal<3> first("789100000200");
 	LongIntegerDecimal<3> second("789100000201");
 
@@ -46,7 +46,7 @@ TEST(LongInteger, comparison_less) {
 	EXPECT_TRUE(first <= second);
 }
 
-TEST(LongInteger, comparison_more) {
+TEST(LongIntegerDecimal, comparison_more) {
 
 	LongIntegerDecimal<2> first("200200");
 	LongIntegerDecimal<2> second("200200");
@@ -55,7 +55,7 @@ TEST(LongInteger, comparison_more) {
 
 }
 
-TEST(LongInteger, comparison_diff) {
+TEST(LongIntegerDecimal, comparison_diff) {
 	LongIntegerDecimal<3> first;
 	LongIntegerDecimal<3> second;
 
@@ -73,7 +73,7 @@ TEST(LongInteger, comparison_diff) {
 	EXPECT_TRUE(first <= second);
 }
 
-TEST(LongInteger, comparison_different_length) {
+TEST(LongIntegerDecimal, comparison_different_length) {
 	LongIntegerDecimal<3> first("1");
 	LongIntegerDecimal<1> second("3");
 
@@ -111,7 +111,7 @@ TEST(LongInteger, comparison_different_length) {
 
 //-----------Sign-----------//
 
-TEST(LongInteger, sign) {
+TEST(LongIntegerDecimal, sign) {
 	LongIntegerDecimal<1> num(-2);
 	ASSERT_EQ(num.sign(), -1);
 
@@ -130,7 +130,7 @@ TEST(LongInteger, sign) {
 
 //-----------Equality-----------//
 
-TEST(LongInteger, inequality) {
+TEST(LongIntegerDecimal, inequality) {
 	LongIntegerDecimal<3> num1("00001000789100000200");
 	LongIntegerDecimal<3> num2("789100000200");
 
@@ -142,7 +142,7 @@ TEST(LongInteger, inequality) {
 	ASSERT_EQ(num3, num4);
 }
 
-TEST(LongInteger, equality) {
+TEST(LongIntegerDecimal, equality) {
 	LongIntegerDecimal<2> num1("789100000200");
 	LongIntegerDecimal<2> num2("789100000200");
 
@@ -151,7 +151,7 @@ TEST(LongInteger, equality) {
 
 //---------Operator/ checking-----------//
 
-TEST(LongInteger, division_by_dec) {
+TEST(LongIntegerDecimal, division_by_dec) {
     LongIntegerDecimal<2> num2("123456789012");
     auto remainder = num2.divideByDec();
     EXPECT_EQ(num2.to_string(), "12345678901");
@@ -182,7 +182,7 @@ TEST(LongInteger, division_by_dec) {
 
 //---------Operator/ checking-----------//
 
-TEST(LongInteger, division_double) {
+TEST(LongIntegerDecimal, division_double) {
     LongIntegerDecimal<2> num3("200200");
     LongIntegerDecimal<2> num4("200200");
 
@@ -195,7 +195,7 @@ TEST(LongInteger, division_double) {
 
 //---------Operator% checking-----------//
 
-TEST(LongInteger, remainder_double) {
+TEST(LongIntegerDecimal, remainder_double) {
     LongIntegerDecimal<2> num3("200201");
     LongIntegerDecimal<2> num4("200200");
 
@@ -208,7 +208,7 @@ TEST(LongInteger, remainder_double) {
 
 //---------Operator* checking-----------//
 
-TEST(LongInteger, multiplication_by_different_lengths) {
+TEST(LongIntegerDecimal, multiplication_by_different_lengths) {
     LongIntegerDecimal<1> num1("2");
     LongIntegerDecimal<4> num2("10000010000");
 
@@ -224,7 +224,7 @@ TEST(LongInteger, multiplication_by_different_lengths) {
     ASSERT_EQ(num2.to_string(), num4.to_string());
 }
 
-TEST(LongInteger, multiplication_double_rank_by_dependent_parts) {
+TEST(LongIntegerDecimal, multiplication_double_rank_by_dependent_parts) {
     LongIntegerDecimal<2> three(3);
     LongIntegerDecimal<2> seven(7);
 	
@@ -234,7 +234,7 @@ TEST(LongInteger, multiplication_double_rank_by_dependent_parts) {
     EXPECT_EQ((seven * three).to_string(), "18312022966923");
 }
 
-TEST(LongInteger, multiplication_double_rank_by_independent_parts) {
+TEST(LongIntegerDecimal, multiplication_double_rank_by_independent_parts) {
 	LongIntegerDecimal<2> num3("200200");
 	LongIntegerDecimal<2> num4("200200");
 
@@ -248,7 +248,7 @@ TEST(LongInteger, multiplication_double_rank_by_independent_parts) {
     EXPECT_EQ((num4 * num5).to_string(), "2002000");
 }
 
-TEST(LongInteger, multiplication_different_signs) {
+TEST(LongIntegerDecimal, multiplication_different_signs) {
 	LongIntegerDecimal<1> num1("-2");
 	LongIntegerDecimal<1> num2("2");
 
@@ -261,7 +261,7 @@ TEST(LongInteger, multiplication_different_signs) {
 	EXPECT_EQ((num3 * num4).to_string(), "40000000000");
 }
 
-TEST(LongInteger, multiplication_simple) {
+TEST(LongIntegerDecimal, multiplication_simple) {
 	LongIntegerDecimal<1> num1("2");
 	LongIntegerDecimal<1> num2("2");
 
@@ -274,7 +274,7 @@ TEST(LongInteger, multiplication_simple) {
 }
 
 // have some errors
-TEST(LongInteger, DISABLED_karacuba_multiplication_simple) {
+TEST(LongIntegerDecimal, DISABLED_karacuba_multiplication_simple) {
     LongIntegerDecimal<1> num1("2");
     LongIntegerDecimal<1> num2("2");
 
@@ -309,7 +309,7 @@ TEST(LongInteger, DISABLED_karacuba_multiplication_simple) {
 
 //---------Operator- checking-----------//
 
-TEST(LongInteger, inverse_the_number) {
+TEST(LongIntegerDecimal, inverse_the_number) {
 	LongIntegerDecimal<1> num("2");
 
 	ASSERT_EQ(-num, LongIntegerDecimal<1>("-2"));
@@ -317,7 +317,7 @@ TEST(LongInteger, inverse_the_number) {
 
 //---------Operator+ checking-----------//
 
-TEST(LongInteger, sum_triple_rank_simple) {
+TEST(LongIntegerDecimal, sum_triple_rank_simple) {
 	LongIntegerDecimal<3> num1("22000000789100000200");
 	LongIntegerDecimal<3> num2("23000000111901000001");
 
@@ -326,7 +326,7 @@ TEST(LongInteger, sum_triple_rank_simple) {
 }
 
 
-TEST(LongInteger, sum_double_rank_by_crossing_parts) {
+TEST(LongIntegerDecimal, sum_double_rank_by_crossing_parts) {
 	LongIntegerDecimal<2> num1("789100000200");
 	LongIntegerDecimal<2> num2("111901000001");
 
@@ -336,7 +336,7 @@ TEST(LongInteger, sum_double_rank_by_crossing_parts) {
 	ASSERT_EQ("901001000201", (num1).to_string());
 }
 
-TEST(LongInteger, sum_double_rank_by_independent_parts_negative) {
+TEST(LongIntegerDecimal, sum_double_rank_by_independent_parts_negative) {
 	LongIntegerDecimal<2> num1("789101000201");
 	LongIntegerDecimal<2> num2("-111001000001");
 
@@ -344,14 +344,14 @@ TEST(LongInteger, sum_double_rank_by_independent_parts_negative) {
 	ASSERT_EQ("678100000200", (num2 + num1).to_string());
 }
 
-TEST(LongInteger, sum_double_rank_by_independent_parts) {
+TEST(LongIntegerDecimal, sum_double_rank_by_independent_parts) {
 	LongIntegerDecimal<2> num1("789100000200");
 	LongIntegerDecimal<2> num2("111001000001");
 
 	ASSERT_EQ("900101000201", (num1 + num2).to_string());
 }
 
-TEST(LongInteger, sum_single_rank_negative) {
+TEST(LongIntegerDecimal, sum_single_rank_negative) {
 	LongIntegerDecimal<1> num1("1010002");
 	LongIntegerDecimal<1> num2(" -10000");
 
@@ -365,14 +365,14 @@ TEST(LongInteger, sum_single_rank_negative) {
 	ASSERT_EQ("-1000002", (num4 + num3).to_string());
 }
 
-TEST(LongInteger, sum_single_rank) {
+TEST(LongIntegerDecimal, sum_single_rank) {
 	LongIntegerDecimal<1> num1("100000200");
 	LongIntegerDecimal<1> num2("  1000001");
 
 	ASSERT_EQ("101000201", (num1 + num2).to_string());
 }
 
-TEST(LongInteger, check) {
+TEST(LongIntegerDecimal, check) {
 	string f = "8123456789012345690";
 	string s = "1";
 	LongIntegerDecimal<4> num1(f);
