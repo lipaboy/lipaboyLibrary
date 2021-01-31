@@ -37,4 +37,21 @@ namespace long_numbers_tests {
 		ASSERT_TRUE(second.sign() == 0);
 	}
 
+	TEST(LongInteger, copy_constructor_different_length) {
+		LongInteger<1> first(-5);
+		LongInteger<2> second(first);
+
+		ASSERT_TRUE(second.sign() < 0);
+	}
+
+	TEST(LongInteger, construct_from_string) {
+		LongInteger<1> first("  -5");
+		ASSERT_TRUE(first.sign() < 0);
+
+		LongInteger<2> second("123456789012");
+		ASSERT_EQ(second.to_string(), "123456789012");
+		second = -second;
+		ASSERT_EQ(second.to_string(), "-123456789012");
+	}
+
 }

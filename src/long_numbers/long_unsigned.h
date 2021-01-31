@@ -8,7 +8,7 @@
 #include <tuple>        // std::pair
 #include <optional>
 
-// conversation number to string
+// building number from string
 #include <string>
 #include <string_view>
 #include <charconv>
@@ -35,7 +35,6 @@ namespace lipaboy_lib::long_numbers_space {
     //      Like: (*this) + LongUnsigned(value)
 
     using std::array;
-    using std::string;
     using std::pair;
 
     using lipaboy_lib::cutOffLeftBorder;
@@ -102,23 +101,28 @@ namespace lipaboy_lib::long_numbers_space {
 
     public:
         // Note: Non-initialized constructor: without filling array by zeroIntegral value.
-        explicit
-            LongUnsigned() { checkTemplateParameters(); }
+        LongUnsigned() { checkTemplateParameters(); }
+
         LongUnsigned(IntegralType small) {
             checkTemplateParameters();
             number_[0] = small;
             std::fill(std::next(begin()), end(), zeroIntegral());
         }
+
         explicit
-            LongUnsigned(string const& numberStr, unsigned int base = 10);
+            LongUnsigned(std::string_view numberStr, unsigned int base = 10);
+
         template <LengthType otherLen>
-            explicit
-            LongUnsigned(LongUnsigned<otherLen> const & other) {
-                checkTemplateParameters();
-                auto minLen = (other.length() > length()) ? length() : other.length();
-                std::copy_n(other.cbegin(), minLen, std::begin(number_));
-                std::fill(std::next(begin(), minLen), end(), zeroIntegral());
-            }
+        explicit
+            LongUnsigned(LongUnsigned<otherLen> const & other) 
+        {
+            checkTemplateParameters();
+            auto minLen = (other.length() > length()) ? length() : other.length();
+            std::copy_n(other.cbegin(), minLen, std::begin(number_));
+            std::fill(std::next(begin(), minLen), end(), zeroIntegral());
+        }
+
+        //---------------Arithmetic operations------------------//
 
         // TODO: calculate how much copy-constructor was called
         template <LengthType otherLen>
@@ -307,7 +311,7 @@ namespace lipaboy_lib::long_numbers_space {
 
         //-------------Converter---------------//
 
-        string to_string(unsigned int base = 10) const;
+        std::string to_string(unsigned int base = 10) const;
 
         //------------Setters, Getters----------//
 
@@ -326,7 +330,7 @@ namespace lipaboy_lib::long_numbers_space {
 
         reference_integral operator[] (size_t index) { return number_[index]; }
 
-        const_reference operator= (string const& numberStr) {
+        const_reference operator= (std::string_view numberStr) {
             this->assignStr(numberStr);
             return *this;
         }
@@ -338,7 +342,7 @@ namespace lipaboy_lib::long_numbers_space {
         }
 
     public:
-        void assignStr(string const& numberStr, unsigned int base = 10);
+        void assignStr(std::string_view numberStr, unsigned int base = 10);
 
         //-------------------------Comparison---------------------------//
 
@@ -477,7 +481,7 @@ namespace lipaboy_lib::long_numbers_space {
 
     private:
         void checkTemplateParameters() {
-            static_assert(lengthOfIntegrals > 0, "Wrong length of LongInteger");
+            static_assert(lengthOfIntegrals > 0, "LongUnsigned Error: Wrong length of LongInteger");
         }
 
     private:
@@ -491,7 +495,7 @@ namespace lipaboy_lib::long_numbers_space {
     //------------------------------------------------------------------------------------------//
 
     template <LengthType length>
-    LongUnsigned<length>::LongUnsigned(string const& numberStr, unsigned int base)
+    LongUnsigned<length>::LongUnsigned(std::string_view numberStr, unsigned int base)
     {
         checkTemplateParameters();
         if (numberStr.length() <= 0 || base < 2)
@@ -501,16 +505,17 @@ namespace lipaboy_lib::long_numbers_space {
     }
 
     template <LengthType length>
-    void LongUnsigned<length>::assignStr(string const& numberStr, unsigned int base) {
-        // TODO: add exception for zero length
-        if (numberStr.length() > 0) {
-            const int integralModulusDegreeOfBase =
-                int(std::log(2) / std::log(base) * integralModulusDegree());
+    void LongUnsigned<length>::assignStr(std::string_view numberStr, unsigned int base) {
+        const int integralModulusDegreeOfBase =
+            int(std::log(2) / std::log(base) * integralModulusDegree());
 
-            std::string_view numStrView = numberStr;
-            numStrView.remove_prefix(
-                cutOffLeftBorder<int>(0, int(numStrView.find_first_not_of(" ")))
-            );
+        std::string_view numStrView = numberStr;
+        numStrView.remove_prefix(
+            cutOffLeftBorder<int>(0, int(numStrView.find_first_not_of(" ")))
+        );
+
+        // TODO: add exception for zero length
+        if (numberStr.length() > 0 && base > 1) {
             // round the number by integral modulus
             numStrView.remove_prefix(
                 cutOffLeftBorder<int>(0, int(numStrView.length()) - int(integralModulusDegreeOfBase * length()))
@@ -599,8 +604,8 @@ namespace lipaboy_lib::long_numbers_space {
     //----------------------------------------------------------------------------
 
     template <size_t length>
-    string LongUnsigned<length>::to_string(unsigned int base) const {
-        string res = "";
+    std::string LongUnsigned<length>::to_string(unsigned int base) const {
+        std::string res = "";
         LongUnsigned temp = *this;
         int i = 0;
         //constexpr size_t digitsCount = extra::getIntegralModulusDegree<rank>();
