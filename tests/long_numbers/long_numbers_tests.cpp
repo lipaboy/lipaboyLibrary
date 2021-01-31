@@ -4,7 +4,7 @@
 #include <iostream>
 
 #include "extra_tools/maths_tools.h"
-#include "long_numbers/long_number.h"
+#include "long_numbers/long_integer_decimal.h"
 
 namespace long_numbers_tests {
 

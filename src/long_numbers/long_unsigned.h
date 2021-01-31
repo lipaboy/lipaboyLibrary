@@ -256,9 +256,8 @@ namespace lipaboy_lib::long_numbers_space {
         }
 
         template <LengthType otherLen>
-        auto divide(LongUnsigned<otherLen> const & other) const->pair<LongUnsigned, LongUnsigned>
+        auto divide(LongUnsigned<otherLen> const & other) const -> pair<LongUnsigned, LongUnsigned>
         {
-            // TODO: replace to OneDigitNumber
             const LongUnsigned<1> DEC(10);
             const LongUnsigned<1> ONE(1);
             const LongUnsigned<1> ZERO(0);

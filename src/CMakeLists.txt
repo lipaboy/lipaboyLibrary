@@ -32,7 +32,7 @@ set(LIB_LIPABOY_LIB_SOURCE_FILES
     intervals/segment.h
 
     # Long Numbers
-    long_numbers/long_number.h
+    long_numbers/long_integer_decimal.h
     long_numbers/long_integer_decimal_view.h
     # New Long Numbers
     long_numbers/long_unsigned.h

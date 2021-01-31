@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "long_numbers/big_integer/big_integer_library.h"
-#include "long_numbers/long_number.h"
+#include "long_numbers/long_integer_decimal.h"
 
 #include "extra_tools/detect_time_duration.h"
 
