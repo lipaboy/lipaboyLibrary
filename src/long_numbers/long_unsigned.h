@@ -1,23 +1,26 @@
 #pragma once
 
 #include <algorithm>    // std::fill, std::next
-#include <numeric>
+#include <numeric>      // std::numeric_limits
 #include <array>
-#include <cstdint>
-#include <string>
-#include <cmath>
+#include <cstdint>      // uint64_t, ...
+#include <cmath>        // std::min, std::log
 #include <tuple>        // std::pair
 #include <optional>
 
-#include <exception>
-#include <ostream>
+// conversation number to string
+#include <string>
 #include <string_view>
 #include <charconv>
-
-#include "extra_tools/extra_tools.h"
+#include <ostream>
 #include "intervals/cutoffborders.h"
-#include "extra_tools/maths_tools.h"
-#include "common_interfaces/comparator_extender.h"
+
+#if (defined(WIN32) && defined(DEBUG_)) || (defined(__linux__) && !defined(NDEBUG))
+#include <exception>    // check division by zero
+#endif
+
+#include "extra_tools/extra_tools.h"    // enable_if_else_t
+#include "extra_tools/maths_tools.h"    // special::pow
 
 namespace lipaboy_lib::long_numbers_space {
 
@@ -37,8 +40,6 @@ namespace lipaboy_lib::long_numbers_space {
 
     using lipaboy_lib::cutOffLeftBorder;
     using lipaboy_lib::enable_if_else_t;
-    using lipaboy_lib::powDozen;
-    using lipaboy_lib::ComparatorExtender;
 
     // Concept: it is simple long number, without any trivial optimizations like
     //			checking if number is increasing or not (in order to making less computations)
