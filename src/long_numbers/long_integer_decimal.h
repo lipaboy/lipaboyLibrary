@@ -420,7 +420,7 @@ void LongIntegerDecimal<length>::assignString(string const& numberDecimalStr) {
         minus_ = false;
         std::string_view numStrView = numberDecimalStr;
         numStrView.remove_prefix(
-            cutOffLeftBorder<int>(0, numStrView.find_first_not_of(" "))
+            cutOffLeftBorder<int>(0, int(numStrView.find_first_not_of(" ")))
         );
         if (numStrView[0] == '-') {
             numStrView.remove_prefix(1);
@@ -455,21 +455,26 @@ template <LengthType length>
 auto LongIntegerDecimal<length>::operator+=(const_reference other)
     -> const_reference
 {
+    // About implicit conversation from signed to unsigned:
+    // https://stackoverflow.com/questions/50605/signed-to-unsigned-conversion-in-c-is-it-always-safe
+    
     // Think_About: maybe std::partial_sum can be useful?
 
     IntegralType remainder = zeroIntegral();
-    TSigned sign(1);
+    TSignedResult remainderSign(1);
+    const TSignedResult selfSign(this->sign());   // O(sign()) ~ O(N)
+    const TSignedResult otherSign(other.sign());
     for (size_t i = 0; i < length(); i++) {
         const TSignedResult doubleTemp = 
-            TSignedResult(this->sign()) * (*this)[i]
-            + TSignedResult(other.sign()) * other[i]
-            + TSignedResult(sign) * remainder;
+            selfSign * (*this)[i]
+            + otherSign * other[i]
+            + remainderSign * remainder;
 
-        (*this)[i] = IntegralType(std::abs(doubleTemp) % integralModulus());
-        remainder = IntegralType(std::abs(doubleTemp) / integralModulus());
-        sign = extra2::sign<TSignedResult, TSigned>(doubleTemp < 0, doubleTemp);
+        (*this)[i] =    IntegralType(std::abs(doubleTemp) % integralModulus());
+        remainder =     IntegralType(std::abs(doubleTemp) / integralModulus());
+        remainderSign = extra2::sign<TSignedResult, TSignedResult>(doubleTemp < 0, doubleTemp);
     }
-    this->setSign(sign);
+    this->setSign(TSigned(remainderSign));
 
     return *this;
 }

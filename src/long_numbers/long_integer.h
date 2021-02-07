@@ -11,6 +11,19 @@
 
 namespace lipaboy_lib::long_numbers_space {
 
+	// TODO: create LongNumberBase for common methods: integralModulus, Degree, IntegralTypes, zeroIntegral
+	//			
+
+	namespace extra {
+
+		template <class TWord, class TSign>
+		TSign sign(bool isNegative, TWord const& word) {
+			return (isNegative * TSign(-1) + !isNegative * TSign(1))
+				* (word != TWord(0));
+		}
+
+	}
+
 	using extra::LengthType;
 
 	template <LengthType lengthOfIntegrals>
@@ -20,8 +33,11 @@ namespace lipaboy_lib::long_numbers_space {
 		using TSigned = std::int32_t;
 		using TSignedResult = std::int64_t;
 		using MinusType = bool;
+		using const_reference = LongInteger const&;
 
 		using TUnsignedPart = LongUnsigned<lengthOfIntegrals>;
+		using IntegralType = typename TUnsignedPart::IntegralType;
+		using TIntegralResult = typename TUnsignedPart::TIntegralResult;
 
 	public:
 		template <LengthType otherLengthOfIntegrals>
@@ -53,10 +69,82 @@ namespace lipaboy_lib::long_numbers_space {
 
 		//--------------------Arithmetic operations---------------------//
 
-        TSigned sign() const {
-            return (minus_ * TSigned(-1) + !minus_ * TSigned(1)) * (!unsignedPart_.isZero());
-        }
+		template <LengthType first, LengthType second>
+		using LongIntegerResult = LongInteger< extra::Max<first, second>::value >;
 
+		template <LengthType otherLen>
+		auto operator+(LongInteger<otherLen> const& other) const
+			-> LongIntegerResult<lengthOfIntegrals, otherLen>
+		{
+			using ResultType = LongIntegerResult<lengthOfIntegrals, otherLen>;
+			return (ResultType(*this) += other);
+		}
+
+		template <LengthType otherLen>
+		auto operator+=(LongInteger<otherLen> const& other)
+			-> const_reference
+		{
+			// About implicit conversation from signed to unsigned:
+			// https://stackoverflow.com/questions/50605/signed-to-unsigned-conversion-in-c-is-it-always-safe
+
+			constexpr auto MIN_LENGTH = std::min(lengthOfIntegrals, otherLen);
+			IntegralType carryOver(0);
+			TSignedResult carryOverSign(1);
+			constexpr TSignedResult mask(1);
+			const TSignedResult selfSign = this->signButZero();   // O(sign()) ~ O(N)
+			const TSignedResult otherSign = other.signButZero();
+			size_t i = 0;
+
+			// TODO: hide the type-conversation into something
+			for (; i < MIN_LENGTH; i++) {
+				const TSignedResult dualRes =
+					selfSign * TSignedResult(this->unsignedPart_[i])
+					+ otherSign * TSignedResult(other.unsignedPart_[i])
+					+ carryOverSign * TSignedResult(carryOver);
+
+				// std::abs - bad choice for extracting the result from dualRes (or not?)
+				carryOverSign =	
+					extra::sign<TSignedResult, TSignedResult>(dualRes < 0, dualRes);
+				
+				this->unsignedPart_[i] = 
+					IntegralType(dualRes & TSignedResult(TUnsignedPart::integralModulus()));
+				carryOver =	
+					IntegralType(mask & (dualRes >> TUnsignedPart::integralModulusDegree()));
+			}
+			if constexpr (length() > MIN_LENGTH) {
+				for (; i < length(); i++) {
+					const TSignedResult dualRes =
+						selfSign * TSignedResult(this->unsignedPart_[i])
+						+ carryOverSign * TSignedResult(carryOver);
+
+					this->unsignedPart_[i] =
+						IntegralType(dualRes & TSignedResult(TUnsignedPart::integralModulus()));
+					carryOver = 
+						IntegralType(mask & (dualRes >> TUnsignedPart::integralModulusDegree()));
+					carryOverSign =	
+						extra::sign<TSignedResult, TSignedResult>(dualRes < 0, dualRes);
+				}
+			}
+			this->setSign(TSigned(carryOverSign));
+
+			return *this;
+		}
+
+	public:
+		void setSign(TSigned newSign) { minus_ = newSign < 0; }
+
+		// Complexity: O(N) - because isZero() method
+        TSigned sign() const {
+            return (minus_ * TSigned(-1) + !minus_ * TSigned(1)) 
+				* (!unsignedPart_.isZero());	// ~ O(N)
+        }
+	private:
+		// Complexity: O(1) - because without checking on zero value
+		TSigned signButZero() const {
+			return (minus_ * TSigned(-1) + !minus_ * TSigned(1));
+		}
+
+	public:
 		LongInteger operator-() const {
 			return LongInteger(unsignedPart_, !minus_);
 		}
@@ -70,7 +158,7 @@ namespace lipaboy_lib::long_numbers_space {
 		void assignStr(std::string_view signedNumberStr, unsigned int base = 10);
 
 		std::string to_string(unsigned int base = 10) const {
-			return ((minus_) ? "-" : "") + unsignedPart_.to_string();
+			return ((sign() < 0) ? "-" : "") + unsignedPart_.to_string();
 		}
 
 	private:

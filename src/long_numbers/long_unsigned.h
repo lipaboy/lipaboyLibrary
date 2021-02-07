@@ -124,12 +124,15 @@ namespace lipaboy_lib::long_numbers_space {
 
         //---------------Arithmetic operations------------------//
 
+        template <LengthType first, LengthType second>
+        using LongUnsignedResult = LongUnsigned< extra::Max<first, second>::value >;
+
         // TODO: calculate how much copy-constructor was called
         template <LengthType otherLen>
         auto operator+(LongUnsigned<otherLen> const& other) const
-            -> LongUnsigned< extra::Max<lengthOfIntegrals, otherLen>::value >
+            -> LongUnsignedResult<lengthOfIntegrals, otherLen>
         {
-            using ResultType = LongUnsigned< extra::Max<lengthOfIntegrals, otherLen>::value >;
+            using ResultType = LongUnsignedResult<lengthOfIntegrals, otherLen>;
             return (ResultType(*this) += other);
         }
 
@@ -150,6 +153,8 @@ namespace lipaboy_lib::long_numbers_space {
                 remainder = IntegralType(dualTemp >> integralModulusDegree());
             }
             if constexpr (length() > MIN_LENGTH) {
+                // TODO: not optimal, because you needn't to go to the end of number. 
+                // Only to the next of last traversal (next after min_length)
                 for (; i < length(); i++) {
                     const TIntegralResult dualTemp =
                         TIntegralResult((*this)[i])
@@ -183,6 +188,9 @@ namespace lipaboy_lib::long_numbers_space {
                     - TIntegralResult(remainder);
 
                 (*this)[i] = IntegralType(dualTemp & integralModulus());
+                // "2*x - 1" Explanation: it works because if (*this)[i] - other[i] < 0 then
+                //      dualTemp will be look like 111..111xx..xx as 64-bit number - 
+                //      and the first bit will be 1 - it is out remainder.
                 remainder = IntegralType(dualTemp >> (2 * integralModulusDegree() - 1));
             }
             if constexpr (length() > MIN_LENGTH) {
@@ -201,9 +209,9 @@ namespace lipaboy_lib::long_numbers_space {
 
         template <LengthType otherLen>
         auto operator*(LongUnsigned<otherLen> const& other) const
-            -> LongUnsigned< extra::Max<lengthOfIntegrals, otherLen>::value >
+            -> LongUnsignedResult<lengthOfIntegrals, otherLen>
         {
-            using ResultType = LongUnsigned< extra::Max<lengthOfIntegrals, otherLen>::value >;
+            using ResultType = LongUnsignedResult<lengthOfIntegrals, otherLen>;
             ResultType res(0);
             //		// This chapter has two parts
             //		// First part. Bisecting the result by two portions: main and overflow ones
