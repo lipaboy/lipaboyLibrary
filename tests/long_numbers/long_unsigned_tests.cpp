@@ -14,6 +14,7 @@ namespace long_numbers_tests {
 	using std::endl;
 	using std::string;
 
+	constexpr auto INTEGRAL_BITS_COUNT = extra::bitsCount<typename LongUnsigned<1>::IntegralType>();
 
 	//-------------------------------------------------------------------//
 	//----------------------------to_string()----------------------------//
@@ -367,9 +368,9 @@ namespace long_numbers_tests {
 	TEST(LongUnsigned, substract_different_rank) {
 		LongUnsigned<3> first(1);
 		LongUnsigned<1> second(1);
-		first.shiftLeft(first.integralModulusDegree() * 3 - 1);
+		first.shiftLeft(INTEGRAL_BITS_COUNT * 3 - 1);
 		first -= second;
-		ASSERT_EQ(string(first.integralModulusDegree() * 3 - 1, '1'), first.to_string(2));
+		ASSERT_EQ(string(INTEGRAL_BITS_COUNT * 3 - 1, '1'), first.to_string(2));
 
         LongUnsigned<2> third(0);
 
@@ -426,11 +427,11 @@ namespace long_numbers_tests {
 
 		first = LongUnsigned<3>(1);
 		second = LongUnsigned<1>(1);
-		first.shiftLeft(2 * first.integralModulusDegree());
+		first.shiftLeft(2 * INTEGRAL_BITS_COUNT);
 		first -= second;
 		first += second;
-		EXPECT_EQ("1" + string(2 * first.integralModulusDegree(), '0'), first.to_string(2));
-		EXPECT_EQ("1" + string(2 * first.integralModulusDegree(), '0'), ((first - second) + second).to_string(2));
+		EXPECT_EQ("1" + string(2 * INTEGRAL_BITS_COUNT, '0'), first.to_string(2));
+		EXPECT_EQ("1" + string(2 * INTEGRAL_BITS_COUNT, '0'), ((first - second) + second).to_string(2));
 	}
 
     TEST(LongUnsigned, sum_triple_rank_simple) {
@@ -484,9 +485,9 @@ namespace long_numbers_tests {
 
 	TEST(LongUnsigned, shift_triple_rank) {
 		LongUnsigned<3> first(2);
-		first.shiftLeft(first.integralModulusDegree());
-		EXPECT_EQ("2" + string(first.integralModulusDegree() / 2, '0'), first.to_string(4));
-		first.shiftRight(first.integralModulusDegree());
+		first.shiftLeft(INTEGRAL_BITS_COUNT);
+		EXPECT_EQ("2" + string(INTEGRAL_BITS_COUNT / 2, '0'), first.to_string(4));
+		first.shiftRight(INTEGRAL_BITS_COUNT);
 		EXPECT_EQ("2", first.to_string(4));
 	}
 
