@@ -35,6 +35,7 @@ set(LIB_LIPABOY_LIB_SOURCE_FILES
     long_numbers/long_integer_decimal.h
     long_numbers/long_integer_decimal_view.h
     # New Long Numbers
+    long_numbers/long_number_base.h
     long_numbers/long_unsigned.h
     long_numbers/long_integer.h
 

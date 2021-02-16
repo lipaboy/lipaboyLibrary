@@ -7,6 +7,7 @@
 #include <string_view>
 #include "intervals/cutoffborders.h"
 
+#include "long_number_base.h"
 #include "long_unsigned.h"
 
 namespace lipaboy_lib::long_numbers_space {
@@ -26,8 +27,9 @@ namespace lipaboy_lib::long_numbers_space {
 
 	using extra::LengthType;
 
-	template <LengthType lengthOfIntegrals>
-	class LongInteger
+	template <LengthType countOfIntegrals>
+	class LongInteger :
+		public LongNumberBase<uint32_t, uint64_t, countOfIntegrals>
 	{
 	public:
 		using TSigned = std::int32_t;
@@ -35,9 +37,9 @@ namespace lipaboy_lib::long_numbers_space {
 		using MinusType = bool;
 		using const_reference = LongInteger const&;
 
-		using TUnsignedPart = LongUnsigned<lengthOfIntegrals>;
+		using TUnsignedPart = LongUnsigned<countOfIntegrals>;
 		using IntegralType = typename TUnsignedPart::IntegralType;
-		using TIntegralResult = typename TUnsignedPart::TIntegralResult;
+		using ResultIntegralType = typename TUnsignedPart::ResultIntegralType;
 
 	public:
 		template <LengthType otherLengthOfIntegrals>
@@ -74,9 +76,9 @@ namespace lipaboy_lib::long_numbers_space {
 
 		template <LengthType otherLen>
 		auto operator+(LongInteger<otherLen> const& other) const
-			-> LongIntegerResult<lengthOfIntegrals, otherLen>
+			-> LongIntegerResult<countOfIntegrals, otherLen>
 		{
-			using ResultType = LongIntegerResult<lengthOfIntegrals, otherLen>;
+			using ResultType = LongIntegerResult<countOfIntegrals, otherLen>;
 			return (ResultType(*this) += other);
 		}
 
@@ -87,7 +89,7 @@ namespace lipaboy_lib::long_numbers_space {
 			// About implicit conversation from signed to unsigned:
 			// https://stackoverflow.com/questions/50605/signed-to-unsigned-conversion-in-c-is-it-always-safe
 
-			constexpr auto MIN_LENGTH = std::min(lengthOfIntegrals, otherLen);
+			constexpr auto MIN_LENGTH = std::min(countOfIntegrals, otherLen);
 			IntegralType carryOver(0);
 			TSignedResult carryOverSign(1);
 			constexpr TSignedResult mask(1);
@@ -107,9 +109,9 @@ namespace lipaboy_lib::long_numbers_space {
 					extra::sign<TSignedResult, TSignedResult>(dualRes < 0, dualRes);
 				
 				this->unsignedPart_[i] = 
-					IntegralType(dualRes & TSignedResult(TUnsignedPart::integralModulus()));
+					IntegralType(dualRes & TSignedResult(integralModulus()));
 				carryOver =	
-					IntegralType(mask & (dualRes >> TUnsignedPart::integralModulusDegree()));
+					IntegralType(mask & (dualRes >> integralModulusDegree()));
 			}
 			if constexpr (length() > MIN_LENGTH) {
 				for (; i < length(); i++) {
@@ -118,9 +120,9 @@ namespace lipaboy_lib::long_numbers_space {
 						+ carryOverSign * TSignedResult(carryOver);
 
 					this->unsignedPart_[i] =
-						IntegralType(dualRes & TSignedResult(TUnsignedPart::integralModulus()));
+						IntegralType(dualRes & TSignedResult(integralModulus()));
 					carryOver = 
-						IntegralType(mask & (dualRes >> TUnsignedPart::integralModulusDegree()));
+						IntegralType(mask & (dualRes >> integralModulusDegree()));
 					carryOverSign =	
 						extra::sign<TSignedResult, TSignedResult>(dualRes < 0, dualRes);
 				}
@@ -148,10 +150,6 @@ namespace lipaboy_lib::long_numbers_space {
 		LongInteger operator-() const {
 			return LongInteger(unsignedPart_, !minus_);
 		}
-
-		//--------------------Class characteristics----------------------//
-
-		static constexpr LengthType length() { return lengthOfIntegrals; }
 
 		//----------------------------Utils------------------------------//
 
