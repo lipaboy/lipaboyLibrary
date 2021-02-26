@@ -16,6 +16,26 @@ namespace long_numbers_tests {
 
 	constexpr auto INTEGRAL_BITS_COUNT = extra::bitsCount<typename LongUnsigned<1>::IntegralType>();
 
+
+	//-------------------------Karacuba--------------------------------//
+
+	TEST(LongUnsigned, karacuba) {
+		{
+			LongUnsigned<1> first(2), second(3);
+			auto res = first.multiplyByKaracuba(second);
+			EXPECT_EQ(res.to_string(), "6");
+		}
+
+		{
+			LongUnsigned<2> first(2), second(3);
+			auto res = first.multiplyByKaracuba(second);
+			EXPECT_EQ(res.to_string(), "6");
+		}
+
+		string str;
+		std::cin >> str;
+	}
+
 	//-------------------------------------------------------------------//
 	//----------------------------to_string()----------------------------//
 	//-------------------------------------------------------------------//

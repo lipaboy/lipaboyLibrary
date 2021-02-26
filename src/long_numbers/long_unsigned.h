@@ -440,6 +440,9 @@ namespace lipaboy_lib::long_numbers_space {
         }
 
     public:
+        LongUnsigned multiplyByKaracuba(const_reference other);
+
+    public:
         static LongUnsigned max() {
             LongUnsigned max(1);
             max.shiftLeft((unsigned int)(integralModulusDegree() * length() - 1));
@@ -572,7 +575,47 @@ namespace lipaboy_lib::long_numbers_space {
         return *this;
     }
 
+    
+    
+    
+    
     //----------------------------------------------------------------------------
+
+    template <size_t countOfIntegrals>
+    auto LongUnsigned<countOfIntegrals>::multiplyByKaracuba(const_reference other) 
+        -> LongUnsigned<countOfIntegrals>
+    {
+        using OneIntegral = LongUnsigned<1>;
+        using TwoIntegral = LongUnsigned<2>;
+
+        auto& that = *this;
+        LongUnsigned partialSum(0);
+
+        if constexpr (countOfIntegrals % 2 == 0) {
+            for (size_t i = 0; i < length(); i++) {
+                partialSum -= OneIntegral(that[i] * other[i]);
+            }
+        }
+        else {
+            for (size_t i = 0; i < length(); i++) {
+                partialSum += OneIntegral(that[i] * other[i]);
+            }
+        }
+
+        LongUnsigned crossMul(0);
+        if (countOfIntegrals > 1) {
+            crossMul = (that[0] + that[1]) * (other[0] + other[1]);
+        }
+
+        LongUnsigned res = crossMul + partialSum;
+        return res;
+    }
+
+
+
+
+
+
 
     template <size_t countOfIntegrals>
     std::string LongUnsigned<countOfIntegrals>::to_string(unsigned int base) const {
