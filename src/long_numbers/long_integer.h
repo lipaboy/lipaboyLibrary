@@ -13,40 +13,39 @@
 
 namespace lipaboy_lib::long_numbers_space {
 
-	// TODO: create LongNumberBase for common methods: integralModulus, Degree, IntegralTypes, zeroIntegral
-	//			
+    // TODO: create LongNumberBase for common methods: integralModulus, Degree, IntegralTypes, zeroIntegral
+    //
 
     // LongInteger
     // Concept: use same logic as build into Integral types (signed int). Two's complement signed number representation
 
-	namespace extra {
+    namespace extra {
 
-		template <class TWord, class TSign>
-		TSign sign(bool isNegative, TWord const& word) {
-			return (isNegative * TSign(-1) + !isNegative * TSign(1))
-				* (word != TWord(0));
-		}
+        template <class TWord, class TSign>
+        TSign sign(bool isNegative, TWord const& word) {
+            return (isNegative * TSign(-1) + !isNegative * TSign(1))
+                * (word != TWord(0));
+        }
 
-	}
+    }
 
-	using extra::LengthType;
+    using extra::LengthType;
 
-	template <LengthType countOfIntegrals>
-	class LongInteger :
-		public LongNumberBase<uint32_t, uint64_t, countOfIntegrals>
-	{
-	public:
+    template <LengthType countOfIntegrals>
+    class LongInteger :
+        public LongNumberBase<uint32_t, uint64_t, countOfIntegrals>
+    {
+    public:
         using Sub = LongNumberBase<uint32_t, uint64_t, countOfIntegrals>;
-		using TSigned = std::int32_t;
-		using TSignedResult = std::int64_t;
-		using MinusType = bool;
-		using const_reference = LongInteger const&;
+        using TSigned = std::int32_t;
+        using TSignedResult = std::int64_t;
+        using MinusType = bool;
+        using const_reference = LongInteger const&;
 
-		using TUnsignedPart = LongUnsigned<countOfIntegrals>;
-		using IntegralType = typename TUnsignedPart::IntegralType;
-		using ResultIntegralType = typename TUnsignedPart::ResultIntegralType;
-
-        using ContainerType = std::array<IntegralType, countOfIntegrals>;
+        using ContainerType = //std::array<IntegralType, countOfIntegrals>;
+            LongUnsigned<countOfIntegrals>;
+        using IntegralType = typename ContainerType::IntegralType;
+        using ResultIntegralType = typename ContainerType::ResultIntegralType;
         using iterator = typename ContainerType::iterator;
         using reverse_iterator = std::reverse_iterator<iterator>;
         using const_iterator = typename ContainerType::const_iterator;
@@ -58,16 +57,16 @@ namespace lipaboy_lib::long_numbers_space {
         using Sub::integralModulus;
         using Sub::integralModulusDegree;
 
-	public:
-		template <LengthType otherLengthOfIntegrals>
-		friend class LongInteger;
+    public:
+        template <LengthType otherLengthOfIntegrals>
+        friend class LongInteger;
 
-	private:
+    private:
         LongInteger(ContainerType magnitude_)
             : magnitude(magnitude_) {}
 
-	public:
-        
+    public:
+
         LongInteger() {}
 
         LongInteger(TSigned small) {
@@ -85,19 +84,19 @@ namespace lipaboy_lib::long_numbers_space {
                     std::fill(std::next(begin(), minLen), end(), zeroIntegral());
             }
 
-		explicit
-			LongInteger(std::string_view signedNumberStr, unsigned int base = 10)
-		{
-			if (signedNumberStr.length() <= 0 || base < 2)
-				LongInteger();
+        explicit
+            LongInteger(std::string_view signedNumberStr, unsigned int base = 10)
+        {
+            if (signedNumberStr.length() <= 0 || base < 2)
+                LongInteger();
 //			else
 //				assignStr(signedNumberStr, base);
-		}
+        }
 
-		//--------------------Arithmetic operations---------------------//
+        //--------------------Arithmetic operations---------------------//
 
-		template <LengthType first, LengthType second>
-		using LongIntegerResult = LongInteger< extra::Max<first, second>::value >;
+        template <LengthType first, LengthType second>
+        using LongIntegerResult = LongInteger< extra::Max<first, second>::value >;
 
 //		template <LengthType otherLen>
 //		auto operator+(LongInteger<otherLen> const& other) const
@@ -132,7 +131,7 @@ namespace lipaboy_lib::long_numbers_space {
 //				// std::abs - bad choice for extracting the result from dualRes (or not?)
 //				carryOverSign =
 //					extra::sign<TSignedResult, TSignedResult>(dualRes < 0, dualRes);
-				
+
 //				this->unsignedPart_[i] =
 //					IntegralType(dualRes & TSignedResult(integralModulus()));
 //				carryOver =
@@ -157,7 +156,7 @@ namespace lipaboy_lib::long_numbers_space {
 //			return *this;
 //		}
 
-	public:
+    public:
 //		void setSign(TSigned newSign) { minus_ = newSign < 0; }
 
         // Complexity: O(N) - because isZero() method
@@ -172,13 +171,13 @@ namespace lipaboy_lib::long_numbers_space {
             return true;
         }
 
-	private:
-		// Complexity: O(1) - because without checking on zero value
+    private:
+        // Complexity: O(1) - because without checking on zero value
         TSigned signExceptZero() const {
             return TSigned(((magnitude.back() & (1u << (integralModulusDegree() - 1))) != 0) ? -1 : 1);
         }
 
-	public:
+    public:
         LongInteger operator-() const
         {
             using TResult = ResultIntegralType;
@@ -196,7 +195,7 @@ namespace lipaboy_lib::long_numbers_space {
             return inverted;
         }
 
-		//----------------------------Utils------------------------------//
+        //----------------------------Utils------------------------------//
 
 //		void assignStr(std::string_view signedNumberStr, unsigned int base = 10);
 
@@ -214,9 +213,9 @@ namespace lipaboy_lib::long_numbers_space {
         const_reverse_iterator crbegin() const { return magnitude.crbegin(); }
         const_reverse_iterator crend() const { return magnitude.crend(); }
 
-	private:
+    private:
         ContainerType magnitude;
-	};
+    };
 
 //	template <LengthType length>
 //	void LongInteger<length>::assignStr(std::string_view signedNumberStr, unsigned int base) {

@@ -339,14 +339,14 @@ namespace lipaboy_lib::long_numbers_space {
         bool isLess(LongUnsigned<lengthFirst> const& first,
                     LongUnsigned<lengthSecond> const& second) const
         {
-            using FirstTypeIter = typename LongUnsigned<lengthFirst>::iterator;
-            using SecondTypeIter = typename LongUnsigned<lengthSecond>::iterator;
+            using FirstTypeIter = typename LongUnsigned<lengthFirst>::const_reverse_iterator;
+            using SecondTypeIter = typename LongUnsigned<lengthSecond>::const_reverse_iterator;
 
             bool isLessVar = true;
             bool isEqual = true;
             bool isResultDefined = false;
-            auto iterF = first.crbegin();
-            auto iterS = second.crbegin();
+            FirstTypeIter iterF = first.crbegin();
+            SecondTypeIter iterS = second.crbegin();
             auto checkHigherPartToZero =
                 [&isLessVar, &isEqual, &isResultDefined](auto& iter, const int lenHigh, const int lenLow)
                 -> bool
@@ -454,7 +454,7 @@ namespace lipaboy_lib::long_numbers_space {
             return max;
         }
 
-    protected:
+    public:
         iterator begin() { return number_.begin(); }
         iterator end() { return number_.end(); }
         reverse_iterator rbegin() { return number_.begin(); }
@@ -463,6 +463,9 @@ namespace lipaboy_lib::long_numbers_space {
         const_iterator cend() const { return number_.cend(); }
         const_reverse_iterator crbegin() const { return number_.crbegin(); }
         const_reverse_iterator crend() const { return number_.crend(); }
+
+        IntegralType front() const { return number_.front(); }
+        IntegralType back() const { return number_.back(); }
 
     private:
         // if index is increased then rank is increased
