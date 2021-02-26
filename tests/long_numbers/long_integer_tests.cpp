@@ -53,15 +53,29 @@ namespace long_numbers_tests {
         EXPECT_TRUE(third.sign() > 0);
     }
 
-//	TEST(LongInteger, construct_from_string) {
-//		LongInteger<1> first("  -5");
-//		EXPECT_TRUE(first.sign() < 0);
+    TEST(LongInteger, to_string) {
+        LongInteger<1> first(-5);
+        EXPECT_EQ(first.to_string(), "-5");
+        EXPECT_EQ(first.to_string(2), "-101");
+        first = -first;
+        EXPECT_EQ(first.to_string(), "5");
+        EXPECT_EQ(first.to_string(2), "101");
 
-//		LongInteger<2> second("123456789012");
-//		EXPECT_EQ(second.to_string(), "123456789012");
-//		second = -second;
-//		EXPECT_EQ(second.to_string(), "-123456789012");
-//	}
+        LongInteger<2> second(first);
+        EXPECT_EQ(second.to_string(), "5");
+        second = -second;
+        EXPECT_EQ(second.to_string(), "-5");
+    }
+
+    TEST(LongInteger, construct_from_string) {
+        LongInteger<1> first("  -5");
+        EXPECT_TRUE(first.sign() < 0);
+
+        LongInteger<2> second("123456789012");
+        EXPECT_EQ(second.to_string(), "123456789012");
+        second = -second;
+        EXPECT_EQ(second.to_string(), "-123456789012");
+    }
 
 //	TEST(LongInteger, sum_single_lengths) {
 //		LongInteger<1> first(1);

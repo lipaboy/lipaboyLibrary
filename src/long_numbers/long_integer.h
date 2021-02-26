@@ -67,7 +67,7 @@ namespace lipaboy_lib::long_numbers_space {
 
     public:
 
-        LongInteger() {}
+        LongInteger() : magnitude() {}
 
         LongInteger(TSigned small) {
             magnitude[0] = IntegralType(small);
@@ -89,8 +89,8 @@ namespace lipaboy_lib::long_numbers_space {
         {
             if (signedNumberStr.length() <= 0 || base < 2)
                 LongInteger();
-//			else
-//				assignStr(signedNumberStr, base);
+            else
+                assignStr(signedNumberStr, base);
         }
 
         //--------------------Arithmetic operations---------------------//
@@ -171,6 +171,10 @@ namespace lipaboy_lib::long_numbers_space {
             return true;
         }
 
+        bool isNegative() const {
+            return signExceptZero() < 0;    // O(1)
+        }
+
     private:
         // Complexity: O(1) - because without checking on zero value
         TSigned signExceptZero() const {
@@ -197,13 +201,13 @@ namespace lipaboy_lib::long_numbers_space {
 
         //----------------------------Utils------------------------------//
 
-//		void assignStr(std::string_view signedNumberStr, unsigned int base = 10);
+        void assignStr(std::string_view signedNumberStr, unsigned int base = 10);
 
-//		std::string to_string(unsigned int base = 10) const {
-//            return ((sign() < 0) ? "-" : "") + unsignedPart_.to_string(base);
-//		}
+        std::string to_string(unsigned int base = 10) const {
+            return (isNegative()) ? "-" + (-(*this)).magnitude.to_string(base) : magnitude.to_string(base);
+        }
 
-    protected:
+    public:
         iterator begin() { return magnitude.begin(); }
         iterator end() { return magnitude.end(); }
         reverse_iterator rbegin() { return magnitude.begin(); }
@@ -217,23 +221,25 @@ namespace lipaboy_lib::long_numbers_space {
         ContainerType magnitude;
     };
 
-//	template <LengthType length>
-//	void LongInteger<length>::assignStr(std::string_view signedNumberStr, unsigned int base) {
-//		if (base > 1) {
-//			std::string_view signedNumberStrView = signedNumberStr;
-//			signedNumberStrView.remove_prefix(
-//				cutOffLeftBorder<int>(0, int(signedNumberStrView.find_first_not_of(" ")))
-//			);
+    template <LengthType length>
+    void LongInteger<length>::assignStr(std::string_view signedNumberStr, unsigned int base) {
+        if (base > 1) {
+            std::string_view signedNumberStrView = signedNumberStr;
+            signedNumberStrView.remove_prefix(
+                cutOffLeftBorder<int>(0, int(signedNumberStrView.find_first_not_of(" ")))
+            );
 
-//			// TODO: add exception for zero length
-//			if (signedNumberStrView.length() > 0) {
-//				minus_ = (signedNumberStrView.front() == '-') ? true : false;
-//				if (minus_)
-//					signedNumberStrView.remove_prefix(1);
-//				unsignedPart_.assignStr(signedNumberStrView, base);
-//			}
-//		}
-//	}
+            // TODO: add exception for zero length
+            if (signedNumberStrView.length() > 0) {
+                bool minus = (signedNumberStrView.front() == '-') ? true : false;
+                if (minus)
+                    signedNumberStrView.remove_prefix(1);
+                magnitude.assignStr(signedNumberStrView, base);
+                if (minus)
+                    (*this) = -(*this);
+            }
+        }
+    }
 
 }
 
