@@ -68,6 +68,11 @@ namespace lipaboy_lib::long_numbers_space {
         using reference_integral = IntegralType&;
         using const_reference_integral = const IntegralType&;
 
+        using Sub::length;
+        using Sub::zeroIntegral;
+        using Sub::integralModulus;
+        using Sub::integralModulusDegree;
+
     public:
         template <LengthType otherCountOfIntegrals> 
         friend class LongUnsigned;
@@ -428,12 +433,12 @@ namespace lipaboy_lib::long_numbers_space {
             for (int i = int(length()) - 1; i >= 0; i--) {
                 auto curr = (*this)[i];
                 if (curr > 0) {
-                    size_type bitpos = 0;
+                    size_t bitpos = 0;
                     while (curr > 0) {
                         curr >>= 1;
                         bitpos++;
                     }
-                    return (bitpos - 1) + size_type(i) * 8 * sizeof(IntegralType);
+                    return (bitpos - 1) + size_t(i) * 8 * sizeof(IntegralType);
                 }
             }
             return std::nullopt;
@@ -561,7 +566,7 @@ namespace lipaboy_lib::long_numbers_space {
             auto& current = *this;
             int blocksShift = count / integralModulusDegree();
             int bitsShift = count % integralModulusDegree();    // 0 to 31
-            for (size_type i = 0; i < length(); i++) {
+            for (size_t i = 0; i < length(); i++) {
                 auto less = (i + blocksShift >= length())
                     ? 0 : (current[i + blocksShift] >> bitsShift);
                 auto high = (i + blocksShift + 1 >= length())

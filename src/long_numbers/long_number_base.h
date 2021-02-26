@@ -31,7 +31,6 @@ namespace lipaboy_lib::long_numbers_space {
 	class LongNumberBase {
 	public:
         using LengthType = extra::LengthType;
-        using size_type = size_t;
 
         // INFO:
         // Checking if the result type equals the double of integral type. Example:

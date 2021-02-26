@@ -32,6 +32,7 @@ namespace lipaboy_lib::long_numbers_space {
 		public LongNumberBase<uint32_t, uint64_t, countOfIntegrals>
 	{
 	public:
+        using Sub = LongNumberBase<uint32_t, uint64_t, countOfIntegrals>;
 		using TSigned = std::int32_t;
 		using TSignedResult = std::int64_t;
 		using MinusType = bool;
@@ -40,6 +41,11 @@ namespace lipaboy_lib::long_numbers_space {
 		using TUnsignedPart = LongUnsigned<countOfIntegrals>;
 		using IntegralType = typename TUnsignedPart::IntegralType;
 		using ResultIntegralType = typename TUnsignedPart::ResultIntegralType;
+
+        using Sub::length;
+        using Sub::zeroIntegral;
+        using Sub::integralModulus;
+        using Sub::integralModulusDegree;
 
 	public:
 		template <LengthType otherLengthOfIntegrals>
