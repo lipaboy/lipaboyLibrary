@@ -54,6 +54,7 @@ namespace lipaboy_lib::long_numbers_space {
 
         using Sub::length;
         using Sub::zeroIntegral;
+        using Sub::unitsIntegral;
         using Sub::integralModulus;
         using Sub::integralModulusDegree;
 
@@ -73,14 +74,16 @@ namespace lipaboy_lib::long_numbers_space {
             magnitude[0] = IntegralType(small);
         }
 
-        // TODO: you need to take into account that sign storage at last element of array
-//		template <LengthType otherLen>
-//		explicit
-//            LongInteger(LongInteger<otherLen> const& other) {
-//                auto minLen = (other.length() > length()) ? length() : other.length();
-//                std::copy_n(other.cbegin(), minLen, std::begin(magnitude));
-//                std::fill(std::next(begin(), minLen), end(), zeroIntegral());
-//            }
+        template <LengthType otherLen>
+        explicit
+            LongInteger(LongInteger<otherLen> const& other) {
+                auto minLen = (other.length() > length()) ? length() : other.length();
+                std::copy_n(other.cbegin(), minLen, std::begin(magnitude));
+                if (other.signExceptZero() < 0)
+                    std::fill(std::next(begin(), minLen), end(), unitsIntegral());
+                else
+                    std::fill(std::next(begin(), minLen), end(), zeroIntegral());
+            }
 
 		explicit
 			LongInteger(std::string_view signedNumberStr, unsigned int base = 10)
@@ -159,7 +162,7 @@ namespace lipaboy_lib::long_numbers_space {
 
         // Complexity: O(N) - because isZero() method
         TSigned sign() const {
-            return signButZero() * (!isZero());      // ~ O(N)
+            return signExceptZero() * (!isZero());      // ~ O(N)
         }
 
         bool isZero() const {
@@ -171,16 +174,27 @@ namespace lipaboy_lib::long_numbers_space {
 
 	private:
 		// Complexity: O(1) - because without checking on zero value
-        TSigned signButZero() const {
-            const bool minus = (magnitude.back() & (1u << (integralModulusDegree() - 1)))
-                    >> (integralModulusDegree() - 1);
-            return (minus * TSigned(-1) + !minus * TSigned(1));
+        TSigned signExceptZero() const {
+            return TSigned(((magnitude.back() & (1u << (integralModulusDegree() - 1))) != 0) ? -1 : 1);
         }
 
 	public:
-//		LongInteger operator-() const {
-//			return LongInteger(unsignedPart_, !minus_);
-//		}
+        LongInteger operator-() const
+        {
+            using TResult = ResultIntegralType;
+
+            LongInteger inverted;
+            auto itOut = inverted.begin();
+            IntegralType remainder = 1;
+            for (auto itIn = cbegin(); itIn != cend(); itIn++) {
+                TResult res = TResult(~(*itIn)) + TResult(remainder);
+
+                *(itOut++) = IntegralType(res & integralModulus());
+                remainder = IntegralType(res >> integralModulusDegree());
+            }
+
+            return inverted;
+        }
 
 		//----------------------------Utils------------------------------//
 

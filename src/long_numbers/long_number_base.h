@@ -61,6 +61,8 @@ namespace lipaboy_lib::long_numbers_space {
     protected:
         static constexpr IntegralType zeroIntegral() { return IntegralType(0); }
 
+        static constexpr IntegralType unitsIntegral() { return ~IntegralType(0); }
+
     private:
         void checkTemplateParameters() {
             static_assert(countOfIntegrals > 0, "LongUnsigned Error: \

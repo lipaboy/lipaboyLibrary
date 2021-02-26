@@ -21,9 +21,6 @@ namespace long_numbers_tests {
 
     TEST(LongInteger, check) {
 
-//        LongInteger<1> first(-2);
-//        EXPECT_TRUE(first.sign() < 0);
-
     }
 
     TEST(LongInteger, sign) {
@@ -34,22 +31,27 @@ namespace long_numbers_tests {
         EXPECT_TRUE(second.sign() == 0);
     }
 
-//	TEST(LongInteger, revert_sign) {
-//		LongInteger<1> first(-5);
-//		first = -first;
-//		EXPECT_TRUE(first.sign() > 0);
+    TEST(LongInteger, revert_sign) {
+        LongInteger<1> first(-5);
+        first = -first;
+        EXPECT_TRUE(first.sign() > 0);
 
-//		LongInteger<1> second(0);
-//		second = -second;
-//		EXPECT_TRUE(second.sign() == 0);
-//	}
+        LongInteger<1> second(0);
+        second = -second;
+        EXPECT_TRUE(second.sign() == 0);
+    }
 
-//	TEST(LongInteger, copy_constructor_different_length) {
-//		LongInteger<1> first(-5);
-//		LongInteger<2> second(first);
+    TEST(LongInteger, copy_constructor_different_length) {
+        LongInteger<1> first(-5);
+        LongInteger<2> second(first);
 
-//		EXPECT_TRUE(second.sign() < 0);
-//	}
+        EXPECT_TRUE(second.sign() < 0);
+
+        first = -first;
+        LongInteger<3> third(first);
+
+        EXPECT_TRUE(third.sign() > 0);
+    }
 
 //	TEST(LongInteger, construct_from_string) {
 //		LongInteger<1> first("  -5");
