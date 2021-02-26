@@ -19,16 +19,6 @@ namespace lipaboy_lib::long_numbers_space {
     // LongInteger
     // Concept: use same logic as build into Integral types (signed int). Two's complement signed number representation
 
-    namespace extra {
-
-        template <class TWord, class TSign>
-        TSign sign(bool isNegative, TWord const& word) {
-            return (isNegative * TSign(-1) + !isNegative * TSign(1))
-                * (word != TWord(0));
-        }
-
-    }
-
     using extra::LengthType;
 
     template <LengthType countOfIntegrals>
@@ -42,8 +32,7 @@ namespace lipaboy_lib::long_numbers_space {
         using MinusType = bool;
         using const_reference = LongInteger const&;
 
-        using ContainerType = //std::array<IntegralType, countOfIntegrals>;
-            LongUnsigned<countOfIntegrals>;
+        using ContainerType = LongUnsigned<countOfIntegrals>;
         using IntegralType = typename ContainerType::IntegralType;
         using ResultIntegralType = typename ContainerType::ResultIntegralType;
         using iterator = typename ContainerType::iterator;
@@ -71,6 +60,7 @@ namespace lipaboy_lib::long_numbers_space {
 
         LongInteger(TSigned small) {
             magnitude[0] = IntegralType(small);
+            std::fill(std::next(begin()), end(), (small < 0) ? unitsIntegral() : zeroIntegral());
         }
 
         template <LengthType otherLen>
@@ -98,67 +88,57 @@ namespace lipaboy_lib::long_numbers_space {
         template <LengthType first, LengthType second>
         using LongIntegerResult = LongInteger< extra::Max<first, second>::value >;
 
-//		template <LengthType otherLen>
-//		auto operator+(LongInteger<otherLen> const& other) const
-//			-> LongIntegerResult<countOfIntegrals, otherLen>
-//		{
-//			using ResultType = LongIntegerResult<countOfIntegrals, otherLen>;
-//			return (ResultType(*this) += other);
-//		}
+        template <LengthType otherLen>
+        auto operator+(LongInteger<otherLen> const& other) const
+            -> LongIntegerResult<countOfIntegrals, otherLen>
+        {
+            using ResultType = LongIntegerResult<countOfIntegrals, otherLen>;
+            return (ResultType(*this) += other);
+        }
 
-//		template <LengthType otherLen>
-//		auto operator+=(LongInteger<otherLen> const& other)
-//			-> const_reference
-//		{
-//			// About implicit conversation from signed to unsigned:
-//			// https://stackoverflow.com/questions/50605/signed-to-unsigned-conversion-in-c-is-it-always-safe
+        template <LengthType otherLen>
+        auto operator+=(LongInteger<otherLen> const& other)
+            -> const_reference
+        {
+            // About implicit conversation from signed to unsigned:
+            // https://stackoverflow.com/questions/50605/signed-to-unsigned-conversion-in-c-is-it-always-safe
 
-//			constexpr auto MIN_LENGTH = std::min(countOfIntegrals, otherLen);
-//			IntegralType carryOver(0);
-//			TSignedResult carryOverSign(1);
-//			constexpr TSignedResult mask(1);
-//			const TSignedResult selfSign = this->signButZero();   // O(sign()) ~ O(N)
-//			const TSignedResult otherSign = other.signButZero();
-//			size_t i = 0;
+            using TResult = ResultIntegralType;
 
-//			// TODO: hide the type-conversation into something
-//			for (; i < MIN_LENGTH; i++) {
-//				const TSignedResult dualRes =
-//					selfSign * TSignedResult(this->unsignedPart_[i])
-//					+ otherSign * TSignedResult(other.unsignedPart_[i])
-//					+ carryOverSign * TSignedResult(carryOver);
+            constexpr auto MIN_LENGTH = std::min(countOfIntegrals, otherLen);
+            IntegralType carryOver(0);
+            size_t i = 0;
+            for (; i < MIN_LENGTH; i++) {
+                const TResult dualRes =
+                    TResult(this->magnitude[i])
+                    + TResult(other.magnitude[i])
+                    + TResult(carryOver);
 
-//				// std::abs - bad choice for extracting the result from dualRes (or not?)
-//				carryOverSign =
-//					extra::sign<TSignedResult, TSignedResult>(dualRes < 0, dualRes);
+                this->magnitude[i] =
+                    IntegralType(dualRes & TResult(integralModulus()));
+                carryOver =
+                    IntegralType(dualRes >> integralModulusDegree());
+            }
+            if constexpr (length() > MIN_LENGTH) {
+                IntegralType otherSignRemainder =
+                        (other.isNegative()) ? unitsIntegral() : zeroIntegral();
+                for (; i < length(); i++) {
+                    const TResult dualRes =
+                        TResult(this->magnitude[i])
+                        + TResult(otherSignRemainder)
+                        + TResult(carryOver);
 
-//				this->unsignedPart_[i] =
-//					IntegralType(dualRes & TSignedResult(integralModulus()));
-//				carryOver =
-//					IntegralType(mask & (dualRes >> integralModulusDegree()));
-//			}
-//			if constexpr (length() > MIN_LENGTH) {
-//				for (; i < length(); i++) {
-//					const TSignedResult dualRes =
-//						selfSign * TSignedResult(this->unsignedPart_[i])
-//						+ carryOverSign * TSignedResult(carryOver);
+                    this->magnitude[i] =
+                        IntegralType(dualRes & TResult(integralModulus()));
+                    carryOver =
+                        IntegralType(dualRes >> integralModulusDegree());
+                }
+            }
 
-//					this->unsignedPart_[i] =
-//						IntegralType(dualRes & TSignedResult(integralModulus()));
-//					carryOver =
-//						IntegralType(mask & (dualRes >> integralModulusDegree()));
-//					carryOverSign =
-//						extra::sign<TSignedResult, TSignedResult>(dualRes < 0, dualRes);
-//				}
-//			}
-//			this->setSign(TSigned(carryOverSign));
-
-//			return *this;
-//		}
+            return *this;
+        }
 
     public:
-//		void setSign(TSigned newSign) { minus_ = newSign < 0; }
-
         // Complexity: O(N) - because isZero() method
         TSigned sign() const {
             return signExceptZero() * (!isZero());      // ~ O(N)
@@ -188,12 +168,12 @@ namespace lipaboy_lib::long_numbers_space {
 
             LongInteger inverted;
             auto itOut = inverted.begin();
-            IntegralType remainder = 1;
+            IntegralType carryOver = 1;
             for (auto itIn = cbegin(); itIn != cend(); itIn++) {
-                TResult res = TResult(~(*itIn)) + TResult(remainder);
+                TResult res = TResult(~(*itIn)) + TResult(carryOver);
 
                 *(itOut++) = IntegralType(res & integralModulus());
-                remainder = IntegralType(res >> integralModulusDegree());
+                carryOver = IntegralType(res >> integralModulusDegree());
             }
 
             return inverted;
