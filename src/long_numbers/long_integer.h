@@ -106,7 +106,7 @@ namespace lipaboy_lib::long_numbers_space {
             using TResult = ResultIntegralType;
 
             constexpr auto MIN_LENGTH = std::min(countOfIntegrals, otherLen);
-            IntegralType carryOver(0);
+            IntegralType carryOver = zeroIntegral();
             size_t i = 0;
             for (; i < MIN_LENGTH; i++) {
                 const TResult dualRes =
@@ -114,10 +114,8 @@ namespace lipaboy_lib::long_numbers_space {
                     + TResult(other.magnitude[i])
                     + TResult(carryOver);
 
-                this->magnitude[i] =
-                    IntegralType(dualRes & TResult(integralModulus()));
-                carryOver =
-                    IntegralType(dualRes >> integralModulusDegree());
+                this->magnitude[i] = IntegralType(dualRes & TResult(integralModulus()));
+                carryOver = IntegralType(dualRes >> integralModulusDegree());
             }
             if constexpr (length() > MIN_LENGTH) {
                 IntegralType otherSignRemainder =
@@ -128,10 +126,8 @@ namespace lipaboy_lib::long_numbers_space {
                         + TResult(otherSignRemainder)
                         + TResult(carryOver);
 
-                    this->magnitude[i] =
-                        IntegralType(dualRes & TResult(integralModulus()));
-                    carryOver =
-                        IntegralType(dualRes >> integralModulusDegree());
+                    this->magnitude[i] = IntegralType(dualRes & TResult(integralModulus()));
+                    carryOver = IntegralType(dualRes >> integralModulusDegree());
                 }
             }
 
@@ -151,6 +147,21 @@ namespace lipaboy_lib::long_numbers_space {
         {
             return (*this += (-other));
         }
+
+//        template <LengthType otherLen>
+//        auto operator*(LongInteger<otherLen> const& other) const
+//            -> LongIntegerResult<countOfIntegrals, otherLen>
+//        {
+//            LongIntegerResult<countOfIntegrals, otherLen> result;
+
+//        }
+
+//        template <LengthType otherLen>
+//        auto operator*=(LongInteger<otherLen> const& other)
+//            -> const_reference
+//        {
+//            return (*this = (*this) * other);
+//        }
 
     public:
         // Complexity: O(N) - because isZero() method
@@ -195,8 +206,8 @@ namespace lipaboy_lib::long_numbers_space {
         {
             using TResult = ResultIntegralType;
 
-            LongInteger inverted;
-            auto itOut = inverted.begin();
+            LongInteger inverse;
+            auto itOut = inverse.begin();
             IntegralType carryOver = 1;
             for (auto itIn = cbegin(); itIn != cend(); itIn++) {
                 TResult res = TResult(~(*itIn)) + TResult(carryOver);
@@ -205,7 +216,7 @@ namespace lipaboy_lib::long_numbers_space {
                 carryOver = IntegralType(res >> integralModulusDegree());
             }
 
-            return inverted;
+            return inverse;
         }
 
         //----------------------------Utils------------------------------//
@@ -245,7 +256,7 @@ namespace lipaboy_lib::long_numbers_space {
                     signedNumberStrView.remove_prefix(1);
                 magnitude.assignStr(signedNumberStrView, base);
                 if (minus)
-                    (*this) = -(*this);
+                    this->invert();
             }
         }
     }
