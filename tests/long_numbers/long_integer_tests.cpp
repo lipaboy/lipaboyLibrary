@@ -31,13 +31,23 @@ namespace long_numbers_tests {
         EXPECT_TRUE(second.sign() == 0);
     }
 
-    TEST(LongInteger, revert_sign) {
+    TEST(LongInteger, operator_minus) {
         LongInteger<1> first(-5);
         first = -first;
         EXPECT_TRUE(first.sign() > 0);
 
         LongInteger<1> second(0);
         second = -second;
+        EXPECT_TRUE(second.sign() == 0);
+    }
+
+    TEST(LongInteger, invert) {
+        LongInteger<1> first(-5);
+        first.invert();
+        EXPECT_TRUE(first.sign() > 0);
+
+        LongInteger<1> second(0);
+        second.invert();
         EXPECT_TRUE(second.sign() == 0);
     }
 
@@ -107,14 +117,36 @@ namespace long_numbers_tests {
         LongInteger<1> second("-1", 2);
         EXPECT_EQ((first += second).to_string(2), "100000000000000000000000000000000");
         EXPECT_EQ((first += second).to_string(2), LongUnsigned<1>(-1).to_string(2));
+    }
 
-//        uint32_t kek = 1u;
-//        auto lol = int32_t(~kek);
-//        EXPECT_EQ(lol, -2);
-//        int64_t lol2 = int64_t(lol);
-//        EXPECT_EQ(lol2, -2);
-//        uint64_t lol3 = uint64_t(lol);
-//        EXPECT_EQ(lol3, -2);
+    TEST(LongInteger, sub_single_lengths) {
+        LongInteger<1> first(3);
+        LongInteger<1> second(2);
+        EXPECT_EQ((first -= second).to_string(), "1");
+
+        first.assignStr("2");
+        EXPECT_EQ((first - second).to_string(), "0");
+        EXPECT_EQ((first - second - second).to_string(), "-2");
+    }
+
+    TEST(LongInteger, sub_double_lengths) {
+        LongInteger<2> first(" 3000000001");
+        LongInteger<2> second("3000000001");
+        EXPECT_EQ((first -= second).to_string(), "0");
+
+        second = -second;
+        EXPECT_EQ((first -= second).to_string(), "3000000001");
+        EXPECT_EQ((first - second).to_string(), "6000000002");
+
+        first = 0;
+        EXPECT_EQ((first - second).to_string(), "3000000001");
+    }
+
+    TEST(LongInteger, sub_diff_lengths) {
+        LongInteger<2> first(" 100000000000000000000000000000001", 2);
+        LongInteger<1> second("1", 2);
+        EXPECT_EQ((first -= second).to_string(2), "100000000000000000000000000000000");
+        EXPECT_EQ((first -= second).to_string(2), LongUnsigned<1>(-1).to_string(2));
     }
 
 }

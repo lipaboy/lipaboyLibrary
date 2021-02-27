@@ -138,6 +138,20 @@ namespace lipaboy_lib::long_numbers_space {
             return *this;
         }
 
+        template <LengthType otherLen>
+        auto operator-(LongInteger<otherLen> const& other) const
+            -> LongIntegerResult<countOfIntegrals, otherLen>
+        {
+            return (*this + (-other));
+        }
+
+        template <LengthType otherLen>
+        auto operator-=(LongInteger<otherLen> const& other)
+            -> const_reference
+        {
+            return (*this += (-other));
+        }
+
     public:
         // Complexity: O(N) - because isZero() method
         TSigned sign() const {
@@ -162,6 +176,21 @@ namespace lipaboy_lib::long_numbers_space {
         }
 
     public:
+        const_reference invert()
+        {
+            using TResult = ResultIntegralType;
+
+            IntegralType carryOver = 1;
+            for (auto iter = begin(); iter != end(); iter++) {
+                TResult res = TResult(~(*iter)) + TResult(carryOver);
+
+                *iter = IntegralType(res & integralModulus());
+                carryOver = IntegralType(res >> integralModulusDegree());
+            }
+
+            return *this;
+        }
+
         LongInteger operator-() const
         {
             using TResult = ResultIntegralType;
