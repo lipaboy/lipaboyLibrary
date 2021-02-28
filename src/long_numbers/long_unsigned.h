@@ -134,8 +134,6 @@ namespace lipaboy_lib::long_numbers_space {
                 carryOver = IntegralType(dualTemp >> integralModulusDegree());
             }
             if constexpr (length() > MIN_LENGTH) {
-                // TODO: not optimal, because you needn't to go to the end of number. 
-                // Only to the next of last traversal (next after min_length)
                 for (; i < length(); i++) {
                     const ResultIntegralType dualTemp =
                         ResultIntegralType((*this)[i])
@@ -211,14 +209,18 @@ namespace lipaboy_lib::long_numbers_space {
                 for (size_t j = 0; i + j < res.length(); j++)
                 {
                     if (j >= other.length()) {
+                        // INFO: this statement is not required to saving the carryOver
+                        //  because it res[i + j] always is empty at this current moment
                         res[i + j] += carryOver;
                         break;
                     }
 
                     const TResult dualTemp =
-                        TResult((*this)[i]) * TResult(other[j]) + TResult(carryOver);
+                        TResult(res[i + j])
+                        + TResult((*this)[i]) * TResult(other[j])
+                        + TResult(carryOver);
                     // Detail #2
-                    res[i + j] += IntegralType(dualTemp & integralModulus());
+                    res[i + j] = IntegralType(dualTemp & integralModulus());
                     carryOver = IntegralType(dualTemp >> integralModulusDegree());
                 }
             }
@@ -318,8 +320,6 @@ namespace lipaboy_lib::long_numbers_space {
             return true;
         }
 
-        // Question: is it normal? Two methods have the same signature and live together??
-        //			 Maybe operator[] is exception of rules?
         const_reference_integral operator[] (size_t index) const { return number_[index]; }
 
         reference_integral operator[] (size_t index) { return number_[index]; }
@@ -358,7 +358,6 @@ namespace lipaboy_lib::long_numbers_space {
                 -> bool
             {
                 bool partIsZero = true;
-                // must cast all the vars to int because (I don't know)
                 for (int i = 0; i < int(lenHigh) - int(lenLow); i++) {
                     if (*iter != zeroIntegral()) {
                         partIsZero = false;
@@ -510,7 +509,7 @@ namespace lipaboy_lib::long_numbers_space {
                 cutOffLeftBorder<int>(0, int(numStrView.length()) - int(integralModulusDegreeOfBase * length()))
             );
 
-            int blockLen = (base == 2) ? integralModulusDegreeOfBase - 1 : integralModulusDegreeOfBase;
+            int blockLen = integralModulusDegreeOfBase - 1;
             int last = int(numStrView.length());        // last variable is not included into segment [0, len - 1]
             int first = cutOffLeftBorder<int>(last - blockLen, 0);
             LongUnsigned<length()> iBase = 1;
@@ -581,7 +580,7 @@ namespace lipaboy_lib::long_numbers_space {
                     ? 0 : (current[i + blocksShift] >> bitsShift);
                 auto high = (i + blocksShift + 1 >= length())
                     ? 0 : ((current[i + blocksShift + 1] << (integralModulusDegree() - bitsShift - 1))
-                        << 1);      // INFO: this crutch must be because you cannot shift uint32_t << 32 bits
+                        << 1);      // INFO: this crutch must be because you cannot shift uint32_t << 32 bits,
                                     //       only 0 to 31.
                 auto res = high | less;
                 current[i] = res;

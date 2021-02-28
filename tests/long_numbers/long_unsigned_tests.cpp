@@ -101,8 +101,13 @@ namespace long_numbers_tests {
 			ASSERT_EQ(first.to_string(base), numStr);
 		}
 
-        first.assignStr("f", 16);
-        EXPECT_EQ(first.to_string(16), "f");
+        LongUnsigned<2> second;
+        second.assignStr("f", 16);
+        EXPECT_EQ(second.to_string(16), "f");
+        second.assignStr("                ffffffff", 16);
+        EXPECT_EQ(second.to_string(16),  "ffffffff");
+        second.shiftLeft(1);
+        EXPECT_EQ(second.to_string(16), "1fffffffe");
 	}
 
 	//-----Any system------//
@@ -363,7 +368,22 @@ namespace long_numbers_tests {
         }
         EXPECT_EQ(second.to_string(), fourth.to_string());
 
+        first.assignStr("2");
+        second.assignStr("fffffffffffffff", 16);
+        EXPECT_EQ((second * first).to_string(16), "1ffffffffffffffe");
 
+        first.assignStr("2");
+        second.assignStr("ffffffffffffffff", 16);
+        EXPECT_EQ((second * first).to_string(16), "1fffffffffffffffe");
+
+        first.assignStr("10001", 16);
+        second.assignStr("ffffffff0000", 16);
+        EXPECT_EQ((second * first).to_string(16), "10000fffeffff0000");
+        EXPECT_EQ((first * second).to_string(16), "10000fffeffff0000");
+
+        first.assignStr("ffff", 16);
+        second.assignStr("ffffffff", 16);
+        EXPECT_EQ((second + first).to_string(16), "10000fffe");
     }
 
     TEST(LongUnsigned, multiplication_double_rank_by_independent_parts) {
