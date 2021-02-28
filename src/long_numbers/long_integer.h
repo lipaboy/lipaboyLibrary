@@ -39,6 +39,8 @@ namespace lipaboy_lib::long_numbers_space {
         using reverse_iterator = std::reverse_iterator<iterator>;
         using const_iterator = typename ContainerType::const_iterator;
         using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+        using reference_integral = typename ContainerType::reference_integral;
+        using const_reference_integral = typename ContainerType::const_reference_integral;
 
         using Sub::length;
         using Sub::zeroIntegral;
@@ -47,7 +49,7 @@ namespace lipaboy_lib::long_numbers_space {
         using Sub::integralModulusDegree;
 
     public:
-        template <LengthType otherLengthOfIntegrals>
+        template <LengthType otherCountOfIntegrals>
         friend class LongInteger;
 
     private:
@@ -63,9 +65,9 @@ namespace lipaboy_lib::long_numbers_space {
             std::fill(std::next(begin()), end(), (small < 0) ? unitsIntegral() : zeroIntegral());
         }
 
-        template <LengthType otherLen>
+        template <LengthType otherCount>
         explicit
-            LongInteger(LongInteger<otherLen> const& other) {
+            LongInteger(LongInteger<otherCount> const& other) {
                 auto minLen = (other.length() > length()) ? length() : other.length();
                 std::copy_n(other.cbegin(), minLen, std::begin(magnitude));
                 if (other.signExceptZero() < 0)
@@ -88,16 +90,16 @@ namespace lipaboy_lib::long_numbers_space {
         template <LengthType first, LengthType second>
         using LongIntegerResult = LongInteger< extra::Max<first, second>::value >;
 
-        template <LengthType otherLen>
-        auto operator+(LongInteger<otherLen> const& other) const
-            -> LongIntegerResult<countOfIntegrals, otherLen>
+        template <LengthType otherCount>
+        auto operator+(LongInteger<otherCount> const& other) const
+            -> LongIntegerResult<countOfIntegrals, otherCount>
         {
-            using ResultType = LongIntegerResult<countOfIntegrals, otherLen>;
+            using ResultType = LongIntegerResult<countOfIntegrals, otherCount>;
             return (ResultType(*this) += other);
         }
 
-        template <LengthType otherLen>
-        auto operator+=(LongInteger<otherLen> const& other)
+        template <LengthType otherCount>
+        auto operator+=(LongInteger<otherCount> const& other)
             -> const_reference
         {
             // About implicit conversation from signed to unsigned:
@@ -105,7 +107,7 @@ namespace lipaboy_lib::long_numbers_space {
 
             using TResult = ResultIntegralType;
 
-            constexpr auto MIN_LENGTH = std::min(countOfIntegrals, otherLen);
+            constexpr auto MIN_LENGTH = std::min(countOfIntegrals, otherCount);
             IntegralType carryOver = zeroIntegral();
             size_t i = 0;
             for (; i < MIN_LENGTH; i++) {
@@ -134,40 +136,40 @@ namespace lipaboy_lib::long_numbers_space {
             return *this;
         }
 
-        template <LengthType otherLen>
-        auto operator-(LongInteger<otherLen> const& other) const
-            -> LongIntegerResult<countOfIntegrals, otherLen>
+        template <LengthType otherCount>
+        auto operator-(LongInteger<otherCount> const& other) const
+            -> LongIntegerResult<countOfIntegrals, otherCount>
         {
             return (*this + (-other));
         }
 
-        template <LengthType otherLen>
-        auto operator-=(LongInteger<otherLen> const& other)
+        template <LengthType otherCount>
+        auto operator-=(LongInteger<otherCount> const& other)
             -> const_reference
         {
             return (*this += (-other));
         }
 
-//        template <LengthType otherLen>
-//        auto operator*(LongInteger<otherLen> const& other) const
-//            -> LongIntegerResult<countOfIntegrals, otherLen>
-//        {
-//            LongIntegerResult<countOfIntegrals, otherLen> result;
+        template <LengthType otherCount>
+        auto operator*(LongInteger<otherCount> const& other) const
+            -> LongIntegerResult<countOfIntegrals, otherCount>
+        {
+            using TResult = LongIntegerResult<countOfIntegrals, otherCount>;
+            return (this->signExceptZero() * other.signExceptZero() < 0)
+                ? -TResult(this->modulus().magnitude * other.modulus().magnitude)     // one more useless copy
+                :  TResult(this->magnitude * other.magnitude);
+        }
 
-//        }
-
-//        template <LengthType otherLen>
-//        auto operator*=(LongInteger<otherLen> const& other)
-//            -> const_reference
-//        {
-//            return (*this = (*this) * other);
-//        }
+        template <LengthType otherCount>
+        auto operator*=(LongInteger<otherCount> const& other)
+            -> const_reference
+        {
+            return (*this = (*this) * other);
+        }
 
     public:
         // Complexity: O(N) - because isZero() method
-        TSigned sign() const {
-            return signExceptZero() * (!isZero());      // ~ O(N)
-        }
+        TSigned sign() const { return signExceptZero() * (!isZero()); /* ~ O(N) */ }
 
         bool isZero() const {
             for (auto iter = cbegin(); iter != cend(); iter++)
@@ -176,15 +178,17 @@ namespace lipaboy_lib::long_numbers_space {
             return true;
         }
 
-        bool isNegative() const {
-            return signExceptZero() < 0;    // O(1)
+        bool isNegative() const { 
+            return ((magnitude.back() & (IntegralType(1) << (integralModulusDegree() - 1))) != 0); /* ~ O(1) */ 
         }
+
+        const_reference toModulus() { return (isNegative()) ? this->invert() : *this; }
+
+        LongInteger modulus() const { return (isNegative()) ? -(*this) : *this; }
 
     private:
         // Complexity: O(1) - because without checking on zero value
-        TSigned signExceptZero() const {
-            return TSigned(((magnitude.back() & (1u << (integralModulusDegree() - 1))) != 0) ? -1 : 1);
-        }
+        TSigned signExceptZero() const { return TSigned(isNegative() ? -1 : 1); }
 
     public:
         const_reference invert()
@@ -230,6 +234,10 @@ namespace lipaboy_lib::long_numbers_space {
         std::string to_string(unsigned int base = 10) const {
             return (isNegative()) ? "-" + (-(*this)).magnitude.to_string(base) : magnitude.to_string(base);
         }
+
+        const_reference_integral operator[] (size_t index) const { return magnitude[index]; }
+
+        reference_integral operator[] (size_t index) { return magnitude[index]; }
 
     public:
         iterator begin() { return magnitude.begin(); }

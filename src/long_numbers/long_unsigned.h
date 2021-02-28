@@ -84,7 +84,7 @@ namespace lipaboy_lib::long_numbers_space {
 
     public:
         // Note: Non-initialized constructor: without filling array by zeroIntegral value.
-        LongUnsigned() {}
+        LongUnsigned() : number_() {}
 
         LongUnsigned(IntegralType small) {
             number_[0] = small;

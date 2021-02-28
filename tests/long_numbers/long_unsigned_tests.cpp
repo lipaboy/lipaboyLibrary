@@ -380,10 +380,6 @@ namespace long_numbers_tests {
         second.assignStr("ffffffff0000", 16);
         EXPECT_EQ((second * first).to_string(16), "10000fffeffff0000");
         EXPECT_EQ((first * second).to_string(16), "10000fffeffff0000");
-
-        first.assignStr("ffff", 16);
-        second.assignStr("ffffffff", 16);
-        EXPECT_EQ((second + first).to_string(16), "10000fffe");
     }
 
     TEST(LongUnsigned, multiplication_double_rank_by_independent_parts) {
