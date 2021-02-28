@@ -191,9 +191,11 @@ namespace lipaboy_lib::long_numbers_space {
         {
             using TResult = ResultIntegralType;
 
-            IntegralType carryOver = 1;
+            IntegralType carryOver(1);
             for (auto iter = begin(); iter != end(); iter++) {
-                TResult res = TResult(~(*iter)) + TResult(carryOver);
+                // MVSC Compile Warning C4319: ~ - zero extending to TResult of greater size
+                // Solution: cast to IntegralType after Bitwise NOT operation.
+                TResult res = TResult(IntegralType(~(*iter))) + TResult(carryOver);
 
                 *iter = IntegralType(res & integralModulus());
                 carryOver = IntegralType(res >> integralModulusDegree());
@@ -208,9 +210,11 @@ namespace lipaboy_lib::long_numbers_space {
 
             LongInteger inverse;
             auto itOut = inverse.begin();
-            IntegralType carryOver = 1;
+            IntegralType carryOver(1);
             for (auto itIn = cbegin(); itIn != cend(); itIn++) {
-                TResult res = TResult(~(*itIn)) + TResult(carryOver);
+                // MVSC Compile Warning C4319: ~ - zero extending to TResult of greater size
+                // Solution: cast to IntegralType after Bitwise NOT operation.
+                TResult res = TResult(IntegralType(~(*itIn))) + TResult(carryOver);
 
                 *(itOut++) = IntegralType(res & integralModulus());
                 carryOver = IntegralType(res >> integralModulusDegree());
