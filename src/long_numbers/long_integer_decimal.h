@@ -546,8 +546,8 @@ namespace lipaboy_lib::long_numbers_space {
         using LongNumberTView = LongIntegerDecimalView<len>;
         using IntegralType = typename LongNumberT::IntegralType;
         using DoubleType = typename LongNumberT::ResultIntegralType;
-        const auto integralModulus = LongNumberT::integralModulus();
-        const auto integralModulusDegree = LongNumberT::integralModulusDegree();
+        const IntegralType integralModulus = LongNumberT::integralModulus();
+        const IntegralType integralModulusDegree = LongNumberT::integralModulusDegree();
 
         LongIntegerDecimal<len> result(0);
 

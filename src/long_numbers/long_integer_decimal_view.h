@@ -71,11 +71,10 @@ auto LongIntegerDecimalView<len>::operator+(LongIntegerDecimalView const & other
 
     auto otherIter = other.begin();
     for (auto iter = begin(); iter != end(); iter++, otherIter++) {
-        const TSignedResult doubleTemp = TSignedResult(
-            this->sign() * TSigned(*iter)
-            + other.sign() * TSigned(*otherIter)
-            + sign * TSigned(remainder)
-        );
+        const TSignedResult doubleTemp =
+            TSignedResult(this->sign()) * TSignedResult(*iter)
+            + TSignedResult(other.sign()) * TSignedResult(*otherIter)
+            + TSignedResult(sign) * TSignedResult(remainder);
 
         result = IntegralType(std::abs(doubleTemp) % ViewingType::integralModulus());
         remainder = IntegralType(std::abs(doubleTemp) / ViewingType::integralModulus());
