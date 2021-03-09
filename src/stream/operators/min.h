@@ -7,7 +7,7 @@
 
 namespace lipaboy_lib::stream_space {
 
-	namespace operators {
+	namespace op {
 
 		struct min : 
 			impl::TReturnSameType, 
@@ -55,12 +55,12 @@ namespace lipaboy_lib::stream_space {
 
 	}
 
-	using operators::min;
-	using operators::impl::min_impl;
+	using op::min;
+	using op::impl::min_impl;
 
 	template <class TStream>
 	struct shortening::TerminatedOperatorTypeApply<TStream, min> {
-		using type = operators::impl::min_impl<typename TStream::ResultValueType>;
+		using type = op::impl::min_impl<typename TStream::ResultValueType>;
 	};
 
 }

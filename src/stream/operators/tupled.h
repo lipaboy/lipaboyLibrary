@@ -5,7 +5,7 @@
 
 namespace lipaboy_lib::stream_space {
 
-    namespace operators {
+    namespace op {
 
         template <class TStream, class... Rest>
         class tupled : public tupled<Rest...>

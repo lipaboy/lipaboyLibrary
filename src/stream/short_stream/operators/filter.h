@@ -8,7 +8,7 @@ namespace lipaboy_lib::short_stream {
 
 	namespace operators {
 
-		using stream_space::operators::impl::FunctorHolder;
+        using stream_space::op::impl::FunctorHolder;
 
 		//-------------------------------------------------------------------------------------//
 		//--------------------------------Unterminated operation------------------------------//

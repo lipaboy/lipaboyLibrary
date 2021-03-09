@@ -6,7 +6,7 @@
 
 namespace lipaboy_lib::stream_space {
 
-	namespace operators {
+	namespace op {
 
 		struct to_vector : impl::TerminatedOperator
 		{

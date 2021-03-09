@@ -9,7 +9,7 @@
 
 namespace lipaboy_lib::stream_space {
 
-	namespace operators::impl {
+	namespace op::impl {
 
 		//#define DEBUG_STREAM_WITH_NOISY
 

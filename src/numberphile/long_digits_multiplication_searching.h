@@ -18,7 +18,7 @@ namespace lipaboy_lib::numberphile {
     using std::endl;
 
     using namespace lipaboy_lib::stream_space;
-    using namespace lipaboy_lib::stream_space::operators;
+    using namespace lipaboy_lib::stream_space::op;
     using lipaboy_lib::long_numbers_space::LongIntegerDecimal;
     using lipaboy_lib::long_numbers_space::LongUnsigned;
 

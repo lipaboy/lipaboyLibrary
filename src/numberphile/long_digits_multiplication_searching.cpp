@@ -516,7 +516,7 @@ namespace lipaboy_lib::numberphile {
 
     void long_digits_multiplication_searching_factorization() {
         using stream_space::Stream;
-        using namespace stream_space::operators;
+        using namespace stream_space::op;
 
         auto startTime = extra::getCurrentTime();
 

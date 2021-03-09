@@ -9,7 +9,7 @@
 
 namespace lipaboy_lib::stream_space {
 
-	namespace operators {
+    namespace op {
 
 		// TODO: replace SplitPredicate to regular expression checking
 		// TODO: make split_impl more common by working with different ValueType,
@@ -35,7 +35,7 @@ namespace lipaboy_lib::stream_space {
 		public:
 			explicit
 				split(SplitPredicate splitFunctor)
-					: FunctorHolder<SplitPredicate>(splitFunctor)
+                    : impl::FunctorHolder<SplitPredicate>(splitFunctor)
 				{}
 		};
 
@@ -109,8 +109,8 @@ namespace lipaboy_lib::stream_space {
 
 	}
 
-	using operators::split;
-	using operators::impl::split_impl;
+    using op::split;
+    using op::impl::split_impl;
 
 	template <class TStream, class TContainer>
 	struct shortening::StreamTypeExtender<TStream, 

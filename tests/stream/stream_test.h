@@ -21,7 +21,7 @@ using namespace lipaboy_lib;
 
 using stream_space::StreamBase;
 using stream_space::StreamOfOutsideIterators;
-using namespace lipaboy_lib::stream_space::operators;
+using namespace lipaboy_lib::stream_space::op;
 
 using lipaboy_lib_tests::Noisy;
 

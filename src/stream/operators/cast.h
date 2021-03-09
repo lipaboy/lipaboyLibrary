@@ -4,7 +4,7 @@
 
 namespace lipaboy_lib::stream_space {
 
-	namespace operators {
+	namespace op {
 
 		template <class TypeCastTo>
 		class cast_to 

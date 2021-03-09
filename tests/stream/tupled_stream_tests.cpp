@@ -21,7 +21,7 @@ namespace stream_tests {
     using namespace lipaboy_lib;
 
     using namespace lipaboy_lib::stream_space;
-    using namespace lipaboy_lib::stream_space::operators;
+    using namespace lipaboy_lib::stream_space::op;
 
     // TODO: wrap the tuple by the concrete struct (like {name:, age:})
 

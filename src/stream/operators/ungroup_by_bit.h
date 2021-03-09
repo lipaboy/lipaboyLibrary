@@ -7,7 +7,7 @@
 
 namespace lipaboy_lib::stream_space {
 
-	namespace operators {
+	namespace op {
 
 		// TODO: remove shared_ptr
 
@@ -92,8 +92,8 @@ namespace lipaboy_lib::stream_space {
 	}
 
 
-	using operators::ungroup_by_bit;
-	using operators::impl::ungroup_by_bit_impl;
+	using op::ungroup_by_bit;
+	using op::impl::ungroup_by_bit_impl;
 
 	template <class TStream>
 	struct shortening::StreamTypeExtender<TStream, ungroup_by_bit> {

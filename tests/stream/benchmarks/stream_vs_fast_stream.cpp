@@ -42,7 +42,7 @@ namespace stream_benchmarks {
 
         {
             using namespace stream_space;
-            using namespace stream_space::operators;
+            using namespace stream_space::op;
 
             auto start = getCurrentTime();
             int a = 0;
@@ -106,7 +106,7 @@ namespace stream_benchmarks {
 
         {
             using namespace stream_space;
-            using namespace stream_space::operators;
+            using namespace stream_space::op;
 
             auto start = getCurrentTime();
             int a = 0;
@@ -163,7 +163,7 @@ namespace stream_benchmarks {
 
         {
             using namespace stream_space;
-            using namespace stream_space::operators;
+            using namespace stream_space::op;
 
             auto start = getCurrentTime();
             int a = 0;
@@ -235,7 +235,7 @@ namespace stream_benchmarks {
 
         {
             using namespace stream_space;
-            using namespace stream_space::operators;
+            using namespace stream_space::op;
 
             auto start = getCurrentTime();
             int a = 0;

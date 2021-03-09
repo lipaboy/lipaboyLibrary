@@ -17,7 +17,7 @@ namespace stream_tests {
 	using std::shared_ptr;
 
 	using namespace lipaboy_lib::stream_space;
-	using namespace lipaboy_lib::stream_space::operators;
+	using namespace lipaboy_lib::stream_space::op;
 
 
 	TEST(Stream_Cast, simple) {

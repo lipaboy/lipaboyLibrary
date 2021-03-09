@@ -10,7 +10,7 @@
 
 namespace lipaboy_lib::stream_space {
 
-	namespace operators {
+	namespace op {
 
 		struct max : 
 			impl::TReturnSameType, 
@@ -63,12 +63,12 @@ namespace lipaboy_lib::stream_space {
 
     }
 
-	using operators::max;
-	using operators::impl::max_impl;
+	using op::max;
+	using op::impl::max_impl;
 
 	template <class TStream>
 	struct shortening::TerminatedOperatorTypeApply<TStream, max> {
-		using type = operators::impl::max_impl<typename TStream::ResultValueType>;
+		using type = op::impl::max_impl<typename TStream::ResultValueType>;
 	};
 
 }

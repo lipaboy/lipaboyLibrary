@@ -5,7 +5,7 @@
 
 namespace lipaboy_lib::stream_space {
 
-	namespace operators {
+	namespace op {
 
 		template <class Transform>
 		struct map : public impl::FunctorHolder<Transform>

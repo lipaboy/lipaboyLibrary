@@ -99,7 +99,7 @@ namespace lipaboy_lib::stream_space {
 	//		3) Non-terminated operator processes the stream and produces a performed stream.
 
 	// Example Of Operators
-	namespace operators {
+	namespace op {
 
 		// Example of applying this operator you can find: tests/stream/nop_tests.cpp
 

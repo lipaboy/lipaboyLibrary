@@ -32,7 +32,7 @@ using std::unique_ptr;
 using namespace lipaboy_lib;
 
 using namespace lipaboy_lib::stream_space;
-using namespace lipaboy_lib::stream_space::operators;
+using namespace lipaboy_lib::stream_space::op;
 
 //---------------------------------Tests-------------------------------//
 
@@ -42,8 +42,10 @@ using namespace lipaboy_lib::stream_space::operators;
 TEST(StreamTest, check) {
 
     auto res = Stream(1, 2, 3, 4, 5)
-        | map([](int a) { return a * a;  })
-        | sum();
+        | op::map([](int a) { return a * a;  })
+        | op::sum();
+
+    ASSERT_EQ(res, 5 * 6 * 11 / 6);
 
 }
 
@@ -440,9 +442,9 @@ TEST(StreamTest, unique_ptr_test) {
 	ASSERT_EQ(*(stream | nth(0)).value(), 5);
 
 	move_only lol2[] = { std::unique_ptr<int>(new int(3)) };
-	auto stream2 = Stream(lol2, lol2 + 1) 
+//	auto stream2 = Stream(lol2, lol2 + 1)
 	//	| filter([](auto& elem) { return true; })
-		;
+//		;
 	//ASSERT_EQ(*(stream2 | nth(0)), 3);
 
     // try unique_ptr with filter

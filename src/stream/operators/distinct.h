@@ -9,7 +9,7 @@
 
 namespace lipaboy_lib::stream_space {
 
-	namespace operators {
+	namespace op {
 
 		// TODO: test unordered_set<ref> with Noisy objects
 		// BUG: don't work on Linux with gcc-7
@@ -72,8 +72,8 @@ namespace lipaboy_lib::stream_space {
 
 	}
 
-	using operators::distinct;
-	using operators::impl::distinct_impl;
+	using op::distinct;
+	using op::impl::distinct_impl;
 
 	template <class TStream>
 	struct shortening::StreamTypeExtender<TStream, distinct> {

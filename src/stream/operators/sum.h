@@ -7,7 +7,7 @@ namespace lipaboy_lib::stream_space {
 	// NOTE: why is sum operator inherit from reduce operator?
 	//		Because I think that such realization is faster than with lambda one. Maybe test it ?
 
-	namespace operators {
+	namespace op {
 
 		struct sum : impl::TerminatedOperator
 		{

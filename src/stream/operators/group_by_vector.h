@@ -7,7 +7,7 @@
 
 namespace lipaboy_lib::stream_space {
 
-	namespace operators {
+	namespace op {
 
 		struct group_by_vector {
 		public:
@@ -86,8 +86,8 @@ namespace lipaboy_lib::stream_space {
 
 	}
 
-	using operators::group_by_vector;
-	using operators::impl::group_by_vector_impl;
+	using op::group_by_vector;
+	using op::impl::group_by_vector_impl;
 
 	template <class TStream>
 	struct shortening::StreamTypeExtender<TStream, group_by_vector> {

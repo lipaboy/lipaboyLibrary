@@ -23,7 +23,7 @@ namespace lipaboy_lib::stream_space {
 	//-----------------------------------Terminated operation-----------------------------------------//
 	//------------------------------------------------------------------------------------------------//
 
-	namespace operators {
+	namespace op {
 
 		//--------------------------Reduce Operator----------------------------//
 		
@@ -130,12 +130,12 @@ namespace lipaboy_lib::stream_space {
 
 	}
 
-	using operators::reduce;
-	using operators::impl::reduce_impl;
+	using op::reduce;
+	using op::impl::reduce_impl;
 
 	template <class TStream, class AccumulatorFn, class IdentityFn>
 	struct shortening::TerminatedOperatorTypeApply<TStream, reduce<AccumulatorFn, IdentityFn> > {
-		using type = operators::impl::reduce_impl<AccumulatorFn, IdentityFn>;
+		using type = op::impl::reduce_impl<AccumulatorFn, IdentityFn>;
 	};
 
 }

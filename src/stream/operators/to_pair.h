@@ -5,7 +5,7 @@
 
 namespace lipaboy_lib::stream_space {
 
-    namespace operators {
+    namespace op {
 
         template <class SecondStreamT>
         class paired {

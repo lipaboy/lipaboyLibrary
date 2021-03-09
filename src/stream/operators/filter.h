@@ -6,7 +6,7 @@
 
 namespace lipaboy_lib::stream_space {
 
-	namespace operators {
+	namespace op {
 
 		// Contract rules : 
 		//	1) filter_impl needs to store current element because
@@ -121,8 +121,8 @@ namespace lipaboy_lib::stream_space {
 			
 	}
 
-	using operators::filter;
-	using operators::impl::filter_impl;
+	using op::filter;
+	using op::impl::filter_impl;
 
 	template <class TStream, class Predicate>
 	struct shortening::StreamTypeExtender<TStream, filter<Predicate> > {
