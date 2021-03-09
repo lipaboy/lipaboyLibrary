@@ -43,10 +43,20 @@ TEST(StreamTest, check) {
 
     auto res = Stream(1, 2, 3, 4, 5)
         | op::map([](int a) { return a * a;  })
-        | op::sum();
+        | op::sum()
+        | op::or_else(0)
+        ;
 
     ASSERT_EQ(res, 5 * 6 * 11 / 6);
 
+    res = Stream(1, 2, 3, 4, 5)
+            | op::map([](int a) { return a * a;  })
+            | op::filter([] (int) { return false;})
+            | op::sum()
+            | op::or_else(0)
+            ;
+
+    ASSERT_EQ(res, 0);
 }
 
 

@@ -2,7 +2,7 @@
 
 #include "tools.h"
 
-// non-terminated operators
+//      conveyor operators
 #include "filter.h"
 #include "group_by_vector.h"
 #include "get.h"
@@ -12,11 +12,12 @@
 #include "distinct.h"
 #include "split.h"
 #include "cast.h"
-//     special operators
+#include "or_else.h"
+//      special operators
 #include "to_pair.h"
 #include "tupled.h"
 
-//	   terminated operators
+//      terminated operators
 #include "nth.h"
 #include "print_to.h"
 #include "reduce.h"
@@ -83,6 +84,9 @@ namespace lipaboy_lib::stream_space {
 	//
 	//		template <class StreamType>
 	//		auto apply(StreamType & stream) -> SomeReturnType;
+    //
+    //    And one recommendation: use wrapper around ReturnType - std::optional<ReturnType>.
+    //    It is necessary for work op::or_else(value) operator.
 	//
 	// Your instruments (par. 3 and 4):
 	//	- stream.hasNext();

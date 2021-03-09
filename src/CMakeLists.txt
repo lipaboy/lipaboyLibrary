@@ -46,6 +46,7 @@ set(LIB_LIPABOY_LIB_SOURCE_FILES
     stream/light_stream.h
     
     # Operators
+    stream/operators/or_else.h
     stream/operators/tupled.h
     "stream/operators/to_pair.h"
     stream/operators/distinct.h
