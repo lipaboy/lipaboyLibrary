@@ -6,7 +6,7 @@ namespace lipaboy_lib::stream_space {
 
 	namespace operators {
 
-		struct skip : TReturnSameType
+		struct skip : impl::TReturnSameType
 		{
 		public:
 			using size_type = size_t;

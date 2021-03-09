@@ -14,6 +14,7 @@ namespace stream_tests {
 	using std::endl;
 	using std::vector;
 	using std::string;
+	using std::shared_ptr;
 
 	using namespace lipaboy_lib::stream_space;
 	using namespace lipaboy_lib::stream_space::operators;

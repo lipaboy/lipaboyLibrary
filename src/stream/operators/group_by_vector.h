@@ -9,16 +9,12 @@ namespace lipaboy_lib::stream_space {
 
 	namespace operators {
 
-		using std::vector;
-
-		using lipaboy_lib::function_traits;
-
 		struct group_by_vector {
 		public:
 			using size_type = size_t;
 
 			template <class T>
-			using RetType = vector<T>;
+			using RetType = std::vector<T>;
 
 		public:
 			group_by_vector(size_type partSize) : partSize_(partSize) {
@@ -32,59 +28,66 @@ namespace lipaboy_lib::stream_space {
 			size_type partSize_;
 		};
 
-		template <class T>
-		struct group_by_vector_impl {
-		public:
-			using size_type = size_t;
+		namespace impl {
 
-			template <class Arg_>
-			using RetType = vector<Arg_>;
-			using ReturnType = RetType<T>;
-			using const_reference = const ReturnType &;
+			using std::vector;
+			using lipaboy_lib::function_traits;
 
-		public:
-			group_by_vector_impl(size_type partSize) : partSize_(partSize) {
-				if (partSize == 0)
-					throw std::logic_error("Parameter of GroupType constructor must be positive");
-			}
-			// Info: it is not copy-constructor
-			group_by_vector_impl(group_by_vector const & groupObj)
-				: group_by_vector_impl(groupObj.part())
-			{}
+			template <class T>
+			struct group_by_vector_impl {
+			public:
+				using size_type = size_t;
 
-			template <class TSubStream>
-			auto nextElem(TSubStream& stream)
-				-> ReturnType
-			{
-				ReturnType part;
+				template <class Arg_>
+				using RetType = vector<Arg_>;
+				using ReturnType = RetType<T>;
+				using const_reference = const ReturnType&;
 
-				for (size_type i = 0; i < partSize() && stream.hasNext(); i++)
-					part.push_back(std::move(stream.nextElem()));
+			public:
+				group_by_vector_impl(size_type partSize) : partSize_(partSize) {
+					if (partSize == 0)
+						throw std::logic_error("Parameter of GroupType constructor must be positive");
+				}
+				// Info: it is not copy-constructor
+				group_by_vector_impl(group_by_vector const& groupObj)
+					: group_by_vector_impl(groupObj.part())
+				{}
 
-				return std::move(part);
-			}
+				template <class TSubStream>
+				auto nextElem(TSubStream& stream)
+					-> ReturnType
+				{
+					ReturnType part;
 
-			template <class TSubStream>
-			void incrementSlider(TSubStream& stream) {
-				for (size_type i = 0; i < partSize() && stream.hasNext(); i++)
-					stream.incrementSlider();
-			}
+					for (size_type i = 0; i < partSize() && stream.hasNext(); i++)
+						part.push_back(std::move(stream.nextElem()));
 
-			template <class TSubStream>
-			bool hasNext(TSubStream& stream) {
-				return stream.hasNext();
-			}
+					return std::move(part);
+				}
 
-			size_type partSize() const { return partSize_; }
+				template <class TSubStream>
+				void incrementSlider(TSubStream& stream) {
+					for (size_type i = 0; i < partSize() && stream.hasNext(); i++)
+						stream.incrementSlider();
+				}
 
-		private:
-			size_type partSize_;
-		};
+				template <class TSubStream>
+				bool hasNext(TSubStream& stream) {
+					return stream.hasNext();
+				}
+
+				size_type partSize() const { return partSize_; }
+
+			private:
+				size_type partSize_;
+			};
+
+		}
 
 	}
 
 	using operators::group_by_vector;
-	using operators::group_by_vector_impl;
+	using operators::impl::group_by_vector_impl;
 
 	template <class TStream>
 	struct shortening::StreamTypeExtender<TStream, group_by_vector> {

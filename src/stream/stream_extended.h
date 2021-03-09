@@ -71,7 +71,7 @@ namespace lipaboy_lib::stream_space {
 		//-----------------Tools-------------------//
 	protected:
 		static constexpr bool isNoFixSizeOperatorBefore() {
-			return (!std::is_base_of_v<operators::FixSizeOperator, TOperator> 
+			return (!std::is_base_of_v<operators::impl::FixSizeOperator, TOperator>
 				&& SubType::isNoFixSizeOperatorBefore());
 		}
 		static constexpr bool isGeneratorProducing() {

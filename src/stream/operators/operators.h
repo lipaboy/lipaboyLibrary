@@ -131,7 +131,7 @@ namespace lipaboy_lib::stream_space {
 		};
 
 		// Terminated operator
-		class return_zero : TerminatedOperator
+		class return_zero : impl::TerminatedOperator
 		{
         public:
 			template <class T>

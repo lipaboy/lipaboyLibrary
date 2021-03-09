@@ -103,7 +103,7 @@ namespace lipaboy_lib::numberphile {
                 bool kek = true;
 
             // TODO: need optimization!
-            int64_t iNum = 0;
+            size_t iNum = 0;
             for (; ; iNum++) {
                 nums[iNum + 1] = IntType(1);
 
@@ -132,8 +132,8 @@ namespace lipaboy_lib::numberphile {
             ++stepsStat[iNum + 2];
 
 
-            if (maxSteps <= iNum + 2) {
-                maxSteps = iNum + 2;
+            if (maxSteps <= int64_t(iNum) + 2ll) {
+                maxSteps = int64_t(iNum) + 2ll;
                 convertToNumber(maxNumber);
 
                 if (maxSteps == 11) {
@@ -354,7 +354,7 @@ namespace lipaboy_lib::numberphile {
                 }
             };
             // TODO: need optimization!
-            int64_t iNum = 0;
+            size_t iNum = 0;
             for (; ; iNum++) {
                 nums[iNum + 1] = NumType(1);
 
@@ -375,10 +375,10 @@ namespace lipaboy_lib::numberphile {
             if (iNum + 2 >= 9) {
                 convertToNumber();
                 maxNumberVec.push_back(maxNumber);
-                maxStepsVec.push_back(iNum + 2);
+                maxStepsVec.push_back(uint64_t(iNum) + 2ull);
             }
-            if (maxSteps <= iNum + 2) {
-                maxSteps = iNum + 2;
+            if (maxSteps <= int64_t(iNum) + 2ll) {
+                maxSteps = int64_t(iNum) + 2ll;
                 convertToNumber();
 
                 if (maxSteps == 11) {
@@ -546,7 +546,7 @@ namespace lipaboy_lib::numberphile {
         auto setDigit = [&number, &getDigit](int index, int digit) -> void
         {
             auto old = getDigit(index);
-            number = number + int64_t(digit - old) * powDozen<int64_t>(index);
+            number = number + (int64_t(digit) - old) * powDozen<int64_t>(index);
         };
         constexpr std::array<int, 4> primes{ 2, 3, 5, 7 };
         auto checkFact = [&number, &primes]() {
@@ -571,7 +571,7 @@ namespace lipaboy_lib::numberphile {
             int right = getDigit(i);
             int left = getDigit(i + 1);
             if (left < right) {
-                int next;
+                int next = 0;
                 int j = 0;
                 for (; j < length; j++) {
                     next = getDigit(j);
@@ -706,7 +706,7 @@ namespace lipaboy_lib::numberphile {
 
             // multiply the digits
 
-            uint64_t iNum = 0;
+            size_t iNum = 0;
             for (; ; iNum++) {
                 numbers[iNum + 1] = 1;
 
@@ -720,8 +720,8 @@ namespace lipaboy_lib::numberphile {
                     break;
             }
 
-            if (maxSteps <= iNum + 1) {
-                maxSteps = iNum + 1;
+            if (maxSteps <= uint64_t(iNum) + 1) {
+                maxSteps = uint64_t(iNum) + 1;
                 maxNumber = numbers[0];
             }
 
@@ -755,7 +755,7 @@ namespace lipaboy_lib::numberphile {
         auto updateMaxSteps = [&maxSteps, &maxNumber, &nums] (uint64_t twos,
                 uint64_t threes, uint64_t fives, uint64_t sevens)
         {
-            uint64_t iNum = 0;
+            size_t iNum = 0;
             for (; ; iNum++) {
                 nums[iNum + 1] = 1;
 
@@ -769,8 +769,8 @@ namespace lipaboy_lib::numberphile {
                     break;
             }
 
-            if (maxSteps <= iNum + 2) {
-                maxSteps = iNum + 2;
+            if (maxSteps <= uint64_t(iNum) + 2ull) {
+                maxSteps = uint64_t(iNum) + 2ull;
                 maxNumber = 0;
                 for (uint64_t i = 0; i < twos % 2; i++) {
                     maxNumber *= 10;

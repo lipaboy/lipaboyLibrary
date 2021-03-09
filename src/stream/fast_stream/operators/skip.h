@@ -7,7 +7,7 @@ namespace lipaboy_lib::fast_stream {
 	namespace operators {
 
 		struct skip :
-			public stream_space::operators::TReturnSameType
+			public stream_space::operators::impl::TReturnSameType
 		{
 		public:
 			using size_type = size_t;

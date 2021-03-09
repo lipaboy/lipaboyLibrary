@@ -9,7 +9,7 @@ namespace lipaboy_lib::fast_stream {
 	namespace operators {
 
 		using std::shared_ptr;
-		using stream_space::operators::FunctorHolder;
+		using stream_space::operators::impl::FunctorHolder;
 
 		// INFO: you can remove intermediate type (filter) because you can deduce type of elems from Predicate's
 		//		 argument.
@@ -21,17 +21,17 @@ namespace lipaboy_lib::fast_stream {
 		template <class Predicate>
 		struct filter :
 			public FunctorHolder<Predicate>,
-			public stream_space::operators::TReturnSameType
+			public stream_space::operators::impl::TReturnSameType
 		{
 			static constexpr bool isTerminated = false;
 		public:
-			filter(Predicate functor) : stream_space::operators::FunctorHolder<Predicate>(functor) {}
+			filter(Predicate functor) : FunctorHolder<Predicate>(functor) {}
 		};
 
 		template <class Predicate, class T>
 		struct filter_impl :
-			public stream_space::operators::FunctorHolder<Predicate>,
-			public stream_space::operators::TReturnSameType
+			public stream_space::operators::impl::FunctorHolder<Predicate>,
+			public stream_space::operators::impl::TReturnSameType
 		{
 			static constexpr bool isTerminated = false;
 		public:

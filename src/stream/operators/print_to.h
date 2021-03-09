@@ -9,17 +9,14 @@ namespace lipaboy_lib::stream_space {
 
 	namespace operators {
 
-		using std::ostream;
-		using std::string;
-
-		struct print_to : TerminatedOperator
+		struct print_to : impl::TerminatedOperator
 		{
 		public:
 			template <class T>
 			using RetType = std::ostream&;
 
 		public:
-			print_to(std::ostream& o, string delimiter = "") : ostreamObj_(o), delimiter_(delimiter) {}
+			print_to(std::ostream& o, std::string delimiter = "") : ostreamObj_(o), delimiter_(delimiter) {}
 
 			template <class Stream_>
 			std::ostream& apply(Stream_ & obj) {
@@ -29,10 +26,10 @@ namespace lipaboy_lib::stream_space {
 			}
 
 			std::ostream& ostream() { return ostreamObj_; }
-			string const & delimiter() const { return delimiter_; }
+			std::string const & delimiter() const { return delimiter_; }
 		private:
 			std::ostream& ostreamObj_;
-			string delimiter_;
+			std::string delimiter_;
 		};
 
 	}

@@ -7,9 +7,6 @@
 
 namespace lipaboy_lib::fast_stream {
 
-	using std::cout;
-	using std::endl;
-
 	using operators::get;
 
 	//-----------------Stream Extended class----------------------//

@@ -6,7 +6,9 @@ namespace lipaboy_lib::stream_space {
 
 	namespace operators {
 
-		struct get : TReturnSameType, FixSizeOperator
+		struct get : 
+			impl::TReturnSameType, 
+			impl::FixSizeOperator
 		{
 		public:
 			using size_type = size_t;

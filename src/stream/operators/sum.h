@@ -9,7 +9,7 @@ namespace lipaboy_lib::stream_space {
 
 	namespace operators {
 
-		struct sum : TerminatedOperator
+		struct sum : impl::TerminatedOperator
 		{
 		public:
 			template <class T>

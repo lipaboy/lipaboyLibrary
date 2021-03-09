@@ -9,11 +9,11 @@
 
 namespace lipaboy_lib::stream_space {
 
-	namespace operators {
-
-		using std::function;
+	namespace operators::impl {
 
 		//#define DEBUG_STREAM_WITH_NOISY
+
+		using std::function;
 
 		using lipaboy_lib::function_traits;
 		using lipaboy_lib::WrapBySTDFunctionType;

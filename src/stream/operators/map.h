@@ -8,10 +8,10 @@ namespace lipaboy_lib::stream_space {
 	namespace operators {
 
 		template <class Transform>
-		struct map : public FunctorHolder<Transform> 
+		struct map : public impl::FunctorHolder<Transform>
 		{
 		public:
-			using FHolder = FunctorHolder<Transform>;
+			using FHolder = impl::FunctorHolder<Transform>;
 
 			template <class T>
 			using RetType = std::invoke_result_t<Transform, T>;

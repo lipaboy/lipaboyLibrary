@@ -11,85 +11,89 @@ namespace lipaboy_lib::stream_space {
 
 		// TODO: remove shared_ptr
 
-		using std::shared_ptr;
-
 		struct ungroup_by_bit {
 		public:
 			template <class Arg>
 			using RetType = bool;
 		};
 
-		template <class T>
-		struct ungroup_by_bit_impl {
-		public:
-			using size_type = size_t;
+		namespace impl {
 
-			template <class Arg>
-			using RetType = bool;
+			using std::shared_ptr;
 
-			using CurrentValueType = T;
-			using CurrentValueTypePtr = shared_ptr<T>;
+			template <class T>
+			struct ungroup_by_bit_impl {
+			public:
+				using size_type = size_t;
 
-		public:
+				template <class Arg>
+				using RetType = bool;
 
-			// TODO: move allocating memory to Slider Api
-			ungroup_by_bit_impl(ungroup_by_bit const &)
-			{}
+				using CurrentValueType = T;
+				using CurrentValueTypePtr = shared_ptr<T>;
 
-			template <class TSubStream>
-			RetType<T> nextElem(TSubStream& stream) {
-				init(stream);
-				auto res = currentElem(stream);
-				incrementSlider(stream);
-				return res;
-			}
+			public:
 
-			template <class TSubStream>
-			void incrementSlider(TSubStream& stream) {
-				using TResult = typename TSubStream::ResultValueType;
-				constexpr size_type BITS_COUNT_OF_TYPE = 8 * sizeof(TResult);
+				// TODO: move allocating memory to Slider Api
+				ungroup_by_bit_impl(ungroup_by_bit const&)
+				{}
 
-				init(stream);
-				++currBit_;
-				if (currBit_ == BITS_COUNT_OF_TYPE) {
-					// strange body of condition
-					if (stream.hasNext())
-						*pCurrentElem_ = std::move(stream.nextElem());
-					else
-						pCurrentElem_ = nullptr;
-					currBit_ = 0;
+				template <class TSubStream>
+				RetType<T> nextElem(TSubStream& stream) {
+					init(stream);
+					auto res = currentElem(stream);
+					incrementSlider(stream);
+					return res;
 				}
-			}
 
-			template <class TSubStream>
-			bool hasNext(TSubStream& stream) {
-				return pCurrentElem_ != nullptr || stream.hasNext(); 
-			}
+				template <class TSubStream>
+				void incrementSlider(TSubStream& stream) {
+					using TResult = typename TSubStream::ResultValueType;
+					constexpr size_type BITS_COUNT_OF_TYPE = 8 * sizeof(TResult);
 
-		private:
-			template <class TSubStream>
-			RetType<T> currentElem(TSubStream& stream) {
-				return ((*pCurrentElem_) & (1 << currBit_)) >> currBit_;
-			}
-
-			template <class TSubStream>
-			void init(TSubStream& stream) {
-				if (pCurrentElem_ == nullptr && stream.hasNext()) {
-					pCurrentElem_ = std::make_shared<CurrentValueType>(std::move(stream.nextElem()));
-					currBit_ = 0;
+					init(stream);
+					++currBit_;
+					if (currBit_ == BITS_COUNT_OF_TYPE) {
+						// strange body of condition
+						if (stream.hasNext())
+							*pCurrentElem_ = std::move(stream.nextElem());
+						else
+							pCurrentElem_ = nullptr;
+						currBit_ = 0;
+					}
 				}
-			}
 
-		private:
-			size_type currBit_ = 0;
-			CurrentValueTypePtr pCurrentElem_ = nullptr;
-		};
+				template <class TSubStream>
+				bool hasNext(TSubStream& stream) {
+					return pCurrentElem_ != nullptr || stream.hasNext();
+				}
+
+			private:
+				template <class TSubStream>
+				RetType<T> currentElem(TSubStream& stream) {
+					return ((*pCurrentElem_) & (1 << currBit_)) >> currBit_;
+				}
+
+				template <class TSubStream>
+				void init(TSubStream& stream) {
+					if (pCurrentElem_ == nullptr && stream.hasNext()) {
+						pCurrentElem_ = std::make_shared<CurrentValueType>(std::move(stream.nextElem()));
+						currBit_ = 0;
+					}
+				}
+
+			private:
+				size_type currBit_ = 0;
+				CurrentValueTypePtr pCurrentElem_ = nullptr;
+			};
+
+		}
 
 	}
 
 
 	using operators::ungroup_by_bit;
-	using operators::ungroup_by_bit_impl;
+	using operators::impl::ungroup_by_bit_impl;
 
 	template <class TStream>
 	struct shortening::StreamTypeExtender<TStream, ungroup_by_bit> {

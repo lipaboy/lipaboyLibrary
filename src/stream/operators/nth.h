@@ -8,7 +8,7 @@ namespace lipaboy_lib::stream_space {
 
 	namespace operators {
 
-		struct nth : TerminatedOperator
+		struct nth : impl::TerminatedOperator
 		{
 		public:
 			using size_type = size_t;

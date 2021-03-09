@@ -2,11 +2,14 @@
 #include <iterator>
 #include <cmath>
 #include <fstream>
+#include <string>
 
 #include "long_digits_multiplication_searching.h"
 #include "stream/stream.h"
 
 namespace lipaboy_lib::numberphile {
+
+    using std::string;
 
     // 3rd base: 
     // 22, 121, 2^15 -> 1122221122 (3 steps), 222 -> 22 (3 steps)
@@ -46,16 +49,17 @@ namespace lipaboy_lib::numberphile {
             OneDigitNumType currPrime = *iterPrime;
             if (iterPrime == primes.begin()) { // TODO: replace to if constexpr()
                 NumType whole = prevPart * pow<OneDigitNumType, int64_t, NumType>(currPrime, count);
-                string outStr = view + string(count, '0' + *iterPrime) 
+                string outStr = view + string(uint32_t(count), '0' + *iterPrime) 
                     + "\n\t\t" 
                     + 
                     whole.to_string(BASE);
                 bool flag = true;
-                for (int j = 0; j < outStr.length(); j++)
+                for (size_t j = 0; j < outStr.length(); j++) {
                     if (outStr[j] == '0') {
                         flag = false;
                         break;
                     }
+                }
                 if (flag)
                     cout << counter << ") " << outStr << endl;
                 counter++;
@@ -91,13 +95,6 @@ namespace lipaboy_lib::numberphile {
         cout << endl;
 
         cout << "Max digits of type: " << NumType::max().to_string(BASE).size() << endl;
-
-
-
-
-
-
-
 
         //vector<int64_t> maxStepsVec;
         //vector<MaxNumType> maxNumberVec;
@@ -149,7 +146,7 @@ namespace lipaboy_lib::numberphile {
                 }
             };
             // TODO: need optimization!
-            int64_t iNum = 0;
+            size_t iNum = 0;
             for (; ; iNum++) {
                 nums[iNum + 1] = NumType(1);
 
@@ -172,8 +169,8 @@ namespace lipaboy_lib::numberphile {
                 maxNumberVec.push_back(maxNumber);
                 maxStepsVec.push_back(iNum + 2);
             }*/
-            if (maxSteps <= iNum + 2) {
-                maxSteps = iNum + 2;
+            if (maxSteps <= int64_t(iNum) + 2) {
+                maxSteps = int64_t(iNum) + 2;
                 convertToNumber();
 
                 /*if (maxSteps == 11) {

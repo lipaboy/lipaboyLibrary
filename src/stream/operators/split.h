@@ -15,20 +15,13 @@ namespace lipaboy_lib::stream_space {
 		// TODO: make split_impl more common by working with different ValueType,
 		//		not only with char.
 
-		using std::vector;
-		using std::string;
-		using std::shared_ptr;
-
-		using lipaboy_lib::function_traits;
-
-
 		// INFO:
 		// split operator get input parameter - SplitPredicate - predicate functor that say when you must 
 		// finish grouping input elements into some container and start the new group.
 
 		template <class TContainer>
 		struct split 
-			: public FunctorHolder<
+			: public impl::FunctorHolder<
 				std::function<bool(typename TContainer::value_type)>
 			>
 		{
@@ -46,69 +39,78 @@ namespace lipaboy_lib::stream_space {
 				{}
 		};
 
-		template <class SplitPredicate, class TContainer = std::string>
-		struct split_impl : public FunctorHolder<SplitPredicate>
-		{
-		public:
-			using size_type = size_t;
+		namespace impl {
 
-			using ValueType = typename TContainer::value_type;
-			template <class T>
-			using RetType = TContainer;
+			using std::vector;
+			using std::string;
+			using std::shared_ptr;
+			using lipaboy_lib::function_traits;
 
-			using ReturnType = RetType<ValueType>;
-			using const_reference = const ReturnType &;
+			template <class SplitPredicate, class TContainer = std::string>
+			struct split_impl : public FunctorHolder<SplitPredicate>
+			{
+			public:
+				using size_type = size_t;
 
-		public:
-			explicit
-				split_impl(SplitPredicate splitFunctor) 
-					: FunctorHolder<SplitPredicate>(splitFunctor) 
+				using ValueType = typename TContainer::value_type;
+				template <class T>
+				using RetType = TContainer;
+
+				using ReturnType = RetType<ValueType>;
+				using const_reference = const ReturnType&;
+
+			public:
+				explicit
+					split_impl(SplitPredicate splitFunctor)
+					: FunctorHolder<SplitPredicate>(splitFunctor)
 				{}
-			explicit
-				split_impl(split<TContainer> obj)
+				explicit
+					split_impl(split<TContainer> obj)
 					: FunctorHolder<SplitPredicate>(obj.functor())
 				{}
 
-			template <class TSubStream>
-			auto nextElem(TSubStream& stream) -> ReturnType
-			{
-				ReturnType part;
+				template <class TSubStream>
+				auto nextElem(TSubStream& stream) -> ReturnType
+				{
+					ReturnType part;
 
-				for (size_type i = 0; stream.hasNext(); i++) {
-					auto temp = stream.nextElem();
-					if (FunctorHolder<SplitPredicate>::functor()(temp)) {
-						if (part.empty())
-							continue;
-						break;
+					for (size_type i = 0; stream.hasNext(); i++) {
+						auto temp = stream.nextElem();
+						if (FunctorHolder<SplitPredicate>::functor()(temp)) {
+							if (part.empty())
+								continue;
+							break;
+						}
+						part.push_back(temp);
 					}
-					part.push_back(temp);
+
+					return std::move(part);
 				}
 
-				return std::move(part);
-			}
-
-			template <class TSubStream>
-			void incrementSlider(TSubStream& stream) {
-				for (size_type i = 0; stream.hasNext(); i++) {
-					if (FunctorHolder<SplitPredicate>::functor()(stream.nextElem()))
-						break;
+				template <class TSubStream>
+				void incrementSlider(TSubStream& stream) {
+					for (size_type i = 0; stream.hasNext(); i++) {
+						if (FunctorHolder<SplitPredicate>::functor()(stream.nextElem()))
+							break;
+					}
 				}
-			}
 
-			template <class TSubStream>
-			bool hasNext(TSubStream& stream) {
-				// INFO: we cannot check current element with SplitPredicate
-				//		because we must call the nextElem that change the stream.
-				return stream.hasNext();
-			}
+				template <class TSubStream>
+				bool hasNext(TSubStream& stream) {
+					// INFO: we cannot check current element with SplitPredicate
+					//		because we must call the nextElem that change the stream.
+					return stream.hasNext();
+				}
 
-		private:
-		};
+			private:
+			};
+
+		}
 
 	}
 
 	using operators::split;
-	using operators::split_impl;
+	using operators::impl::split_impl;
 
 	template <class TStream, class TContainer>
 	struct shortening::StreamTypeExtender<TStream, 

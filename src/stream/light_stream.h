@@ -174,7 +174,7 @@ namespace lipaboy_lib::stream_space {
 
 		template <class TOperator, class... Args>
 		using ExtendingReturnType =
-			lipaboy_lib::enable_if_else_t<std::is_base_of_v<operators::TerminatedOperator, TOperator>,
+			lipaboy_lib::enable_if_else_t<std::is_base_of_v<operators::impl::TerminatedOperator, TOperator>,
 			// terminated
 			typename shortening::TerminatedOperatorTypeApply_t<StreamBase<Args...>, TOperator>
 			::template RetType<typename StreamBase<Args...>::ResultValueType>,
@@ -190,7 +190,7 @@ namespace lipaboy_lib::stream_space {
 	{
 		using StreamType = StreamBase<Args...>;
 
-		if constexpr (std::is_base_of_v<operators::TerminatedOperator, TOperator>) {
+		if constexpr (std::is_base_of_v<operators::impl::TerminatedOperator, TOperator>) {
 			stream.template assertOnInfinite<StreamType>();
 			return shortening::TerminatedOperatorTypeApply_t<StreamType, TOperator>
 				(operation).apply(stream);
@@ -207,7 +207,7 @@ namespace lipaboy_lib::stream_space {
 	{
 		using StreamType = StreamBase<Args...>;
 
-		if constexpr (std::is_base_of_v<operators::TerminatedOperator, TOperator>) {
+		if constexpr (std::is_base_of_v<operators::impl::TerminatedOperator, TOperator>) {
 			stream.template assertOnInfinite<StreamType>();
 			// INFO: needn't to move the stream because it is terminated operation
 			//       and method 'apply' get the l-value stream.

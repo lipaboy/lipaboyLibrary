@@ -41,11 +41,10 @@ using namespace lipaboy_lib::stream_space::operators;
 
 TEST(StreamTest, check) {
 
-    auto res = Stream(1, 2, 3, 4, 5) 
+    auto res = Stream(1, 2, 3, 4, 5)
         | map([](int a) { return a * a;  })
         | sum();
 
-    
 }
 
 
