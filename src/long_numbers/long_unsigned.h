@@ -1,23 +1,28 @@
 #pragma once
 
+#include "long_number_base.h"
+
 #include <algorithm>    // std::fill, std::next
-#include <numeric>
+#include <numeric>      // std::numeric_limits
 #include <array>
-#include <cstdint>
-#include <string>
-#include <cmath>
+#include <cstdint>      // uint64_t, ...
+#include <cmath>        // std::min, std::log
 #include <tuple>        // std::pair
 #include <optional>
 
-#include <exception>
-#include <ostream>
+// building number from string
+#include <string>
 #include <string_view>
 #include <charconv>
-
-#include "extra_tools/extra_tools.h"
+#include <ostream>
 #include "intervals/cutoffborders.h"
-#include "extra_tools/maths_tools.h"
-#include "common_interfaces/comparator_extender.h"
+
+#if (defined(WIN32) && defined(DEBUG_)) || (defined(__linux__) && !defined(NDEBUG))
+#include <exception>    // check division by zero
+#endif
+
+#include "extra_tools/extra_tools.h"    // enable_if_else_t
+#include "extra_tools/maths_tools.h"    // special::pow
 
 namespace lipaboy_lib::long_numbers_space {
 
@@ -32,13 +37,10 @@ namespace lipaboy_lib::long_numbers_space {
     //      Like: (*this) + LongUnsigned(value)
 
     using std::array;
-    using std::string;
     using std::pair;
 
+    using extra::LengthType;
     using lipaboy_lib::cutOffLeftBorder;
-    using lipaboy_lib::enable_if_else_t;
-    using lipaboy_lib::powDozen;
-    using lipaboy_lib::ComparatorExtender;
 
     // Concept: it is simple long number, without any trivial optimizations like
     //			checking if number is increasing or not (in order to making less computations)
@@ -46,42 +48,16 @@ namespace lipaboy_lib::long_numbers_space {
 
     ////////////////////////////////////////////////////////////////////////////////////////
 
-    namespace extra {
-
-        template <class TWord>
-        inline constexpr size_t bitsCount() { return sizeof(TWord) * 8; }
-
-        //////////////////////////////////////////////////////////////////////////////////
-        template <size_t val1, size_t val2>
-        struct Max {
-            static constexpr size_t value = (val1 < val2) ? val2 : val1;
-        };
-
-        using LengthType = size_t;
-    }
-
-
-    using extra::LengthType;
-
-    // Requirements:
-    // 1) TIntegral and TResult must be unsigned.
-
-    template <LengthType lengthOfIntegrals>     // count of integral type variables
-    class LongUnsigned
+    template <LengthType countOfIntegrals>     // count of integral type variables
+    class LongUnsigned : 
+        public LongNumberBase<uint32_t, uint64_t, countOfIntegrals>
     {
     public:
-        using TIntegral = std::uint32_t;
-        using TIntegralResult = std::uint64_t;
-        using TSigned = std::int32_t;
-        using TSignedResult = std::int64_t;
-        using LengthType = extra::LengthType;
-        using size_type = size_t;
+        using Sub = LongNumberBase<uint32_t, uint64_t, countOfIntegrals>;
+        using IntegralType = typename Sub::IntegralType;
+        using ResultIntegralType = typename Sub::ResultIntegralType;
 
-        using IntegralType =
-            std::remove_reference_t<
-                enable_if_else_t<2 * sizeof(TIntegral) == sizeof(TIntegralResult), TIntegral, void> >;
-        using ResultIntegralType = std::remove_reference_t<TIntegralResult>;
-        using ContainerType = array<IntegralType, lengthOfIntegrals>;
+        using ContainerType = array<IntegralType, countOfIntegrals>;
         using iterator = typename ContainerType::iterator;
         using reverse_iterator = std::reverse_iterator<iterator>;
         using const_iterator = typename ContainerType::const_iterator;
@@ -92,8 +68,13 @@ namespace lipaboy_lib::long_numbers_space {
         using reference_integral = IntegralType&;
         using const_reference_integral = const IntegralType&;
 
+        using Sub::length;
+        using Sub::zeroIntegral;
+        using Sub::integralModulus;
+        using Sub::integralModulusDegree;
+
     public:
-        template <LengthType otherLengthOfIntegrals> 
+        template <LengthType otherCountOfIntegrals> 
         friend class LongUnsigned;
 
     protected:
@@ -103,57 +84,63 @@ namespace lipaboy_lib::long_numbers_space {
 
     public:
         // Note: Non-initialized constructor: without filling array by zeroIntegral value.
-        explicit
-            LongUnsigned() { checkTemplateParameters(); }
+        LongUnsigned() : number_() {}
+
         LongUnsigned(IntegralType small) {
-            checkTemplateParameters();
             number_[0] = small;
             std::fill(std::next(begin()), end(), zeroIntegral());
         }
+
         explicit
-            LongUnsigned(string const& numberStr, unsigned int base = 10);
-        template <LengthType otherLen>
-            explicit
-            LongUnsigned(LongUnsigned<otherLen> const & other) {
-                checkTemplateParameters();
-                auto minLen = (other.length() > length()) ? length() : other.length();
-                std::copy_n(other.cbegin(), minLen, std::begin(number_));
-                std::fill(std::next(begin(), minLen), end(), zeroIntegral());
-            }
+            LongUnsigned(std::string_view numberStr, unsigned int base = 10);
+
+        template <LengthType otherCount>
+        explicit
+            LongUnsigned(LongUnsigned<otherCount> const & other) 
+        {
+            auto minLen = (other.length() > length()) ? length() : other.length();
+            std::copy_n(other.cbegin(), minLen, std::begin(number_));
+            std::fill(std::next(begin(), minLen), end(), zeroIntegral());
+        }
+
+        //---------------Arithmetic operations------------------//
+
+        template <LengthType first, LengthType second>
+        using LongUnsignedResult = LongUnsigned< extra::Max<first, second>::value >;
 
         // TODO: calculate how much copy-constructor was called
-        template <LengthType otherLen>
-        auto operator+(LongUnsigned<otherLen> const& other) const
-            -> LongUnsigned< extra::Max<lengthOfIntegrals, otherLen>::value >
+        template <LengthType otherCount>
+        auto operator+(LongUnsigned<otherCount> const& other) const
+            -> LongUnsignedResult<countOfIntegrals, otherCount>
         {
-            using ResultType = LongUnsigned< extra::Max<lengthOfIntegrals, otherLen>::value >;
+            using ResultType = LongUnsignedResult<countOfIntegrals, otherCount>;
             return (ResultType(*this) += other);
         }
 
-        template <LengthType otherLen>
-        auto operator+=(LongUnsigned<otherLen> const & other)
+        template <LengthType otherCount>
+        auto operator+=(LongUnsigned<otherCount> const & other)
             -> const_reference
         {
-            constexpr auto MIN_LENGTH = std::min(lengthOfIntegrals, otherLen);
-            IntegralType remainder = zeroIntegral();
+            constexpr auto MIN_LENGTH = std::min(countOfIntegrals, otherCount);
+            IntegralType carryOver = zeroIntegral();
             size_t i = 0;
             for (; i < MIN_LENGTH; i++) {
-                const TIntegralResult dualTemp =
-                    TIntegralResult((*this)[i])
-                    + TIntegralResult(other[i])
-                    + TIntegralResult(remainder);
+                const ResultIntegralType dualTemp =
+                    ResultIntegralType((*this)[i])
+                    + ResultIntegralType(other[i])
+                    + ResultIntegralType(carryOver);
 
                 (*this)[i] = IntegralType(dualTemp & integralModulus());
-                remainder = IntegralType(dualTemp >> integralModulusDegree());
+                carryOver = IntegralType(dualTemp >> integralModulusDegree());
             }
             if constexpr (length() > MIN_LENGTH) {
                 for (; i < length(); i++) {
-                    const TIntegralResult dualTemp =
-                        TIntegralResult((*this)[i])
-                        + TIntegralResult(remainder);
+                    const ResultIntegralType dualTemp =
+                        ResultIntegralType((*this)[i])
+                        + ResultIntegralType(carryOver);
 
                     (*this)[i] = IntegralType(dualTemp & integralModulus());
-                    remainder = IntegralType(dualTemp >> integralModulusDegree());
+                    carryOver = IntegralType(dualTemp >> integralModulusDegree());
                 }
             }
 
@@ -161,47 +148,52 @@ namespace lipaboy_lib::long_numbers_space {
         }
 
         // TODO: you can optimize it. When inverse operator is called then useless copy will be created.
-        template <LengthType otherLen>
-        LongUnsigned operator-(LongUnsigned<otherLen> const& other) const {
+        template <LengthType otherCount>
+        LongUnsigned operator-(LongUnsigned<otherCount> const& other) const {
             return (LongUnsigned(*this) -= other);
         }
 
-        template <LengthType otherLen>
-        auto operator-=(LongUnsigned<otherLen> const& other)
+        template <LengthType otherCount>
+        auto operator-=(LongUnsigned<otherCount> const& other)
             -> const_reference
         {
-            constexpr auto MIN_LENGTH = std::min(lengthOfIntegrals, otherLen);
-            IntegralType remainder = zeroIntegral();
+            using TResult = ResultIntegralType;
+
+            constexpr auto MIN_LENGTH = std::min(countOfIntegrals, otherCount);
+            IntegralType carryOver = zeroIntegral();
             size_t i = 0;
             for (; i < MIN_LENGTH; i++) {
-                const TIntegralResult dualTemp =
-                    TIntegralResult((*this)[i])
-                    - TIntegralResult(other[i])
-                    - TIntegralResult(remainder);
+                const TResult dualTemp =
+                    TResult((*this)[i])
+                    - TResult(other[i])
+                    - TResult(carryOver);
 
                 (*this)[i] = IntegralType(dualTemp & integralModulus());
-                remainder = IntegralType(dualTemp >> (2 * integralModulusDegree() - 1));
+                // "2*x - 1" Explanation: it works because if (*this)[i] - other[i] < 0 then
+                //      dualTemp will be look like 111..111xx..xx as 64-bit number - 
+                //      and the first bit will be 1 - it is out remainder.
+                carryOver = IntegralType(dualTemp >> (2 * integralModulusDegree() - 1));
             }
             if constexpr (length() > MIN_LENGTH) {
                 for (; i < length(); i++) {
-                    const TIntegralResult dualTemp =
-                        TIntegralResult((*this)[i])
-                        - TIntegralResult(remainder);
+                    const TResult dualTemp =
+                        TResult((*this)[i])
+                        - TResult(carryOver);
 
                     (*this)[i] = IntegralType(dualTemp & integralModulus());
-                    remainder = IntegralType(dualTemp >> (2 * integralModulusDegree() - 1));
+                    carryOver = IntegralType(dualTemp >> (2 * integralModulusDegree() - 1));
                 }
             }
 
             return *this;
         }
 
-        template <LengthType otherLen>
-        auto operator*(LongUnsigned<otherLen> const& other) const
-            -> LongUnsigned< extra::Max<lengthOfIntegrals, otherLen>::value >
+        template <LengthType otherCount>
+        auto operator*(LongUnsigned<otherCount> const& other) const
+            -> LongUnsignedResult<countOfIntegrals, otherCount>
         {
-            using ResultType = LongUnsigned< extra::Max<lengthOfIntegrals, otherLen>::value >;
-            ResultType res(0);
+            using LongResultType = LongUnsignedResult<countOfIntegrals, otherCount>;
+            using TResult = ResultIntegralType;
             //		// This chapter has two parts
             //		// First part. Bisecting the result by two portions: main and overflow ones
             //		// Second part. Assigning the main portion into destination
@@ -210,55 +202,63 @@ namespace lipaboy_lib::long_numbers_space {
             //		//		   1) Type can't storage more than it's capable.
             //		//		   2) Decimal type of this class.
 
+            LongResultType res(0);
             for (size_t i = 0; i < length(); i++)
             {
-                IntegralType remainder = zeroIntegral();
-                size_t j = 0;
-                for (; i + j < res.length(); j++)
+                IntegralType carryOver = zeroIntegral();
+                for (size_t j = 0; i + j < res.length(); j++)
                 {
                     if (j >= other.length()) {
-                        res[i + j] += remainder;
+                        // INFO: this statement is not required to saving the carryOver
+                        //  because it res[i + j] always is empty at this current moment
+                        res[i + j] += carryOver;
                         break;
                     }
 
-                    const TIntegralResult dualTemp = TIntegralResult((*this)[i]) * other[j] + remainder;
+                    const TResult dualTemp =
+                        TResult(res[i + j])
+                        + TResult((*this)[i]) * TResult(other[j])
+                        + TResult(carryOver);
                     // Detail #2
-                    res[i + j] += IntegralType(dualTemp & integralModulus());
-                    remainder = IntegralType(dualTemp >> integralModulusDegree());
+                    res[i + j] = IntegralType(dualTemp & integralModulus());
+                    carryOver = IntegralType(dualTemp >> integralModulusDegree());
                 }
             }
 
             return res;
         }
 
-        template <LengthType otherLen>
-        const_reference operator*=(LongUnsigned<otherLen> const& other) {
+        template <LengthType otherCount>
+        const_reference operator*=(LongUnsigned<otherCount> const& other) {
             (*this) = (*this) * other;
             return *this;
         }
 
-        LongUnsigned operator/(const_reference other) const {
+        template <LengthType otherCount>
+        LongUnsigned operator/(LongUnsigned<otherCount> const & other) const {
             return this->divide(other).first;
         }
 
-        const_reference operator/=(const_reference other) {
+        template <LengthType otherCount>
+        const_reference operator/=(LongUnsigned<otherCount> const & other) {
             (*this) = (*this) / other;
             return *this;
         }
 
-        LongUnsigned operator%(const_reference other) const {
+        template <LengthType otherCount>
+        LongUnsigned operator%(LongUnsigned<otherCount> const & other) const {
             return this->divide(other).second;
         }
 
-        const_reference operator%=(const_reference other) {
+        template <LengthType otherCount>
+        const_reference operator%=(LongUnsigned<otherCount> const & other) {
             (*this) = (*this) % other;
             return *this;
         }
 
-        template <LengthType otherLen>
-        auto divide(LongUnsigned<otherLen> const & other) const->pair<LongUnsigned, LongUnsigned>
+        template <LengthType otherCount>
+        auto divide(LongUnsigned<otherCount> const & other) const -> pair<LongUnsigned, LongUnsigned>
         {
-            // TODO: replace to OneDigitNumber
             const LongUnsigned<1> DEC(10);
             const LongUnsigned<1> ONE(1);
             const LongUnsigned<1> ZERO(0);
@@ -309,11 +309,9 @@ namespace lipaboy_lib::long_numbers_space {
 
         //-------------Converter---------------//
 
-        string to_string(unsigned int base = 10) const;
+        std::string to_string(unsigned int base = 10) const;
 
         //------------Setters, Getters----------//
-
-        static constexpr LengthType length() { return lengthOfIntegrals; }
 
         bool isZero() const {
             for (auto iter = cbegin(); iter != cend(); iter++)
@@ -322,13 +320,11 @@ namespace lipaboy_lib::long_numbers_space {
             return true;
         }
 
-        // Question: is it normal? Two methods have the same signature and live together??
-        //			 Maybe operator[] is exception of rules?
         const_reference_integral operator[] (size_t index) const { return number_[index]; }
 
         reference_integral operator[] (size_t index) { return number_[index]; }
 
-        const_reference operator= (string const& numberStr) {
+        const_reference operator= (std::string_view numberStr) {
             this->assignStr(numberStr);
             return *this;
         }
@@ -340,7 +336,7 @@ namespace lipaboy_lib::long_numbers_space {
         }
 
     public:
-        void assignStr(string const& numberStr, unsigned int base = 10);
+        void assignStr(std::string_view numberStr, unsigned int base = 10);
 
         //-------------------------Comparison---------------------------//
 
@@ -349,20 +345,19 @@ namespace lipaboy_lib::long_numbers_space {
         bool isLess(LongUnsigned<lengthFirst> const& first,
                     LongUnsigned<lengthSecond> const& second) const
         {
-            using FirstTypeIter = typename LongUnsigned<lengthFirst>::iterator;
-            using SecondTypeIter = typename LongUnsigned<lengthSecond>::iterator;
+            using FirstTypeIter = typename LongUnsigned<lengthFirst>::const_reverse_iterator;
+            using SecondTypeIter = typename LongUnsigned<lengthSecond>::const_reverse_iterator;
 
             bool isLessVar = true;
             bool isEqual = true;
             bool isResultDefined = false;
-            auto iterF = first.crbegin();
-            auto iterS = second.crbegin();
+            FirstTypeIter iterF = first.crbegin();
+            SecondTypeIter iterS = second.crbegin();
             auto checkHigherPartToZero =
                 [&isLessVar, &isEqual, &isResultDefined](auto& iter, const int lenHigh, const int lenLow)
                 -> bool
             {
                 bool partIsZero = true;
-                // must cast all the vars to int because (I don't know)
                 for (int i = 0; i < int(lenHigh) - int(lenLow); i++) {
                     if (*iter != zeroIntegral()) {
                         partIsZero = false;
@@ -397,8 +392,8 @@ namespace lipaboy_lib::long_numbers_space {
         }
 
     public:
-        template <LengthType otherLen>
-        bool operator!= (LongUnsigned<otherLen> const& other) const {
+        template <LengthType otherCount>
+        bool operator!= (LongUnsigned<otherCount> const& other) const {
             bool isEqual = true;
             auto iter = cbegin();
             auto iterO = other.cbegin();
@@ -424,50 +419,47 @@ namespace lipaboy_lib::long_numbers_space {
             }
             return !isEqual;
         }
-        template <LengthType otherLen>
-        bool operator== (LongUnsigned<otherLen> const& other) const { return !(*this != other); }
-        template <LengthType otherLen>
-        bool operator< (LongUnsigned<otherLen> const& other) const { return this->isLess(*this, other); }
+        template <LengthType otherCount>
+        bool operator== (LongUnsigned<otherCount> const& other) const { return !(*this != other); }
+        template <LengthType otherCount>
+        bool operator< (LongUnsigned<otherCount> const& other) const { return this->isLess(*this, other); }
 
-        template <LengthType otherLen>
-        bool operator>= (LongUnsigned<otherLen> const& other) const { return !(*this < other); }
-        template <LengthType otherLen>
-        bool operator> (LongUnsigned<otherLen> const& other) const { return this->isLess(other, *this); }
-        template <LengthType otherLen>
-        bool operator<= (LongUnsigned<otherLen> const& other) const { return !(*this > other); }
+        template <LengthType otherCount>
+        bool operator>= (LongUnsigned<otherCount> const& other) const { return !(*this < other); }
+        template <LengthType otherCount>
+        bool operator> (LongUnsigned<otherCount> const& other) const { return this->isLess(other, *this); }
+        template <LengthType otherCount>
+        bool operator<= (LongUnsigned<otherCount> const& other) const { return !(*this > other); }
 
     public:
         auto majorBitPosition() const
-            -> std::optional<size_type>
+            -> std::optional<size_t>
         {
             for (int i = int(length()) - 1; i >= 0; i--) {
                 auto curr = (*this)[i];
                 if (curr > 0) {
-                    size_type bitpos = 0;
+                    size_t bitpos = 0;
                     while (curr > 0) {
                         curr >>= 1;
                         bitpos++;
                     }
-                    return (bitpos - 1) + size_type(i) * 8 * sizeof(IntegralType);
+                    return (bitpos - 1) + size_t(i) * 8 * sizeof(IntegralType);
                 }
             }
             return std::nullopt;
         }
 
     public:
-        // maximum count decimal digits that can be placed into IntegralType
-        static constexpr IntegralType integralModulusDegree() { return IntegralType(extra::bitsCount<IntegralType>()); }
-        static constexpr ResultIntegralType integralModulus() { return std::numeric_limits<IntegralType>::max(); }
+        LongUnsigned multiplyByKaracuba(const_reference other);
+
+    public:
         static LongUnsigned max() {
             LongUnsigned max(1);
             max.shiftLeft((unsigned int)(integralModulusDegree() * length() - 1));
             return max;
         }
 
-    private:
-        static constexpr IntegralType zeroIntegral() { return IntegralType(0); }
-
-    protected:
+    public:
         iterator begin() { return number_.begin(); }
         iterator end() { return number_.end(); }
         reverse_iterator rbegin() { return number_.begin(); }
@@ -477,14 +469,12 @@ namespace lipaboy_lib::long_numbers_space {
         const_reverse_iterator crbegin() const { return number_.crbegin(); }
         const_reverse_iterator crend() const { return number_.crend(); }
 
-    private:
-        void checkTemplateParameters() {
-            static_assert(lengthOfIntegrals > 0, "Wrong length of LongInteger");
-        }
+        IntegralType front() const { return number_.front(); }
+        IntegralType back() const { return number_.back(); }
 
     private:
         // if index is increased then rank is increased
-        array<IntegralType, lengthOfIntegrals> number_;
+        array<IntegralType, countOfIntegrals> number_;
 
     };
 
@@ -492,33 +482,34 @@ namespace lipaboy_lib::long_numbers_space {
     //-------------------------------      Methods     -----------------------------------------//
     //------------------------------------------------------------------------------------------//
 
-    template <LengthType length>
-    LongUnsigned<length>::LongUnsigned(string const& numberStr, unsigned int base)
+    template <LengthType countOfIntegrals>
+    LongUnsigned<countOfIntegrals>::LongUnsigned(std::string_view numberStr, unsigned int base)
     {
-        checkTemplateParameters();
-        if (numberStr.length() <= 0 || base < 2)
+        // 36 - it is limit of std::from_chars
+        if (numberStr.length() <= 0 || base < 2 || base > 36)
             LongUnsigned();
         else
             assignStr(numberStr, base);
     }
 
-    template <LengthType length>
-    void LongUnsigned<length>::assignStr(string const& numberStr, unsigned int base) {
-        // TODO: add exception for zero length
-        if (numberStr.length() > 0) {
-            const int integralModulusDegreeOfBase =
-                int(std::log(2) / std::log(base) * integralModulusDegree());
+    template <LengthType countOfIntegrals>
+    void LongUnsigned<countOfIntegrals>::assignStr(std::string_view numberStr, unsigned int base) {
+        const int integralModulusDegreeOfBase =
+            int(std::log(2) / std::log(base) * integralModulusDegree());
 
-            std::string_view numStrView = numberStr;
-            numStrView.remove_prefix(
-                cutOffLeftBorder<int>(0, int(numStrView.find_first_not_of(" ")))
-            );
+        std::string_view numStrView = numberStr;
+        numStrView.remove_prefix(
+            cutOffLeftBorder<int>(0, int(numStrView.find_first_not_of(" ")))
+        );
+
+        // TODO: add exception for zero length
+        if (numberStr.length() > 0 && base > 1) {
             // round the number by integral modulus
             numStrView.remove_prefix(
                 cutOffLeftBorder<int>(0, int(numStrView.length()) - int(integralModulusDegreeOfBase * length()))
             );
 
-            int blockLen = (base == 2) ? integralModulusDegreeOfBase - 1 : integralModulusDegreeOfBase;
+            int blockLen = integralModulusDegreeOfBase - 1;
             int last = int(numStrView.length());        // last variable is not included into segment [0, len - 1]
             int first = cutOffLeftBorder<int>(last - blockLen, 0);
             LongUnsigned<length()> iBase = 1;
@@ -547,8 +538,8 @@ namespace lipaboy_lib::long_numbers_space {
 
     //------------Arithmetic Operations-------------//
 
-    template <LengthType length>
-    auto LongUnsigned<length>::shiftLeft(unsigned int count)
+    template <LengthType countOfIntegrals>
+    auto LongUnsigned<countOfIntegrals>::shiftLeft(unsigned int count)
         -> const_reference
     {
         // 1    0    - indices
@@ -573,8 +564,8 @@ namespace lipaboy_lib::long_numbers_space {
         return *this;
     }
 
-    template <LengthType length>
-    auto LongUnsigned<length>::shiftRight(unsigned int count)
+    template <LengthType countOfIntegrals>
+    auto LongUnsigned<countOfIntegrals>::shiftRight(unsigned int count)
         -> const_reference
     {
         if (count >= length() * integralModulusDegree()) {
@@ -584,12 +575,12 @@ namespace lipaboy_lib::long_numbers_space {
             auto& current = *this;
             int blocksShift = count / integralModulusDegree();
             int bitsShift = count % integralModulusDegree();    // 0 to 31
-            for (size_type i = 0; i < length(); i++) {
+            for (size_t i = 0; i < length(); i++) {
                 auto less = (i + blocksShift >= length())
                     ? 0 : (current[i + blocksShift] >> bitsShift);
                 auto high = (i + blocksShift + 1 >= length())
                     ? 0 : ((current[i + blocksShift + 1] << (integralModulusDegree() - bitsShift - 1))
-                        << 1);      // INFO: this crutch must be because you cannot shift uint32_t << 32 bits
+                        << 1);      // INFO: this crutch must be because you cannot shift uint32_t << 32 bits,
                                     //       only 0 to 31.
                 auto res = high | less;
                 current[i] = res;
@@ -598,26 +589,64 @@ namespace lipaboy_lib::long_numbers_space {
         return *this;
     }
 
+    
+    
+    
+    
     //----------------------------------------------------------------------------
 
-    template <size_t length>
-    string LongUnsigned<length>::to_string(unsigned int base) const {
-        string res = "";
+    // not working
+    template <size_t countOfIntegrals>
+    auto LongUnsigned<countOfIntegrals>::multiplyByKaracuba(const_reference other) 
+        -> LongUnsigned<countOfIntegrals>
+    {
+        using OneIntegral = LongUnsigned<1>;
+        using TwoIntegral = LongUnsigned<2>;
+
+        auto& that = *this;
+        LongUnsigned partialSum(0);
+
+        if constexpr (countOfIntegrals % 2 == 0) {
+            for (size_t i = 0; i < length(); i++) {
+                partialSum -= OneIntegral(that[i] * other[i]);
+            }
+        }
+        else {
+            for (size_t i = 0; i < length(); i++) {
+                partialSum += OneIntegral(that[i] * other[i]);
+            }
+        }
+
+        LongUnsigned crossMul(0);
+        if (countOfIntegrals > 1) {
+            crossMul = (that[0] + that[1]) * (other[0] + other[1]);
+        }
+
+        LongUnsigned res = crossMul + partialSum;
+        return res;
+    }
+
+    //----------------------------------------------------------------------------
+
+    template <size_t countOfIntegrals>
+    std::string LongUnsigned<countOfIntegrals>::to_string(unsigned int base) const {
+        std::string res = "";
         LongUnsigned temp = *this;
-        int i = 0;
-        //constexpr size_t digitsCount = extra::getIntegralModulusDegree<rank>();
         do {
-            auto pair = temp.divide(LongUnsigned(base));
+            auto pair = temp.divide(LongUnsigned<1>(base));
             temp = pair.first;
-            res += std::to_string((pair.second)[0]);
-            i++;
+            IntegralType digit = (pair.second)[0];
+            if (digit < 10)
+                res += std::to_string(digit);
+            else
+                res += std::string(1, char('a' + (digit - 10)));
         } while (temp > LongUnsigned<1>(0));
         return std::string(res.rbegin(), res.rend());
     }
 
 
-    template <size_t length>
-    std::ostream& operator<<(std::ostream & out, LongUnsigned<length> number) {
+    template <size_t countOfIntegrals>
+    std::ostream& operator<<(std::ostream & out, LongUnsigned<countOfIntegrals> number) {
         return (out << number.to_string());
     }
 

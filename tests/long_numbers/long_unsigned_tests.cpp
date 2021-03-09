@@ -14,6 +14,27 @@ namespace long_numbers_tests {
 	using std::endl;
 	using std::string;
 
+	constexpr auto INTEGRAL_BITS_COUNT = extra::bitsCount<typename LongUnsigned<1>::IntegralType>();
+
+
+	//-------------------------Karacuba--------------------------------//
+
+	TEST(LongUnsigned, karacuba) {
+//		{
+//			LongUnsigned<1> first(2), second(3);
+//			auto res = first.multiplyByKaracuba(second);
+//			EXPECT_EQ(res.to_string(), "6");
+//		}
+
+//		{
+//			LongUnsigned<2> first(2), second(3);
+//			auto res = first.multiplyByKaracuba(second);
+//			EXPECT_EQ(res.to_string(), "6");
+//		}
+
+        //string str;
+        //std::cin >> str;
+	}
 
 	//-------------------------------------------------------------------//
 	//----------------------------to_string()----------------------------//
@@ -56,6 +77,11 @@ namespace long_numbers_tests {
 		ASSERT_EQ(numRes, second.to_string(2));
 	}
 
+    TEST(LongUnsigned, to_string_hex) {
+        LongUnsigned<1> first(15);
+        EXPECT_EQ(first.to_string(16), "f");
+    }
+
 	//-------------------------------------------------------------------//
 	//----------------------------assignStr()----------------------------//
 	//-------------------------------------------------------------------//
@@ -74,6 +100,14 @@ namespace long_numbers_tests {
 			first.assignStr(numStr, base);
 			ASSERT_EQ(first.to_string(base), numStr);
 		}
+
+        LongUnsigned<2> second;
+        second.assignStr("f", 16);
+        EXPECT_EQ(second.to_string(16), "f");
+        second.assignStr("                ffffffff", 16);
+        EXPECT_EQ(second.to_string(16),  "ffffffff");
+        second.shiftLeft(1);
+        EXPECT_EQ(second.to_string(16), "1fffffffe");
 	}
 
 	//-----Any system------//
@@ -232,22 +266,22 @@ namespace long_numbers_tests {
 	//-----------Equality-----------//
 
 	TEST(LongUnsigned, inequality) {
-		LongUnsigned<3> num1("00001000789100000200");
-		LongUnsigned<3> num2("789100000200");
+        LongUnsigned<3> first("00001000789100000200");
+        LongUnsigned<3> second("789100000200");
 
-		ASSERT_NE(num1, num2);
+        ASSERT_NE(first, second);
 
-		LongUnsigned<3> num3("00000000789100000200");
-		LongUnsigned<3> num4("789100000200");
+        LongUnsigned<3> third("00000000789100000200");
+        LongUnsigned<3> fourth("789100000200");
 
-		ASSERT_EQ(num3, num4);
+        ASSERT_EQ(third, fourth);
 	}
 
 	TEST(LongUnsigned, equality) {
-		LongUnsigned<2> num1("789100000200");
-		LongUnsigned<2> num2("789100000200");
+        LongUnsigned<2> first("789100000200");
+        LongUnsigned<2> second("789100000200");
 
-		ASSERT_EQ(num1, num2);
+        ASSERT_EQ(first, second);
 	}
 
     //---------Operator/ checking-----------//
@@ -259,9 +293,8 @@ namespace long_numbers_tests {
         auto res = first.divide(second).first;
         EXPECT_EQ(res.to_string(), "1");
 
-//        first *= second;
-
-//        EXPECT_EQ((first / second).to_string(), "200200");
+        first *= second;
+        EXPECT_EQ((first / second).to_string(), "200200");
     }
 
     TEST(LongUnsigned, division_double) {
@@ -321,45 +354,58 @@ namespace long_numbers_tests {
     //---------Operator* checking-----------//
 
     TEST(LongUnsigned, multiplication_by_different_lengths) {
-        LongUnsigned<1> num1("2");
-        LongUnsigned<4> num2("10000010000");
+        LongUnsigned<1> first("2");
+        LongUnsigned<4> second("10000010000");
 
-        EXPECT_EQ((num1 * num2).to_string(), "20000020000");
+        EXPECT_EQ((first * second).to_string(), "20000020000");
 
-        LongUnsigned<4> num3("2");
-        LongUnsigned<4> num4("10000010000");
+        LongUnsigned<4> third("2");
+        LongUnsigned<4> fourth("10000010000");
 
         for (int i = 0; i < 25; i++) {
-            num2 *= num1;
-            num4 *= num3;
+            second *= first;
+            fourth *= third;
         }
-        ASSERT_EQ(num2.to_string(), num4.to_string());
+        EXPECT_EQ(second.to_string(), fourth.to_string());
+
+        first.assignStr("2");
+        second.assignStr("fffffffffffffff", 16);
+        EXPECT_EQ((second * first).to_string(16), "1ffffffffffffffe");
+
+        first.assignStr("2");
+        second.assignStr("ffffffffffffffff", 16);
+        EXPECT_EQ((second * first).to_string(16), "1fffffffffffffffe");
+
+        first.assignStr("10001", 16);
+        second.assignStr("ffffffff0000", 16);
+        EXPECT_EQ((second * first).to_string(16), "10000fffeffff0000");
+        EXPECT_EQ((first * second).to_string(16), "10000fffeffff0000");
     }
 
     TEST(LongUnsigned, multiplication_double_rank_by_independent_parts) {
-        LongUnsigned<2> num3("200200");
-        LongUnsigned<2> num4("200200");
+        LongUnsigned<2> first("200200");
+        LongUnsigned<2> second("200200");
 
-        EXPECT_EQ((num3 * num4).to_string(), "40080040000");
+        EXPECT_EQ((first * second).to_string(), "40080040000");
 
-        num3 *= num4;
+        first *= second;
 
-        EXPECT_EQ(num3.to_string(), "40080040000");
+        EXPECT_EQ(first.to_string(), "40080040000");
 
-        LongUnsigned<1> num5("10");
-        EXPECT_EQ((num4 * num5).to_string(), "2002000");
+        LongUnsigned<1> third("10");
+        EXPECT_EQ((second * third).to_string(), "2002000");
     }
 
     TEST(LongUnsigned, multiplication_simple) {
-        LongUnsigned<1> num1("2");
-        LongUnsigned<1> num2("2");
+        LongUnsigned<1> first("2");
+        LongUnsigned<1> second("2");
 
-        ASSERT_EQ((num1 * num2).to_string(), "4");
+        ASSERT_EQ((first * second).to_string(), "4");
 
-        LongUnsigned<2> num3("200000");
-        LongUnsigned<2> num4("200000");
+        LongUnsigned<2> third("200000");
+        LongUnsigned<2> fourth("200000");
 
-        EXPECT_EQ((num3 * num4).to_string(), "40000000000");
+        EXPECT_EQ((third * fourth).to_string(), "40000000000");
     }
 
 	//---------Operator- checking-----------//
@@ -367,9 +413,9 @@ namespace long_numbers_tests {
 	TEST(LongUnsigned, substract_different_rank) {
 		LongUnsigned<3> first(1);
 		LongUnsigned<1> second(1);
-		first.shiftLeft(first.integralModulusDegree() * 3 - 1);
+		first.shiftLeft(INTEGRAL_BITS_COUNT * 3 - 1);
 		first -= second;
-		ASSERT_EQ(string(first.integralModulusDegree() * 3 - 1, '1'), first.to_string(2));
+		ASSERT_EQ(string(INTEGRAL_BITS_COUNT * 3 - 1, '1'), first.to_string(2));
 
         LongUnsigned<2> third(0);
 
@@ -426,11 +472,11 @@ namespace long_numbers_tests {
 
 		first = LongUnsigned<3>(1);
 		second = LongUnsigned<1>(1);
-		first.shiftLeft(2 * first.integralModulusDegree());
+		first.shiftLeft(2 * INTEGRAL_BITS_COUNT);
 		first -= second;
 		first += second;
-		EXPECT_EQ("1" + string(2 * first.integralModulusDegree(), '0'), first.to_string(2));
-		EXPECT_EQ("1" + string(2 * first.integralModulusDegree(), '0'), ((first - second) + second).to_string(2));
+		EXPECT_EQ("1" + string(2 * INTEGRAL_BITS_COUNT, '0'), first.to_string(2));
+		EXPECT_EQ("1" + string(2 * INTEGRAL_BITS_COUNT, '0'), ((first - second) + second).to_string(2));
 	}
 
     TEST(LongUnsigned, sum_triple_rank_simple) {
@@ -484,9 +530,9 @@ namespace long_numbers_tests {
 
 	TEST(LongUnsigned, shift_triple_rank) {
 		LongUnsigned<3> first(2);
-		first.shiftLeft(first.integralModulusDegree());
-		EXPECT_EQ("2" + string(first.integralModulusDegree() / 2, '0'), first.to_string(4));
-		first.shiftRight(first.integralModulusDegree());
+		first.shiftLeft(INTEGRAL_BITS_COUNT);
+		EXPECT_EQ("2" + string(INTEGRAL_BITS_COUNT / 2, '0'), first.to_string(4));
+		first.shiftRight(INTEGRAL_BITS_COUNT);
 		EXPECT_EQ("2", first.to_string(4));
 	}
 

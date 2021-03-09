@@ -15,13 +15,13 @@ TSign sign(bool isNegative, TWord const & word);
 
 }
 
-template <size_t lengthOfIntegrals>     // count of integral type variables
+template <size_t countOfIntegrals>     // count of integral type variables
 class LongIntegerDecimal;
 
-template <size_t lengthOfIntegrals>
+template <size_t countOfIntegrals>
 class LongIntegerDecimalView {
 public:
-    using ViewingType = LongIntegerDecimal<lengthOfIntegrals>;
+    using ViewingType = LongIntegerDecimal<countOfIntegrals>;
     using IntegralType = typename ViewingType::IntegralType;
     using ContainerType = typename ViewingType::ContainerType;
     using IteratorType = typename ContainerType::const_iterator;
@@ -46,7 +46,7 @@ public:
     IteratorType end() const { return end_; }
 
     IntegralType operator[](size_type index) const { return *std::next(begin_, index); }
-    size_type length() const { return lengthOfIntegrals; }
+    size_type length() const { return countOfIntegrals; }
     size_type viewLength() const { return static_cast<size_type>(std::distance(begin_, end_)); }
 
     TSigned sign() const { return sign_; }
@@ -71,11 +71,10 @@ auto LongIntegerDecimalView<len>::operator+(LongIntegerDecimalView const & other
 
     auto otherIter = other.begin();
     for (auto iter = begin(); iter != end(); iter++, otherIter++) {
-        const TSignedResult doubleTemp = TSignedResult(
-            this->sign() * TSigned(*iter)
-            + other.sign() * TSigned(*otherIter)
-            + sign * TSigned(remainder)
-        );
+        const TSignedResult doubleTemp =
+            TSignedResult(this->sign()) * TSignedResult(*iter)
+            + TSignedResult(other.sign()) * TSignedResult(*otherIter)
+            + TSignedResult(sign) * TSignedResult(remainder);
 
         result = IntegralType(std::abs(doubleTemp) % ViewingType::integralModulus());
         remainder = IntegralType(std::abs(doubleTemp) / ViewingType::integralModulus());

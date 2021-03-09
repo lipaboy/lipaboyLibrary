@@ -7,7 +7,7 @@
 #include <iostream>
 
 #include "stream/stream.h"
-#include "long_numbers/long_number.h"
+#include "long_numbers/long_integer_decimal.h"
 #include "long_numbers/long_unsigned.h"
 #include "extra_tools/maths_tools.h"
 
