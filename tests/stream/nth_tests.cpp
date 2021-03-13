@@ -53,8 +53,9 @@ namespace stream_tests {
 	TEST_F(PrepareStreamTest, Nth_out_of_range_in_extended_stream) {
 		auto res = Stream(begin(), end())
 			| map([](typename PrepareStreamTest::ElemType a) { return a; })
-			| nth(pOutsideContainer->size());
-		ASSERT_FALSE(res.has_value());
+			| nth(pOutsideContainer->size())
+			| or_else(-1);
+		ASSERT_EQ(res, -1);
 	}
 
 }

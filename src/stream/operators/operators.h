@@ -19,12 +19,13 @@
 
 //      terminated operators
 #include "nth.h"
-#include "print_to.h"
 #include "reduce.h"
 #include "sum.h"
-#include "to_vector.h"
 #include "max.h"
 #include "min.h"
+//		terminated operators (without std::optional as return type wrapper)
+#include "to_vector.h"
+#include "print_to.h"
 
 namespace lipaboy_lib::stream_space {
 

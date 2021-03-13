@@ -59,64 +59,6 @@ TEST(StreamTest, check) {
     ASSERT_EQ(res, 0);
 }
 
-
-TEST(StreamTest, try_to_convert_the_tuple_to_struct) {
-
-    // Result: you cannot use union because it isn't normal constructed and destructed.
-    //      Of course, you can use only std::move operations, but it is not beautiful
-
-    //string st;
-    //{
-    //    std::cin >> st;
-    //    string str("kek");
-    //    str[0] = 'l';
-    //    struct S {
-    //        int kek;
-    //        double lol;
-    //        char foo;
-    //        string str;
-    //        Noisy noi;
-    //    };
-    //    S res = { 1, 2.5, 'a', str, Noisy() };
-    //    std::cin >> st;
-    //    using T = std::tuple<Noisy, string, char, double, int>;
-
-    //    union U {
-    //        T t;
-    //        S s;
-
-    //        ~U() {}
-    //    };
-
-    //    cout << sizeof(T) << " " << sizeof(S) << endl;
-    //    std::cin >> st;
-
-    //    using std::variant;
-    //    T t = std::make_tuple( std::move(Noisy()), str, 'a', 2.5, 1 );
-    //    // S s0 = { 1, 2.5, 'a', str, Noisy() };
-    //    // variant<T, S> var = t,
-    //      //   var2 = s0;
-
-    //    std::cin >> st;
-    //    U u = { std::move(t) };
-    //    //u.t = t;
-    //    std::cin >> st;
-    //    S s = std::move(u.s);
-    //    //s = res;
-
-    //    //std::swap(var, var2);
-    //    //S s = std::get<S>(var2);
-    //    //cout << s.kek << " " << s.lol << " " << s.foo << endl;
-    //    ASSERT_EQ(res.kek, s.kek);
-    //    ASSERT_EQ(res.lol, s.lol);
-    //    ASSERT_EQ(res.foo, s.foo);
-
-    //    // res, s, t, u
-    //}
-
-    //std::cin >> st;
-}
-
 //-----------Sequence Producing Generator-------------//
 
 TEST(StreamTest, sequence_iter) {

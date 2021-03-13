@@ -22,7 +22,7 @@ namespace lipaboy_lib::stream_space {
 				ToVectorType toVector;
 				for (; obj.hasNext(); )
 					toVector.push_back(obj.nextElem());
-				return std::move(toVector);
+				return toVector;	// Return-Value Optimization
 			}
 
 		};
